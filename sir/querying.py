@@ -1,3 +1,4 @@
+from collections import defaultdict
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.properties import RelationshipProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
@@ -61,16 +62,9 @@ def query_result_to_dict(entity, obj):
     :param sir.schema.searchentities.SearchEntity entity:
     :param obj: A :ref:`declarative <sqla:declarative_toplevel>` object.
     """
-    data = {}
+    data = defaultdict(set)
     for field in entity.fields:
         fieldname = field.name
         for i, val in enumerate(_iterate_path_values(field.path, obj), start=1):
-            if i == 2:
-                # There's more than one value, convert the single value to a
-                # list
-                data[fieldname] = [data[fieldname]]
-            elif i > 2:
-                data[fieldname].append(val)
-            else:
-                data[fieldname] = val 
+            data[fieldname].add(val)
     return data
