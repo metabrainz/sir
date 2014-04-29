@@ -13,6 +13,7 @@ API:
 .. toctree::
 
     sir
+    api
 
 Indices and tables
 ==================
