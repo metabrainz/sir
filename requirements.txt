@@ -1,0 +1,3 @@
+solrpy
+sqlalchemy
+-e git+git@bitbucket.org:lalinsky/mbdata.git#egg=mbdata
