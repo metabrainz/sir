@@ -1,7 +1,11 @@
 import argparse
+import logging
 
 
 from .schema import SCHEMA
+
+
+logger = logging.getLogger("sir")
 
 
 def reindex(args):
@@ -23,7 +27,10 @@ def watch(args):
 
 
 def main():
+    logger.addHandler(logging.StreamHandler())
+
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", action="store_true")
     subparsers = parser.add_subparsers()
 
     reindex_parser = subparsers.add_parser("reindex", help="Reindexes all or a single entity type")
@@ -34,6 +41,8 @@ def main():
     watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
     args.func(vars(args))
 
 if __name__ == '__main__':
