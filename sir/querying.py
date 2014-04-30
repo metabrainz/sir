@@ -19,18 +19,19 @@ def build_entity_query(session, entity):
         model = entity.model
         load = Load(model)
         # Walk `field.path` and apply loading strategies to each element
-        for pathelem in field.path.split('.'):
-            prop = getattr(model, pathelem).property
-            if isinstance(prop, RelationshipProperty):
-                if prop.direction == ONETOMANY:
-                    load = load.subqueryload(pathelem)
-                elif prop.direction == MANYTOONE:
-                    load = load.joinedload(pathelem)
-                else:
-                    load = load.defaultload(pathelem)
-                # Get the mapper class of the current element of the path so
-                # the next iteration can access it.
-                model = prop.mapper.class_
+        for path in field.paths:
+            for pathelem in path.split('.'):
+                prop = getattr(model, pathelem).property
+                if isinstance(prop, RelationshipProperty):
+                    if prop.direction == ONETOMANY:
+                        load = load.subqueryload(pathelem)
+                    elif prop.direction == MANYTOONE:
+                        load = load.joinedload(pathelem)
+                    else:
+                        load = load.defaultload(pathelem)
+                    # Get the mapper class of the current element of the path so
+                    # the next iteration can access it.
+                    model = prop.mapper.class_
         q = q.options(load)
     return q
 
@@ -65,6 +66,9 @@ def query_result_to_dict(entity, obj):
     data = defaultdict(set)
     for field in entity.fields:
         fieldname = field.name
-        for i, val in enumerate(_iterate_path_values(field.path, obj), start=1):
-            data[fieldname].add(val)
+        tempvals = set()
+        for path in field.paths:
+            for val in _iterate_path_values(path, obj):
+                tempvals.add(val)
+        data[fieldname] = tempvals
     return data

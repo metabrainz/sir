@@ -1,16 +1,18 @@
 class SearchField(object):
     """Represents a searchable field."""
-    def __init__(self, name, path, transformfunc=None):
+    def __init__(self, name, paths, transformfunc=None):
         """
         :param str name: The name of the field
-        :param str path: A dot-delimited-path along which the value of this 
-                         field can be found, beginning at an instance of the
-                         model class this field is bound to.
+        :param str path: A dot-delimited path (or a list of them) along which
+                         the value of this field can be found, beginning at
+                         an instance of the model class this field is bound to.
         :param method transformfunc: An optional function to transform the value
                          before sending it to Solr.
         """
         self.name = name
-        self.path = path
+        if not isinstance(paths, list):
+            paths = [paths]
+        self.paths = paths
         self.transformfunc = transformfunc
 
 

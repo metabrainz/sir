@@ -5,7 +5,7 @@ from .searchentities import SearchEntity, SearchField
 SearchRecording = SearchEntity(models.Recording, [
     SearchField("mbid", "gid"),
     SearchField("name", "name"),
-    SearchField("artist", "artist_credit.artists.name")
+    SearchField("artist", ["artist_credit.artists.name", "artist_credit.name"])
     ])
 
 
