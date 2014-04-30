@@ -70,5 +70,7 @@ def query_result_to_dict(entity, obj):
         for path in field.paths:
             for val in _iterate_path_values(path, obj):
                 tempvals.add(val)
+        if field.transformfunc is not None:
+            tempvals = field.transformfunc(tempvals)
         data[fieldname] = tempvals
     return data
