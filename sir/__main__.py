@@ -10,7 +10,7 @@ def reindex(args):
         entities = []
         for e in args['entities']:
             entities.extend(e.split(','))
-        unknown_entities = set(known_entities) - set(entities)
+        unknown_entities = set(entities) - set(known_entities)
         if unknown_entities:
             raise ValueError("{0} are unkown entity types".format(unknown_entities))
     else:
