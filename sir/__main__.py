@@ -1,7 +1,9 @@
 import argparse
 import logging
+import solr
 
 
+from . import indexing, querying, util
 from .schema import SCHEMA
 
 
@@ -19,7 +21,20 @@ def reindex(args):
             raise ValueError("{0} are unkown entity types".format(unknown_entities))
     else:
         entities = known_entities
-    print(entities)
+
+    try:
+        db_uri, solr_uri = util.read_config()
+    except ConfigParser.Error, e:
+        logger.error("%s - please configure this application in the file config.ini", e.message)
+        return
+
+    db_session = util.db_session(db_uri, args["debug"])
+
+    for e in entities:
+        query = querying.build_entity_query(db_session, SCHEMA[e])
+        uri = solr_uri + "/" + e
+        s = solr.Solr(uri)
+        indexing.index_entity(s, query, SCHEMA[e])
 
 
 def watch(args):
@@ -43,6 +58,8 @@ def main():
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
     args.func(vars(args))
 
 if __name__ == '__main__':

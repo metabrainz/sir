@@ -1,7 +1,12 @@
-from collections import defaultdict
+import logging
+
+
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.properties import RelationshipProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
+
+
+logger = logging.getLogger("sir")
 
 
 def build_entity_query(session, entity):
@@ -15,11 +20,12 @@ def build_entity_query(session, entity):
     """
     model = entity.model
     q = session.query(model)
+    q = q.filter(model.id < 100000)
     for field in entity.fields:
-        model = entity.model
-        load = Load(model)
         # Walk `field.path` and apply loading strategies to each element
         for path in field.paths:
+            model = entity.model
+            load = Load(model)
             for pathelem in path.split('.'):
                 prop = getattr(model, pathelem).property
                 if isinstance(prop, RelationshipProperty):
@@ -32,7 +38,7 @@ def build_entity_query(session, entity):
                     # Get the mapper class of the current element of the path so
                     # the next iteration can access it.
                     model = prop.mapper.class_
-        q = q.options(load)
+            q = q.options(load)
     return q
 
 
@@ -53,24 +59,3 @@ def _iterate_path_values(path, obj):
                 yield val
     else:
         yield getattr(obj, pathelem)
-
-
-def query_result_to_dict(entity, obj):
-    """
-    Converts the result of single ``query`` result into a dictionary via the
-    field specification of ``entity``.
-
-    :param sir.schema.searchentities.SearchEntity entity:
-    :param obj: A :ref:`declarative <sqla:declarative_toplevel>` object.
-    """
-    data = defaultdict(set)
-    for field in entity.fields:
-        fieldname = field.name
-        tempvals = set()
-        for path in field.paths:
-            for val in _iterate_path_values(path, obj):
-                tempvals.add(val)
-        if field.transformfunc is not None:
-            tempvals = field.transformfunc(tempvals)
-        data[fieldname] = tempvals
-    return data
