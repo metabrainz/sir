@@ -11,7 +11,7 @@ logger = logging.getLogger("sir")
 
 def build_entity_query(session, entity):
     """Builds a :class:`sqla:sqlalchemy.orm.query.Query` object for ``entity``
-       (an instance of :class:`SearchEntity`) that eagerly loads the
+       (an instance of :class:`sir.schema.searchentities.SearchEntity`) that eagerly loads the
        values of all search fields.
 
        :param sqlalchemy.orm.session.Session session:
