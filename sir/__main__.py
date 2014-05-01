@@ -2,8 +2,9 @@ import argparse
 import logging
 
 
-from . import indexing, querying, util
+from . import config, indexing, querying, util
 from .schema import SCHEMA
+from ConfigParser import Error
 from urllib2 import URLError
 
 
@@ -23,8 +24,9 @@ def reindex(args):
         entities = known_entities
 
     try:
-        db_uri, solr_uri = util.read_config()
-    except ConfigParser.Error, e:
+        db_uri = config.CFG.get("database", "uri")
+        solr_uri = config.CFG.get("solr", "uri")
+    except Error, e:
         logger.error("%s - please configure this application in the file config.ini", e.message)
         return
 
@@ -64,6 +66,7 @@ def main():
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+    config.read_config()
     args.func(vars(args))
 
 if __name__ == '__main__':

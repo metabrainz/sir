@@ -1,8 +1,9 @@
 API
 ===
 
-.. automodule:: sir.schema
-.. automodule:: sir.querying
 .. automodule:: sir.indexing
-.. automodule:: sir.util
+.. automodule:: sir.config
+.. automodule:: sir.querying
+.. automodule:: sir.schema
 .. automodule:: sir.schema.searchentities
+.. automodule:: sir.util
