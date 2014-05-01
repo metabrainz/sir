@@ -20,7 +20,7 @@ def build_entity_query(session, entity):
     """
     model = entity.model
     q = session.query(model)
-    q = q.filter(model.id < 100000)
+    q = q.filter(model.id < 1000)
     for field in entity.fields:
         # Walk `field.path` and apply loading strategies to each element
         for path in field.paths:
