@@ -1,13 +1,14 @@
 import ConfigParser
 
-
+#: A :class:`ConfigParser.SafeConfigParser` instance holding the configuration
+#: data.
 CFG = None
 
 
 def read_config():
     """
     Read config files from all possible locations and set
-    :data:`sir.config.CFG` to a :class:`ConfigParser.SafeConfigParser`
+    :const:`sir.config.CFG` to a :class:`ConfigParser.SafeConfigParser`
     instance.
     """
     config = ConfigParser.SafeConfigParser()
