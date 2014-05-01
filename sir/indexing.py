@@ -12,6 +12,7 @@ def index_entity(solr_connection, query, search_entity):
     :param solr.Solr solr_connection:
     :param sqlalchemy.orm.query.Query query:
     :param sir.schema.searchentities.SearchEntity search_entity:
+    :raises solr.SolrException:
     """
     for row in query:
         data = query_result_to_dict(search_entity, row)
