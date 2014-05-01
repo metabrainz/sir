@@ -18,3 +18,16 @@ Now you can start hacking on the code or install it system-wide::
 
 Setup
 -----
+
+The easiest way to run sir at the moment is to use a `virtual environment
+<http://www.virtualenv.org/en/latest/>`_. Once you have virtualenv for Python
+2.7 installed, use the following to create the environment::
+
+    virtualenv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
+You can now use sir via::
+
+    python -m sir
+
