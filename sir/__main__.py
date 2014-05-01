@@ -1,10 +1,10 @@
 import argparse
 import logging
-import solr
 
 
 from . import indexing, querying, util
 from .schema import SCHEMA
+from urllib2 import URLError
 
 
 logger = logging.getLogger("sir")
@@ -32,9 +32,13 @@ def reindex(args):
 
     for e in entities:
         query = querying.build_entity_query(db_session, SCHEMA[e])
-        uri = solr_uri + "/" + e
-        s = solr.Solr(uri)
-        indexing.index_entity(s, query, SCHEMA[e])
+        try:
+            solr_connection = util.solr_connection(solr_uri, e)
+        except URLError, e:
+            logger.error("Establishing a connection to Solr failed: %s",
+                         e.reason)
+            break
+        indexing.index_entity(solr_connection, query, SCHEMA[e])
 
 
 def watch(args):
