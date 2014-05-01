@@ -1,20 +1,29 @@
-import ConfigParser
 import logging
 import solr
 import urllib2
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 logger = logging.getLogger("sir")
 
 
 def db_session(db_uri, debug):
+    """
+    Creates a new :class:`sqla:sqlalchemy.orm.scoping.scoped_session`.
+
+    :param str db_uri: A :ref:`database URL <sqla:database_urls>` for
+                       SQLAlchemy.
+    :param bool debug: This is passed directly to
+                       :func:`sqla:sqlalchemy.create_engine` in its ``echo``
+                       parameter.
+
+    :rtype: :class:`sqla:sqlalchemy.orm.scoping.scoped_session`
+    """
     e = create_engine(db_uri, echo=debug)
     S = sessionmaker(bind=e)
-    session = S()
-    return session
+    return scoped_session(S)
 
 
 def solr_connection(solr_uri, core):

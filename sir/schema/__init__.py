@@ -18,8 +18,9 @@ SearchRecording = SearchEntity(modelext.CustomRecording, [
 
 SearchReleaseGroup = SearchEntity(modelext.CustomReleaseGroup, [
     SearchField("mbid", "gid"),
-    SearchField("release", "releases.name"),
-    SearchField("releases", "releases.gid", transformfunc=lambda values:len(values))
+    SearchField("release-group", "name"),
+    # SearchField("release", "releases.name"),
+    SearchField("reid", "releases.gid")
     ])
 
 
