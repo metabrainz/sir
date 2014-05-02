@@ -16,14 +16,14 @@ SearchRecording = SearchEntity(modelext.CustomRecording, [
     SearchField("comment", "comment"),
     SearchField("dur", "length"),
     SearchField("video", "video")
-    ])
+])
 
 SearchReleaseGroup = SearchEntity(modelext.CustomReleaseGroup, [
     SearchField("mbid", "gid"),
     SearchField("release-group", "name"),
     # SearchField("release", "releases.name"),
     SearchField("reid", "releases.gid")
-    ])
+])
 
 
 SCHEMA = {
