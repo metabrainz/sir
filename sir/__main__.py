@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Wieland Hoffmann
+# License: MIT, see LICENSE for details
 import argparse
 import futures
 import logging

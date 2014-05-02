@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# License: MIT, see LICENSE for details
 class SearchField(object):
     """Represents a searchable field."""
     def __init__(self, name, paths, transformfunc=None):

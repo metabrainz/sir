@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# License: MIT, see LICENSE for details
 from . import config, querying
 from logging import getLogger
 

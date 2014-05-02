@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Wieland Hoffmann
+# License: MIT, see LICENSE for details
 import logging
 import solr
 import urllib2

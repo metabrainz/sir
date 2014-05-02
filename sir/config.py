@@ -1,3 +1,5 @@
+# Copyright (c) 2014 Wieland Hoffmann
+# License: MIT, see LICENSE for details
 import ConfigParser
 
 #: A :class:`ConfigParser.SafeConfigParser` instance holding the configuration
