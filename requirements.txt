@@ -2,4 +2,4 @@ futures
 psycopg2
 solrpy
 sqlalchemy
--e git+git@bitbucket.org:lalinsky/mbdata.git#egg=mbdata
+-e git+https://bitbucket.org/lalinsky/mbdata.git#egg=mbdata
