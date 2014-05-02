@@ -13,9 +13,10 @@ build a :class:`~sqla:sqlalchemy.orm.query.Query` object for the
 eagerly load the data from the database.
 
 The Query object is then passed to :func:`~sir.indexing.index_entity`, along
-with other parameters like an actual database session (in the form of a :class:`~sqla:sqlalchemy.orm.scoping.scoped_session` object) and a
-connection to the appropriate Solr cor (in the form of a
-:class:`solr:solr.Solr` object). :func:`~sir.indexing.index_entity` will
-then iterate over the results from the Query object, transform them into a
-dictionary (using :func:`~sir.indexing.query_result_to_dict`) and send the
-data to Solr.
+with other parameters like an actual database session (in the form of a
+:class:`~sqla:sqlalchemy.orm.scoping.scoped_session` object) and a connection
+to the appropriate Solr core (in the form of a :class:`solr:solr.Solr`
+object).
+:func:`~sir.indexing.index_entity` will then iterate over the results
+from the Query object, transform them into a dictionary (using
+:func:`~sir.indexing.query_result_to_dict`) and send the data to Solr.
