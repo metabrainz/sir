@@ -9,7 +9,7 @@ def index_entity(db_session, solr_connection, query, search_entity):
     """
     Indexes a single entity type.
 
-    :param sqlalchemy.orm.scoping.scoped_session db_session_maker:
+    :param sqlalchemy.orm.scoping.scoped_session db_session:
     :param solr.Solr solr_connection:
     :param sqlalchemy.orm.query.Query query:
     :param sir.schema.searchentities.SearchEntity search_entity:
