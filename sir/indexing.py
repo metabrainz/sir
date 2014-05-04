@@ -5,6 +5,7 @@ import futures
 
 from . import config, querying, util
 from .schema import SCHEMA
+from collections import defaultdict
 from ConfigParser import Error
 from functools import partial
 from logging import getLogger
@@ -12,6 +13,10 @@ from urllib2 import URLError
 
 
 logger = getLogger("sir")
+
+
+def _future_callback(future):
+    logger.info("%s, %s", future.result(), future.exception())
 
 
 def reindex(entities, debug=False):
@@ -55,13 +60,35 @@ def reindex(entities, debug=False):
 
         search_entity = SCHEMA[e]
         query = querying.build_entity_query(search_entity)
-        entity_to_index_func[e].append(partial(index_entity,
-                                       solr_connection=solr_connection,
-                                       query=quer))
+
+        num_rows = querying.max_id_of(search_entity, db_session)
+        model = search_entity.model
+
+        try:
+            importlimit = config.CFG.getint("sir", "importlimit")
+            logger.info("Applying a limit of %i", importlimit)
+            query = query.filter(model.id < importlimit)
+        except Error, e:
+            pass
+
+        lower_bound = 0
+        for upper_bound in xrange(lower_bound + query_batch_size,
+                                  num_rows + query_batch_size,
+                                  query_batch_size):
+            logger.debug("Adding a Query for %s from %i to %i", e, lower_bound,
+                         upper_bound)
+            new_query = query.filter(model.id >= lower_bound).\
+                filter(model.id <= upper_bound)
+            lower_bound = upper_bound + 1
+            entity_to_index_func[e].append(partial(index_entity,
+                                           solr_connection=solr_connection,
+                                           query=new_query))
 
     with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
-        for e, f in entity_to_index_func.iteritems():
-            future = executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
+        for e, functions in entity_to_index_func.iteritems():
+            for f in functions:
+                future = executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
+                future.add_done_callback(_future_callback)
 
 
 def index_entity(db_session, solr_connection, query, search_entity):

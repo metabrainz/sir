@@ -3,6 +3,7 @@
 import logging
 
 
+from sqlalchemy import func
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
@@ -21,7 +22,6 @@ def build_entity_query(entity):
     """
     model = entity.model
     q = Query(model)
-    q = q.filter(model.id < 1000)
     for field in entity.fields:
         # Walk `field.path` and apply loading strategies to each element
         for path in field.paths:
@@ -60,3 +60,15 @@ def _iterate_path_values(path, obj):
                 yield val
     else:
         yield getattr(obj, pathelem)
+
+
+def max_id_of(entity, db_session):
+    """
+    Returns the maximum id of all rows in the table of ``entity``.
+
+    :param sir.schema.searchentities.SearchEntity entity:
+    :param sqlalchemy.orm.scoping.scoped_session db_session:
+    """
+    model = entity.model
+    session = db_session()
+    return session.query(func.max(model.id)).scalar()
