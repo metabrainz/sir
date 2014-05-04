@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# lala documentation build configuration file, created by
+# sir documentation build configuration file, created by
 # sphinx-quickstart on Tue May  3 19:05:19 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -187,7 +187,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'laladoc'
+htmlhelp_basename = 'sirdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -201,7 +201,7 @@ htmlhelp_basename = 'laladoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'lala.tex', u'lala Documentation',
+  ('index', 'sir.tex', u'sir Documentation',
    u'Wieland Hoffmann', 'manual'),
 ]
 
