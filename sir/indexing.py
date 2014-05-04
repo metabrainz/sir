@@ -1,10 +1,67 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from . import config, querying
+import futures
+
+
+from . import config, querying, util
+from .schema import SCHEMA
+from ConfigParser import Error
+from functools import partial
 from logging import getLogger
+from urllib2 import URLError
 
 
 logger = getLogger("sir")
+
+
+def reindex(entities, debug=False):
+    """
+    Reindexes all entity types in ``entities``.
+
+    :param entities:
+    :type entities: A list of :class:`sir.schema.searchentities.SearchEntity`
+                    objects
+    :param bool debug:
+    """
+    known_entities = SCHEMA.keys()
+    if entities is not None:
+        _entities = []
+        for e in entities:
+            _entities.extend(e.split(','))
+        unknown_entities = set(_entities) - set(known_entities)
+        if unknown_entities:
+            raise ValueError("{0} are unkown entity types".format(unknown_entities))
+    else:
+        _entities = known_entities
+
+    try:
+        db_uri = config.CFG.get("database", "uri")
+        solr_uri = config.CFG.get("solr", "uri")
+    except Error, e:
+        logger.error("%s - please configure this application in the file config.ini", e.message)
+        return
+
+    db_session = util.db_session(db_uri, debug)
+
+    query_batch_size = config.CFG.getint("sir", "query_batch_size")
+    entity_to_index_func = defaultdict(list)
+    for e in _entities:
+        try:
+            solr_connection = util.solr_connection(solr_uri, e)
+        except URLError, e:
+            logger.error("Establishing a connection to Solr at %s failed: %s",
+                         solr_uri, e.reason)
+            return
+
+        search_entity = SCHEMA[e]
+        query = querying.build_entity_query(search_entity)
+        entity_to_index_func[e].append(partial(index_entity,
+                                       solr_connection=solr_connection,
+                                       query=quer))
+
+    with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
+        for e, f in entity_to_index_func.iteritems():
+            future = executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
 
 
 def index_entity(db_session, solr_connection, query, search_entity):

@@ -1,58 +1,14 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import argparse
-import futures
 import logging
 
 
-from . import config, querying, util
-from .indexing import index_entity
-from .schema import SCHEMA
-from ConfigParser import Error
-from functools import partial
-from urllib2 import URLError
+from . import config
+from .indexing import reindex
 
 
 logger = logging.getLogger("sir")
-
-
-def reindex(args):
-    known_entities = SCHEMA.keys()
-    if args['entities'] is not None:
-        entities = []
-        for e in args['entities']:
-            entities.extend(e.split(','))
-        unknown_entities = set(entities) - set(known_entities)
-        if unknown_entities:
-            raise ValueError("{0} are unkown entity types".format(unknown_entities))
-    else:
-        entities = known_entities
-
-    try:
-        db_uri = config.CFG.get("database", "uri")
-        solr_uri = config.CFG.get("solr", "uri")
-    except Error, e:
-        logger.error("%s - please configure this application in the file config.ini", e.message)
-        return
-
-    db_session = util.db_session(db_uri, args["debug"])
-
-    entity_to_index_func = {}
-    for e in entities:
-        query = querying.build_entity_query(SCHEMA[e])
-        try:
-            solr_connection = util.solr_connection(solr_uri, e)
-        except URLError, e:
-            logger.error("Establishing a connection to Solr at %s failed: %s",
-                         solr_uri, e.reason)
-            return
-        entity_to_index_func[e] = partial(index_entity,
-                                          solr_connection=solr_connection,
-                                          query=query)
-
-    with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
-        for e, f in entity_to_index_func.iteritems():
-            executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
 
 
 def watch(args):
@@ -82,8 +38,9 @@ def main():
     else:
         logger.setLevel(logging.INFO)
     config.read_config()
-
-    args.func(vars(args))
+    func = args.func
+    args = vars(args)
+    func(args["entities"], args["debug"])
 
 if __name__ == '__main__':
     main()
