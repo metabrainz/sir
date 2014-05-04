@@ -17,7 +17,7 @@ def watch(args):
 
 def main():
     loghandler = logging.StreamHandler()
-    formatter = logging.Formatter(fmt="%(threadName)s %(levelname)s: %(message)s")
+    formatter = logging.Formatter(fmt="%(asctime)s %(threadName)s %(levelname)s: %(message)s")
     loghandler.setFormatter(formatter)
     logger.addHandler(loghandler)
 
