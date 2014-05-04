@@ -82,8 +82,14 @@ def index_entity(db_session, solr_connection, query, search_entity):
         for row in query:
             data.append(query_result_to_dict(search_entity, row))
             if len(data) == batch_size:
+                logger.debug("Sending %i records to %s", len(data),
+                             solr_connection.url)
                 solr_connection.add_many(data)
                 data = []
+        if len(data) > 0:
+            # There's some left-over data that's not large enough for a
+            # complete batch.
+            solr_connection.add_many(data)
     finally:
         db_session.remove()
 
