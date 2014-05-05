@@ -69,11 +69,12 @@ def reindex(entities, debug=False):
 
         try:
             importlimit = config.CFG.getint("sir", "importlimit")
-            if importlimit > 0:
-                logger.info("Applying a limit of %i", importlimit)
-                query = query.filter(model.id < importlimit)
         except NoOptionError, exc:
-            pass
+            importlimit = 0
+
+        if importlimit > 0:
+            logger.info("Applying a limit of %i", importlimit)
+            query = query.filter(model.id < importlimit)
 
         lower_bound = 0
         for upper_bound in xrange(lower_bound + query_batch_size,
@@ -88,6 +89,8 @@ def reindex(entities, debug=False):
                                            solr_connection=solr_connection,
                                            query=new_query),
                                            info))
+            if importlimit and upper_bound >= importlimit:
+                break
 
     with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
         for e, v in entity_to_index_func.iteritems():
