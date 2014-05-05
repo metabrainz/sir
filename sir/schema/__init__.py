@@ -2,27 +2,27 @@
 # License: MIT, see LICENSE for details
 from mbdata import models
 from . import modelext
-from .searchentities import SearchEntity, SearchField
+from .searchentities import SearchEntity as E, SearchField as F
 
 
-SearchRecording = SearchEntity(modelext.CustomRecording, [
-    SearchField("mbid", "gid"),
-    SearchField("recording", "name"),
-    SearchField("arid", "artist_credit.artists.artist.gid"),
-    # SearchField("artistname", ["artist_credit.name",
+SearchRecording = E(modelext.CustomRecording, [
+    F("mbid", "gid"),
+    F("recording", "name"),
+    F("arid", "artist_credit.artists.artist.gid"),
+    # F("artistname", ["artist_credit.name",
     #                            "artist_credit.artists.artist.name"]),
-    SearchField("reid", "tracks.medium.release.gid"),
-    SearchField("release", "tracks.medium.release.name"),
-    SearchField("comment", "comment"),
-    SearchField("dur", "length"),
-    SearchField("video", "video")
+    F("reid", "tracks.medium.release.gid"),
+    F("release", "tracks.medium.release.name"),
+    F("comment", "comment"),
+    F("dur", "length"),
+    F("video", "video")
 ])
 
-SearchReleaseGroup = SearchEntity(modelext.CustomReleaseGroup, [
-    SearchField("mbid", "gid"),
-    SearchField("release-group", "name"),
-    # SearchField("release", "releases.name"),
-    SearchField("reid", "releases.gid")
+SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
+    F("mbid", "gid"),
+    F("release-group", "name"),
+    # F("release", "releases.name"),
+    F("reid", "releases.gid"),
 ])
 
 
