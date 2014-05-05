@@ -5,11 +5,10 @@ import futures
 
 from . import config, querying, util
 from .schema import SCHEMA
-from ConfigParser import Error
 from collections import defaultdict, namedtuple
+from ConfigParser import Error, NoOptionError
 from functools import partial
 from logging import getLogger
-from sqlalchemy import between
 from urllib2 import URLError
 
 
@@ -70,9 +69,10 @@ def reindex(entities, debug=False):
 
         try:
             importlimit = config.CFG.getint("sir", "importlimit")
-            logger.info("Applying a limit of %i", importlimit)
-            query = query.filter(model.id < importlimit)
-        except Error, e:
+            if importlimit > 0:
+                logger.info("Applying a limit of %i", importlimit)
+                query = query.filter(model.id < importlimit)
+        except NoOptionError, exc:
             pass
 
         lower_bound = 0
