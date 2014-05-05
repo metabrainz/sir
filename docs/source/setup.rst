@@ -26,6 +26,7 @@ The easiest way to run sir at the moment is to use a `virtual environment
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
+    cp config.ini.example config.ini
 
 You can now use sir via::
 
