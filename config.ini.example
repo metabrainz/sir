@@ -4,5 +4,5 @@ uri = postgresql://musicbrainz@localhost/musicbrainz
 uri = http://127.0.0.1:8983/solr
 batch_size = 60
 [sir]
-import_threads = 2
-query_batch_size = 10000
+import_threads = 1
+query_batch_size = 50000
