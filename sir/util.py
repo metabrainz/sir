@@ -23,7 +23,7 @@ def db_session(db_uri, debug):
 
     :rtype: :class:`sqla:sqlalchemy.orm.scoping.scoped_session`
     """
-    e = create_engine(db_uri, echo=False, server_side_cursors=True)
+    e = create_engine(db_uri, echo=debug, server_side_cursors=True)
     S = sessionmaker(bind=e)
     return scoped_session(S)
 
