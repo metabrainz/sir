@@ -6,6 +6,7 @@ import logging
 
 from . import config
 from .indexing import reindex
+from .schema import SCHEMA
 
 
 logger = logging.getLogger("sir")
@@ -30,7 +31,10 @@ def main():
 
     reindex_parser = subparsers.add_parser("reindex", help="Reindexes all or a single entity type")
     reindex_parser.set_defaults(func=reindex)
-    reindex_parser.add_argument('--entities', action='append', help='The entities to reindex')
+    reindex_parser.add_argument('--entities', action='append', help="""Which
+        entity types to index.
+
+        Available are: %s""" % (", ".join(SCHEMA.keys())))
 
     watch_parser = subparsers.add_parser("watch", help="Watches for incoming messages on an AMQP queue")
     watch_parser.set_defaults(func=watch)
