@@ -21,6 +21,9 @@ def main():
     loghandler.setFormatter(formatter)
     logger.addHandler(loghandler)
 
+    futureslogger = logging.getLogger("concurrent.futures")
+    futureslogger.addHandler(loghandler)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
     subparsers = parser.add_subparsers()
