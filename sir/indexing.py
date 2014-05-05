@@ -9,6 +9,7 @@ from ConfigParser import Error
 from collections import defaultdict, namedtuple
 from functools import partial
 from logging import getLogger
+from sqlalchemy import between
 from urllib2 import URLError
 
 
@@ -80,8 +81,7 @@ def reindex(entities, debug=False):
                                   query_batch_size):
             logger.debug("Adding a Query for %s from %i to %i", e, lower_bound,
                          upper_bound)
-            new_query = query.filter(model.id >= lower_bound).\
-                filter(model.id <= upper_bound)
+            new_query = query.filter(model.id.between(lower_bound, upper_bound))
             info = _FutureInfo(e, lower_bound, upper_bound)
             lower_bound = upper_bound + 1
             entity_to_index_func[e].append((partial(index_entity,
