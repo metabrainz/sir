@@ -5,8 +5,8 @@ import futures
 
 from . import config, querying, util
 from .schema import SCHEMA
-from collections import defaultdict
 from ConfigParser import Error
+from collections import defaultdict, namedtuple
 from functools import partial
 from logging import getLogger
 from urllib2 import URLError
@@ -15,8 +15,11 @@ from urllib2 import URLError
 logger = getLogger("sir")
 
 
-def _future_callback(future):
-    logger.info("%s, %s", future.result(), future.exception())
+def _future_callback(info, future):
+    logger.info("Done: %s: %s, %s", info, future.result(), future.exception())
+
+
+_FutureInfo = namedtuple("_FutureInfo", "entity lower upper")
 
 
 def reindex(entities, debug=False):
@@ -79,16 +82,18 @@ def reindex(entities, debug=False):
                          upper_bound)
             new_query = query.filter(model.id >= lower_bound).\
                 filter(model.id <= upper_bound)
+            info = _FutureInfo(e, lower_bound, upper_bound)
             lower_bound = upper_bound + 1
-            entity_to_index_func[e].append(partial(index_entity,
+            entity_to_index_func[e].append((partial(index_entity,
                                            solr_connection=solr_connection,
-                                           query=new_query))
+                                           query=new_query),
+                                           info))
 
     with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
-        for e, functions in entity_to_index_func.iteritems():
-            for f in functions:
+        for e, v in entity_to_index_func.iteritems():
+            for f, info in v:
                 future = executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
-                future.add_done_callback(_future_callback)
+                future.add_done_callback(partial(_future_callback, info))
 
 
 def index_entity(db_session, solr_connection, query, search_entity):
