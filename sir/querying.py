@@ -44,6 +44,9 @@ def build_entity_query(entity):
 
 
 def _iterate_path_values(path, obj):
+    if obj is None:
+        return
+
     if '.' in path:
         pathelem, rest = path.split('.', 1)
     else:
