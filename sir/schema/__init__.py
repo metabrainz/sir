@@ -27,8 +27,21 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("credit-name", "artist_credit.artists.artist.name")
 ])
 
+SearchArtist = E(modelext.CustomArtist, [
+    F("mbid", "gid"),
+    F("name", "name"),
+    F("alias", "aliases.name"),
+    F("area", ["area.name", "area.aliases.name"]),
+    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+    F("endarea", ["end_area.name", "end_area.aliases.name"]),
+    F("comment", "comment"),
+    F("ipi", "ipis.ipi"),
+    F("type", "type.name")
+    ])
+
 
 SCHEMA = {
+    "artist": SearchArtist,
     "recording": SearchRecording,
     "release-group": SearchReleaseGroup
 }
