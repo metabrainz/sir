@@ -77,8 +77,8 @@ def reindex(entities, debug=False):
 
         lower_bound = 0
         for upper_bound in xrange(lower_bound + query_batch_size,
-                                  num_rows + query_batch_size,
-                                  query_batch_size):
+                                  num_rows + query_batch_size + 1,
+                                  query_batch_size or num_rows):
             logger.debug("Adding a Query for %s from %i to %i", e, lower_bound,
                          upper_bound)
             new_query = query.filter(model.id.between(lower_bound, upper_bound))
