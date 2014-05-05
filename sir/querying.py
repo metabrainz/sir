@@ -71,4 +71,6 @@ def max_id_of(entity, db_session):
     """
     model = entity.model
     session = db_session()
-    return session.query(func.max(model.id)).scalar()
+    val = session.query(func.max(model.id)).scalar()
+    db_session.remove()
+    return val
