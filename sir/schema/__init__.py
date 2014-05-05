@@ -23,6 +23,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("release-group", "name"),
     # F("release", "releases.name"),
     F("reid", "releases.gid"),
+    F("releases", "releases.gid", transformfunc=len),
+    F("credit-name", "artist_credit.artists.artist.name")
 ])
 
 
