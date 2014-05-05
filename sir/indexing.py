@@ -138,18 +138,15 @@ def query_result_to_dict(entity, obj):
     """
     data = {}
     for field in entity.fields:
-        logger.debug("Field: %s", field.name)
         fieldname = field.name
         tempvals = set()
         for path in field.paths:
-            logger.debug("Path: %s", path)
             for val in querying._iterate_path_values(path, obj):
                 tempvals.add(val)
-        logger.debug("Values: %s", tempvals)
         if field.transformfunc is not None:
             tempvals = field.transformfunc(tempvals)
-            logger.debug("Values after applying transformfunc: %s", tempvals)
         if isinstance(tempvals, set) and len(tempvals) == 1:
             tempvals = tempvals.pop()
+        logger.debug("Field %s: %s", fieldname, tempvals)
         data[fieldname] = tempvals
     return data
