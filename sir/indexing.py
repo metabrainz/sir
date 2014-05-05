@@ -55,7 +55,7 @@ def reindex(entities, debug=False):
     entity_to_index_func = defaultdict(list)
     for e in _entities:
         try:
-            solr_connection = util.solr_connection(solr_uri, e)
+            solr_connection = partial(util.solr_connection, solr_uri, e)
         except URLError, e:
             logger.error("Establishing a connection to Solr at %s failed: %s",
                          solr_uri, e.reason)
@@ -104,7 +104,9 @@ def index_entity(db_session, solr_connection, query, search_entity):
     Indexes a single entity type.
 
     :param sqlalchemy.orm.scoping.scoped_session db_session:
-    :param solr.Solr solr_connection:
+    :param solr_connection:
+    :type solr_connection: A function returning a :class:`solr:solr.Solr`
+                           object
     :param sqlalchemy.orm.query.Query query:
     :param sir.schema.searchentities.SearchEntity search_entity:
     :raises solr.SolrException:
@@ -113,6 +115,7 @@ def index_entity(db_session, solr_connection, query, search_entity):
     query = query.with_session(session)
     data = []
     batch_size = config.CFG.getint("solr", "batch_size")
+    solr_connection = solr_connection()
     try:
         for row in query:
             data.append(query_result_to_dict(search_entity, row))
