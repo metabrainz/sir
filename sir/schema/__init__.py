@@ -6,15 +6,32 @@ from .searchentities import SearchEntity as E, SearchField as F
 
 
 SearchRecording = E(modelext.CustomRecording, [
-    F("mbid", "gid"),
-    F("recording", "name"),
+    # F("date", "tracks.medium.release.country_dates.country.date"),
     F("arid", "artist_credit.artists.artist.gid"),
-    # F("artistname", ["artist_credit.name",
-    #                            "artist_credit.artists.artist.name"]),
+    F("artist", "artist_credit.name"),
+    F("artistname", "artist_credit.artists.artist.name"),
+    F("comment", "comment"),
+    F("country", "tracks.medium.release.country_dates.country.area.name"),
+    F("creditname", "artist_credit.artists.name"),
+    F("dur", "length"),
+    F("format", "tracks.medium.format.name"),
+    F("isrc", "isrcs.isrc"),
+    F("mbid", "gid"),
+    F("number", "tracks.number"),
+    F("position", "tracks.medium.position"),
+    F("primarytype", "tracks.medium.release.release_group.type.name"),
+    F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
-    F("comment", "comment"),
-    F("dur", "length"),
+    F("rgid", "tracks.medium.release.release_group.gid"),
+    F("secondarytype",
+      "tracks.medium.release.release_group.secondary_types.secondary_type.name"),
+    F("status", "tracks.medium.release.status.name"),
+    F("tid", "tracks.gid"),
+    F("tnum", "tracks.position"),
+    F("tracks", "tracks.medium.track_count"),
+    F("tracksrelease", "tracks.medium.release.mediums.track_count",
+        transformfunc=lambda values: reduce(lambda x, y: x+y, values, 0)),
     F("video", "video")
 ])
 
