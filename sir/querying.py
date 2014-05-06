@@ -3,6 +3,7 @@
 import logging
 
 
+from . import config
 from sqlalchemy import func
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
@@ -77,3 +78,35 @@ def max_id_of(entity, db_session):
     val = session.query(func.max(model.id)).scalar()
     db_session.remove()
     return val
+
+
+class QueryIterator(object):
+    """
+    Iterator over a :class:`sqla:sqlalchemy.orm.query.Query` object.
+    """
+    def __init__(self, query, num_rows, model):
+        """
+        :param sqlalchemy.orm.query.Query query:
+        :param int num_rows: The total number of rows in the table
+        :param model:
+        """
+        self.model = model
+        self.num_rows = num_rows
+        self.query = query
+        self.query_batch_size = config.CFG.getint("sir", "query_batch_size")
+
+        try:
+            self.importlimit = config.CFG.getint("sir", "importlimit")
+        except NoOptionError, exc:
+            self.importlimit = 0
+
+    def __iter__(self):
+        lower_bound = 0
+        for upper_bound in xrange(lower_bound + self.query_batch_size,
+                                  self.num_rows + self.query_batch_size + 1,
+                                  self.query_batch_size or self.num_rows):
+            query = self.query.filter(self.model.id.between(lower_bound, upper_bound))
+            for row in query:
+                yield row
+            if upper_bound >= self.importlimit:
+                break
