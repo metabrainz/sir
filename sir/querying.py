@@ -74,9 +74,7 @@ def max_id_of(entity, db_session):
     :param sqlalchemy.orm.scoping.scoped_session db_session:
     """
     model = entity.model
-    session = db_session()
-    val = session.query(func.max(model.id)).scalar()
-    db_session.remove()
+    val = db_session.query(func.max(model.id)).scalar()
     return val
 
 

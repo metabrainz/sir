@@ -11,21 +11,18 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 logger = logging.getLogger("sir")
 
 
-def db_session(db_uri, debug):
+def db_session(db_uri):
     """
-    Creates a new :class:`sqla:sqlalchemy.orm.scoping.scoped_session`.
+    Creates a new :class:`sqla:sqlalchemy.orm.session.Session`
 
     :param str db_uri: A :ref:`database URL <sqla:database_urls>` for
                        SQLAlchemy.
-    :param bool debug: This is passed directly to
-                       :func:`sqla:sqlalchemy.create_engine` in its ``echo``
-                       parameter.
 
-    :rtype: :class:`sqla:sqlalchemy.orm.scoping.scoped_session`
+    :rtype: :class:`sqla:sqlalchemy.orm.session.Session`
     """
-    e = create_engine(db_uri, echo=debug, server_side_cursors=True)
+    e = create_engine(db_uri, server_side_cursors=True)
     S = sessionmaker(bind=e)
-    return scoped_session(S)
+    return S()
 
 
 def solr_connection(solr_uri, core):

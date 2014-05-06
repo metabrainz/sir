@@ -42,12 +42,13 @@ def main():
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
     config.read_config()
     func = args.func
     args = vars(args)
-    func(args["entities"], args["debug"])
+    func(args["entities"])
 
 if __name__ == '__main__':
     main()
