@@ -4,6 +4,7 @@ import logging
 
 
 from . import config
+from ConfigParser import NoOptionError
 from sqlalchemy import func
 from sqlalchemy.orm import Load
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
@@ -106,5 +107,5 @@ class QueryIterator(object):
             query = self.query.filter(self.model.id.between(lower_bound, upper_bound))
             for row in query:
                 yield row
-            if upper_bound >= self.importlimit:
+            if self.importlimit and upper_bound >= self.importlimit:
                 break
