@@ -19,7 +19,7 @@ def _future_callback(future):
     logger.info("Result: %s, Exception: %s", future.result(), future.exception())
 
 
-def reindex(entities):
+def reindex(entities, debug=False):
     """
     Reindexes all entity types in ``entities``.
 
@@ -39,34 +39,36 @@ def reindex(entities):
     else:
         _entities = known_entities
 
-
-    with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
-        for e in entities:
-                future = executor.submit(index_entity,
-                                         entity_name=e)
-                future.add_done_callback(_future_callback)
-
-
-def index_entity(entity_name):
-    """
-    Indexes a single entity type.
-
-    :param sqlalchemy.orm.query.Query query:
-    :param str entity_name:
-    :raises solr.SolrException:
-    """
     try:
         db_uri = config.CFG.get("database", "uri")
     except Error, e:
         logger.error("%s - please configure this application in the file config.ini", e.message)
         return
 
-    session = util.db_session(db_uri)
+    db_session = util.db_session(db_uri, debug)
+
+    with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
+        for e in entities:
+                future = executor.submit(index_entity, db_session=db_session,
+                                         entity_name=e)
+                future.add_done_callback(_future_callback)
+
+
+def index_entity(db_session, entity_name):
+    """
+    Indexes a single entity type.
+
+    :param sqlalchemy.orm.scoping.scoped_session db_session:
+    :param sqlalchemy.orm.query.Query query:
+    :param str entity_name:
+    :raises solr.SolrException:
+    """
     search_entity = SCHEMA[entity_name]
+    session = db_session()
     query = querying.build_entity_query(search_entity)
     query = query.with_session(session)
 
-    num_rows = querying.max_id_of(search_entity, session)
+    num_rows = querying.max_id_of(search_entity, db_session)
 
     batch_size = config.CFG.getint("solr", "batch_size")
 
@@ -74,21 +76,22 @@ def index_entity(entity_name):
     solr_connection = util.solr_connection(solr_uri, entity_name)
 
     data = []
-    for row in querying.QueryIterator(query, num_rows,
-                                      search_entity.model) :
-        data.append(query_result_to_dict(search_entity, row))
-        if len(data) == batch_size:
+    try:
+        for row in queryingQueryIterator(query, num_rows, search_entity.model) :
+            data.append(query_result_to_dict(search_entity, row))
+            if len(data) == batch_size:
+                solr_connection.add_many(data)
+                logger.debug("Sent %i records to %s", len(data),
+                            solr_connection.url)
+                data = []
+        if len(data) > 0:
+            # There's some left-over data that's not large enough for a
+            # complete batch.
             solr_connection.add_many(data)
             logger.debug("Sent %i records to %s", len(data),
-                         solr_connection.url)
-            data = []
-
-    if len(data) > 0:
-        # There's some left-over data that's not large enough for a
-        # complete batch.
-        solr_connection.add_many(data)
-        logger.debug("Sent %i records to %s", len(data),
-                     solr_connection.url)
+                        solr_connection.url)
+    finally:
+        db_session.remove()
 
 
 def query_result_to_dict(entity, obj):
