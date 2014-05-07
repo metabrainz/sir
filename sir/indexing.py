@@ -1,35 +1,29 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import futures
+import multiprocessing
 
 
 from . import config, querying, util
 from .schema import SCHEMA
-from collections import defaultdict, namedtuple
 from ConfigParser import Error, NoOptionError
 from functools import partial
 from logging import getLogger
-from urllib2 import URLError
+from solr import SolrException
+from sqlalchemy import and_
 
 
 logger = getLogger("sir")
 
 
-def _future_callback(info, future):
-    logger.info("Done: %s: %s, %s", info, future.result(), future.exception())
+STOP = None
 
 
-_FutureInfo = namedtuple("_FutureInfo", "entity lower upper")
-
-
-def reindex(entities, debug=False):
+def reindex(entities):
     """
     Reindexes all entity types in ``entities``.
 
-    :param entities:
-    :type entities: A list of :class:`sir.schema.searchentities.SearchEntity`
-                    objects
-    :param bool debug:
+    :param entities: The entities to index.
+    :type entities: [str]
     """
     known_entities = SCHEMA.keys()
     if entities is not None:
@@ -42,96 +36,167 @@ def reindex(entities, debug=False):
     else:
         _entities = known_entities
 
+    _multiprocessed_import(_entities)
+
+
+def _iter_bounds(query_batch_size, num_rows, importlimit):
+    """
+    Yields pairs of (lower_bound, upper_bound) from a ``lower_bound`` of 0 to a
+    maximum ``upper_bound`` of ``num_rows`` + ``query_batch_size`` + 1.or
+    ``importlimit``, if the latter is not 0.
+
+    :rtype: An iterator over (int, int) objects
+    """
+    lower_bound = 0
+    for upper_bound in xrange(lower_bound + query_batch_size,
+                              num_rows + query_batch_size + 1,
+                              query_batch_size or num_rows):
+
+        yield(lower_bound, upper_bound)
+        lower_bound = upper_bound + 1
+        if importlimit and upper_bound >= importlimit:
+            break
+
+
+def _multiprocessed_import(entities):
+    """
+    Does the real work to import all ``entities`` in multiple processes via the
+    :mod:`multiprocessing` module.
+
+    :param entities:
+    :type entities: [str]
+    """
     try:
-        db_uri = config.CFG.get("database", "uri")
         solr_uri = config.CFG.get("solr", "uri")
     except Error, e:
         logger.error("%s - please configure this application in the file config.ini", e.message)
         return
 
-    db_session = util.db_session(db_uri, debug)
-
     query_batch_size = config.CFG.getint("sir", "query_batch_size")
-    entity_to_index_func = defaultdict(list)
-    for e in _entities:
-        try:
-            solr_connection = partial(util.solr_connection, solr_uri, e)
-        except URLError, e:
-            logger.error("Establishing a connection to Solr at %s failed: %s",
-                         solr_uri, e.reason)
-            return
-
-        search_entity = SCHEMA[e]
-        query = querying.build_entity_query(search_entity)
-
-        num_rows = querying.max_id_of(search_entity, db_session)
-        model = search_entity.model
-
-        try:
-            importlimit = config.CFG.getint("sir", "importlimit")
-        except NoOptionError, exc:
-            importlimit = 0
-
-        if importlimit > 0:
-            logger.info("Applying a limit of %i", importlimit)
-            query = query.filter(model.id < importlimit)
-
-        lower_bound = 0
-        for upper_bound in xrange(lower_bound + query_batch_size,
-                                  num_rows + query_batch_size + 1,
-                                  query_batch_size or num_rows):
-            logger.debug("Adding a Query for %s from %i to %i", e, lower_bound,
-                         upper_bound)
-            new_query = query.filter(model.id.between(lower_bound, upper_bound))
-            info = _FutureInfo(e, lower_bound, upper_bound)
-            lower_bound = upper_bound + 1
-            entity_to_index_func[e].append((partial(index_entity,
-                                           solr_connection=solr_connection,
-                                           query=new_query),
-                                           info))
-            if importlimit and upper_bound >= importlimit:
-                break
-
-    with futures.ThreadPoolExecutor(max_workers=config.CFG.getint("sir", "import_threads")) as executor:
-        for e, v in entity_to_index_func.iteritems():
-            for f, info in v:
-                future = executor.submit(f, db_session=db_session, search_entity=SCHEMA[e])
-                future.add_done_callback(partial(_future_callback, info))
-
-
-def index_entity(db_session, solr_connection, query, search_entity):
-    """
-    Indexes a single entity type.
-
-    :param sqlalchemy.orm.scoping.scoped_session db_session:
-    :param solr_connection:
-    :type solr_connection: A function returning a :class:`solr:solr.Solr`
-                           object
-    :param sqlalchemy.orm.query.Query query:
-    :param sir.schema.searchentities.SearchEntity search_entity:
-    :raises solr.SolrException:
-    """
-    session = db_session()
-    query = query.with_session(session)
-    data = []
-    batch_size = config.CFG.getint("solr", "batch_size")
-    solr_connection = solr_connection()
     try:
-        for row in query:
-            data.append(query_result_to_dict(search_entity, row))
-            if len(data) == batch_size:
-                solr_connection.add_many(data)
-                logger.info("Sent %i records to %s", len(data),
-                            solr_connection.url)
-                data = []
-        if len(data) > 0:
-            # There's some left-over data that's not large enough for a
-            # complete batch.
-            solr_connection.add_many(data)
-            logger.info("Sent %i records to %s", len(data),
-                        solr_connection.url)
+        importlimit = config.CFG.getint("sir", "importlimit")
+    except NoOptionError:
+        importlimit = 0
+
+    max_processes = config.CFG.getint("sir", "import_threads")
+    solr_batch_size = config.CFG.getint("solr", "batch_size")
+
+    db_uri = config.CFG.get("database", "uri")
+    db_session = util.db_session(db_uri)
+
+    # Only allow one task per child to prevent the process consuming too much
+    # memory
+    pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
+    index_function_args = []
+    for e in entities:
+        manager = multiprocessing.Manager()
+        entity_data_queue = manager.Queue()
+        num_rows = querying.max_id_of(SCHEMA[e], db_session)
+
+        solr_connection = util.solr_connection(solr_uri, e)
+        process_function = partial(queue_to_solr,
+                                   entity_data_queue,
+                                   solr_batch_size,
+                                   solr_connection)
+
+        solr_process = multiprocessing.Process(target=process_function)
+        solr_process.start()
+        logger.info("The queue workers PID is %i", solr_process.pid)
+
+        for bounds in _iter_bounds(query_batch_size, num_rows, importlimit):
+            args = (e, db_uri, bounds, entity_data_queue)
+            index_function_args.append(args)
+
+        try:
+            results = pool.imap(_index_entity_process_wrapper,
+                                index_function_args)
+            if any([lambda r: isinstance(r, Exception) for r in results]):
+                pool.terminate()
+                pool.join()
+                break
+            else:
+                logger.info("Import successful for %s", e)
+        except KeyboardInterrupt:
+            logger.info("KeyboardInterrupt received, terminating")
+            pool.terminate()
+            pool.join()
+        entity_data_queue.put(STOP)
+        solr_process.join()
+
+
+def _index_entity_process_wrapper(args):
+    """
+    Calls :func:`sir.indexing.index_entity` with ``args`` unpacked.
+    If a :exc:`KeyboardInterrupt` happens while this functions runs, the
+    exception will be **returned**, **not** (re-)raised.
+
+    See http://jessenoller.com/2009/01/08/multiprocessingpool-and-keyboardinterrupt/
+    for reasons why.
+
+    :rtype: None or an Exception
+    """
+    try:
+        return index_entity(*args)
+    except (KeyboardInterrupt, Exception) as exc:
+        return exc
+
+
+def index_entity(entity_name, db_uri, bounds, data_queue):
+    """
+    Retrieve rows for a single entity type identified by ``entity_name``,
+    convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
+    put the dicts into ``queue``.
+
+    :param str entity_name:
+    :param str db_uri:
+    :param bounds:
+    :type bounds: (int, int)
+    :param Queue.Queue data_queue:
+    """
+    search_entity = SCHEMA[entity_name]
+    model = search_entity.model
+    logger.info("Indexing %s %s", model, bounds)
+    lower_bound, upper_bound = bounds
+    condition = and_(model.id >= lower_bound, model.id < upper_bound)
+    row_converter = partial(query_result_to_dict, search_entity)
+
+    session = util.db_session(db_uri)()
+    query = querying.build_entity_query(search_entity).\
+        filter(condition).\
+        with_session(session)
+    try:
+        map(lambda row: data_queue.put(row_converter(row)), query)
     finally:
-        db_session.remove()
+        logger.info("Retrieved all %s records in %s", model, bounds)
+        session.commit()
+        session.close()
+
+
+def queue_to_solr(queue, batch_size, solr_connection):
+    """
+    Read :class:`dict` objects from ``queue`` and send them to the Solr server
+    behind ``solr_connection`` in batches of ``batch_size``.
+
+    :param multiprocessing.Queue queue:
+    :param int batch_size:
+    :param solr.Solr solr_connection:
+    """
+    data = []
+    try:
+        for item in iter(queue.get, None):
+            data.append(item)
+            if len(data) >= batch_size:
+                try:
+                    solr_connection.add_many(data)
+                except SolrException as exc:
+                    logger.error(exc)
+                    break
+                else:
+                    logger.debug("Sent data to Solr")
+                data = []
+    except EOFError:
+        logger.info("%s: Sending remaining data & stopping", solr_connection)
+        solr_connection.add_many(data)
 
 
 def query_result_to_dict(entity, obj):

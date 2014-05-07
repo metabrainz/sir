@@ -1,4 +1,3 @@
-futures
 psycopg2
 solrpy
 sqlalchemy

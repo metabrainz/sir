@@ -1,6 +1,5 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata import models
 from . import modelext
 from .searchentities import SearchEntity as E, SearchField as F
 
