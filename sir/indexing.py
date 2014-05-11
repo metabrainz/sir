@@ -99,7 +99,7 @@ def _multiprocessed_import(entities):
                                    solr_batch_size,
                                    solr_connection)
 
-        solr_process = multiprocessing.Process(target=process_function)
+        solr_process = multiprocessing.Process(name="solr", target=process_function)
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
 
@@ -185,8 +185,12 @@ def queue_to_solr(queue, batch_size, solr_connection):
                 try:
                     solr_connection.add_many(data)
                 except SolrException as exc:
-                    logger.error(exc)
-                    break
+                    if exc.httpcode == 400:
+                        logger.info("""Received a Bad Request response form Solr,
+                        continuing anyway""")
+                    else:
+                        logger.error(exc)
+                        break
                 else:
                     logger.debug("Sent data to Solr")
                 data = []
