@@ -108,8 +108,10 @@ def _multiprocessed_import(entities):
             index_function_args.append(args)
 
         try:
-            results = pool.map(_index_entity_process_wrapper,
+            results = pool.imap(_index_entity_process_wrapper,
                                index_function_args)
+            for r in results:
+                pass
         except (KeyboardInterrupt, Exception) as exc:
             logger.error(exc)
         else:
