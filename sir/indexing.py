@@ -110,16 +110,12 @@ def _multiprocessed_import(entities):
         try:
             results = pool.imap(_index_entity_process_wrapper,
                                 index_function_args)
-            if any([lambda r: isinstance(r, Exception) for r in results]):
-                pool.terminate()
-                pool.join()
-                break
-            else:
-                logger.info("Import successful for %s", e)
-        except KeyboardInterrupt:
-            logger.info("KeyboardInterrupt received, terminating")
-            pool.terminate()
-            pool.join()
+        except (KeyboardInterrupt, Exception) as exc:
+            logger.error(exc)
+        else:
+            logger.info("Importing %s successful!", e)
+        pool.terminate()
+        pool.join()
         entity_data_queue.put(STOP)
         solr_process.join()
 
@@ -137,7 +133,7 @@ def _index_entity_process_wrapper(args):
     """
     try:
         return index_entity(*args)
-    except (KeyboardInterrupt, Exception) as exc:
+    except (KeyboardInterrupt) as exc:
         return exc
 
 
