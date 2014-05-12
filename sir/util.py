@@ -20,7 +20,7 @@ def db_session(db_uri):
 
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
-    e = create_engine(db_uri, server_side_cursors=True)
+    e = create_engine(db_uri, server_side_cursors=False)
     S = sessionmaker(bind=e)
     return S
 
