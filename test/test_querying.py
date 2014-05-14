@@ -1,8 +1,47 @@
+import mock
 import unittest
 
-from . import models
+from . import helpers, models
 from collections import defaultdict
-from sir.querying import _iterate_path_values, merge_paths
+from sir.querying import (_defer_everything_but, _iterate_path_values,
+                          merge_paths)
+
+
+class DeferEverythingButTest(unittest.TestCase):
+    def setUp(self):
+        mapper = helpers.Object()
+        mapper.iterate_properties = []
+        self.mapper = mapper
+
+        prop = helpers.Object()
+        prop.columns = ""
+        self.prop = prop
+        self.mapper.iterate_properties.append(prop)
+
+        self.load = mock.Mock()
+        self.required_columns = ["key", "key2"]
+
+    def test_plain_column_called(self):
+        self.prop.key = "foo"
+        load = _defer_everything_but(self.mapper, self.load, *self.required_columns)
+        load.defer.assert_called_once_with("foo")
+
+    def test_plain_column_not_called(self):
+        self.prop.key = "key"
+        load = _defer_everything_but(self.mapper, self.load, *self.required_columns)
+        self.assertFalse(load.defer.called)
+
+    def test_id_column(self):
+        self.prop.key = "foo_id"
+        load = _defer_everything_but(self.mapper, self.load,
+                                     *self.required_columns)
+        self.assertFalse(load.defer.called)
+
+    def test_position_column(self):
+        self.prop.key = "position"
+        load = _defer_everything_but(self.mapper, self.load,
+                                     *self.required_columns)
+        self.assertFalse(load.defer.called)
 
 
 class IteratePathValuesTest(unittest.TestCase):
