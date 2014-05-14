@@ -109,7 +109,7 @@ def _multiprocessed_import(entities):
 
         try:
             results = pool.imap(_index_entity_process_wrapper,
-                               index_function_args)
+                                index_function_args)
             for r in results:
                 pass
         except (KeyboardInterrupt, Exception) as exc:
@@ -196,10 +196,11 @@ def queue_to_solr(queue, batch_size, solr_connection):
                 else:
                     logger.debug("Sent data to Solr")
                 data = []
-    except EOFError:
+    except Exception:
+        raise
+    else:
         logger.info("%s: Sending remaining data & stopping", solr_connection)
         solr_connection.add_many(data)
-    finally:
         logger.info("Committing changes to Solr")
         solr_connection.commit()
 
