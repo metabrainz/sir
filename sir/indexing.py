@@ -199,6 +199,9 @@ def queue_to_solr(queue, batch_size, solr_connection):
     except EOFError:
         logger.info("%s: Sending remaining data & stopping", solr_connection)
         solr_connection.add_many(data)
+    finally:
+        logger.info("Committing changes to Solr")
+        solr_connection.commit()
 
 
 def query_result_to_dict(entity, obj):
