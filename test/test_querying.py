@@ -1,7 +1,8 @@
 import unittest
 
 from . import models
-from sir.querying import _iterate_path_values
+from collections import defaultdict
+from sir.querying import _iterate_path_values, merge_paths
 
 
 class IteratePathValuesTest(unittest.TestCase):
@@ -29,3 +30,22 @@ class IteratePathValuesTest(unittest.TestCase):
     def test_many_to_one(self):
         res = list(_iterate_path_values(self.b_path, self.b))
         self.assertEqual(res, [1])
+
+
+class MergePathsTest(unittest.TestCase):
+    def test_dotless_path(self):
+        paths = [["id"], ["name"]]
+        expected = {"id": "", "name": ""}
+        self.assertEquals(merge_paths(paths), expected)
+
+    def test_dotted_path(self):
+        paths = [["rel.id"], ["rel2.rel3.id"]]
+        expected = {
+            "rel": defaultdict(set, id=""),
+            "rel2": defaultdict(set,
+                                rel3=defaultdict(set,
+                                                 id=""
+                                                 )
+                                )
+        }
+        self.assertEqual(dict(merge_paths(paths)), expected)

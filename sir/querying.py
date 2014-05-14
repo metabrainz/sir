@@ -21,7 +21,7 @@ def merge_paths(field_paths):
 
 
     :param field_paths:
-    :type field_paths: [str]
+    :type field_paths: [[str]]
     :rtype: dict
     """
     paths = defaultdict(set)
