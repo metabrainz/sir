@@ -3,7 +3,6 @@
 import argparse
 import logging
 import multiprocessing
-import warnings
 
 
 from . import config
@@ -52,8 +51,6 @@ def main():
     config.read_config()
     func = args.func
     args = vars(args)
-    # Ignore SQLAlchemys warnings that we're overriding some attributes
-    warnings.simplefilter(action="ignore", category=sa_exc.SAWarning)
     func(args["entities"])
 
 if __name__ == '__main__':
