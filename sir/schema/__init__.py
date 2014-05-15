@@ -56,8 +56,21 @@ SearchArtist = E(modelext.CustomArtist, [
     ])
 
 
+SearchWork = E(modelext.CustomWork, [
+    F("mbid", "gid"),
+    F("name", "name"),
+    F("alias", "aliases.name"),
+    F("arid", "artist_links.artist.gid"),
+    F("artist", "artist_links.artist.name"),
+    F("comment", "comment"),
+    F("iswc", "iswcs.iswc"),
+    F("language", "language.name"),
+    ])
+
+
 SCHEMA = {
     "artist": SearchArtist,
     "recording": SearchRecording,
-    "release-group": SearchReleaseGroup
+    "release-group": SearchReleaseGroup,
+    "work": SearchWork,
 }

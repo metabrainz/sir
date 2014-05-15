@@ -1,6 +1,6 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import Area, Artist, Recording, ReleaseGroup
+from mbdata.models import Area, Artist, Recording, ReleaseGroup, Work
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -26,3 +26,8 @@ class CustomRecording(Recording):
 
 class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
+
+
+class CustomWork(Work):
+    aliases = relationship("WorkAlias")
+    artist_links = relationship("LinkArtistWork")
