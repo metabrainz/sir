@@ -155,7 +155,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     model = search_entity.model
     logger.info("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
-    condition = and_(model.id >= lower_bound, model.id < upper_bound)
+    condition = and_(model.id >= lower_bound, model.id <= upper_bound)
     row_converter = partial(query_result_to_dict, search_entity)
 
     session = util.db_session(db_uri)()
