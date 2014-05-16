@@ -2,6 +2,7 @@
 # License: MIT, see LICENSE for details
 from . import modelext
 from .searchentities import SearchEntity as E, SearchField as F
+from mbdata import models
 
 
 SearchLabel = E(modelext.CustomLabel, [
@@ -47,6 +48,19 @@ SearchRecording = E(modelext.CustomRecording, [
     F("video", "video")
 ])
 
+
+SearchRelease = E(models.Release, [
+    F("mbid", "gid"),
+    F("release", "name"),
+    F("arid", "artist_credit.artists.artist.gid"),
+    F("country", "country_dates.country.area.name"),
+    #F("data", "country_dates.date")
+    F("comment", "comment"),
+    F("lang", "language.name"),
+    F("script", "script.name")
+])
+
+
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
     F("release-group", "name"),
@@ -85,6 +99,7 @@ SCHEMA = {
     "artist": SearchArtist,
     "label": SearchLabel,
     "recording": SearchRecording,
+    "release": SearchRelease,
     "release-group": SearchReleaseGroup,
     "work": SearchWork,
 }
