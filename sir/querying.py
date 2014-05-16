@@ -131,15 +131,49 @@ def _iterate_path_values(path, obj):
         yield getattr(obj, pathelem)
 
 
-def max_id_of(entity, db_session):
+def iter_bounds(db_session, column, batch_size, importlimit):
     """
-    Returns the maximum id of all rows in the table of ``entity``.
+    Return a list of (lower bound, upper bound) tuples which contain row ids to
+    iterate through a table in batches of ``batch_size``. If ``importlimit`` is
+    greater than zero, return only enough tuples to contain ``importlimit``
+    rows. The second element of the last tuple in the returned list may be
+    ``None``. This happens if the last batch will contain less than
+    ``batch_size`` rows.
 
-    :param sir.schema.searchentities.SearchEntity entity:
-    :param sqlalchemy.orm.scoping.scoped_session db_session:
+    :param sqlalchemy.orm.session.Session db_session:
+    :param sqlalchemy.Column column:
+    :param int batch_size:
+    :param int importlimit:
+    :rtype: [(int, int)]
     """
-    model = entity.model
-    session = db_session()
-    val = session.query(func.max(model.id)).scalar()
-    session.close()
-    return val
+    q = db_session.query(
+        column,
+        func.row_number().
+        over(order_by=column).
+        label('rownum')
+    ).\
+        from_self(column)
+
+    if batch_size > 1:
+        q = q.filter("rownum %% %d=1" % batch_size)
+
+    if importlimit:
+        q = q.filter("rownum <= %d" % (importlimit))
+
+    intervals = [id for id in q]
+    bounds = []
+
+    while intervals:
+        start = intervals.pop(0)[0]
+        if intervals:
+            end = intervals[0][0]
+        elif importlimit:
+            # If there's an importlimit, just add a noop bound. This way,
+            # :func:`sir.indexing.index_entity` doesn't require any
+            # information about the limit
+            end = start
+        else:
+            end = None
+        bounds.append((start, end))
+
+    return bounds

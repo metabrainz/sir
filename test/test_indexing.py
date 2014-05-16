@@ -3,21 +3,7 @@ import unittest
 
 from multiprocessing import Queue
 from solr import SolrException
-from sir.indexing import _iter_bounds, queue_to_solr
-
-
-class IterBoundsTest(unittest.TestCase):
-    def test_importlimit(self):
-        res = list(_iter_bounds(2, 4, 2))
-        self.assertEqual(res, [(0, 2)])
-
-    def test_num_rows_multiple_of_batch_size(self):
-        res = list(_iter_bounds(2, 6, 0))
-        self.assertEqual(res, [(0, 2), (3, 4), (5, 6), (7, 8)])
-
-    def test_num_rows_smaller_than_batch_size(self):
-        res = list(_iter_bounds(4, 3, 0))
-        self.assertEqual(res, [(0, 4)])
+from sir.indexing import queue_to_solr
 
 
 class QueueToSolrTest(unittest.TestCase):

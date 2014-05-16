@@ -39,25 +39,6 @@ def reindex(entities):
     _multiprocessed_import(_entities)
 
 
-def _iter_bounds(query_batch_size, num_rows, importlimit):
-    """
-    Yields pairs of (lower_bound, upper_bound) from a ``lower_bound`` of 0 to a
-    maximum ``upper_bound`` of ``num_rows`` + ``query_batch_size`` + 1.or
-    ``importlimit``, if the latter is not 0.
-
-    :rtype: An iterator over (int, int) objects
-    """
-    lower_bound = 0
-    for upper_bound in xrange(lower_bound + query_batch_size,
-                              num_rows + query_batch_size + 1,
-                              query_batch_size or num_rows):
-
-        yield(lower_bound, upper_bound)
-        lower_bound = upper_bound + 1
-        if importlimit and upper_bound >= importlimit:
-            break
-
-
 def _multiprocessed_import(entities):
     """
     Does the real work to import all ``entities`` in multiple processes via the
@@ -91,7 +72,6 @@ def _multiprocessed_import(entities):
     for e in entities:
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
-        num_rows = querying.max_id_of(SCHEMA[e], db_session)
 
         solr_connection = util.solr_connection(solr_uri, e)
         process_function = partial(queue_to_solr,
@@ -103,7 +83,8 @@ def _multiprocessed_import(entities):
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
 
-        for bounds in _iter_bounds(query_batch_size, num_rows, importlimit):
+        for bounds in querying.iter_bounds(db_session(), SCHEMA[e].model.id,
+                                           query_batch_size, importlimit):
             args = (e, db_uri, bounds, entity_data_queue)
             index_function_args.append(args)
 
@@ -155,7 +136,10 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     model = search_entity.model
     logger.info("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
-    condition = and_(model.id >= lower_bound, model.id <= upper_bound)
+    if upper_bound is not None:
+        condition = and_(model.id >= lower_bound, model.id < upper_bound)
+    else:
+        condition = model.id >= lower_bound
     row_converter = partial(query_result_to_dict, search_entity)
 
     session = util.db_session(db_uri)()
