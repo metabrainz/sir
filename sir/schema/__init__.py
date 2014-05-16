@@ -4,6 +4,19 @@ from . import modelext
 from .searchentities import SearchEntity as E, SearchField as F
 
 
+SearchLabel = E(modelext.CustomLabel, [
+    F("mbid", "gid"),
+    F("label", "name"),
+    F("alias", "aliases.name"),
+    F("area", "area.name"),
+    #F("begin", "begin_data"),
+    #F("end", "end_date")
+    F("comment", "comment"),
+    F("ipi", "ipis.ipi"),
+    F("type", "type.name")
+])
+
+
 SearchRecording = E(modelext.CustomRecording, [
     # F("date", "tracks.medium.release.country_dates.country.date"),
     F("arid", "artist_credit.artists.artist.gid"),
@@ -53,7 +66,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("comment", "comment"),
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
-    ])
+])
 
 
 SearchWork = E(modelext.CustomWork, [
@@ -65,11 +78,12 @@ SearchWork = E(modelext.CustomWork, [
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
     F("language", "language.name"),
-    ])
+])
 
 
 SCHEMA = {
     "artist": SearchArtist,
+    "label": SearchLabel,
     "recording": SearchRecording,
     "release-group": SearchReleaseGroup,
     "work": SearchWork,

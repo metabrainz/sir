@@ -1,6 +1,6 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import Area, Artist, Recording, ReleaseGroup, Work
+from mbdata.models import Area, Artist, Label, Recording, ReleaseGroup, Work
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -18,6 +18,10 @@ class CustomArtist(Artist):
     area = relationship('CustomArea', foreign_keys=[Artist.area_id])
     begin_area = relationship('CustomArea', foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
+
+
+class CustomLabel(Label):
+    aliases = relationship("LabelAlias")
 
 
 class CustomRecording(Recording):
