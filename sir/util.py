@@ -37,7 +37,7 @@ def db_session():
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
     db_uri = config.CFG.get("database", "uri")
-    e = create_engine(db_uri, server_side_cursors=False, echo=True)
+    e = create_engine(db_uri, server_side_cursors=False)
     S = sessionmaker(bind=e)
     return S
 
