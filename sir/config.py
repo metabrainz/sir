@@ -7,6 +7,10 @@ import ConfigParser
 CFG = None
 
 
+class ConfigError(Exception):
+    pass
+
+
 def read_config():
     """
     Read config files from all possible locations and set
@@ -14,6 +18,8 @@ def read_config():
     instance.
     """
     config = ConfigParser.SafeConfigParser()
-    config.read(["config.ini"])
+    read_files = config.read(["config.ini"])
+    if not read_files:
+        raise ConfigError("No configuration file could be found")
     global CFG
     CFG = config
