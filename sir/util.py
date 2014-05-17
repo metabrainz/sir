@@ -86,11 +86,12 @@ def solr_version_check(core):
     """
     Checks that the version of the Solr core ``core`` at ``solr_uri`` matches
     ``version``.
+
     :param str solr_uri:
     :param str core:
     :raises urllib2.URLError: If the Solr core can't be reached
-    :raises VersionMismatchException: If the version in Solr is different than
-                                      the supported one
+    :raises sir.util.VersionMismatchException: If the version in Solr is different
+                                               from the supported one
     """
     expected_version = SCHEMA[core].version
     solr_uri = config.CFG.get("solr", "uri")
@@ -107,7 +108,7 @@ def check_solr_cores_version(cores):
     Checks multiple Solr cores for version compatibility
 
     :param [str] cores: The names of the cores
-    :raises VersionMismatchException: If the version of any core in Solr is
-                                      different than the supported one
+    :raises sir.util.VersionMismatchException: If the version in Solr is different
+                                               from the supported one
     """
     map(solr_version_check, cores)
