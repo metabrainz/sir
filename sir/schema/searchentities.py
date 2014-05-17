@@ -22,10 +22,12 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An an entity with searchable fields."""
-    def __init__(self, model, fields):
+    def __init__(self, model, fields, version):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
+        :param float version: The supported schema version of this entity.
         """
         self.model = model
         self.fields = fields
+        self.version = version

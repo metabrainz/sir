@@ -36,6 +36,14 @@ def reindex(entities):
     else:
         _entities = known_entities
 
+    try:
+        logger.info("Checking whether the versions of the Solr cores are "
+                    "supported")
+        util.check_solr_cores_version(_entities)
+    except util.VersionMismatchException as exc:
+        logger.error(exc)
+        return
+
     _multiprocessed_import(_entities)
 
 

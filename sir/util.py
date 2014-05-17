@@ -4,11 +4,26 @@ import logging
 import solr
 import urllib2
 
+from . import config
+from .schema import SCHEMA
+from json import loads
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
 logger = logging.getLogger("sir")
+
+
+class VersionMismatchException(Exception):
+    def __init__(self, core, expected, actual):
+        self.core = core
+        self.expected = expected
+        self.actual = actual
+
+    def __str__(self):
+        return "%s: Expected %1.1f, got %1.1f" % (self.core,
+                                                  self.expected,
+                                                  self.actual)
 
 
 def db_session(db_uri):
@@ -44,6 +59,37 @@ def solr_connection(solr_uri, core):
 
     logger.debug("Connection to the Solr core at %s", core_uri)
     return solr.Solr(core_uri)
+
+
+def solr_version_check(core):
+    """
+    Checks that the version of the Solr core ``core`` at ``solr_uri`` matches
+    ``version``.
+    :param str solr_uri:
+    :param str core:
+    :raises urllib2.URLError: If the Solr core can't be reached
+    :raises VersionMismatchException: If the version in Solr is different than
+                                      the supported one
+    """
+    expected_version = SCHEMA[core].version
+    solr_uri = config.CFG.get("solr", "uri")
+    u = urllib2.urlopen("%s/%s/schema/version" % (solr_uri, core))
+    content = loads(u.read())
+    seen_version = content["version"]
+    if not seen_version == expected_version:
+        raise VersionMismatchException(core, expected_version, seen_version)
+    logger.debug("%s: version %1.1f matches %1.1f", core, expected_version, seen_version)
+
+
+def check_solr_cores_version(cores):
+    """
+    Checks multiple Solr cores for version compatibility
+
+    :param [str] cores: The names of the cores
+    :raises VersionMismatchException: If the version of any core in Solr is
+                                      different than the supported one
+    """
+    map(solr_version_check, cores)
 
 
 def queuewrapper(f, queue):

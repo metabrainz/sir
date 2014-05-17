@@ -15,7 +15,9 @@ SearchLabel = E(modelext.CustomLabel, [
     F("comment", "comment"),
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
-])
+],
+    1.1
+)
 
 
 SearchRecording = E(modelext.CustomRecording, [
@@ -46,7 +48,9 @@ SearchRecording = E(modelext.CustomRecording, [
     F("tracksrelease", "tracks.medium.release.mediums.track_count",
         transformfunc=lambda values: reduce(lambda x, y: x+y, values, 0)),
     F("video", "video")
-])
+],
+    1.1
+)
 
 
 SearchRelease = E(models.Release, [
@@ -58,7 +62,9 @@ SearchRelease = E(models.Release, [
     F("comment", "comment"),
     F("lang", "language.name"),
     F("script", "script.name")
-])
+],
+    1.1
+)
 
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
@@ -68,7 +74,9 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("reid", "releases.gid"),
     F("releases", "releases.gid", transformfunc=len),
     F("credit-name", "artist_credit.artists.artist.name")
-])
+],
+    1.1
+)
 
 SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
@@ -80,7 +88,9 @@ SearchArtist = E(modelext.CustomArtist, [
     F("comment", "comment"),
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
-])
+],
+    1.1
+)
 
 
 SearchWork = E(modelext.CustomWork, [
@@ -92,7 +102,9 @@ SearchWork = E(modelext.CustomWork, [
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
     F("language", "language.name"),
-])
+],
+    1.1
+)
 
 
 SCHEMA = {
