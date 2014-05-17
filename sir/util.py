@@ -90,18 +90,3 @@ def check_solr_cores_version(cores):
                                       different than the supported one
     """
     map(solr_version_check, cores)
-
-
-def queuewrapper(f, queue):
-    def inner(*args, **kwargs):
-        import os
-        try:
-            f(*args, **kwargs)
-        except BaseException as exc:
-            logger.error(exc)
-            queue.put((os.getpid(), exc))
-        else:
-            queue.put((os.getpid(), None))
-        finally:
-            queue.close()
-    return inner
