@@ -90,11 +90,11 @@ def _multiprocessed_import(entities):
         solr_process = multiprocessing.Process(name="solr", target=process_function)
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
-
-        for bounds in querying.iter_bounds(db_session(), SCHEMA[e].model.id,
-                                           query_batch_size, importlimit):
-            args = (e, db_uri, bounds, entity_data_queue)
-            index_function_args.append(args)
+        with util.db_session_ctx(db_session) as session:
+            for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
+                                               query_batch_size, importlimit):
+                args = (e, db_uri, bounds, entity_data_queue)
+                index_function_args.append(args)
 
         try:
             results = pool.imap(_index_entity_process_wrapper,
@@ -150,16 +150,12 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         condition = model.id >= lower_bound
     row_converter = partial(query_result_to_dict, search_entity)
 
-    session = util.db_session(db_uri)()
-    query = querying.build_entity_query(search_entity).\
-        filter(condition).\
-        with_session(session)
-    try:
+    with util.db_session_ctx(util.db_session()) as session:
+        query = querying.build_entity_query(search_entity).\
+            filter(condition).\
+            with_session(session)
         map(lambda row: data_queue.put(row_converter(row)), query)
-    finally:
         logger.info("Retrieved all %s records in %s", model, bounds)
-        session.commit()
-        session.close()
 
 
 def queue_to_solr(queue, batch_size, solr_connection):

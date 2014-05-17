@@ -6,6 +6,7 @@ import urllib2
 
 from . import config
 from .schema import SCHEMA
+from contextlib import contextmanager
 from json import loads
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,9 +36,27 @@ def db_session(db_uri):
 
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
-    e = create_engine(db_uri, server_side_cursors=False)
+    e = create_engine(db_uri, server_side_cursors=False, echo=True)
     S = sessionmaker(bind=e)
     return S
+
+
+@contextmanager
+def db_session_ctx(Session):
+    """
+    A context manager yielding a database session.
+
+    :param sqlalchemy.orm.session.sessionmaker Session:
+    """
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
 def solr_connection(solr_uri, core):
