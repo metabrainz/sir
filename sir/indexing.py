@@ -55,12 +55,6 @@ def _multiprocessed_import(entities):
     :param entities:
     :type entities: [str]
     """
-    try:
-        solr_uri = config.CFG.get("solr", "uri")
-    except Error, e:
-        logger.error("%s - please configure this application in the file config.ini", e.message)
-        return
-
     query_batch_size = config.CFG.getint("sir", "query_batch_size")
     try:
         importlimit = config.CFG.getint("sir", "importlimit")
@@ -70,8 +64,7 @@ def _multiprocessed_import(entities):
     max_processes = config.CFG.getint("sir", "import_threads")
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
-    db_uri = config.CFG.get("database", "uri")
-    db_session = util.db_session(db_uri)
+    db_session = util.db_session()
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
@@ -80,8 +73,9 @@ def _multiprocessed_import(entities):
     for e in entities:
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
+        db_uri = config.CFG.get("database", "uri")
 
-        solr_connection = util.solr_connection(solr_uri, e)
+        solr_connection = util.solr_connection(e)
         process_function = partial(queue_to_solr,
                                    entity_data_queue,
                                    solr_batch_size,

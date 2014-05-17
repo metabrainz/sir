@@ -27,7 +27,7 @@ class VersionMismatchException(Exception):
                                                   self.actual)
 
 
-def db_session(db_uri):
+def db_session():
     """
     Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
 
@@ -36,6 +36,7 @@ def db_session(db_uri):
 
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
+    db_uri = config.CFG.get("database", "uri")
     e = create_engine(db_uri, server_side_cursors=False, echo=True)
     S = sessionmaker(bind=e)
     return S
@@ -59,7 +60,7 @@ def db_session_ctx(Session):
         session.close()
 
 
-def solr_connection(solr_uri, core):
+def solr_connection(core):
     """
     Creates a :class:`solr:solr.Solr` connection for the core ``core`` at the
     Solr server listening on ``solr_uri``.
@@ -70,6 +71,7 @@ def solr_connection(solr_uri, core):
                               succeed
     :rtype: :class:`solr:solr.Solr`
     """
+    solr_uri = config.CFG.get("solr", "uri")
     core_uri = solr_uri + "/" + core
     ping_uri = core_uri + "/admin/ping"
 
