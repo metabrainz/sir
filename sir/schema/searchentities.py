@@ -59,30 +59,28 @@ class RecordingEntity(SearchEntity):
 
     @staticmethod
     def prepare(db_session):
-        medium_table = inspect(Medium).mapped_table
-        medium_formats_table = inspect(MediumFormat).mapped_table
-        track_table = inspect(Track).mapped_table
+        TmpTrack.metadata.create_all(db_session.connection())
         tmptable = inspect(TmpTrack).mapped_table
 
-        TmpTrack.metadata.create_all(db_session.connection())
-
-        s = select([Track.gid,
-                    Track.id,
-                    Track.recording_id,
-                    Track.length,
-                    Track.name,
-                    Track.position,
-                    Track.number,
-                    Medium.track_count,
-                    Medium.release_id,
-                    Medium.position,
-                    MediumFormat.name]).\
-            select_from(track_table.join(medium_table).
-                        outerjoin(medium_formats_table))
+        q = Query([Track.gid,
+                   Track.id,
+                   Track.recording_id,
+                   Track.length,
+                   Track.name,
+                   Track.position,
+                   Track.number,
+                   Medium.track_count,
+                   Medium.release_id,
+                   Medium.position,
+                   MediumFormat.name]).\
+            join(Medium).\
+            outerjoin(MediumFormat)
 
         ins = insert(TmpTrack).from_select(tmptable.columns,
-                                           s)
-        # db_session.execute(ins)
+                                           q.selectable)
+        logger.info("Creating the temporary tmp_track table")
+        db_session.execute(ins)
+        logger.info("Done!")
 
         columns = [Release.artist_credit_id,
                    Release.barcode,
