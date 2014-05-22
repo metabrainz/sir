@@ -1,7 +1,9 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import modelext
-from .searchentities import SearchEntity as E, SearchField as F
+from .searchentities import (SearchEntity as E,
+                             SearchField as F,
+                             RecordingEntity)
 from mbdata import models
 
 
@@ -110,7 +112,7 @@ SearchWork = E(modelext.CustomWork, [
 SCHEMA = {
     "artist": SearchArtist,
     "label": SearchLabel,
-    "recording": SearchRecording,
+    "recording": SearchRecordingReindex,
     "release": SearchRelease,
     "release-group": SearchReleaseGroup,
     "work": SearchWork,

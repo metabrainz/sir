@@ -1,15 +1,17 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import multiprocessing
+import multiprocessing.dummy
 
 
 from . import config, querying, util
 from .schema import SCHEMA
-from ConfigParser import Error, NoOptionError
+from ConfigParser import NoOptionError
 from functools import partial
 from logging import getLogger
 from solr import SolrException
 from sqlalchemy import and_
+from sqlalchemy.orm.scoping import scoped_session
 
 
 logger = getLogger("sir")
@@ -68,9 +70,14 @@ def _multiprocessed_import(entities):
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
-    pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
-    index_function_args = []
     for e in entities:
+        index_function_args = []
+        search_entity = SCHEMA[e]
+        if search_entity.can_use_processes:
+            pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
+        else:
+            pool = multiprocessing.dummy.Pool(max_processes)
+
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
@@ -83,12 +90,19 @@ def _multiprocessed_import(entities):
 
         solr_process = multiprocessing.Process(name="solr", target=process_function)
         solr_process.start()
-        logger.info("The queue workers PID is %i", solr_process.pid)
+        # logger.info("The queue workers PID is %i", solr_process.pid)
+        if not search_entity.can_use_processes:
+            _scoped_session = scoped_session(db_session)
         with util.db_session_ctx(db_session) as session:
-            for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
+            for bounds in querying.iter_bounds(session, search_entity.model.id,
                                                query_batch_size, importlimit):
-                args = (e, db_uri, bounds, entity_data_queue)
+                args = [e, db_uri, bounds, entity_data_queue]
+                if not search_entity.can_use_processes:
+                    args.append(_scoped_session)
                 index_function_args.append(args)
+
+        with util.db_session_ctx(db_session) as session:
+            search_entity.prepare(session)
 
         try:
             results = pool.imap(_index_entity_process_wrapper,
@@ -122,7 +136,7 @@ def _index_entity_process_wrapper(args):
         return exc
 
 
-def index_entity(entity_name, db_uri, bounds, data_queue):
+def index_entity(entity_name, db_uri, bounds, data_queue, sessionmaker=None):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
@@ -144,7 +158,9 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         condition = model.id >= lower_bound
     row_converter = partial(query_result_to_dict, search_entity)
 
-    with util.db_session_ctx(util.db_session()) as session:
+    if sessionmaker is None:
+        sessionmaker = util.db_session()
+    with util.db_session_ctx(sessionmaker) as session:
         query = querying.build_entity_query(search_entity).\
             filter(condition).\
             with_session(session)
