@@ -30,6 +30,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
+    parser.add_argument("--sqltimings", action="store_true")
     subparsers = parser.add_subparsers()
 
     reindex_parser = subparsers.add_parser("reindex", help="Reindexes all or a single entity type")
@@ -44,10 +45,32 @@ def main():
 
     args = parser.parse_args()
     if args.debug:
-        logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+
+    if args.sqltimings:
+        from sqlalchemy import event
+        from sqlalchemy.engine import Engine
+        import time
+
+        sqltimelogger = logging.getLogger("sqltimer")
+        sqltimelogger.setLevel(logging.DEBUG)
+        sqltimelogger.addHandler(loghandler)
+
+        @event.listens_for(Engine, "before_cursor_execute")
+        def before_cursor_execute(conn, cursor, statement,
+                                  parameters, context, executemany):
+            conn.info.setdefault('query_start_time', []).append(time.time())
+            sqltimelogger.debug("Start Query: %s" % statement)
+
+        @event.listens_for(Engine, "after_cursor_execute")
+        def after_cursor_execute(conn, cursor, statement,
+                                 parameters, context, executemany):
+            total = time.time() - conn.info['query_start_time'].pop(-1)
+            sqltimelogger.debug("Query Complete!")
+            sqltimelogger.debug("Total Time: %f" % total)
+
     config.read_config()
     func = args.func
     args = vars(args)
