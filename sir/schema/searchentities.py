@@ -1,9 +1,15 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from .modelext import TmpTrack
-from mbdata.models import Medium, MediumFormat, Track
-from sqlalchemy import insert, select
-from sqlalchemy import inspect
+from .modelext import TmpRelease, TmpTrack
+from logging import getLogger
+from mbdata.models import (Medium, MediumFormat, Release, ReleaseGroup,
+                           ReleaseGroupPrimaryType,
+                           ReleasePackaging, ReleaseStatus, Language, Script, Track)
+from sqlalchemy import func, insert, inspect
+from sqlalchemy.orm.query import Query
+
+
+logger = getLogger("sir")
 
 
 class SearchField(object):
@@ -77,3 +83,39 @@ class RecordingEntity(SearchEntity):
         ins = insert(TmpTrack).from_select(tmptable.columns,
                                            s)
         # db_session.execute(ins)
+
+        columns = [Release.artist_credit_id,
+                   Release.barcode,
+                   Release.comment,
+                   Release.gid,
+                   ReleaseGroup.gid,
+                   ReleaseGroup.id,
+                   ReleaseGroupPrimaryType.name,
+                   Release.id,
+                   Language.iso_code_2t,
+                   Language.iso_code_3,
+                   Release.name,
+                   ReleasePackaging.name,
+                   Release.quality,
+                   Script.name,
+                   ReleaseStatus.name,
+                   ]
+
+        query_columns = [func.sum(Medium.track_count)]
+        query_columns.extend(columns)
+        q = Query(query_columns).\
+            outerjoin(Release).\
+            outerjoin(Language).\
+            outerjoin(ReleasePackaging).\
+            outerjoin(Script).\
+            outerjoin(ReleaseStatus).\
+            join(Medium).\
+            join(ReleaseGroup).\
+            outerjoin(ReleaseGroupPrimaryType).\
+            group_by(*columns)
+
+        tmptable = inspect(TmpRelease).mapped_table
+        ins = insert(TmpRelease).from_select(tmptable.columns, q.selectable)
+        logger.info("Creating the temporary tmp_release table")
+        db_session.execute(ins)
+        logger.info("Done!")
