@@ -11,6 +11,12 @@ class DeferEverythingButTest(unittest.TestCase):
     def setUp(self):
         mapper = helpers.Object()
         mapper.iterate_properties = []
+        pk1 = helpers.Object()
+        pk1.name = "pk1"
+        pk2 = helpers.Object()
+        pk2.name = "pk2"
+        mapper.primary_key = [pk1, pk2]
+
         self.mapper = mapper
 
         prop = helpers.Object()
@@ -39,6 +45,12 @@ class DeferEverythingButTest(unittest.TestCase):
 
     def test_position_column(self):
         self.prop.key = "position"
+        load = _defer_everything_but(self.mapper, self.load,
+                                     *self.required_columns)
+        self.assertFalse(load.defer.called)
+
+    def test_primary_key_always_loaded(self):
+        self.prop.key = "pk1"
         load = _defer_everything_but(self.mapper, self.load,
                                      *self.required_columns)
         self.assertFalse(load.defer.called)

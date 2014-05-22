@@ -47,11 +47,12 @@ def merge_paths(field_paths):
 
 
 def _defer_everything_but(mapper, load, *columns):
+    primary_keys = [c.name for c in mapper.primary_key]
     for prop in mapper.iterate_properties:
         if hasattr(prop, "columns"):
             key = prop.key
             if key not in columns and key[:-3] not in columns and \
-               key[-3:] != "_id" and key != "position":
+               key[-3:] != "_id" and key != "position" and key not in primary_keys:
                # We need the _id columns for subqueries and joins
                # Position is needed because sqla automatically orders by
                # artist_credit_name.position
