@@ -123,6 +123,10 @@ class RecordingEntity(SearchEntity):
         logger.info("Creating the temporary tmp_release table")
         db_session.execute(ins)
         logger.info("Done!")
+        logger.info("Creating an index on tmp_release.release_id")
+        i = Index("tmp_release_idx", TmpRelease.release_id)
+        i.create(bind=db_session.connection())
+        logger.info("Done!")
 
         q = Query([
             ArtistCredit.id,
@@ -144,4 +148,8 @@ class RecordingEntity(SearchEntity):
                                                   q.selectable)
         logger.info("Creating the temporary tmp_artistcredit table")
         db_session.execute(ins)
+        logger.info("Done!")
+        logger.info("Creating an index on tmp_artistcredit.artist_credit_id")
+        i = Index("tmp_artistcredit_idx", TmpArtistCredit.artist_credit_id)
+        i.create(bind=db_session.connection())
         logger.info("Done!")
