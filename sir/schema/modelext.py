@@ -46,6 +46,11 @@ class TmpRelease(Base):
     release_script = Column(String)
     release_status = Column(String)
 
+    tmp_artist_credit = relationship("TmpArtistCredit",
+        primaryjoin="TmpRelease.release_artist_credit == TmpArtistCredit.artist_credit_id",
+        foreign_keys=release_artist_credit,
+        remote_side=TmpArtistCredit.artist_credit_id)
+
 
 class TmpReleaseEvent(Base):
     __tablename__ = 'tmp_release_event'
@@ -106,6 +111,10 @@ class CustomRecording(Recording):
                     primaryjoin="TmpTrack.recording_id == Recording.id",
                     foreign_keys=Recording.id,
                     remote_side=TmpTrack.recording_id)
+    tmp_artist_credit = relationship("TmpArtistCredit",
+        primaryjoin="Recording.artist_credit_id == TmpArtistCredit.artist_credit_id",
+        foreign_keys=Recording.artist_credit_id,
+        remote_side=TmpArtistCredit.artist_credit_id)
 
 
 class CustomReleaseGroup(ReleaseGroup):
