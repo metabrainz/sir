@@ -1,12 +1,14 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from .modelext import TmpRelease, TmpTrack
+from .modelext import TmpArtistCredit, TmpRelease, TmpTrack
 from logging import getLogger
-from mbdata.models import (Medium, MediumFormat, Release, ReleaseGroup,
-                           ReleaseGroupPrimaryType,
-                           ReleasePackaging, ReleaseStatus, Language, Script, Track)
+from mbdata.models import  (Artist, ArtistCredit, ArtistCreditName,
+                            Medium, MediumFormat, Release, ReleaseGroup,
+                            ReleaseGroupPrimaryType,
+                            ReleasePackaging, ReleaseStatus, Language, Script, Track)
 from sqlalchemy import func, insert, inspect
 from sqlalchemy.orm.query import Query
+from sqlalchemy.schema import Index
 
 
 logger = getLogger("sir")
@@ -81,6 +83,10 @@ class RecordingEntity(SearchEntity):
         logger.info("Creating the temporary tmp_track table")
         db_session.execute(ins)
         logger.info("Done!")
+        logger.info("Creating an index on tmp_track.recording_id")
+        i = Index("tmp_recording_idx", TmpTrack.recording_id)
+        i.create(bind=db_session.connection())
+        logger.info("Done!")
 
         columns = [Release.artist_credit_id,
                    Release.barcode,
@@ -115,5 +121,27 @@ class RecordingEntity(SearchEntity):
         tmptable = inspect(TmpRelease).mapped_table
         ins = insert(TmpRelease).from_select(tmptable.columns, q.selectable)
         logger.info("Creating the temporary tmp_release table")
+        db_session.execute(ins)
+        logger.info("Done!")
+
+        q = Query([
+            ArtistCredit.id,
+            ArtistCreditName.position,
+            ArtistCreditName.join_phrase,
+            Artist.gid,
+            Artist.comment,
+            Artist.name,
+            ArtistCreditName.name,
+            Artist.sort_name
+            ]).\
+            join(ArtistCreditName).\
+            order_by(*[ArtistCreditName.artist_credit_id,
+                       ArtistCreditName.position]).\
+            join(Artist)
+
+        tmptable = inspect(TmpArtistCredit).mapped_table
+        ins = insert(TmpArtistCredit).from_select(tmptable.columns,
+                                                  q.selectable)
+        logger.info("Creating the temporary tmp_artistcredit table")
         db_session.execute(ins)
         logger.info("Done!")
