@@ -78,7 +78,7 @@ class SearchField(object):
 
 
 class SearchEntity(object):
-    """An an entity with searchable fields."""
+    """An entity with searchable fields."""
     def __init__(self, model, fields, version):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
