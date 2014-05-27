@@ -8,7 +8,6 @@ import multiprocessing
 from . import config
 from .indexing import reindex
 from .schema import SCHEMA
-from sqlalchemy import exc as sa_exc
 
 
 logger = logging.getLogger("sir")
