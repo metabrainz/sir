@@ -18,14 +18,6 @@ def watch(args):
 
 
 def main():
-    loghandler = logging.StreamHandler()
-    formatter = logging.Formatter(fmt="%(processName)s %(asctime)s  %(levelname)s: %(message)s")
-    loghandler.setFormatter(formatter)
-    logger.addHandler(loghandler)
-
-    mplogger = multiprocessing.get_logger()
-    mplogger.setLevel(logging.ERROR)
-    mplogger.addHandler(loghandler)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
@@ -39,7 +31,8 @@ def main():
 
         Available are: %s""" % (", ".join(SCHEMA.keys())))
 
-    watch_parser = subparsers.add_parser("watch", help="Watches for incoming messages on an AMQP queue")
+    watch_parser = subparsers.add_parser("watch",
+        help="Watches for incoming messages on an AMQP queue")
     watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()
@@ -47,6 +40,18 @@ def main():
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+
+    loghandler = logging.StreamHandler()
+    if args.debug:
+        formatter = logging.Formatter(fmt="%(processName)s %(asctime)s  %(levelname)s: %(message)s")
+    else:
+        formatter = logging.Formatter(fmt="%(asctime)s: %(message)s")
+    loghandler.setFormatter(formatter)
+    logger.addHandler(loghandler)
+
+    mplogger = multiprocessing.get_logger()
+    mplogger.setLevel(logging.ERROR)
+    mplogger.addHandler(loghandler)
 
     if args.sqltimings:
         from sqlalchemy import event
@@ -73,7 +78,7 @@ def main():
     config.read_config()
     func = args.func
     args = vars(args)
-    func(args["entities"])
+    func(args)
 
 if __name__ == '__main__':
     main()
