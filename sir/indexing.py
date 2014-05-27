@@ -5,7 +5,7 @@ import multiprocessing
 
 from . import config, querying, util
 from .schema import SCHEMA
-from ConfigParser import Error, NoOptionError
+from ConfigParser import NoOptionError
 from functools import partial
 from logging import getLogger
 from solr import SolrException
