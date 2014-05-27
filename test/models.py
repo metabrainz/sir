@@ -12,7 +12,8 @@ class B(Base):
     """
     __tablename__ = "table_b"
     id = Column(Integer, primary_key=True)
-    c_id = Column(Integer, ForeignKey("table_c.id"))
+    foo = Column(Integer)
+    c_id = Column('c', Integer, ForeignKey("table_c.id"))
     c = relationship("C")
 
 
@@ -23,4 +24,5 @@ class C(Base):
     """
     __tablename__ = "table_c"
     id = Column(Integer, primary_key=True)
+    bar = Column(Integer)
     bs = relationship("B")

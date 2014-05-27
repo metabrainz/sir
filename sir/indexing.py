@@ -18,13 +18,14 @@ logger = getLogger("sir")
 STOP = None
 
 
-def reindex(entities):
+def reindex(args):
     """
-    Reindexes all entity types in ``entities``.
+    Reindexes all entity types in args["entities"].
 
-    :param entities: The entities to index.
-    :type entities: [str]
+    :param args: A dictionary with a key named ``entities``.
+    :type args: dict
     """
+    entities = args["entities"]
     known_entities = SCHEMA.keys()
     if entities is not None:
         _entities = []
