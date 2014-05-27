@@ -144,6 +144,7 @@ class SearchEntity(object):
         field specification of this entity.
 
         :param obj: A :ref:`declarative <sqla:declarative_toplevel>` object.
+        :rtype: dict
         """
         data = {}
         for field in self.fields:

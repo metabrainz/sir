@@ -10,8 +10,11 @@ Once its known which entity types will be imported,
 :func:`sir.indexing._multiprocessed_import` will successivey spawn
 :class:`multiprocessing.Process` es via :mod:`multiprocessing.pool` .
 Each of the processes will retrieve one batch of entities from the database via
-a query built from :func:`sir.querying.build_entity_query` and convert them
-into regular dicts via :func:`sir.indexing.query_result_to_dict`.
+a query built from
+:func:`~sir.schema.searchentities.SearchEntity.build_entity_query` and convert
+them
+into regular dicts via
+:func:`~sir.schema.searchentities.SearchEntity.query_result_to_dict`.
 The result of the conversion will be passed into a
 :class:`multiprocessing.Queue`.
 On the other end of the queue, another process running
