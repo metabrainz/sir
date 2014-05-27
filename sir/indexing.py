@@ -145,7 +145,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     row_converter = partial(query_result_to_dict, search_entity)
 
     with util.db_session_ctx(util.db_session()) as session:
-        query = querying.build_entity_query(search_entity).\
+        query = search_entity.query.\
             filter(condition).\
             with_session(session)
         map(lambda row: data_queue.put(row_converter(row)), query)

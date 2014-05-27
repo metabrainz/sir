@@ -3,8 +3,8 @@ import unittest
 
 from . import helpers, models
 from collections import defaultdict
-from sir.querying import (_defer_everything_but, _iterate_path_values,
-                          merge_paths)
+from sir.querying import _iterate_path_values
+from sir.schema.searchentities import defer_everything_but, merge_paths
 
 
 class DeferEverythingButTest(unittest.TestCase):
@@ -29,30 +29,30 @@ class DeferEverythingButTest(unittest.TestCase):
 
     def test_plain_column_called(self):
         self.prop.key = "foo"
-        load = _defer_everything_but(self.mapper, self.load, *self.required_columns)
+        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
         load.defer.assert_called_once_with("foo")
 
     def test_plain_column_not_called(self):
         self.prop.key = "key"
-        load = _defer_everything_but(self.mapper, self.load, *self.required_columns)
+        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
         self.assertFalse(load.defer.called)
 
     def test_id_column(self):
         self.prop.key = "foo_id"
-        load = _defer_everything_but(self.mapper, self.load,
-                                     *self.required_columns)
+        load = defer_everything_but(self.mapper, self.load,
+                                    *self.required_columns)
         self.assertFalse(load.defer.called)
 
     def test_position_column(self):
         self.prop.key = "position"
-        load = _defer_everything_but(self.mapper, self.load,
-                                     *self.required_columns)
+        load = defer_everything_but(self.mapper, self.load,
+                                    *self.required_columns)
         self.assertFalse(load.defer.called)
 
     def test_primary_key_always_loaded(self):
         self.prop.key = "pk1"
-        load = _defer_everything_but(self.mapper, self.load,
-                                     *self.required_columns)
+        load = defer_everything_but(self.mapper, self.load,
+                                    *self.required_columns)
         self.assertFalse(load.defer.called)
 
 
