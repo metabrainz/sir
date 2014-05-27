@@ -1,5 +1,6 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from ..querying import _iterate_path_values
 from collections import defaultdict
 from logging import getLogger
 from sqlalchemy.orm import class_mapper, Load
@@ -136,3 +137,25 @@ class SearchEntity(object):
                                                     *required_columns)
                 query = query.options(load)
         return query
+
+    def query_result_to_dict(self, obj):
+        """
+        Converts the result of single ``query`` result into a dictionary via the
+        field specification of this entity.
+
+        :param obj: A :ref:`declarative <sqla:declarative_toplevel>` object.
+        """
+        data = {}
+        for field in self.fields:
+            fieldname = field.name
+            tempvals = set()
+            for path in field.paths:
+                for val in _iterate_path_values(path, obj):
+                    tempvals.add(val)
+            if field.transformfunc is not None:
+                tempvals = field.transformfunc(tempvals)
+            if isinstance(tempvals, set) and len(tempvals) == 1:
+                tempvals = tempvals.pop()
+            logger.debug("Field %s: %s", fieldname, tempvals)
+            data[fieldname] = tempvals
+        return data

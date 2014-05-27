@@ -142,7 +142,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    row_converter = partial(query_result_to_dict, search_entity)
+    row_converter = search_entity.query_result_to_dict
 
     with util.db_session_ctx(util.db_session()) as session:
         query = search_entity.query.\
@@ -185,27 +185,3 @@ def queue_to_solr(queue, batch_size, solr_connection):
         solr_connection.add_many(data)
         logger.info("Committing changes to Solr")
         solr_connection.commit()
-
-
-def query_result_to_dict(entity, obj):
-    """
-    Converts the result of single ``query`` result into a dictionary via the
-    field specification of ``entity``.
-
-    :param sir.schema.searchentities.SearchEntity entity:
-    :param obj: A :ref:`declarative <sqla:declarative_toplevel>` object.
-    """
-    data = {}
-    for field in entity.fields:
-        fieldname = field.name
-        tempvals = set()
-        for path in field.paths:
-            for val in querying._iterate_path_values(path, obj):
-                tempvals.add(val)
-        if field.transformfunc is not None:
-            tempvals = field.transformfunc(tempvals)
-        if isinstance(tempvals, set) and len(tempvals) == 1:
-            tempvals = tempvals.pop()
-        logger.debug("Field %s: %s", fieldname, tempvals)
-        data[fieldname] = tempvals
-    return data
