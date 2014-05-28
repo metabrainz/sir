@@ -52,9 +52,6 @@ def unique_split_paths(paths):
     For each path in ``paths``, yield each of its continuous subpaths.
     If a subpath appears in multiple paths, it will be yielded only once.
 
-    If a path contains no dot, :var:`NO_DOT` will be yielded. If there are
-    multiple paths without a dot, :var:`NO_DOT` will be yielded only once.
-
     :param [str] paths:
     :rtype: iterator over str
     """
