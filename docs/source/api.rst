@@ -8,4 +8,5 @@ API
 .. automodule:: sir.querying
 .. automodule:: sir.schema
 .. automodule:: sir.schema.searchentities
+.. automodule:: sir.trigger_generation
 .. automodule:: sir.util
