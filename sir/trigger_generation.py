@@ -67,8 +67,6 @@ def unique_split_paths(paths):
 
 
 def walk_path(model, path):
-    # TODO: auf welche Tabelle soll der Trigger gesetzt werden?,
-    # TODO: wie soll der trigger heissen? tabellenname + path.replace(".", "_")
     current_model = model
     path_length = path.count(".")
     path_part = None
@@ -127,15 +125,97 @@ def walk_path(model, path):
     return outermost_path_part, innermost_table_name
 
 
+class TriggerGenerator(object):
+    """
+    A class to generate triggers and a corresponding function for a specific
+    operation (DELETE/INSERT/UPDATE).
+    """
+    id_replacement = None
+
+    #: The operation
+    op = None
+
+    def __init__(self, tablename, path, select):
+        """
+        :param str tablename: The table on which to generate the trigger
+        :param str path: The path for which to generate the trigger
+        :param str select: A SELECT statement to be embedded in the function
+        """
+        self.tablename = tablename
+        self.path = path
+        select = select.replace("{{new_or_old_id}}", self.id_replacement)
+        self.select = select
+
+    @property
+    def triggername(self):
+        """
+        The name of this trigger.
+
+        :rtype: str
+        """
+        return "search_" + self.tablename + "_" + self.op + "_" +\
+               self.path.replace(".", "_")
+
+    @property
+    def trigger(self):
+        """
+        The ``CREATE TRIGGER`` statement for this trigger.
+
+        :rtype: str
+        """
+        trigger = \
+"""
+CREATE TRIGGER {triggername} AFTER {op} ON {tablename}
+    FOR EACH ROW EXECUTE PROCEDURE {triggername}();
+""".format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
+        return trigger
+
+
+    @property
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        :rtype: str
+        """
+        func = \
+"""
+CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger AS $$
+BEGIN
+    FOR row IN {select} LOOP
+        PERFORM amqp.publish(BROKER_ID, EXCHANGE, ROUTING_KEY, row.id);
+    END LOOP;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+        """.format(triggername=self.triggername, select=self.select)
+        return func
+
+
+class DeletionTriggerGenerator(TriggerGenerator):
+    op = "delete"
+    id_replacement = "OLD.id"
+
+
+class InsertTriggerGenerator(TriggerGenerator):
+    op = "insert"
+    id_replacement = "NEW.id"
+
+
+class UpdateTriggerGenerator(TriggerGenerator):
+    op = "update"
+    id_replacement = "NEW.id"
+
+
 def generate_triggers(args):
     # filename = args["filename"]
     e = SCHEMA["release"]
     paths = unique_split_paths([path for field in e.fields for path in
                                 field.paths])
-    selects = []
     for path in paths:
-        a = walk_path(e.model, path)
-        if a is not None:
-            selects.append(a.render())
-    import pprint
-    pprint.pprint(selects)
+        select, table = walk_path(e.model, path)
+        if select is not None:
+            select = select.render()
+            gen = DeletionTriggerGenerator(table, path, select)
+            print gen.function
+            print gen.trigger
