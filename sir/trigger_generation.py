@@ -194,6 +194,9 @@ $$ LANGUAGE plpgsql;
 
 class DeletionTriggerGenerator(TriggerGenerator):
     # TODO: SELECT the gid, making further selects unnecessary
+    # TODO: If the path doesn't contain a dot and the column is different from
+    # gid/id, don't generate a trigger because the gid/id column are enough
+    # information for a deletion
     op = "delete"
     id_replacement = "OLD.id"
 
@@ -218,6 +221,7 @@ class InsertTriggerGenerator(TriggerGenerator):
 
 
 class UpdateTriggerGenerator(TriggerGenerator):
+    # TODO: WHEN
     op = "update"
     id_replacement = "NEW.id"
 
@@ -229,6 +233,9 @@ def generate_triggers(args):
                                 field.paths])
     for path in paths:
         select, table = walk_path(e.model, path)
+        # TODO: The column of the innermost select statement has to be `id` in
+        # the WHERE clause
+        # because the trigger functions can access NEW.id or OLD.id
         if select is not None:
             select = select.render()
             gen = DeletionTriggerGenerator(table, path, select)
