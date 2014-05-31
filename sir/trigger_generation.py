@@ -193,8 +193,23 @@ $$ LANGUAGE plpgsql;
 
 
 class DeletionTriggerGenerator(TriggerGenerator):
+    # TODO: SELECT the gid, making further selects unnecessary
     op = "delete"
     id_replacement = "OLD.id"
+
+    @property
+    def trigger(self):
+        """
+        The ``CREATE TRIGGER`` statement for this trigger.
+
+        :rtype: str
+        """
+        trigger = \
+"""
+CREATE TRIGGER {triggername} BEFORE {op} ON {tablename}
+    FOR EACH ROW EXECUTE PROCEDURE {triggername}();
+""".format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
+        return trigger
 
 
 class InsertTriggerGenerator(TriggerGenerator):
