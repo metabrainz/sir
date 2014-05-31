@@ -73,6 +73,7 @@ def walk_path(model, path):
     path_length = path.count(".")
     path_part = None
     outermost_path_part = None
+    innermost_table_name = None
 
     for i, path_elem in enumerate(path.split(".")):
         column = getattr(current_model, path_elem)
@@ -82,6 +83,7 @@ def walk_path(model, path):
             mapper = class_mapper(current_model)
             pk = mapper.primary_key[0].name
             tablename = mapper.mapped_table.name
+            innermost_table_name = tablename
 
             if prop.direction == ONETOMANY:
                 if i == path_length and isinstance(path_part,
@@ -89,14 +91,14 @@ def walk_path(model, path):
                     # The previous many-to-one relationship already contains
                     # the selection on the PK of this table because it has a
                     # foreign key
-                    return None
+                    return None, None
                 new_path_part = OneToManyPathPart(tablename, pk)
             elif prop.direction == MANYTOONE:
                 if i == path_length and isinstance(path_part,
                                         OneToManyPathPart):
                     # The previous one-to-many relationship already contains
                     # the selection on the PK of this table
-                    return None
+                    return None, None
                 new_path_part = ManyToOnePathPart(tablename, pk,
                                                   column.key)
 
@@ -107,6 +109,7 @@ def walk_path(model, path):
             # We need to replace the ``inner`` attribute of the current
             # ```path_part`` with a selection on the primary key.
             mapper = class_mapper(current_model)
+            innermost_table_name = mapper.mapped_table.name
             new_path_part = ManyToOnePathPart(mapper.mapped_table.name,
                                            mapper.primary_key[0].name,
                                            path_elem)
@@ -121,7 +124,7 @@ def walk_path(model, path):
         # The path ended in a relationship property
         path_part.inner = ColumnPathPart("", "")
 
-    return outermost_path_part
+    return outermost_path_part, innermost_table_name
 
 
 def generate_triggers(args):
