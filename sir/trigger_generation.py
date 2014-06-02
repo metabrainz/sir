@@ -171,7 +171,8 @@ CREATE TRIGGER {triggername} AFTER {op} ON {tablename}
         """
         func = \
 """
-CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
+    AS $$
 BEGIN
     FOR row IN {select} LOOP
         PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.id);
