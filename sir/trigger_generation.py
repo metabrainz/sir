@@ -179,7 +179,8 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-        """.format(triggername=self.triggername, select=self.select)
+""".\
+            format(triggername=self.triggername, select=self.select)
         return func
 
 
@@ -199,7 +200,9 @@ class DeletionTriggerGenerator(TriggerGenerator):
 """
 CREATE TRIGGER {triggername} BEFORE {op} ON {tablename}
     FOR EACH ROW EXECUTE PROCEDURE {triggername}();
-""".format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
+
+""".\
+            format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
         return trigger
 
 
@@ -215,14 +218,19 @@ class UpdateTriggerGenerator(TriggerGenerator):
 
 
 def generate_triggers(args):
-    # filename = args["filename"]
-    e = SCHEMA["release"]
-    paths = unique_split_paths([path for field in e.fields for path in
-                                field.paths])
-    for path in paths:
-        select, table = walk_path(e.model, path)
-        if select is not None:
-            select = select.render()
-            gen = DeletionTriggerGenerator("release", table, path, select)
-            print gen.function
-            print gen.trigger
+    filename = args["filename"]
+    with open(filename, "w") as triggerfile:
+        for entityname, e in SCHEMA.iteritems():
+            paths = unique_split_paths([path for field in e.fields for path in
+                                        field.paths])
+            for path in paths:
+                select, table = walk_path(e.model, path)
+                if select is not None:
+                    select = select.render()
+                    for generator in (DeletionTriggerGenerator,
+                                      InsertTriggerGenerator,
+                                      UpdateTriggerGenerator):
+                        gen = generator(entityname, table, path, select)
+                        triggerfile.write(gen.function)
+                        triggerfile.write(gen.trigger)
+
