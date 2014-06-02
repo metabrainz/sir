@@ -220,6 +220,8 @@ class UpdateTriggerGenerator(TriggerGenerator):
 def generate_triggers(args):
     filename = args["filename"]
     with open(filename, "w") as triggerfile:
+        triggerfile.write("\set ON_ERROR_STOP 1\n")
+        triggerfile.write("BEGIN;\n")
         for entityname, e in SCHEMA.iteritems():
             paths = unique_split_paths([path for field in e.fields for path in
                                         field.paths])
@@ -233,4 +235,4 @@ def generate_triggers(args):
                         gen = generator(entityname, table, path, select)
                         triggerfile.write(gen.function)
                         triggerfile.write(gen.trigger)
-
+        triggerfile.write("COMMIT;\n")
