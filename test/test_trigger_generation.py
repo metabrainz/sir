@@ -46,7 +46,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result.inner, ManyToOnePathPart))
         self.assertTrue(isinstance(result.inner.inner, ColumnPathPart))
         self.assertEqual(result.render(),
-        "SELECT id FROM table_b WHERE c = (SELECT id FROM table_c WHERE bar"
+        "SELECT id FROM table_b WHERE c = (SELECT id FROM table_c WHERE id"
         " = ({{new_or_old_id}}))")
         self.assertEqual(table, "table_c")
 
@@ -75,7 +75,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result.inner, ManyToOnePathPart))
         self.assertTrue(isinstance(result.inner.inner, ColumnPathPart))
         self.assertEqual(result.render(),
-        "SELECT id FROM table_c WHERE id IN (SELECT id FROM table_b WHERE foo ="
+        "SELECT id FROM table_c WHERE id IN (SELECT id FROM table_b WHERE id ="
         " ({{new_or_old_id}}))")
         self.assertEqual(table, "table_b")
 

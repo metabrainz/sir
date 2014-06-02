@@ -108,9 +108,10 @@ def walk_path(model, path):
             # ```path_part`` with a selection on the primary key.
             mapper = class_mapper(current_model)
             innermost_table_name = mapper.mapped_table.name
+            pk = mapper.primary_key[0].name
             new_path_part = ManyToOnePathPart(mapper.mapped_table.name,
-                                           mapper.primary_key[0].name,
-                                           path_elem)
+                                              pk,
+                                              pk)
         if path_part is None:
             path_part = new_path_part
             outermost_path_part = path_part
@@ -233,9 +234,6 @@ def generate_triggers(args):
                                 field.paths])
     for path in paths:
         select, table = walk_path(e.model, path)
-        # TODO: The column of the innermost select statement has to be `id` in
-        # the WHERE clause
-        # because the trigger functions can access NEW.id or OLD.id
         if select is not None:
             select = select.render()
             gen = DeletionTriggerGenerator(table, path, select)
