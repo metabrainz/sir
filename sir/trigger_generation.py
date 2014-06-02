@@ -22,8 +22,6 @@ class PathPart(object):
 
 class OneToManyPathPart(PathPart):
     def render(self):
-        #if isinstance(self.inner, ColumnPathPart):
-            #return self.inner.render()
         return "SELECT {pk} FROM {table} WHERE {pk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render())
@@ -35,8 +33,6 @@ class ManyToOnePathPart(PathPart):
         self.fkname = fkname
 
     def render(self):
-        #if isinstance(self.inner, ColumnPathPart):
-            #return self.inner.render()
         return "SELECT {pk} FROM {table} WHERE {fk} = ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render(), fk=self.fkname)
