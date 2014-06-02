@@ -81,42 +81,25 @@ def walk_path(model, path):
             mapper = class_mapper(current_model)
             pk = mapper.primary_key[0].name
             tablename = mapper.mapped_table.name
-            innermost_table_name = tablename
+            innermost_table_name = prop.table.name
 
             if prop.direction == ONETOMANY:
-                innermost_table_name = prop.table.name
                 new_path_part = OneToManyPathPart(tablename, pk)
                 if i == path_length:
-                    if isinstance(path_part, ManyToOnePathPart):
-                        # The previous many-to-one relationship already contains
-                        # the selection on the PK of this table because it has a
-                        # foreign key
-                        return None, None
-                    else:
                         remote_column = list(prop.remote_side)[0].name
                         inner = ColumnPathPart("", remote_column)
                         new_path_part.inner = inner
             elif prop.direction == MANYTOONE:
-                if i == path_length and isinstance(path_part,
-                                                   OneToManyPathPart):
-                    # The previous one-to-many relationship already contains
-                    # the selection on the PK of this table
-                    return None, None
                 new_path_part = ManyToOnePathPart(tablename, pk,
                                                   column.key)
 
             current_model = prop.mapper.class_
 
         elif isinstance(prop, ColumnProperty):
-            # We're at the last element of a path, which is a simple column.
-            # We need to replace the ``inner`` attribute of the current
-            # ```path_part`` with a selection on the primary key.
-            mapper = class_mapper(current_model)
-            innermost_table_name = mapper.mapped_table.name
-            pk = mapper.primary_key[0].name
-            new_path_part = ManyToOnePathPart(mapper.mapped_table.name,
-                                              pk,
-                                              pk)
+            # We're not interested in columns because the relationship handling
+            # takes care of selections on primary keys etc.
+            return None, None
+
         if path_part is None:
             path_part = new_path_part
             outermost_path_part = path_part
@@ -202,9 +185,6 @@ $$ LANGUAGE plpgsql;
 
 class DeletionTriggerGenerator(TriggerGenerator):
     # TODO: SELECT the gid, making further selects unnecessary
-    # TODO: If the path doesn't contain a dot and the column is different from
-    # gid/id, don't generate a trigger because the gid/id column are enough
-    # information for a deletion
     op = "delete"
     id_replacement = "OLD.id"
 
