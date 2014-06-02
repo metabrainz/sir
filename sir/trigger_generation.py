@@ -124,6 +124,9 @@ class TriggerGenerator(object):
     #: The operation
     op = None
 
+    #: Whether to execute the trigger BEFORE or AFTER :attr:`op`
+    beforeafter = "AFTER"
+
     def __init__(self, prefix, tablename, path, select):
         """
         :param str prefix: A prefix for the trigger name
@@ -156,9 +159,10 @@ class TriggerGenerator(object):
         """
         trigger = \
 """
-CREATE TRIGGER {triggername} AFTER {op} ON {tablename}
+CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
     FOR EACH ROW EXECUTE PROCEDURE {triggername}();
-""".format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
+""".format(triggername=self.triggername, tablename=self.tablename,
+           op=self.op.upper(), beforeafter=self.beforeafter)
         return trigger
 
 
@@ -188,6 +192,7 @@ $$ LANGUAGE plpgsql;
 class DeleteTriggerGenerator(TriggerGenerator):
     op = "delete"
     id_replacement = "OLD"
+    beforeafter = "BEFORE"
 
     def __init__(self, *args, **kwargs):
         super(DeleteTriggerGenerator, self).__init__(*args, **kwargs)
@@ -197,22 +202,6 @@ class DeleteTriggerGenerator(TriggerGenerator):
         self.select = self.select.replace(
             "SELECT id FROM {table}".format(table=self.prefix),
             "SELECT gid FROM {table}".format(table=self.prefix))
-
-    @property
-    def trigger(self):
-        """
-        The ``CREATE TRIGGER`` statement for this trigger.
-
-        :rtype: str
-        """
-        trigger = \
-"""
-CREATE TRIGGER {triggername} BEFORE {op} ON {tablename}
-    FOR EACH ROW EXECUTE PROCEDURE {triggername}();
-
-""".\
-            format(triggername=self.triggername, tablename=self.tablename, op=self.op.upper())
-        return trigger
 
     @property
     def function(self):
