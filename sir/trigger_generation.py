@@ -44,7 +44,7 @@ class ManyToOnePathPart(PathPart):
 
 class ColumnPathPart(PathPart):
     def render(self):
-        return "{{new_or_old_id}}"
+        return "{{new_or_old}}.{pkname}".format(pkname=self.pkname)
 
 
 def unique_split_paths(paths):
@@ -84,16 +84,20 @@ def walk_path(model, path):
             innermost_table_name = tablename
 
             if prop.direction == ONETOMANY:
-                if i == path_length and isinstance(path_part,
-                                        ManyToOnePathPart):
-                    # The previous many-to-one relationship already contains
-                    # the selection on the PK of this table because it has a
-                    # foreign key
-                    return None, None
                 new_path_part = OneToManyPathPart(tablename, pk)
+                if i == path_length:
+                    if isinstance(path_part, ManyToOnePathPart):
+                        # The previous many-to-one relationship already contains
+                        # the selection on the PK of this table because it has a
+                        # foreign key
+                        return None, None
+                    else:
+                        remote_column = list(prop.remote_side)[0].name
+                        inner = ColumnPathPart("", remote_column)
+                        new_path_part.inner = inner
             elif prop.direction == MANYTOONE:
                 if i == path_length and isinstance(path_part,
-                                        OneToManyPathPart):
+                                                   OneToManyPathPart):
                     # The previous one-to-many relationship already contains
                     # the selection on the PK of this table
                     return None, None
@@ -121,7 +125,7 @@ def walk_path(model, path):
 
     if path_part.inner is None:
         # The path ended in a relationship property
-        path_part.inner = ColumnPathPart("", "")
+        path_part.inner = ColumnPathPart("", "id")
 
     return outermost_path_part, innermost_table_name
 

@@ -47,7 +47,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result.inner.inner, ColumnPathPart))
         self.assertEqual(result.render(),
         "SELECT id FROM table_b WHERE c = (SELECT id FROM table_c WHERE id"
-        " = ({{new_or_old_id}}))")
+        " = ({new_or_old}.id))")
         self.assertEqual(table, "table_c")
 
     def test_many_to_one_and_one_to_many_returns_None(self):
@@ -64,7 +64,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result, ManyToOnePathPart))
         self.assertTrue(isinstance(result.inner, ColumnPathPart))
         self.assertEqual(result.render(),
-        "SELECT id FROM table_b WHERE c = ({{new_or_old_id}})")
+        "SELECT id FROM table_b WHERE c = ({new_or_old}.id)")
         self.assertEqual(table, "table_b")
 
     def test_one_to_many(self):
@@ -76,7 +76,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result.inner.inner, ColumnPathPart))
         self.assertEqual(result.render(),
         "SELECT id FROM table_c WHERE id IN (SELECT id FROM table_b WHERE id ="
-        " ({{new_or_old_id}}))")
+        " ({new_or_old}.id))")
         self.assertEqual(table, "table_b")
 
     def test_one_to_many_and_many_to_one_returns_None(self):
@@ -94,5 +94,5 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result.inner, ColumnPathPart))
         self.assertEqual(result.render(),
         "SELECT id FROM table_c WHERE id IN "
-        "({{new_or_old_id}})")
+        "({new_or_old}.c)")
         self.assertEqual(table, "table_c")
