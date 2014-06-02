@@ -5,7 +5,11 @@ from sir.trigger_generation import (unique_split_paths,
                                     walk_path,
                                     OneToManyPathPart,
                                     ManyToOnePathPart,
-                                    ColumnPathPart)
+                                    ColumnPathPart,
+                                    TriggerGenerator,
+                                    DeleteTriggerGenerator,
+                                    InsertTriggerGenerator,
+                                    UpdateTriggerGenerator)
 
 
 class UniqueSplitPathsTest(unittest.TestCase):
@@ -71,3 +75,66 @@ class WalkPathTest(unittest.TestCase):
         result, table = walk_path(model, path)
         self.assertTrue(result is None)
         self.assertTrue(table is None)
+
+
+class TriggerGeneratorTest(unittest.TestCase):
+    class TestGenerator(TriggerGenerator):
+        id_replacement = "REPLACEMENT"
+        op = "OPERATION"
+        beforeafter = "SOMEWHEN"
+
+    def setUp(self):
+        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar", "SELECTION")
+
+    def test_function(self):
+        self.assertEqual(self.gen.function,
+"""
+CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
+    AS $$
+BEGIN
+    FOR row IN SELECTION LOOP
+        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.id);
+    END LOOP;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+""".format(name=self.gen.triggername)
+                        )
+
+    def test_triggername(self):
+        self.assertEqual(self.gen.triggername,
+                         "search_PREFIX_OPERATION_foo_bar")
+
+    def test_trigger(self):
+        self.assertEqual(self.gen.trigger,
+                         "\n"
+                         "CREATE TRIGGER {name} SOMEWHEN OPERATION ON TABLE"
+                         "\n"
+                         "    FOR EACH ROW EXECUTE PROCEDURE {name}();"
+                         "\n".
+                         format(name=self.gen.triggername))
+
+    def test_delete_attributes(self):
+        self.assertEqual(DeleteTriggerGenerator.op, "delete")
+        self.assertEqual(DeleteTriggerGenerator.id_replacement, "OLD")
+        self.assertEqual(DeleteTriggerGenerator.beforeafter, "BEFORE")
+
+    def test_insert_attributes(self):
+        self.assertEqual(InsertTriggerGenerator.op, "insert")
+        self.assertEqual(InsertTriggerGenerator.id_replacement, "NEW")
+        self.assertEqual(InsertTriggerGenerator.beforeafter, "AFTER")
+
+    def test_update_attributes(self):
+        self.assertEqual(UpdateTriggerGenerator.op, "update")
+        self.assertEqual(UpdateTriggerGenerator.id_replacement, "NEW")
+        self.assertEqual(UpdateTriggerGenerator.beforeafter, "AFTER")
+
+
+class DeleteTriggerTest(unittest.TestCase):
+    def setUp(self):
+        self.gen = DeleteTriggerGenerator("PREFIX", "TABLE", "foo.bar",
+                                          "SELECT id FROM PREFIX WHERE")
+
+    def test_gid_selection(self):
+        self.assertEqual(self.gen.select,
+                         "SELECT gid FROM PREFIX WHERE")
