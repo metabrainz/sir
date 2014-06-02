@@ -185,12 +185,12 @@ $$ LANGUAGE plpgsql;
         return func
 
 
-class DeletionTriggerGenerator(TriggerGenerator):
+class DeleteTriggerGenerator(TriggerGenerator):
     op = "delete"
     id_replacement = "OLD"
 
     def __init__(self, *args, **kwargs):
-        super(DeletionTriggerGenerator, self).__init__(*args, **kwargs)
+        super(DeleteTriggerGenerator, self).__init__(*args, **kwargs)
         # Replace the first "SELECT id FROM" with "SELECT gid FROM" because
         # this enables us to just delete the document in Solr by its unique
         # key, which is the gid.
@@ -260,7 +260,7 @@ def generate_triggers(args):
                 select, table = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
-                    for generator in (DeletionTriggerGenerator,
+                    for generator in (DeleteTriggerGenerator,
                                       InsertTriggerGenerator,
                                       UpdateTriggerGenerator):
                         gen = generator(entityname, table, path, select)
