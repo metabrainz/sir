@@ -134,7 +134,7 @@ class TriggerGenerator(object):
         self.prefix = prefix
         self.tablename = tablename
         self.path = path
-        select = select.replace("{{new_or_old_id}}", self.id_replacement)
+        select = select.format(new_or_old=self.id_replacement)
         self.select = select
 
     @property
@@ -186,7 +186,7 @@ $$ LANGUAGE plpgsql;
 class DeletionTriggerGenerator(TriggerGenerator):
     # TODO: SELECT the gid, making further selects unnecessary
     op = "delete"
-    id_replacement = "OLD.id"
+    id_replacement = "OLD"
 
     @property
     def trigger(self):
@@ -205,13 +205,13 @@ CREATE TRIGGER {triggername} BEFORE {op} ON {tablename}
 
 class InsertTriggerGenerator(TriggerGenerator):
     op = "insert"
-    id_replacement = "NEW.id"
+    id_replacement = "NEW"
 
 
 class UpdateTriggerGenerator(TriggerGenerator):
     # TODO: WHEN
     op = "update"
-    id_replacement = "NEW.id"
+    id_replacement = "NEW"
 
 
 def generate_triggers(args):
