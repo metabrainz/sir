@@ -84,6 +84,7 @@ def walk_path(model, path):
             innermost_table_name = tablename
 
             if prop.direction == ONETOMANY:
+                innermost_table_name = prop.table.name
                 new_path_part = OneToManyPathPart(tablename, pk)
                 if i == path_length:
                     if isinstance(path_part, ManyToOnePathPart):
@@ -140,12 +141,14 @@ class TriggerGenerator(object):
     #: The operation
     op = None
 
-    def __init__(self, tablename, path, select):
+    def __init__(self, prefix, tablename, path, select):
         """
+        :param str prefix: A prefix for the trigger name
         :param str tablename: The table on which to generate the trigger
         :param str path: The path for which to generate the trigger
         :param str select: A SELECT statement to be embedded in the function
         """
+        self.prefix = prefix
         self.tablename = tablename
         self.path = path
         select = select.replace("{{new_or_old_id}}", self.id_replacement)
@@ -158,7 +161,7 @@ class TriggerGenerator(object):
 
         :rtype: str
         """
-        return "search_" + self.tablename + "_" + self.op + "_" +\
+        return "search_" + self.prefix + "_" + self.op + "_" +\
                self.path.replace(".", "_")
 
     @property
@@ -240,6 +243,6 @@ def generate_triggers(args):
         select, table = walk_path(e.model, path)
         if select is not None:
             select = select.render()
-            gen = DeletionTriggerGenerator(table, path, select)
+            gen = DeletionTriggerGenerator("release", table, path, select)
             print gen.function
             print gen.trigger

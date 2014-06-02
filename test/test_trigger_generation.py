@@ -95,4 +95,4 @@ class WalkPathTest(unittest.TestCase):
         self.assertEqual(result.render(),
         "SELECT id FROM table_c WHERE id IN "
         "({new_or_old}.c)")
-        self.assertEqual(table, "table_c")
+        self.assertEqual(table, "table_b")
