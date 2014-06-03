@@ -190,37 +190,6 @@ class DeleteTriggerGenerator(TriggerGenerator):
     id_replacement = "OLD"
     beforeafter = "BEFORE"
 
-    def __init__(self, *args, **kwargs):
-        super(DeleteTriggerGenerator, self).__init__(*args, **kwargs)
-        # Replace the first "SELECT id FROM" with "SELECT gid FROM" because
-        # this enables us to just delete the document in Solr by its unique
-        # key, which is the gid.
-        self.select = self.select.replace(
-            "SELECT id FROM {table}".format(table=self.prefix),
-            "SELECT gid FROM {table}".format(table=self.prefix))
-
-    @property
-    def function(self):
-        """
-        The ``CREATE FUNCTION`` statement for this trigger.
-
-        :rtype: str
-        """
-        func = \
-"""
-CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
-    AS $$
-BEGIN
-    FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.gid);
-    END LOOP;
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-""".\
-            format(triggername=self.triggername, select=self.select)
-        return func
-
 
 class InsertTriggerGenerator(TriggerGenerator):
     op = "insert"

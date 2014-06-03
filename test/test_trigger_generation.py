@@ -128,13 +128,3 @@ $$ LANGUAGE plpgsql;
         self.assertEqual(UpdateTriggerGenerator.op, "update")
         self.assertEqual(UpdateTriggerGenerator.id_replacement, "NEW")
         self.assertEqual(UpdateTriggerGenerator.beforeafter, "AFTER")
-
-
-class DeleteTriggerTest(unittest.TestCase):
-    def setUp(self):
-        self.gen = DeleteTriggerGenerator("PREFIX", "TABLE", "foo.bar",
-                                          "SELECT id FROM PREFIX WHERE")
-
-    def test_gid_selection(self):
-        self.assertEqual(self.gen.select,
-                         "SELECT gid FROM PREFIX WHERE")
