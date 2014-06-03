@@ -12,16 +12,48 @@ logger = getLogger("sir")
 
 
 class PathPart(object):
+    """
+    A class representing part of a selection along a path across tables. Its
+    subclasses can be used to construct SELECT statements programmatically,
+    knowing only the relationship between the tables.
+
+    Calling :func:`~sir.trigger_generation.PathPart.render` on the outermost
+    :class:`PathPart` in a chain will return a SELECT statement for the
+    :attr:`pkname` attribute on the table :attr:`tablename` along the complete
+    chain.
+
+    >>> outer = ManyToOnePathPart("table_1", "id", "table_2_id")
+    >>> inner = ColumnPathPart("table_2", "id")
+    >>> outer.inner = inner
+    >>> outer.render()
+    'SELECT id FROM table_1 WHERE table_2_id = ({new_or_old}.id)'
+    """
     def __init__(self, tablename, pkname, inner=None):
+        """
+        :param str tablename: The name of the table
+        :param str pkname: The primary key of the table
+        :param PathPart inner:
+        """
         self.tablename = tablename
         self.pkname = pkname
         self.inner = inner
 
     def render():
+        """
+        Render the selection represented by this object and its inner object into a
+        string.
+
+        :rtype: str
+        """
         raise NotImplementedError
 
 
 class OneToManyPathPart(PathPart):
+    """
+    A :class:`~sir.trigger_generation.PathPart` subclass used to represent a
+    selection across a one-to-many relationship between two
+    tables.
+    """
     def render(self):
         return "SELECT {pk} FROM {table} WHERE {pk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
@@ -29,6 +61,11 @@ class OneToManyPathPart(PathPart):
 
 
 class ManyToOnePathPart(PathPart):
+    """
+    A :class:`~sir.trigger_generation.PathPart` subclass used to represent a
+    selection across a many-to-one relationship between two
+    tables.
+    """
     def __init__(self, tablename, pkname, fkname, inner=None):
         PathPart.__init__(self, tablename, pkname, inner)
         self.fkname = fkname
@@ -40,6 +77,11 @@ class ManyToOnePathPart(PathPart):
 
 
 class ColumnPathPart(PathPart):
+    """
+    A :class:`~sir.trigger_generation.PathPart` subclass used to represent the
+    selection of the primary key column of the innermost SELECT statement in
+    the chain.
+    """
     def render(self):
         return "{{new_or_old}}.{pkname}".format(pkname=self.pkname)
 
@@ -64,6 +106,15 @@ def unique_split_paths(paths):
 
 
 def walk_path(model, path):
+    """
+    Walk ``path`` beginning at ``model`` and return a
+    :class:`~sir.trigger_generation.PathPart` object representing a selection
+    along that path. Also return the name of the last table seen while
+    following ``path``
+
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param str path:
+    """
     current_model = model
     path_length = path.count(".")
     path_part = None
@@ -271,6 +322,10 @@ def write_direct_triggers(triggerfile, entityname, model):
 
 
 def generate_triggers(args):
+    """
+    The entry point for this module. This function gets called from
+    :func:`~sir.__main__.main`.
+    """
     filename = args["filename"]
     with open(filename, "w") as triggerfile:
         triggerfile.write("-- Automatically generated, do not edit\n")
