@@ -1,3 +1,4 @@
+import doctest
 import mock
 import unittest
 
@@ -174,3 +175,9 @@ class DirectTriggerWriterTest(unittest.TestCase):
 
     def test_write_count(self):
         self.assertEqual(self.triggerfile.write.call_count, 6)
+
+
+def load_tests(loader, tests, ignore):
+    from sir import trigger_generation
+    tests.addTests(doctest.DocTestSuite(trigger_generation))
+    return tests
