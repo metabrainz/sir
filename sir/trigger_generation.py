@@ -238,12 +238,19 @@ $$ LANGUAGE plpgsql;
 
 
 class DeleteTriggerGenerator(TriggerGenerator):
+    """
+    A trigger generator for DELETE operations.
+    """
     op = "delete"
     id_replacement = "OLD"
     beforeafter = "BEFORE"
 
 
 class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
+    """
+    Like :class:`~sir.trigger_generation.DeleteTriggerGenerator` but replaces
+    the first ``SELECT id`` with ``SELECT gid``.
+    """
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.select = self.select.replace("SELECT id", "SELECT gid")
@@ -272,11 +279,17 @@ $$ LANGUAGE plpgsql;
 
 
 class InsertTriggerGenerator(TriggerGenerator):
+    """
+    A trigger generator for INSERT operations.
+    """
     op = "insert"
     id_replacement = "NEW"
 
 
 class UpdateTriggerGenerator(TriggerGenerator):
+    """
+    A trigger generator for UPDATE operations.
+    """
     # TODO: WHEN
     op = "update"
     id_replacement = "NEW"
