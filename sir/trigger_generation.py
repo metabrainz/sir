@@ -273,6 +273,7 @@ def write_direct_triggers(triggerfile, entityname, model):
 def generate_triggers(args):
     filename = args["filename"]
     with open(filename, "w") as triggerfile:
+        triggerfile.write("-- Automatically generated, do not edit\n")
         triggerfile.write("\set ON_ERROR_STOP 1\n")
         triggerfile.write("BEGIN;\n")
         for entityname, e in SCHEMA.iteritems():
