@@ -1,6 +1,7 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from .schema import SCHEMA
+from functools import partial
 from logging import getLogger
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
@@ -191,6 +192,34 @@ class DeleteTriggerGenerator(TriggerGenerator):
     beforeafter = "BEFORE"
 
 
+class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
+    def __init__(self, *args, **kwargs):
+        super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
+        self.select = self.select.replace("SELECT id", "SELECT gid")
+
+    @property
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        :rtype: str
+        """
+        func = \
+"""
+CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
+    AS $$
+BEGIN
+    FOR row IN {select} LOOP
+        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.gid);
+    END LOOP;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+""".\
+            format(triggername=self.triggername, select=self.select)
+        return func
+
+
 class InsertTriggerGenerator(TriggerGenerator):
     op = "insert"
     id_replacement = "NEW"
@@ -202,22 +231,65 @@ class UpdateTriggerGenerator(TriggerGenerator):
     id_replacement = "NEW"
 
 
+def write_triggers_to_file(triggerfile, generators, entityname, table, path, select):
+    """
+    Write deletion, insertion and update triggers to ``triggerfile``.
+
+    :param file triggerfile:
+    :param generators:
+    :type generators: [TriggerGenerator]
+    :param str entityname:
+    :param str table:
+    :param str path:
+    :param str select:
+    """
+    for generator in generators:
+        gen = generator(entityname, table, path, select)
+        triggerfile.write(gen.function)
+        triggerfile.write(gen.trigger)
+
+
+def write_direct_triggers(triggerfile, entityname, model):
+    """
+    :param file triggerfile:
+    :param str entityname:
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    """
+    id_select = "SELECT id FROM {table} WHERE {pk} = {{new_or_old}}.{pk}"
+    mapper = class_mapper(model)
+    pk = mapper.primary_key[0].name
+    tablename = mapper.mapped_table.name
+
+    write_triggers_to_file(triggerfile,
+                           generators=(GIDDeleteTriggerGenerator,
+                                       InsertTriggerGenerator,
+                                       UpdateTriggerGenerator),
+                           entityname=entityname,
+                           table=tablename,
+                           path="direct",
+                           select=id_select.format(pk=pk, table=tablename))
+
+
 def generate_triggers(args):
     filename = args["filename"]
     with open(filename, "w") as triggerfile:
         triggerfile.write("\set ON_ERROR_STOP 1\n")
         triggerfile.write("BEGIN;\n")
         for entityname, e in SCHEMA.iteritems():
+            writer = partial(write_triggers_to_file,
+                             generators=(DeleteTriggerGenerator,
+                                         InsertTriggerGenerator,
+                                         UpdateTriggerGenerator),
+                             triggerfile=triggerfile,
+                             entityname=entityname)
             paths = unique_split_paths([path for field in e.fields for path in
                                         field.paths])
+
+            write_direct_triggers(triggerfile, entityname, e.model)
+
             for path in paths:
                 select, table = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
-                    for generator in (DeleteTriggerGenerator,
-                                      InsertTriggerGenerator,
-                                      UpdateTriggerGenerator):
-                        gen = generator(entityname, table, path, select)
-                        triggerfile.write(gen.function)
-                        triggerfile.write(gen.trigger)
+                    writer(table=table, path=path, select=select)
         triggerfile.write("COMMIT;\n")

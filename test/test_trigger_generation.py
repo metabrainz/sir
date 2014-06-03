@@ -1,3 +1,4 @@
+import mock
 import unittest
 
 from . import models
@@ -9,7 +10,10 @@ from sir.trigger_generation import (unique_split_paths,
                                     TriggerGenerator,
                                     DeleteTriggerGenerator,
                                     InsertTriggerGenerator,
-                                    UpdateTriggerGenerator)
+                                    UpdateTriggerGenerator,
+                                    GIDDeleteTriggerGenerator,
+                                    write_triggers_to_file,
+                                    write_direct_triggers)
 
 
 class UniqueSplitPathsTest(unittest.TestCase):
@@ -128,3 +132,45 @@ $$ LANGUAGE plpgsql;
         self.assertEqual(UpdateTriggerGenerator.op, "update")
         self.assertEqual(UpdateTriggerGenerator.id_replacement, "NEW")
         self.assertEqual(UpdateTriggerGenerator.beforeafter, "AFTER")
+
+
+class WriteTriggersTest(unittest.TestCase):
+    def setUp(self):
+        self.triggerfile = mock.Mock()
+        write_triggers_to_file(self.triggerfile, (InsertTriggerGenerator,),
+                               "entity_c", "table_c", "bs.foo", "SELECTION")
+        self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
+                                          "SELECTION")
+
+    def test_writes_function(self):
+        self.triggerfile.write.assert_any_call(self.gen.function)
+
+    def test_writes_trigger(self):
+        self.triggerfile.write.assert_any_call(self.gen.trigger)
+
+    def test_write_count(self):
+        self.assertEqual(self.triggerfile.write.call_count, 2)
+
+
+class DirectTriggerWriterTest(unittest.TestCase):
+    def setUp(self):
+        self.triggerfile = mock.Mock()
+        write_direct_triggers(self.triggerfile, "entity_c", models.C)
+        self.generators = []
+        for g in (GIDDeleteTriggerGenerator,
+                  InsertTriggerGenerator,
+                  UpdateTriggerGenerator):
+            gen = g("entity_c", "table_c", "direct",
+                    "SELECT id FROM table_c WHERE id = {new_or_old}.id")
+            self.generators.append(gen)
+
+    def test_writes_functions(self):
+        for gen in self.generators:
+            self.triggerfile.write.assert_any_call(gen.function)
+
+    def test_writes_triggers(self):
+        for gen in self.generators:
+            self.triggerfile.write.assert_any_call(gen.trigger)
+
+    def test_write_count(self):
+        self.assertEqual(self.triggerfile.write.call_count, 6)
