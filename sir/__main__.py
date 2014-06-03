@@ -40,7 +40,7 @@ def main():
         help="Generate triggers")
     generate_trigger_parser.set_defaults(func=generate_triggers)
     generate_trigger_parser.add_argument('-f', '--filename',
-        action="store", default="./CreateTriggers.sql",
+        action="store", default="sql/CreateTriggers.sql",
         help="The filename to save the triggers into")
 
     args = parser.parse_args()
