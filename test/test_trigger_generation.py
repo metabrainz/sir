@@ -182,5 +182,5 @@ class DirectTriggerWriterTest(unittest.TestCase):
 
 def load_tests(loader, tests, ignore):
     from sir import trigger_generation
-    tests.addTests(doctest.DocTestSuite(trigger_generation))
+    tests.addTests(doctest.DocTestSuite(trigger_generation.types))
     return tests
