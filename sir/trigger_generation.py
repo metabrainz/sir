@@ -175,6 +175,9 @@ class TriggerGenerator(object):
     #: Whether to execute the trigger BEFORE or AFTER :attr:`op`
     beforeafter = "AFTER"
 
+    #: The routing key to be used for the message sent via AMQP
+    routing_key = None
+
     def __init__(self, prefix, tablename, path, select):
         """
         :param str prefix: A prefix for the trigger name
@@ -227,13 +230,14 @@ CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
 BEGIN
     FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.id);
+        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.id);
     END LOOP;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 """.\
-            format(triggername=self.triggername, select=self.select)
+            format(triggername=self.triggername, select=self.select,
+                   routing_key=self.routing_key, tablename=self.tablename)
         return func
 
 
@@ -244,13 +248,17 @@ class DeleteTriggerGenerator(TriggerGenerator):
     op = "delete"
     id_replacement = "OLD"
     beforeafter = "BEFORE"
+    routing_key = "update"
 
 
 class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
     """
     Like :class:`~sir.trigger_generation.DeleteTriggerGenerator` but replaces
     the first ``SELECT id`` with ``SELECT gid``.
+
     """
+    routing_key = "delete"
+
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.select = self.select.replace("SELECT id", "SELECT gid")
@@ -268,13 +276,14 @@ CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
 BEGIN
     FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.gid);
+        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.gid);
     END LOOP;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 """.\
-            format(triggername=self.triggername, select=self.select)
+            format(triggername=self.triggername, select=self.select,
+                   routing_key=self.routing_key, tablename=self.tablename)
         return func
 
 
@@ -284,6 +293,7 @@ class InsertTriggerGenerator(TriggerGenerator):
     """
     op = "insert"
     id_replacement = "NEW"
+    routing_key = "index"
 
 
 class UpdateTriggerGenerator(TriggerGenerator):
@@ -293,6 +303,7 @@ class UpdateTriggerGenerator(TriggerGenerator):
     # TODO: WHEN
     op = "update"
     id_replacement = "NEW"
+    routing_key = "update"
 
 
 def write_triggers_to_file(triggerfile, generators, entityname, table, path, select):

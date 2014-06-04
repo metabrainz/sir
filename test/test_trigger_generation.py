@@ -98,7 +98,7 @@ CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
     AS $$
 BEGIN
     FOR row IN SELECTION LOOP
-        PERFORM amqp.publish(1, EXCHANGE, ROUTING_KEY, row.id);
+        PERFORM amqp.publish(1, 'search', 'None', 'TABLE ' || row.id);
     END LOOP;
     RETURN NULL;
 END;
@@ -123,16 +123,19 @@ $$ LANGUAGE plpgsql;
         self.assertEqual(DeleteTriggerGenerator.op, "delete")
         self.assertEqual(DeleteTriggerGenerator.id_replacement, "OLD")
         self.assertEqual(DeleteTriggerGenerator.beforeafter, "BEFORE")
+        self.assertEqual(DeleteTriggerGenerator.routing_key, "update")
 
     def test_insert_attributes(self):
         self.assertEqual(InsertTriggerGenerator.op, "insert")
         self.assertEqual(InsertTriggerGenerator.id_replacement, "NEW")
         self.assertEqual(InsertTriggerGenerator.beforeafter, "AFTER")
+        self.assertEqual(InsertTriggerGenerator.routing_key, "index")
 
     def test_update_attributes(self):
         self.assertEqual(UpdateTriggerGenerator.op, "update")
         self.assertEqual(UpdateTriggerGenerator.id_replacement, "NEW")
         self.assertEqual(UpdateTriggerGenerator.beforeafter, "AFTER")
+        self.assertEqual(UpdateTriggerGenerator.routing_key, "update")
 
 
 class WriteTriggersTest(unittest.TestCase):
