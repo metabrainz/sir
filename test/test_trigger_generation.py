@@ -140,26 +140,31 @@ $$ LANGUAGE plpgsql;
 
 class WriteTriggersTest(unittest.TestCase):
     def setUp(self):
+        self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
-        write_triggers_to_file(self.triggerfile, (InsertTriggerGenerator,),
+        write_triggers_to_file(self.triggerfile, self.functionfile,
+                               (InsertTriggerGenerator,),
                                "entity_c", "table_c", "bs.foo", "SELECTION")
         self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
                                           "SELECTION")
 
     def test_writes_function(self):
-        self.triggerfile.write.assert_any_call(self.gen.function)
+        self.functionfile.write.assert_any_call(self.gen.function)
 
     def test_writes_trigger(self):
         self.triggerfile.write.assert_any_call(self.gen.trigger)
 
     def test_write_count(self):
-        self.assertEqual(self.triggerfile.write.call_count, 2)
+        self.assertEqual(self.functionfile.write.call_count, 1)
+        self.assertEqual(self.triggerfile.write.call_count, 1)
 
 
 class DirectTriggerWriterTest(unittest.TestCase):
     def setUp(self):
+        self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
-        write_direct_triggers(self.triggerfile, "entity_c", models.C)
+        write_direct_triggers(self.triggerfile, self.functionfile,
+                              "entity_c", models.C)
         self.generators = []
         for g in (GIDDeleteTriggerGenerator,
                   InsertTriggerGenerator,
@@ -170,14 +175,15 @@ class DirectTriggerWriterTest(unittest.TestCase):
 
     def test_writes_functions(self):
         for gen in self.generators:
-            self.triggerfile.write.assert_any_call(gen.function)
+            self.functionfile.write.assert_any_call(gen.function)
 
     def test_writes_triggers(self):
         for gen in self.generators:
             self.triggerfile.write.assert_any_call(gen.trigger)
 
     def test_write_count(self):
-        self.assertEqual(self.triggerfile.write.call_count, 6)
+        self.assertEqual(self.functionfile.write.call_count, 3)
+        self.assertEqual(self.triggerfile.write.call_count, 3)
 
 
 def load_tests(loader, tests, ignore):

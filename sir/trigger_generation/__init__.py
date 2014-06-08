@@ -88,11 +88,13 @@ def walk_path(model, path):
     return outermost_path_part, innermost_table_name
 
 
-def write_triggers_to_file(triggerfile, generators, entityname, table, path, select):
+def write_triggers_to_file(triggerfile, functionfile,
+                           generators, entityname, table, path, select):
     """
     Write deletion, insertion and update triggers to ``triggerfile``.
 
     :param file triggerfile:
+    :param file functionfile:
     :param generators:
     :type generators: [TriggerGenerator]
     :param str entityname:
@@ -102,11 +104,11 @@ def write_triggers_to_file(triggerfile, generators, entityname, table, path, sel
     """
     for generator in generators:
         gen = generator(entityname, table, path, select)
-        triggerfile.write(gen.function)
+        functionfile.write(gen.function)
         triggerfile.write(gen.trigger)
 
 
-def write_direct_triggers(triggerfile, entityname, model):
+def write_direct_triggers(triggerfile, functionfile, entityname, model):
     """
     :param file triggerfile:
     :param str entityname:
@@ -118,6 +120,7 @@ def write_direct_triggers(triggerfile, entityname, model):
     tablename = mapper.mapped_table.name
 
     write_triggers_to_file(triggerfile,
+                           functionfile,
                            generators=(GIDDeleteTriggerGenerator,
                                        InsertTriggerGenerator,
                                        UpdateTriggerGenerator),
@@ -127,31 +130,44 @@ def write_direct_triggers(triggerfile, entityname, model):
                            select=id_select.format(pk=pk, table=tablename))
 
 
+def write_header(file_):
+    file_.write("-- Automatically generated, do not edit\n")
+    file_.write("\set ON_ERROR_STOP 1\n")
+    file_.write("BEGIN;\n")
+
+
+def write_footer(file_):
+    file_.write("COMMIT;\n")
+
+
 def generate_triggers(args):
     """
     The entry point for this module. This function gets called from
     :func:`~sir.__main__.main`.
     """
-    filename = args["filename"]
-    with open(filename, "w") as triggerfile:
-        triggerfile.write("-- Automatically generated, do not edit\n")
-        triggerfile.write("\set ON_ERROR_STOP 1\n")
-        triggerfile.write("BEGIN;\n")
+    trigger_filename = args["trigger_file"]
+    function_filename = args["function_file"]
+    with open(trigger_filename, "w") as triggerfile,\
+         open(function_filename, "w") as functionfile:
+        write_header(triggerfile)
+        write_header(functionfile)
         for entityname, e in SCHEMA.iteritems():
             writer = partial(write_triggers_to_file,
                              generators=(DeleteTriggerGenerator,
                                          InsertTriggerGenerator,
                                          UpdateTriggerGenerator),
                              triggerfile=triggerfile,
+                             functionfile=functionfile,
                              entityname=entityname)
             paths = unique_split_paths([path for field in e.fields for path in
                                         field.paths])
 
-            write_direct_triggers(triggerfile, entityname, e.model)
+            write_direct_triggers(triggerfile, functionfile, entityname, e.model)
 
             for path in paths:
                 select, table = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
                     writer(table=table, path=path, select=select)
-        triggerfile.write("COMMIT;\n")
+        write_footer(triggerfile)
+        write_footer(functionfile)
