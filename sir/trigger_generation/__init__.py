@@ -111,6 +111,7 @@ def write_triggers_to_file(triggerfile, functionfile,
 def write_direct_triggers(triggerfile, functionfile, entityname, model):
     """
     :param file triggerfile:
+    :param file functionfile:
     :param str entityname:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     """
@@ -131,12 +132,18 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
 
 
 def write_header(file_):
+    """
+    :param file file_:
+    """
     file_.write("-- Automatically generated, do not edit\n")
     file_.write("\set ON_ERROR_STOP 1\n")
     file_.write("BEGIN;\n")
 
 
 def write_footer(file_):
+    """
+    :param file file_:
+    """
     file_.write("COMMIT;\n")
 
 
