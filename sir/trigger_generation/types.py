@@ -17,7 +17,7 @@ class PathPart(object):
     >>> inner = ColumnPathPart("table_2", "id")
     >>> outer.inner = inner
     >>> outer.render()
-    'SELECT id FROM table_1 WHERE table_2_id = ({new_or_old}.id)'
+    'SELECT table_1.id FROM table_1 WHERE table_1.table_2_id IN ({new_or_old}.id)'
     """
     def __init__(self, tablename, pkname, inner=None):
         """
@@ -46,7 +46,7 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {pk} FROM {table} WHERE {pk} IN ({inner})".\
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render())
 
@@ -62,7 +62,7 @@ class ManyToOnePathPart(PathPart):
         self.fkname = fkname
 
     def render(self):
-        return "SELECT {pk} FROM {table} WHERE {fk} = ({inner})".\
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render(), fk=self.fkname)
 
