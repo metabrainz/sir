@@ -178,7 +178,9 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
-        self.select = self.select.replace("SELECT id", "SELECT gid")
+        self.select = self.select.replace(
+            "SELECT {tablename}.id".format(tablename=self.tablename),
+            "SELECT {tablename}.gid".format(tablename=self.tablename))
 
     @property
     def function(self):

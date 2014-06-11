@@ -172,7 +172,7 @@ class DirectTriggerWriterTest(unittest.TestCase):
                   InsertTriggerGenerator,
                   UpdateTriggerGenerator):
             gen = g("entity_c", "table_c", "direct",
-                    "SELECT id FROM table_c WHERE id = {new_or_old}.id")
+                    "SELECT table_c.id FROM table_c WHERE table_c.id = {new_or_old}.id")
             self.generators.append(gen)
 
     def test_writes_functions(self):

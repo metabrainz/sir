@@ -114,7 +114,7 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
     :param str entityname:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     """
-    id_select = "SELECT id FROM {table} WHERE {pk} = {{new_or_old}}.{pk}"
+    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = {{new_or_old}}.{pk}"
     mapper = class_mapper(model)
     pk = mapper.primary_key[0].name
     tablename = mapper.mapped_table.name
