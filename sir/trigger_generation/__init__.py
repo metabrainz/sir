@@ -170,11 +170,12 @@ def generate_triggers(args):
 
             write_direct_triggers(triggerfile, functionfile, entityname, e.model)
 
-            for path in paths:
+            for i, path in enumerate(paths):
+                pathname = str(i) + "_" + path
                 select, triggertable = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
-                    writer(table=triggertable, path=path, select=select,
+                    writer(table=triggertable, path=pathname, select=select,
                            indextable=entitytable)
         write_footer(triggerfile)
         write_footer(functionfile)
