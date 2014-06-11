@@ -8,6 +8,7 @@ Contents:
 
    setup
    import
+   amqp
 
 API:
 
