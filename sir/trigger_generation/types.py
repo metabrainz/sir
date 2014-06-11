@@ -93,18 +93,21 @@ class TriggerGenerator(object):
     #: The routing key to be used for the message sent via AMQP
     routing_key = None
 
-    def __init__(self, prefix, tablename, path, select):
+    def __init__(self, prefix, tablename, path, select, indextable):
         """
         :param str prefix: A prefix for the trigger name
         :param str tablename: The table on which to generate the trigger
         :param str path: The path for which to generate the trigger
         :param str select: A SELECT statement to be embedded in the function
+        :param str indextable: The table with entities that need to be
+                               reindexed
         """
         self.prefix = prefix.replace("-", "_")
         self.tablename = tablename
         self.path = path
         select = select.format(new_or_old=self.id_replacement)
         self.select = select
+        self.indextable = indextable
 
     @property
     def triggername(self):
@@ -154,7 +157,7 @@ END;
 $$ LANGUAGE plpgsql;
 """.\
             format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.tablename)
+                   routing_key=self.routing_key, tablename=self.indextable)
         return func
 
 

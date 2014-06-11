@@ -89,7 +89,8 @@ class TriggerGeneratorTest(unittest.TestCase):
         beforeafter = "SOMEWHEN"
 
     def setUp(self):
-        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar", "SELECTION")
+        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar",
+                                      "SELECTION", "INDEXTABLE")
 
     def test_function(self):
         self.assertEqual(self.gen.function,
@@ -100,7 +101,7 @@ DECLARE
     id integer;
 BEGIN
     FOR id IN SELECTION LOOP
-        PERFORM amqp.publish(1, 'search', 'None', 'TABLE ' || id);
+        PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || id);
     END LOOP;
     RETURN NULL;
 END;
@@ -146,9 +147,10 @@ class WriteTriggersTest(unittest.TestCase):
         self.triggerfile = mock.Mock()
         write_triggers_to_file(self.triggerfile, self.functionfile,
                                (InsertTriggerGenerator,),
-                               "entity_c", "table_c", "bs.foo", "SELECTION")
+                               "entity_c", "table_c", "bs.foo", "SELECTION",
+                               "table_b")
         self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
-                                          "SELECTION")
+                                          "SELECTION", "table_b")
 
     def test_writes_function(self):
         self.functionfile.write.assert_any_call(self.gen.function)
@@ -172,10 +174,12 @@ class DirectTriggerWriterTest(unittest.TestCase):
                   InsertTriggerGenerator,
                   UpdateTriggerGenerator):
             gen = g("entity_c", "table_c", "direct",
-                    "SELECT table_c.id FROM table_c WHERE table_c.id = {new_or_old}.id")
+                    "SELECT table_c.id FROM table_c WHERE table_c.id = "
+                    "{new_or_old}.id", "table_c")
             self.generators.append(gen)
 
     def test_writes_functions(self):
+        print self.functionfile.write.call_args_list
         for gen in self.generators:
             self.functionfile.write.assert_any_call(gen.function)
 
