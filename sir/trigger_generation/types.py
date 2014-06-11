@@ -100,7 +100,7 @@ class TriggerGenerator(object):
         :param str path: The path for which to generate the trigger
         :param str select: A SELECT statement to be embedded in the function
         """
-        self.prefix = prefix
+        self.prefix = prefix.replace("-", "_")
         self.tablename = tablename
         self.path = path
         select = select.format(new_or_old=self.id_replacement)
