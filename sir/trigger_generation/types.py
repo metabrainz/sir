@@ -143,9 +143,11 @@ CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
 """
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
+DECLARE
+    id integer;
 BEGIN
-    FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.id);
+    FOR id IN {select} LOOP
+        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || id);
     END LOOP;
     RETURN NULL;
 END;
@@ -189,9 +191,11 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 """
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
+DECLARE
+    gid UUID;
 BEGIN
-    FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.gid);
+    FOR gid IN {select} LOOP
+        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || gid);
     END LOOP;
     RETURN NULL;
 END;

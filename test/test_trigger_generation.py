@@ -96,9 +96,11 @@ class TriggerGeneratorTest(unittest.TestCase):
 """
 CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
     AS $$
+DECLARE
+    id integer;
 BEGIN
-    FOR row IN SELECTION LOOP
-        PERFORM amqp.publish(1, 'search', 'None', 'TABLE ' || row.id);
+    FOR id IN SELECTION LOOP
+        PERFORM amqp.publish(1, 'search', 'None', 'TABLE ' || id);
     END LOOP;
     RETURN NULL;
 END;
