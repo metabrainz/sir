@@ -147,11 +147,10 @@ CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
 DECLARE
-    id integer;
+    ids TEXT;
 BEGIN
-    FOR id IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || id);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM ({select}) AS tmp;
+    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -183,7 +182,7 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.select = self.select.replace(
             "SELECT {tablename}.id".format(tablename=self.tablename),
-            "SELECT {tablename}.gid".format(tablename=self.tablename))
+            "SELECT {tablename}.gid AS id".format(tablename=self.tablename))
 
     @property
     def function(self):
@@ -197,11 +196,10 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
 DECLARE
-    gid UUID;
+    gids TEXT;
 BEGIN
-    FOR gid IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || gid);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO gids FROM ({select}) AS tmp;
+    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

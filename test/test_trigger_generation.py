@@ -98,11 +98,10 @@ class TriggerGeneratorTest(unittest.TestCase):
 CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
     AS $$
 DECLARE
-    id integer;
+    ids TEXT;
 BEGIN
-    FOR id IN SELECTION LOOP
-        PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || id);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECTION) AS tmp;
+    PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -179,7 +178,6 @@ class DirectTriggerWriterTest(unittest.TestCase):
             self.generators.append(gen)
 
     def test_writes_functions(self):
-        print self.functionfile.write.call_args_list
         for gen in self.generators:
             self.functionfile.write.assert_any_call(gen.function)
 
