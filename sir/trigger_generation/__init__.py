@@ -60,9 +60,11 @@ def walk_path(model, path):
             if prop.direction == ONETOMANY:
                 new_path_part = OneToManyPathPart(tablename, pk)
                 if i == path_length:
-                        remote_column = list(prop.remote_side)[0].name
-                        inner = ColumnPathPart("", remote_column)
-                        new_path_part.inner = inner
+                    remote_side = list(prop.remote_side)[0]
+                    remote_column = remote_side.name
+                    inner = ColumnPathPart("", remote_column)
+                    new_path_part.inner = inner
+                    innermost_table_name = remote_side.table.name
             elif prop.direction == MANYTOONE:
                 new_path_part = ManyToOnePathPart(tablename, pk,
                                                   column.key)
@@ -89,7 +91,8 @@ def walk_path(model, path):
 
 
 def write_triggers_to_file(triggerfile, functionfile,
-                           generators, entityname, table, path, select):
+                           generators, entityname, table, path, select,
+                           indextable):
     """
     Write deletion, insertion and update triggers to ``triggerfile``.
 
@@ -101,9 +104,10 @@ def write_triggers_to_file(triggerfile, functionfile,
     :param str table:
     :param str path:
     :param str select:
+    :param str indextable:
     """
     for generator in generators:
-        gen = generator(entityname, table, path, select)
+        gen = generator(entityname, table, path, select, indextable)
         functionfile.write(gen.function)
         triggerfile.write(gen.trigger)
 
@@ -115,7 +119,7 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
     :param str entityname:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     """
-    id_select = "SELECT id FROM {table} WHERE {pk} = {{new_or_old}}.{pk}"
+    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = {{new_or_old}}.{pk}"
     mapper = class_mapper(model)
     pk = mapper.primary_key[0].name
     tablename = mapper.mapped_table.name
@@ -128,7 +132,8 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
                            entityname=entityname,
                            table=tablename,
                            path="direct",
-                           select=id_select.format(pk=pk, table=tablename))
+                           select=id_select.format(pk=pk, table=tablename),
+                           indextable=tablename)
 
 
 def write_header(file_):
@@ -159,6 +164,7 @@ def generate_triggers(args):
         write_header(triggerfile)
         write_header(functionfile)
         for entityname, e in SCHEMA.iteritems():
+            entitytable = class_mapper(e.model).mapped_table.name
             writer = partial(write_triggers_to_file,
                              generators=(DeleteTriggerGenerator,
                                          InsertTriggerGenerator,
@@ -171,10 +177,12 @@ def generate_triggers(args):
 
             write_direct_triggers(triggerfile, functionfile, entityname, e.model)
 
-            for path in paths:
-                select, table = walk_path(e.model, path)
+            for i, path in enumerate(paths):
+                pathname = str(i) + "_" + path
+                select, triggertable = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
-                    writer(table=table, path=path, select=select)
+                    writer(table=triggertable, path=pathname, select=select,
+                           indextable=entitytable)
         write_footer(triggerfile)
         write_footer(functionfile)

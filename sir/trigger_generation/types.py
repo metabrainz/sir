@@ -17,7 +17,7 @@ class PathPart(object):
     >>> inner = ColumnPathPart("table_2", "id")
     >>> outer.inner = inner
     >>> outer.render()
-    'SELECT id FROM table_1 WHERE table_2_id = ({new_or_old}.id)'
+    'SELECT table_1.id FROM table_1 WHERE table_1.table_2_id IN ({new_or_old}.id)'
     """
     def __init__(self, tablename, pkname, inner=None):
         """
@@ -46,7 +46,7 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {pk} FROM {table} WHERE {pk} IN ({inner})".\
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render())
 
@@ -62,7 +62,7 @@ class ManyToOnePathPart(PathPart):
         self.fkname = fkname
 
     def render(self):
-        return "SELECT {pk} FROM {table} WHERE {fk} = ({inner})".\
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN ({inner})".\
             format(pk=self.pkname, table=self.tablename,
                    inner=self.inner.render(), fk=self.fkname)
 
@@ -93,18 +93,21 @@ class TriggerGenerator(object):
     #: The routing key to be used for the message sent via AMQP
     routing_key = None
 
-    def __init__(self, prefix, tablename, path, select):
+    def __init__(self, prefix, tablename, path, select, indextable):
         """
         :param str prefix: A prefix for the trigger name
         :param str tablename: The table on which to generate the trigger
         :param str path: The path for which to generate the trigger
         :param str select: A SELECT statement to be embedded in the function
+        :param str indextable: The table with entities that need to be
+                               reindexed
         """
-        self.prefix = prefix
+        self.prefix = prefix.replace("-", "_")
         self.tablename = tablename
         self.path = path
         select = select.format(new_or_old=self.id_replacement)
         self.select = select
+        self.indextable = indextable
 
     @property
     def triggername(self):
@@ -143,16 +146,17 @@ CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
 """
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
+DECLARE
+    ids TEXT;
 BEGIN
-    FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.id);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM ({select}) AS tmp;
+    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 """.\
             format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.tablename)
+                   routing_key=self.routing_key, tablename=self.indextable)
         return func
 
 
@@ -176,7 +180,9 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
-        self.select = self.select.replace("SELECT id", "SELECT gid")
+        self.select = self.select.replace(
+            "SELECT {tablename}.id".format(tablename=self.tablename),
+            "SELECT {tablename}.gid AS id".format(tablename=self.tablename))
 
     @property
     def function(self):
@@ -189,10 +195,11 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 """
 CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
     AS $$
+DECLARE
+    gids TEXT;
 BEGIN
-    FOR row IN {select} LOOP
-        PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || row.gid);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO gids FROM ({select}) AS tmp;
+    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

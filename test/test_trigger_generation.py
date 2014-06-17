@@ -54,7 +54,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result, ManyToOnePathPart))
         self.assertTrue(isinstance(result.inner, ColumnPathPart))
         self.assertEqual(result.render(),
-        "SELECT id FROM table_b WHERE c = ({new_or_old}.id)")
+        "SELECT table_b.id FROM table_b WHERE table_b.c IN ({new_or_old}.id)")
         self.assertEqual(table, "table_c")
 
     def test_many_to_one_column_returns_none(self):
@@ -71,7 +71,7 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(isinstance(result, OneToManyPathPart))
         self.assertTrue(isinstance(result.inner, ColumnPathPart))
         self.assertEqual(result.render(),
-        "SELECT id FROM table_c WHERE id IN ({new_or_old}.c)")
+        "SELECT table_c.id FROM table_c WHERE table_c.id IN ({new_or_old}.c)")
         self.assertEqual(table, "table_b")
 
     def test_one_to_many_column_returns_none(self):
@@ -89,17 +89,19 @@ class TriggerGeneratorTest(unittest.TestCase):
         beforeafter = "SOMEWHEN"
 
     def setUp(self):
-        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar", "SELECTION")
+        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar",
+                                      "SELECTION", "INDEXTABLE")
 
     def test_function(self):
         self.assertEqual(self.gen.function,
 """
 CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
     AS $$
+DECLARE
+    ids TEXT;
 BEGIN
-    FOR row IN SELECTION LOOP
-        PERFORM amqp.publish(1, 'search', 'None', 'TABLE ' || row.id);
-    END LOOP;
+    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECTION) AS tmp;
+    PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -144,9 +146,10 @@ class WriteTriggersTest(unittest.TestCase):
         self.triggerfile = mock.Mock()
         write_triggers_to_file(self.triggerfile, self.functionfile,
                                (InsertTriggerGenerator,),
-                               "entity_c", "table_c", "bs.foo", "SELECTION")
+                               "entity_c", "table_c", "bs.foo", "SELECTION",
+                               "table_b")
         self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
-                                          "SELECTION")
+                                          "SELECTION", "table_b")
 
     def test_writes_function(self):
         self.functionfile.write.assert_any_call(self.gen.function)
@@ -170,7 +173,8 @@ class DirectTriggerWriterTest(unittest.TestCase):
                   InsertTriggerGenerator,
                   UpdateTriggerGenerator):
             gen = g("entity_c", "table_c", "direct",
-                    "SELECT id FROM table_c WHERE id = {new_or_old}.id")
+                    "SELECT table_c.id FROM table_c WHERE table_c.id = "
+                    "{new_or_old}.id", "table_c")
             self.generators.append(gen)
 
     def test_writes_functions(self):
