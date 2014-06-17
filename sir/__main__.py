@@ -6,6 +6,7 @@ import multiprocessing
 
 
 from . import config
+from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
 from .schema import SCHEMA
 from .trigger_generation import generate_triggers
@@ -45,6 +46,10 @@ def main():
     generate_trigger_parser.add_argument('-f', '--function-file',
         action="store", default="sql/CreateFunctions.sql",
         help="The filename to save the functions into")
+
+    amqp_setup_parser = subparsers.add_parser("amqp_setup",
+        help="Set up AMQP exchanges and queues")
+    amqp_setup_parser.set_defaults(func=setup_rabbitmq)
 
     args = parser.parse_args()
     if args.debug:
