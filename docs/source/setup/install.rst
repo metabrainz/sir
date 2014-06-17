@@ -1,9 +1,9 @@
 Installation
-============
+------------
 
 
 Git
----
+~~~
 
 If you want the latest code or even feel like contributing, the code is
 available on `Github <https://github.com/mineo/sir>`_.
@@ -17,7 +17,7 @@ Now you can start hacking on the code or install it system-wide::
     python2 setup.py install
 
 Setup
------
+~~~~~
 
 The easiest way to run sir at the moment is to use a `virtual environment
 <http://www.virtualenv.org/en/latest/>`_. Once you have virtualenv for Python

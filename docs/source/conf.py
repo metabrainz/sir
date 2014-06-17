@@ -25,7 +25,9 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
+              'sphinx.ext.viewcode', 'sphinx.ext.intersphinx',
+              'sphinx.ext.graphviz']
 sys.path.insert(0, os.path.abspath("../../"))
 from sir import __version__
 autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
@@ -72,7 +74,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ["setup/amqp.rst", "setup/install.rst"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

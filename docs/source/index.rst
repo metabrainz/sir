@@ -6,15 +6,14 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   setup
+   setup/index
    import
-   amqp
+   queues
 
 API:
 
 .. toctree::
 
-    sir
     api
 
 Indices and tables

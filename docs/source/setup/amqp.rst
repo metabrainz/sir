@@ -1,5 +1,5 @@
 AMQP Setup
-==========
+----------
 
 * Install `pg_amqp <https://github.com/omniti-labs/pg_amqp>`_.
 * Connect to your database as a superuser with ``psql`` and execute
@@ -24,3 +24,6 @@ What          Description
 <password>    The password of <user>
 ============= ===========
 
+* Configure your AMQP access data in ``config.ini``
+* Run ``python -m sir amqp_setup`` to configure the necessary exchanges and
+  queues on your AMQP server.
