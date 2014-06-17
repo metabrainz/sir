@@ -1,0 +1,4 @@
+Config
+======
+
+.. automodule:: sir.config

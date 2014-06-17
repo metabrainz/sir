@@ -8,6 +8,7 @@ import multiprocessing
 from . import config
 from .indexing import reindex
 from .schema import SCHEMA
+from .trigger_generation import generate_triggers
 
 
 logger = logging.getLogger("sir")
@@ -34,6 +35,16 @@ def main():
     watch_parser = subparsers.add_parser("watch",
         help="Watches for incoming messages on an AMQP queue")
     watch_parser.set_defaults(func=watch)
+
+    generate_trigger_parser = subparsers.add_parser("triggers",
+        help="Generate triggers")
+    generate_trigger_parser.set_defaults(func=generate_triggers)
+    generate_trigger_parser.add_argument('-t', '--trigger-file',
+        action="store", default="sql/CreateTriggers.sql",
+        help="The filename to save the triggers into")
+    generate_trigger_parser.add_argument('-f', '--function-file',
+        action="store", default="sql/CreateFunctions.sql",
+        help="The filename to save the functions into")
 
     args = parser.parse_args()
     if args.debug:

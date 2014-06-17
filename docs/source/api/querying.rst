@@ -1,0 +1,4 @@
+Querying
+========
+
+.. automodule:: sir.querying
