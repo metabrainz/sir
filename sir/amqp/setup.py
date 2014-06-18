@@ -13,6 +13,11 @@ logger = logging.getLogger("sir")
 
 
 def setup_rabbitmq(args):
+    """
+    Set up the AMQP server.
+
+    :param args: will be ignored
+    """
     logger.info("Connecting to RabbitMQ")
     conn = util.create_amqp_connection()
     channel = amqp.Channel(conn)
