@@ -2,10 +2,10 @@
 # coding: utf-8
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import amqp
 import logging
+import amqp
 
-from .. import config
+from .. import config, util
 from functools import partial
 
 
@@ -13,13 +13,8 @@ logger = logging.getLogger("sir")
 
 
 def setup_rabbitmq(args):
-    cget = partial(config.CFG.get, "rabbitmq")
-
     logger.info("Connecting to RabbitMQ")
-    conn = amqp.Connection(host=cget("host"),
-                           userid=cget("user"),
-                           password=cget("password"),
-                           virtual_host=cget("vhost"))
+    conn = util.create_amqp_connection()
     channel = amqp.Channel(conn)
 
     logger.info("Declaring exchanes")

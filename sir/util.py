@@ -1,5 +1,8 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from __future__ import absolute_import
+
+import amqp
 import logging
 import solr
 import urllib2
@@ -7,6 +10,7 @@ import urllib2
 from . import config
 from .schema import SCHEMA
 from contextlib import contextmanager
+from functools import partial
 from json import loads
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -112,3 +116,17 @@ def check_solr_cores_version(cores):
                                                from the supported one
     """
     map(solr_version_check, cores)
+
+
+def create_amqp_connection():
+    """
+    Creates a connection to an AMQP server.
+
+    :rtype: :class:`amqp:amqp.connection.Connection`
+    """
+    cget = partial(config.CFG.get, "rabbitmq")
+    conn = amqp.Connection(host=cget("host"),
+                           userid=cget("user"),
+                           password=cget("password"),
+                           virtual_host=cget("vhost"))
+    return conn

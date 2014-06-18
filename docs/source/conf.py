@@ -35,7 +35,8 @@ autoclass_content = "both"
 
 intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None),
                        'sqla': ('http://docs.sqlalchemy.org/en/rel_0_9/', None),
-                       'solr': ('http://pythonhosted.org//solrpy/', None)}
+                       'solr': ('http://pythonhosted.org//solrpy/', None),
+                       'amqp': ('http://amqp.readthedocs.org/en/latest', None)}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
