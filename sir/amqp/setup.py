@@ -5,7 +5,7 @@
 import logging
 import amqp
 
-from .. import config, util
+from .. import util
 from functools import partial
 
 
