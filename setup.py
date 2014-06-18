@@ -16,6 +16,7 @@ VERSION_PY = """
 __version__ = '%s'
 """
 
+
 def update_version_py():
     if not os.path.isdir(".git"):
         print("This does not appear to be a Git repository.")
@@ -37,6 +38,7 @@ def update_version_py():
     f.close()
     print("set sir/__init__.py to '%s'" % ver)
 
+
 def get_version():
     try:
         f = open("sir/__init__.py")
@@ -54,17 +56,22 @@ def get_version():
             return ver
     return None
 
+
 class Version(Command):
     description = "update sir/__init__.py from Git repo"
     user_options = []
     boolean_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
+
     def run(self):
         update_version_py()
         print("Version is now", get_version())
+
 
 class sdist(_sdist):
     def run(self):
