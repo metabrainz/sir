@@ -31,7 +31,6 @@ class AmqpMessageTest(unittest.TestCase):
                           body="foo")
 
     def test_non_delete_converts_to_int(self):
-        for c in ("search.index", "search.update"):
-            parsed_message = self._parsed_message(channel=c)
-            map(lambda id_: self.assertTrue(isinstance(id_, int)),
-                parsed_message.ids)
+        parsed_message = self._parsed_message(channel="search.index")
+        map(lambda id_: self.assertTrue(isinstance(id_, int)),
+            parsed_message.ids)
