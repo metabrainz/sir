@@ -6,6 +6,7 @@ import multiprocessing
 
 
 from . import config
+from .amqp.handler import watch
 from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
 from .schema import SCHEMA
@@ -13,10 +14,6 @@ from .trigger_generation import generate_triggers
 
 
 logger = logging.getLogger("sir")
-
-
-def watch(args):
-    raise NotImplementedError
 
 
 def main():
@@ -50,6 +47,10 @@ def main():
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
         help="Set up AMQP exchanges and queues")
     amqp_setup_parser.set_defaults(func=setup_rabbitmq)
+
+    amqp_watch_parser = subparsers.add_parser("amqp_watch",
+        help="Watch AMQP queues for changes")
+    amqp_watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()
     if args.debug:

@@ -1,4 +1,5 @@
 amqp
+enum34
 psycopg2
 solrpy
 sqlalchemy
