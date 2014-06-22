@@ -168,13 +168,11 @@ def queue_to_solr(queue, batch_size, solr_connection):
             data.append(item)
             if len(data) >= batch_size:
                 try:
-                    solr_connection.add_many(data)
+                    send_data_to_solr(solr_connection, data)
                 except SolrException as exc:
                     if exc.httpcode == 400:
-                        logger.info("""Received a Bad Request response form Solr,
-                        continuing anyway""")
+                        pass
                     else:
-                        logger.error(exc)
                         break
                 else:
                     logger.debug("Sent data to Solr")
@@ -186,3 +184,24 @@ def queue_to_solr(queue, batch_size, solr_connection):
         solr_connection.add_many(data)
         logger.info("Committing changes to Solr")
         solr_connection.commit()
+
+
+def send_data_to_solr(solr_connection, data):
+    """
+    Sends ``data`` through ``solr_connection``.
+
+    :param solr.Solr solr_connection:
+    :param [dict] data:
+    :raises: :class:`solr:solr.SolrException`
+    """
+    try:
+        solr_connection.add_many(data)
+    except SolrException as exc:
+        if exc.httpcode == 400:
+            logger.info("""Received a Bad Request response form Solr,
+            continuing anyway""")
+        else:
+            logger.error(exc)
+            raise
+    else:
+        logger.debug("Sent data to Solr")
