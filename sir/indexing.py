@@ -163,27 +163,24 @@ def queue_to_solr(queue, batch_size, solr_connection):
     :param solr.Solr solr_connection:
     """
     data = []
-    try:
-        for item in iter(queue.get, None):
-            data.append(item)
-            if len(data) >= batch_size:
-                try:
-                    send_data_to_solr(solr_connection, data)
-                except SolrException as exc:
-                    if exc.httpcode == 400:
-                        pass
-                    else:
-                        break
+    for item in iter(queue.get, None):
+        data.append(item)
+        if len(data) >= batch_size:
+            try:
+                send_data_to_solr(solr_connection, data)
+            except SolrException as exc:
+                if exc.httpcode == 400:
+                    pass
                 else:
-                    logger.debug("Sent data to Solr")
-                data = []
-    except Exception:
-        raise
-    else:
-        logger.info("%s: Sending remaining data & stopping", solr_connection)
-        solr_connection.add_many(data)
-        logger.info("Committing changes to Solr")
-        solr_connection.commit()
+                    break
+            else:
+                logger.debug("Sent data to Solr")
+            data = []
+
+    logger.info("%s: Sending remaining data & stopping", solr_connection)
+    solr_connection.add_many(data)
+    logger.info("Committing changes to Solr")
+    solr_connection.commit()
 
 
 def send_data_to_solr(solr_connection, data):
