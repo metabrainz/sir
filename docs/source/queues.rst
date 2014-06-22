@@ -1,3 +1,5 @@
+.. _queue_setup:
+
 Queues
 ======
 
