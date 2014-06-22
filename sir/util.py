@@ -66,10 +66,8 @@ def db_session_ctx(Session):
 
 def solr_connection(core):
     """
-    Creates a :class:`solr:solr.Solr` connection for the core ``core`` at the
-    Solr server listening on ``solr_uri``.
+    Creates a :class:`solr:solr.Solr` connection for the core ``core``.
 
-    :param str solr_uri:
     :param str core:
     :raises urllib2.URLError: if a ping to the cores ping handler doesn't
                               succeed
@@ -88,10 +86,8 @@ def solr_connection(core):
 
 def solr_version_check(core):
     """
-    Checks that the version of the Solr core ``core`` at ``solr_uri`` matches
-    ``version``.
+    Checks that the version of the Solr core ``core`` matches ``version``.
 
-    :param str solr_uri:
     :param str core:
     :raises urllib2.URLError: If the Solr core can't be reached
     :raises sir.util.VersionMismatchException: If the version in Solr is different
