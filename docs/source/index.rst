@@ -9,12 +9,7 @@ Contents:
    setup/index
    import
    queues
-
-API:
-
-.. toctree::
-
-    api
+   api
 
 Indices and tables
 ==================
