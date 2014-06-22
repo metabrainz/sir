@@ -73,7 +73,5 @@ class Message(object):
                              % entity_type)
 
         ids = split_message[1:]
-        if type != MESSAGE_TYPES.delete:
-            ids = map(int, ids)
 
         return cls(message_type, entity_type, ids)
