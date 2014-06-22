@@ -38,6 +38,11 @@ def delete_callback(parsed_message):
 
 
 def watch(args):
+    """
+    Watch AMQP queues for messages.
+
+    :param args: will be ignored
+    """
     conn = create_amqp_connection()
     ch = conn.channel()
 
