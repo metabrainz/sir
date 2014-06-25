@@ -4,9 +4,14 @@
 # License: MIT, see LICENSE for details
 from . import message
 from ..schema import SCHEMA
-from ..util import create_amqp_connection, solr_connection
+from ..indexing import send_data_to_solr
+from ..util import (create_amqp_connection,
+                    db_session,
+                    db_session_ctx,
+                    solr_connection)
 from functools import partial, wraps
 from logging import getLogger
+from sqlalchemy import and_
 
 
 logger = getLogger("sir")
@@ -44,7 +49,7 @@ def callback_wrapper(f):
         except Exception as exc:
             logger.error(exc)
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
-            msg.channel.basic_publish(msg, exchange="search.failed")
+            msg.channel.basic_publish(msg, exchange="search.retry")
             raise
 
         msg.channel.basic_ack(msg.delivery_tag)
@@ -62,13 +67,28 @@ class Handler(object):
         for corename in SCHEMA.keys():
             self.cores[corename] = solr_connection(corename)
 
+        self.session = db_session()  #: The database session used by this handler
+
     @callback_wrapper
     def index_callback(self, parsed_message):
         print parsed_message.message_type, parsed_message.entity_type,\
               parsed_message.ids
+        entity = SCHEMA[parsed_message.entity_type]
+        converter = entity.query_result_to_dict
+        query = entity.query
+
+        condition = and_(entity.model.id.in_(parsed_message.ids))
+
+        with db_session_ctx(self.session) as session:
+            query = query.filter(condition).with_session(session)
+            send_data_to_solr(self.cores[parsed_message.entity_type],
+                              map(lambda obj: converter(obj), query.all()))
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
+        logging.debug("Deleting {entity_type}: {ids}".format(
+            entity_type=parsed_message.entity_type,
+            ids=parsed_message.ids))
         self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
 
 
