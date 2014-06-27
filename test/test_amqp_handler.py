@@ -22,7 +22,8 @@ class AmqpTestCase(unittest.TestCase):
         self.id_string = "123 456"
         self.message = Amqp_Message(body="%s %s" % (self.entity_type,
                                     self.id_string),
-                                    channel=mock.Mock())
+                                    channel=mock.Mock(),
+                                    application_headers = {})
 
         self.delivery_tag = object()
         self.message.delivery_tag = self.delivery_tag
@@ -49,7 +50,27 @@ class CallbackWrapperTest(AmqpTestCase):
             requeue=False)
         self.message.channel.basic_publish.assert_called_once_with(
             self.message,
-            exchange="search.failed")
+            exchange="search.retry")
+        self.assertEqual(self.message.application_headers["mb-retries"],
+            handler._DEFAULT_MB_RETRIES - 1)
+
+    def test_search_failed_on_mb_retries_zero(self):
+        def wrapped_f(*args, **kwargs):
+            raise ValueError()
+
+        self.message.application_headers["mb-retries"] = 0
+        f = handler.callback_wrapper(wrapped_f)
+        self.assertRaises(ValueError, f, mock.Mock(),
+                          self.message, "search.index")
+        self.message.channel.basic_reject.assert_called_once_with(
+            self.delivery_tag,
+            requeue=False)
+        self.message.channel.basic_publish.assert_called_once_with(
+            self.message,
+            exchange="search.failed",
+            routing_key="rk")
+        self.assertEqual(self.message.application_headers["mb-retries"],
+            0)
 
 
 class HandlerTest(AmqpTestCase):
