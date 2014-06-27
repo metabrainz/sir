@@ -56,11 +56,14 @@ def callback_wrapper(f):
 
             retries_remaining = msg.application_headers.get("mb-retries",
                                                             _DEFAULT_MB_RETRIES)
+            routing_key = msg.delivery_info["routing_key"]
             if retries_remaining:
                 msg.application_headers["mb-retries"] = retries_remaining - 1
-                msg.channel.basic_publish(msg, exchange="search.retry")
+                msg.channel.basic_publish(msg, exchange="search.retry",
+                                          routing_key=routing_key)
             else:
-                msg.channel.basic_publish(msg, exchange="search.failed")
+                msg.channel.basic_publish(msg, exchange="search.failed",
+                                          routing_key=routing_key)
             raise
 
         msg.channel.basic_ack(msg.delivery_tag)

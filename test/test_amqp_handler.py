@@ -20,13 +20,20 @@ class AmqpTestCase(unittest.TestCase):
     def setUp(self):
         self.entity_type = "artist"
         self.id_string = "123 456"
+        self.routing_key = "rk"
         self.message = Amqp_Message(body="%s %s" % (self.entity_type,
                                     self.id_string),
                                     channel=mock.Mock(),
                                     application_headers = {})
 
+        self.message.delivery_info = {"routing_key": self.routing_key}
+
         self.delivery_tag = object()
         self.message.delivery_tag = self.delivery_tag
+
+        db_session_patcher = mock.patch("sir.amqp.handler.db_session")
+        self.addCleanup(db_session_patcher.stop)
+        db_session_patcher.start()
 
 
 class CallbackWrapperTest(AmqpTestCase):
@@ -50,8 +57,10 @@ class CallbackWrapperTest(AmqpTestCase):
             requeue=False)
         self.message.channel.basic_publish.assert_called_once_with(
             self.message,
-            exchange="search.retry")
-        self.assertEqual(self.message.application_headers["mb-retries"],
+            exchange="search.retry",
+            routing_key=self.routing_key)
+        self.assertEqual(
+            self.message.application_headers["mb-retries"],
             handler._DEFAULT_MB_RETRIES - 1)
 
     def test_search_failed_on_mb_retries_zero(self):
@@ -68,8 +77,9 @@ class CallbackWrapperTest(AmqpTestCase):
         self.message.channel.basic_publish.assert_called_once_with(
             self.message,
             exchange="search.failed",
-            routing_key="rk")
-        self.assertEqual(self.message.application_headers["mb-retries"],
+            routing_key=self.routing_key)
+        self.assertEqual(
+            self.message.application_headers["mb-retries"],
             0)
 
 
