@@ -39,7 +39,7 @@ class Message(object):
         """
         self.message_type = message_type  #: The message type
         self.entity_type = entity_type  #: The entity type
-        if type != MESSAGE_TYPES.delete:
+        if message_type != MESSAGE_TYPES.delete:
             ids = map(int, ids)
         self.ids = ids  #: The IDs contained in the original message
 

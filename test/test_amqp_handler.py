@@ -84,7 +84,7 @@ class HandlerTest(AmqpTestCase):
     def test_delete_callback(self):
         self.handler.delete_callback(self.message, "search.delete")
 
-        ids = map(int, self.id_string.split())
+        ids = self.id_string.split()
 
         self.handler.cores[self.entity_type].delete_many.\
             assert_called_once_with(ids)
