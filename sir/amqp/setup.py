@@ -53,6 +53,7 @@ def setup_rabbitmq(args):
     channel.queue_bind(indq, "search", "index")
     channel.queue_bind(indq, "search", "update")
     channel.queue_bind(retrq, "search.retry")
+    channel.queue_bind(failq, "search.failed")
 
     logger.info("Done")
 
