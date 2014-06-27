@@ -97,7 +97,7 @@ class Handler(object):
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
-        logging.debug("Deleting {entity_type}: {ids}".format(
+        logger.debug("Deleting {entity_type}: {ids}".format(
             entity_type=parsed_message.entity_type,
             ids=parsed_message.ids))
         self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
