@@ -38,7 +38,7 @@ def callback_wrapper(f):
         message will be :meth:`rejected
         <amqp:amqp.channel.Channel.basic_reject>` and sent to the
         ``search.failed`` queue (cf. :ref:`queue_setup`).
-        Then the exception will be reraised.
+        Then the exception will not be reraised.
 
         If no exception is raised, the message will be :meth:`acknowledged
         <amqp:amqp.channel.Channel.basic_ack>`.
@@ -64,7 +64,6 @@ def callback_wrapper(f):
             else:
                 msg.channel.basic_publish(msg, exchange="search.failed",
                                           routing_key=routing_key)
-            raise
 
         msg.channel.basic_ack(msg.delivery_tag)
 
