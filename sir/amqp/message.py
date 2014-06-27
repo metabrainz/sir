@@ -67,7 +67,7 @@ class Message(object):
             raise InvalidMessageContentException("AMQP messages must at least"
                                                  "contain 2 entries separated by spaces")
 
-        entity_type = split_message[0]
+        entity_type = split_message[0].replace("_", "-")
         if entity_type not in SCHEMA.keys():
             raise ValueError("Received a message with the invalid entity type %s"
                              % entity_type)
