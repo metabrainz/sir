@@ -58,13 +58,13 @@ class Message(object):
                 :data:`MESSAGE_TYPES.delete`) or the queue is unknown
         """
         if queue not in QUEUE_TO_TYPE.keys():
-            raise ValueError("%s is not a valid queue name" % queue) 
+            raise ValueError("%s is not a valid queue name" % queue)
         else:
             message_type = QUEUE_TO_TYPE[queue]
 
         split_message = amqp_message.body.split(" ")
         if not len(split_message) >= 2:
-            raise InvalidMessageContentException("AMQP messages must at least"
+            raise InvalidMessageContentException("AMQP messages must at least "
                                                  "contain 2 entries separated by spaces")
 
         entity_type = split_message[0].replace("_", "-")
