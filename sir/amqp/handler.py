@@ -64,8 +64,8 @@ def callback_wrapper(f):
             else:
                 msg.channel.basic_publish(msg, exchange="search.failed",
                                           routing_key=routing_key)
-
-        msg.channel.basic_ack(msg.delivery_tag)
+        else:
+            msg.channel.basic_ack(msg.delivery_tag)
 
     return wrapper
 
