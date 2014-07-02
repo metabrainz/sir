@@ -1,4 +1,4 @@
-.PHONY: docs dropsql onlinedocs test
+.PHONY: docs createsql dropsql onlinedocs test triggers
 
 docs:
 	cd docs && make html
@@ -9,7 +9,9 @@ onlinedocs: docs
 test:
 	python -m unittest discover
 
-triggers:
+triggers: createsql dropsql
+
+createsql:
 	python -m sir triggers
 
 dropsql:
