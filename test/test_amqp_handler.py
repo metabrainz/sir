@@ -61,6 +61,7 @@ class CallbackWrapperTest(AmqpTestCase):
         self.assertEqual(
             self.message.application_headers["mb-retries"],
             handler._DEFAULT_MB_RETRIES - 1)
+        self.assertFalse(self.message.channel.basic_ack.called)
 
     def test_search_failed_on_mb_retries_zero(self):
         def wrapped_f(*args, **kwargs):
