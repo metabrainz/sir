@@ -122,6 +122,7 @@ def _should_retry(exc):
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
 def _watch_impl():
     conn = create_amqp_connection()
+    logger.info("Connection to RabbitMQ established")
     ch = conn.channel()
 
     handler = Handler()
