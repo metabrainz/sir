@@ -24,7 +24,7 @@ class AmqpTestCase(unittest.TestCase):
         self.message = Amqp_Message(body="%s %s" % (self.entity_type,
                                     self.id_string),
                                     channel=mock.Mock(),
-                                    application_headers = {})
+                                    application_headers={})
 
         self.message.delivery_info = {"routing_key": self.routing_key}
 
