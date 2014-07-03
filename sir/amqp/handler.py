@@ -9,8 +9,11 @@ from ..util import (create_amqp_connection,
                     db_session,
                     db_session_ctx,
                     solr_connection)
+from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
+from retrying import retry
+from socket import error as socket_error
 from sqlalchemy import and_
 
 
@@ -18,6 +21,7 @@ logger = getLogger("sir")
 
 
 _DEFAULT_MB_RETRIES = 4
+_RETRY_WAIT_SECS = 30
 
 
 def callback_wrapper(f):
@@ -106,12 +110,17 @@ class Handler(object):
         self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
 
 
-def watch(args):
-    """
-    Watch AMQP queues for messages.
+def _should_retry(exc):
+    logger.exception(exc)
+    if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
+        logger.info("Retrying in %i seconds", _RETRY_WAIT_SECS)
+        return True
 
-    :param args: will be ignored
-    """
+    return False
+
+
+@retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
+def _watch_impl():
     conn = create_amqp_connection()
     ch = conn.channel()
 
@@ -127,3 +136,19 @@ def watch(args):
 
     while ch.callbacks:
         ch.wait()
+
+
+def watch(args):
+    """
+    Watch AMQP queues for messages.
+
+    :param args: will be ignored
+    """
+    try:
+        create_amqp_connection()
+    except socket_error as e:
+        logger.error("Couldn't connect to RabbitMQ, check your settings")
+        logger.error("The error was: %s", e)
+        return
+
+    _watch_impl()

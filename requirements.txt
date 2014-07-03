@@ -1,6 +1,7 @@
 amqp
 enum34
 psycopg2
+retrying
 solrpy
 sqlalchemy
 -e git+https://bitbucket.org/lalinsky/mbdata.git#egg=mbdata
