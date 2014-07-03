@@ -77,6 +77,7 @@ def solr_connection(core):
     core_uri = solr_uri + "/" + core
     ping_uri = core_uri + "/admin/ping"
 
+    logger.info("Setting up a connection to %s", solr_uri)
     logger.debug("Pinging %s", ping_uri)
     urllib2.urlopen(ping_uri)
 

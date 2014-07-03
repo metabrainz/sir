@@ -15,6 +15,7 @@ from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
+from urllib2 import URLError
 
 
 logger = getLogger("sir")
@@ -152,4 +153,8 @@ def watch(args):
         logger.error("The error was: %s", e)
         return
 
-    _watch_impl()
+    try:
+        _watch_impl()
+    except URLError as e:
+        logger.info("Connecting to Solr failed: %s", e)
+        return
