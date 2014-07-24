@@ -89,8 +89,6 @@ class Handler(object):
 
     @callback_wrapper
     def index_callback(self, parsed_message):
-        print parsed_message.message_type, parsed_message.entity_type,\
-              parsed_message.ids
         entity = SCHEMA[parsed_message.entity_type]
         converter = entity.query_result_to_dict
         query = entity.query
