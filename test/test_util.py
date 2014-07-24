@@ -7,6 +7,10 @@ from sir import util
 from sir.schema import searchentities
 
 
+def noop(*args, **kwargs):
+    pass
+
+
 class VersionCheckerTest(unittest.TestCase):
     def setUp(self):
         urlopen = mock.patch("sir.util.urllib2.urlopen")
@@ -21,7 +25,8 @@ class VersionCheckerTest(unittest.TestCase):
                                   searchentities.SearchEntity(
                                       B,
                                       [searchentities.SearchField("id", "id")],
-                                      1.1)})
+                                      1.1,
+                                      noop)})
         schema.start()
         self.addCleanup(schema.stop)
 

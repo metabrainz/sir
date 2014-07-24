@@ -2,6 +2,7 @@
 # License: MIT, see LICENSE for details
 from . import modelext
 from .searchentities import SearchEntity as E, SearchField as F
+from ..wscompat import convert
 from mbdata import models
 
 
@@ -16,7 +17,8 @@ SearchLabel = E(modelext.CustomLabel, [
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
 ],
-    1.1
+    1.1,
+    convert.convert_label
 )
 
 
@@ -49,7 +51,8 @@ SearchRecording = E(modelext.CustomRecording, [
         transformfunc=lambda values: reduce(lambda x, y: x+y, values, 0)),
     F("video", "video")
 ],
-    1.1
+    1.1,
+    convert.convert_recording
 )
 
 
@@ -63,7 +66,8 @@ SearchRelease = E(models.Release, [
     F("lang", "language.name"),
     F("script", "script.name")
 ],
-    1.1
+    1.1,
+    convert.convert_release
 )
 
 
@@ -75,7 +79,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("releases", "releases.gid", transformfunc=len),
     F("credit-name", "artist_credit.artists.artist.name")
 ],
-    1.1
+    1.1,
+    convert.convert_release_group
 )
 
 SearchArtist = E(modelext.CustomArtist, [
@@ -89,7 +94,8 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
 ],
-    1.1
+    1.1,
+    convert.convert_artist
 )
 
 
@@ -103,7 +109,8 @@ SearchWork = E(modelext.CustomWork, [
     F("iswc", "iswcs.iswc"),
     F("language", "language.name"),
 ],
-    1.1
+    1.1,
+    convert.convert_work
 )
 
 

@@ -80,16 +80,19 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An entity with searchable fields."""
-    def __init__(self, model, fields, version):
+    def __init__(self, model, fields, version, compatconverter):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
         :param float version: The supported schema version of this entity.
+        :param compatconverter: A function to convert this object into an XML
+                                document compliant with the MMD schema version 2
         """
         self.model = model
         self.fields = fields
         self.query = self.build_entity_query()
         self.version = version
+        self.compatconverter = compatconverter
 
     def build_entity_query(self):
         """
