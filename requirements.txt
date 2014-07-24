@@ -5,4 +5,4 @@ retrying
 solrpy
 sqlalchemy
 -e git+https://bitbucket.org/lalinsky/mbdata.git#egg=mbdata
--e git+https://github.com/mineo/mb-rngpy.git#egg=mb
+-e git+https://github.com/mineo/mb-rngpy.git#egg=mbrng
