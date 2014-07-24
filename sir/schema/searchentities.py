@@ -80,16 +80,20 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An entity with searchable fields."""
-    def __init__(self, model, fields, version, compatconverter):
+    def __init__(self, model, fields, version, compatconverter, extrapaths=None):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
         :param float version: The supported schema version of this entity.
         :param compatconverter: A function to convert this object into an XML
                                 document compliant with the MMD schema version 2
+        :param [str] extrapaths: A list of paths that don't correspond to any
+                                 field but are used by the compatibility
+                                 conversion
         """
         self.model = model
         self.fields = fields
+        self.extrapaths = extrapaths
         self.query = self.build_entity_query()
         self.version = version
         self.compatconverter = compatconverter
@@ -105,6 +109,10 @@ class SearchEntity(object):
         root_model = self.model
         query = Query(root_model)
         paths = [field.paths for field in self.fields]
+
+        if self.extrapaths is not None:
+            paths.extend([self.extrapaths])
+
         merged_paths = merge_paths(paths)
 
         for field_paths in paths:
