@@ -110,7 +110,10 @@ SearchWork = E(modelext.CustomWork, [
     F("language", "language.name"),
 ],
     1.1,
-    convert.convert_work
+    convert.convert_work,
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.sort_name", "aliases.locale",
+                "aliases.primary_for_locale"]
 )
 
 
