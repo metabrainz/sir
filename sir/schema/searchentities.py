@@ -3,6 +3,7 @@
 from ..querying import _iterate_path_values
 from collections import defaultdict
 from logging import getLogger
+from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
@@ -80,7 +81,7 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An entity with searchable fields."""
-    def __init__(self, model, fields, version, compatconverter, extrapaths=None):
+    def __init__(self, model, fields, version, compatconverter=None, extrapaths=None):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
@@ -170,4 +171,9 @@ class SearchEntity(object):
                 tempvals = tempvals.pop()
             logger.debug("Field %s: %s", fieldname, tempvals)
             data[fieldname] = tempvals
+
+        if self.compatconverter is not None:
+            logger.debug("Field _store")
+            data["_store"] = tostring(self.compatconverter(obj).to_etree())
+
         return data
