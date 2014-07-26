@@ -87,7 +87,8 @@ def solr_connection(core):
 
 def solr_version_check(core):
     """
-    Checks that the version of the Solr core ``core`` matches ``version``.
+    Checks that the version of the Solr core ``core`` matches the one in the
+    schema.
 
     :param str core:
     :raises urllib2.URLError: If the Solr core can't be reached
