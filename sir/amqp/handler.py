@@ -8,7 +8,8 @@ from ..indexing import send_data_to_solr
 from ..util import (create_amqp_connection,
                     db_session,
                     db_session_ctx,
-                    solr_connection)
+                    solr_connection,
+                    solr_version_check)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -85,6 +86,7 @@ class Handler(object):
         self.cores = {}  #: Maps entity type names to Solr cores
         for corename in SCHEMA.keys():
             self.cores[corename] = solr_connection(corename)
+            solr_version_check(corename)
 
         self.session = db_session()  #: The database session used by this handler
 
