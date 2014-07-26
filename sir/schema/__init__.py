@@ -113,7 +113,9 @@ SearchWork = E(modelext.CustomWork, [
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.locale",
-                "aliases.primary_for_locale"]
+                "aliases.primary_for_locale",
+                "artist_links.link.link_type.name",
+                "artist_links.link.attributes.attribute_type.name"]
 )
 
 
