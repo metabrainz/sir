@@ -109,7 +109,7 @@ SearchWork = E(modelext.CustomWork, [
     F("iswc", "iswcs.iswc"),
     F("language", "language.name"),
 ],
-    1.1,
+    1.2,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.locale",
