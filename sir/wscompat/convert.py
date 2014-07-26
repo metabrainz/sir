@@ -27,6 +27,48 @@ def convert_alias_list(obj):
     return alias_list
 
 
+def convert_attribute(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkAttribute`
+    """
+    attribute = models.attributeType()
+    attribute.value = obj.attribute_type.name
+    return attribute
+
+
+def convert_artist_work_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkArtistWork`
+    """
+    relation = models.relation()
+    relation.set_direction("backward")
+    relation.set_type(obj.link.link_type.name)
+
+    artist = models.artist()
+    artist.set_id(obj.artist.gid)
+    artist.set_name(obj.artist.name)
+    if obj.artist.sort_name is not None:
+        artist.set_sort_name(obj.artist.sort_name)
+    relation.set_artist(artist)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        map(lambda a: attribute_list.add_attribute(convert_attribute(a)),
+            obj.link.attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
+def convert_artist_work_relation_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.LinkArtistWork`]
+    """
+    relation_list = models.relation_list(target_type="artist")
+    map(lambda r: relation_list.add_relation(convert_artist_work_relation(r)), obj)
+    return relation_list
+
+
 def convert_artist(artist):
     pass
 
@@ -53,6 +95,7 @@ def convert_work(obj):
     """
     work = models.work()
     work.set_alias_list(convert_alias_list(obj.aliases))
+    work.add_relation_list(convert_artist_work_relation_list(obj.artist_links))
     work.set_id(obj.gid)
     work.set_title(obj.name)
     if obj.language is not None:
