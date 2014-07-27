@@ -86,6 +86,9 @@ class HandlerTest(AmqpTestCase):
     def setUp(self):
         super(HandlerTest, self).setUp()
         handler.solr_connection = mock.Mock()
+        handler.solr_version_check = mock.Mock()
+
+        handler.SCHEMA = {self.entity_type: None}
 
         self.handler = handler.Handler()
         self.handler.cores[self.entity_type] = mock.Mock()
@@ -97,3 +100,6 @@ class HandlerTest(AmqpTestCase):
 
         self.handler.cores[self.entity_type].delete_many.\
             assert_called_once_with(ids)
+
+    def test_handler_checks_solr_version(self):
+        handler.solr_version_check.assert_called_once_with(self.entity_type)
