@@ -97,8 +97,10 @@ def convert_work(obj):
     :type obj: :class:`sir.schema.modelext.CustomWork`
     """
     work = models.work()
-    work.set_alias_list(convert_alias_list(obj.aliases))
-    work.add_relation_list(convert_artist_work_relation_list(obj.artist_links))
+    if len(obj.aliases) > 0:
+        work.set_alias_list(convert_alias_list(obj.aliases))
+    if len(obj.artist_links) > 0:
+        work.add_relation_list(convert_artist_work_relation_list(obj.artist_links))
     work.set_id(obj.gid)
     work.set_title(obj.name)
     if obj.language is not None:
