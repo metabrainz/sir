@@ -1,6 +1,9 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from .modelfix import fix
 from mbrng import models
+
+fix()
 
 
 def convert_alias(obj):
@@ -10,7 +13,7 @@ def convert_alias(obj):
     alias = models.alias()
     alias.set_locale(obj.locale)
     alias.set_sort_name(obj.sort_name)
-    alias.content_ = obj.name
+    alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
     if obj.primary_for_locale:
