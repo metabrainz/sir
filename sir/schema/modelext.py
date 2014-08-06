@@ -18,6 +18,7 @@ class CustomArtist(Artist):
     area = relationship('CustomArea', foreign_keys=[Artist.area_id])
     begin_area = relationship('CustomArea', foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
+    tags = relationship('ArtistTag')
 
 
 class CustomLabel(Label):

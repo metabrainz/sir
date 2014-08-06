@@ -94,8 +94,13 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
 ],
-    1.1,
-    convert.convert_artist
+    1.2,
+    convert.convert_artist,
+    extrapaths=["area.iso_3166_1_codes.code", "tags.count", "tags.tag.name",
+                "aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "begin_area.gid", "area.gid", "end_area.gid"]
+
 )
 
 
