@@ -1,5 +1,6 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from .. import config
 from ..querying import _iterate_path_values
 from collections import defaultdict
 from logging import getLogger
@@ -172,7 +173,7 @@ class SearchEntity(object):
             logger.debug("Field %s: %s", fieldname, tempvals)
             data[fieldname] = tempvals
 
-        if self.compatconverter is not None:
+        if config.CFG.getboolean("sir", "wscompat") and self.compatconverter is not None:
             logger.debug("Field _store")
             data["_store"] = tostring(self.compatconverter(obj).to_etree())
 
