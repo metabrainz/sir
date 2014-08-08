@@ -6,6 +6,27 @@ from mbrng import models
 fix()
 
 
+def partialdate_to_string(obj):
+    """
+    :type obj: :class:`mbdata.types.PartialDate`
+    """
+    args = []
+    formatstring = ""
+
+    if obj.year is not None and obj.year != 0:
+        formatstring += "%04d"
+        args.append(obj.year)
+
+        if obj.month is not None and obj.month != 0:
+            formatstring += "-%02d"
+            args.append(obj.month)
+
+            if obj.day is not None and obj.day != 0:
+                formatstring += "-%02d"
+                args.append(obj.day)
+
+    return formatstring % tuple(args)
+
 def convert_area_inner(obj):
     """
     :type obj: :class:`mbdata.models.Area`
