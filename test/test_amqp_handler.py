@@ -87,6 +87,10 @@ class HandlerTest(AmqpTestCase):
         super(HandlerTest, self).setUp()
         handler.solr_connection = mock.Mock()
 
+        solr_version_check_patcher = mock.patch("sir.amqp.handler.solr_version_check")
+        self.addCleanup(solr_version_check_patcher.stop)
+        solr_version_check_patcher.start()
+
         self.handler = handler.Handler()
         self.handler.cores[self.entity_type] = mock.Mock()
 

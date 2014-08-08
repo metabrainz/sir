@@ -8,6 +8,10 @@ from sir.schema.searchentities import SearchEntity as E, SearchField as F
 
 class QueryResultToDictTest(unittest.TestCase):
     def setUp(self):
+        config_patcher = mock.patch("sir.config.CFG")
+        self.addCleanup(config_patcher.stop)
+        instance = config_patcher.start()
+        instance.getboolean.return_value = True
         self.entity = E(models.B, [
             F("id", "id"),
             F("c_bar", "c.bar"),
