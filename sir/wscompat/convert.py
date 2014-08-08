@@ -151,8 +151,6 @@ def convert_artist(obj):
     if obj.type is not None:
         artist.set_type(obj.type.name)
 
-    lifespan = models.life_span()
-
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
 
@@ -164,13 +162,13 @@ def convert_artist(obj):
     if obj.end_area is not None:
         artist.set_end_area(convert_area_inner(obj.end_area))
 
+    lifespan = models.life_span()
+
     if obj.begin_date is not None:
-        # TODO
-        pass
+        lifespan.set_begin(partialdate_to_string(obj.begin_date))
 
     if obj.end_date is not None:
-        # TODO
-        pass
+        lifespan.set_end(partialdate_to_string(obj.end_date))
 
     if obj.ended:
         lifespan.set_ended("true")
