@@ -38,13 +38,16 @@ def convert_area_inner(obj):
     return area
 
 
-def convert_alias(obj):
+def convert_alias(obj, has_sort_name=True):
     """
     :type obj: :class:`mbdata.models.WorkAlias`
     """
     alias = models.alias()
     alias.set_locale(obj.locale)
-    alias.set_sort_name(obj.sort_name)
+    if has_sort_name:
+        alias.set_sort_name(obj.sort_name)
+    else:
+        alias.set_sort_name(obj.name)
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
@@ -63,12 +66,12 @@ def convert_tag(obj):
     return tag
 
 
-def convert_alias_list(obj):
+def convert_alias_list(obj, has_sort_name=True):
     """
     :type obj: [:class:`mbdata.models.WorkAlias`]
     """
     alias_list = models.alias_list()
-    map(lambda a: alias_list.add_alias(convert_alias(a)), obj)
+    map(lambda a: alias_list.add_alias(convert_alias(a, has_sort_name)), obj)
     return alias_list
 
 
