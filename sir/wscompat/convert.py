@@ -196,8 +196,36 @@ def convert_artist(obj):
     return artist
 
 
-def convert_label(label):
-    pass
+def convert_label(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomLabel`
+    """
+    label = models.label()
+    label.set_id(obj.gid)
+    label.set_name(obj.name)
+    label.set_sort_name(obj.name)
+
+    if obj.type is not None:
+        label.set_type(obj.type.name)
+
+    if obj.area is not None:
+        label.set_area(convert_area_inner(obj.area))
+        if len(obj.area.iso_3166_1_codes) > 0:
+            label.set_country(obj.area.iso_3166_1_codes[0].code)
+
+    if obj.label_code > 0:
+        label.set_label_code(obj.label_code)
+
+    if len(obj.aliases) > 0:
+        label.set_alias_list(convert_alias_list(obj.aliases, has_sort_name=False))
+
+    if len(obj.ipis) > 0:
+        label.set_ipi_list(convert_ipi_list(obj.ipis))
+
+    if len(obj.tags) > 0:
+        label.set_tag_list(convert_tag_list(obj.tags))
+
+    return label
 
 
 def convert_recording(recording):

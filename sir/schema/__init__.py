@@ -17,8 +17,8 @@ SearchLabel = E(modelext.CustomLabel, [
     F("ipi", "ipis.ipi"),
     F("type", "type.name")
 ],
-    1.1,
-    convert.convert_label
+    1.2,
+    convert.convert_label,
 )
 
 
