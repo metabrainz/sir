@@ -35,7 +35,28 @@ def convert_area_inner(obj):
     area.set_id(obj.gid)
     area.set_name(obj.name)
     area.set_sort_name(obj.name)
+    # TODO: aliases
     return area
+
+
+def convert_name_credit(obj):
+    """
+    :type obj: :class:`mbdata.models.ArtistCreditName`
+    """
+    nc = models.name_credit()
+    nc.set_joinphrase(obj.join_phrase)
+    nc.set_name(obj.name)
+    nc.set_artist(convert_artist_simple(obj.artist))
+    return nc
+
+
+def convert_artist_credit(obj):
+    """
+    :type obj: :class:`mbdata.models.ArtistCredit`
+    """
+    ac = models.artist_credit()
+    map(lambda nc: ac.add_name_credit(convert_name_credit(nc)), obj.artists)
+    return ac
 
 
 def convert_alias(obj, has_sort_name=True):
@@ -60,15 +81,6 @@ def convert_alias(obj, has_sort_name=True):
     return alias
 
 
-def convert_tag(obj):
-    """
-    :type obj: :class:`mbdata.models.ArtistTag`
-    """
-    tag = models.tag()
-    tag.set_count(obj.count)
-    tag.set_name(obj.tag.name)
-    return tag
-
 
 def convert_alias_list(obj, has_sort_name=True):
     """
@@ -79,6 +91,17 @@ def convert_alias_list(obj, has_sort_name=True):
     return alias_list
 
 
+def convert_tag(obj):
+    """
+    :type obj: :class:`mbdata.models.ArtistTag`
+    """
+    tag = models.tag()
+    tag.set_count(obj.count)
+    tag.set_name(obj.tag.name)
+    return tag
+
+
+
 def convert_attribute(obj):
     """
     :type obj: :class:`mbdata.models.LinkAttribute`
@@ -86,6 +109,21 @@ def convert_attribute(obj):
     attribute = models.attributeType()
     attribute.value = obj.attribute_type.name
     return attribute
+
+
+def convert_artist_simple(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomArtist`
+    """
+    artist = models.artist()
+    artist.set_id(obj.gid)
+    artist.set_name(obj.name)
+    if obj.sort_name is not None:
+        artist.set_sort_name(obj.sort_name)
+    if len(obj.aliases) > 0:
+        artist.set_alias_list(convert_alias_list(obj.aliases))
+
+    return artist
 
 
 def convert_artist_work_relation(obj):
@@ -236,8 +274,32 @@ def convert_release(release):
     pass
 
 
-def convert_release_group(release_group):
-    pass
+
+
+def convert_release_group(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomReleaseGroup`
+    """
+    rg = models.release_group()
+
+    rg.set_artist_credit(convert_artist_credit(obj.artist_credit))
+    if obj.comment is not None:
+        rg.set_disambiguation(obj.comment)
+    rg.set_id(obj.gid)
+    rg.set_title(obj.name)
+    if obj.type is not None:
+        rg.set_primary_type(obj.type.name)
+        rg.set_type(obj.type.name)
+
+    if len(obj.secondary_types) > 0:
+        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+
+    rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
+
+    if len(obj.tags) > 0:
+        rg.set_tag_list(convert_tag_list(obj.tags))
+
+    return rg
 
 
 def convert_work(obj):

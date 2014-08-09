@@ -79,8 +79,31 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("releases", "releases.gid", transformfunc=len),
     F("credit-name", "artist_credit.artists.artist.name")
 ],
-    1.1,
-    convert.convert_release_group
+    1.2,
+    convert.convert_release_group,
+    extrapaths = ["artist_credit.artists.name",
+                  "artist_credit.artists.join_phrase", "artist_credit.name",
+                  "artist_credit.artists.artist.aliases.begin_date_day",
+                  "artist_credit.artists.artist.aliases.begin_date_month",
+                  "artist_credit.artists.artist.aliases.begin_date_year",
+                  "artist_credit.artists.artist.aliases.end_date_day",
+                  "artist_credit.artists.artist.aliases.end_date_month",
+                  "artist_credit.artists.artist.aliases.end_date_year",
+                  "artist_credit.artists.artist.aliases.locale",
+                  "artist_credit.artists.artist.aliases.name",
+                  "artist_credit.artists.artist.aliases.primary_for_locale",
+                  "artist_credit.artists.artist.aliases.sort_name",
+                  "artist_credit.artists.artist.aliases.type.id",
+                  "artist_credit.artists.artist.aliases.type.name",
+                  "artist_credit.artists.artist.gid",
+                  "artist_credit.artists.artist.name",
+                  "artist_credit.artists.artist.sort_name",
+                  "type.name", "secondary_types.secondary_type.name",
+                  "tags.count",
+                  "tags.tag.name",
+                  "releases.name",
+                  "releases.status.name"
+]
 )
 
 SearchArtist = E(modelext.CustomArtist, [
