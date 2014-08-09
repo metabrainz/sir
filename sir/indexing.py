@@ -97,7 +97,7 @@ def _multiprocessed_import(entities):
             for r in results:
                 pass
         except (KeyboardInterrupt, Exception) as exc:
-            logger.error(exc)
+            logger.exception(exc)
         else:
             logger.info("Importing %s successful!", e)
         pool.terminate()
