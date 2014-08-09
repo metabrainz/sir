@@ -53,6 +53,10 @@ def convert_alias(obj, has_sort_name=True):
         alias.set_type(obj.type.name)
     if obj.primary_for_locale:
         alias.set_primary("primary")
+    if obj.begin_date is not None:
+        alias.set_begin_date(partialdate_to_string(obj.begin_date))
+    if obj.end_date is not None:
+        alias.set_end_date(partialdate_to_string(obj.end_date))
     return alias
 
 
