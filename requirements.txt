@@ -1,4 +1,5 @@
 amqp
+backports.functools_lru_cache
 enum34
 psycopg2
 retrying

@@ -1,6 +1,11 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from .modelfix import fix
+try:
+    # Python 3
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 from mbrng import models
 
 fix()
@@ -43,6 +48,7 @@ def convert_iso_3166_1_code_list(obj):
     return l
 
 
+@lru_cache()
 def convert_area_inner(obj):
     """
     :type obj: :class:`mbdata.models.Area`
@@ -54,6 +60,7 @@ def convert_area_inner(obj):
     return area
 
 
+@lru_cache()
 def convert_area_for_release_event(obj):
     """
     :type obj: :class:`mbdata.models.Area`
@@ -78,6 +85,7 @@ def convert_name_credit(obj):
     return nc
 
 
+@lru_cache(maxsize=5000)
 def convert_artist_credit(obj):
     """
     :type obj: :class:`mbdata.models.ArtistCredit`
