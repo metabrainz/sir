@@ -33,6 +33,7 @@ class CustomMediumCDToc(MediumCDTOC):
 
 
 class CustomRecording(Recording):
+    tags = relationship("RecordingTag")
     tracks = relationship("Track")
 
 

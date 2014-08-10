@@ -73,7 +73,7 @@ def convert_area_for_release_event(obj):
     return area
 
 
-def convert_name_credit(obj):
+def convert_name_credit(obj, include_aliases=True):
     """
     :type obj: :class:`mbdata.models.ArtistCreditName`
     """
@@ -81,17 +81,18 @@ def convert_name_credit(obj):
     if obj.join_phrase != "":
         nc.set_joinphrase(obj.join_phrase)
     nc.set_name(obj.name)
-    nc.set_artist(convert_artist_simple(obj.artist))
+    nc.set_artist(convert_artist_simple(obj.artist, include_aliases))
     return nc
 
 
 @lru_cache(maxsize=5000)
-def convert_artist_credit(obj):
+def convert_artist_credit(obj, include_aliases=True):
     """
     :type obj: :class:`mbdata.models.ArtistCredit`
     """
     ac = models.artist_credit()
-    map(lambda nc: ac.add_name_credit(convert_name_credit(nc)), obj.artists)
+    map(lambda nc: ac.add_name_credit(convert_name_credit(nc, include_aliases)),
+                                                          obj.artists)
     return ac
 
 
@@ -149,16 +150,19 @@ def convert_attribute(obj):
     return attribute
 
 
-def convert_artist_simple(obj):
+@lru_cache()
+def convert_artist_simple(obj, include_aliases=True):
     """
     :type obj: :class:`sir.schema.modelext.CustomArtist`
     """
     artist = models.artist()
     artist.set_id(obj.gid)
     artist.set_name(obj.name)
+    if obj.comment is not None and obj.comment != "":
+        artist.set_disambiguation(obj.comment)
     if obj.sort_name is not None:
         artist.set_sort_name(obj.sort_name)
-    if len(obj.aliases) > 0:
+    if include_aliases and len(obj.aliases) > 0:
         artist.set_alias_list(convert_alias_list(obj.aliases))
 
     return artist
@@ -172,11 +176,7 @@ def convert_artist_work_relation(obj):
     relation.set_direction("backward")
     relation.set_type(obj.link.link_type.name)
 
-    artist = models.artist()
-    artist.set_id(obj.artist.gid)
-    artist.set_name(obj.artist.name)
-    if obj.artist.sort_name is not None:
-        artist.set_sort_name(obj.artist.sort_name)
+    artist = convert_artist_simple(obj.artist)
     relation.set_artist(artist)
 
     if len(obj.link.attributes) > 0:
@@ -204,6 +204,24 @@ def convert_ipi_list(obj):
     ipi_list = models.ipi_list()
     map(lambda i: ipi_list.add_ipi(i.ipi), obj)
     return ipi_list
+
+
+def convert_isrc(obj):
+    """
+    :type obj: :class:`mbdata.models.ISRC`
+    """
+    isrc = models.isrc()
+    isrc.set_id(obj.isrc)
+    return isrc
+
+
+def convert_isrc_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ISRC]`
+    """
+    isrc_list = models.isrc_list()
+    map(lambda i: isrc_list.add_isrc(convert_isrc(i)), obj)
+    return isrc_list
 
 
 def convert_label_info(obj):
@@ -244,8 +262,32 @@ def convert_medium(obj):
     dl.set_count(len(obj.cdtocs))
     m.set_disc_list(dl)
 
-    tl = models.track_listType()
+    tl = models.track_listType6()
     tl.set_count(obj.track_count)
+    m.set_track_list(tl)
+
+    return m
+
+
+def convert_medium_from_track(obj):
+    """
+    :type obj: :class:`mbdata.models.Track`
+    """
+    medium = obj.medium
+    m = convert_medium(medium)
+
+    m.set_position(medium.position)
+
+    track = models.trackType()
+    track.set_id(obj.gid)
+    track.set_length(obj.length)
+    track.set_number(obj.number)
+    track.set_title(obj.name)
+
+    tl = m.track_list
+    tl.set_offset(obj.position - 1)
+    tl.add_track(track)
+
     m.set_track_list(tl)
 
     return m
@@ -257,11 +299,26 @@ def convert_medium_list(obj):
     """
     ml = models.medium_list()
     ml.set_count(len(obj))
-    ml.set_track_count
     map(lambda m: ml.add_medium(convert_medium(m)), obj)
 
     tracks = 0
     for medium in obj:
+        tracks += int(medium.track_count)
+    ml.set_track_count(tracks)
+
+    return ml
+
+
+def convert_medium_list_from_track(obj):
+    """
+    :type obj: :class:`mbdata.models.Track`
+    """
+    ml = models.medium_list()
+    ml.set_count(len(obj.medium.release.mediums))
+    ml.add_medium(convert_medium_from_track(obj))
+
+    tracks = 0
+    for medium in obj.medium.release.mediums:
         tracks += int(medium.track_count)
     ml.set_track_count(tracks)
 
@@ -286,6 +343,46 @@ def convert_release_event_list(obj):
     rel.set_count(len(obj))
     map(lambda re: rel.add_release_event(convert_release_event(re)), obj)
     return rel
+
+
+def convert_release_from_track(obj):
+    """
+    :type obj: :class:`mbdata.models.Track`
+    """
+    medium = obj.medium
+    rel = medium.release
+    release = models.release()
+    release.set_id(rel.gid)
+    release.set_title(rel.name)
+
+    # The lucene search server skips this if the release artist credit is the
+    # same as the recording artist credit, but we've already built it so just
+    # set it
+    release.set_artist_credit(convert_artist_credit(rel.artist_credit,
+                                                    include_aliases=True))
+
+    if rel.comment is not None and rel.comment != "":
+        release.set_disambiguation(rel.comment)
+
+    if len(rel.country_dates) > 0:
+        release.set_release_event_list(convert_release_event_list(rel.country_dates))
+        first_release = release.release_event_list.release_event[0]
+
+        if first_release.date is not None:
+            release.set_date(first_release.date)
+
+        if (first_release.area is not None and first_release.area.iso_3166_1_code_list
+            is not None and len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
+            release.set_country(first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
+
+    release.set_medium_list(convert_medium_list_from_track(obj))
+
+    release.set_release_group(convert_release_group_for_release(rel.release_group))
+
+    if rel.status is not None:
+        release.set_status(rel.status.name)
+
+    return release
 
 
 def convert_release_group_for_release(obj):
@@ -331,6 +428,15 @@ def convert_release_group_simple(obj):
         rg.set_disambiguation(obj.comment)
 
     return rg
+
+    
+def convert_release_list_for_recordings(obj):
+    """
+    :type obj: :class:`[mbdata.models.Track]`
+    """
+    release_list = models.release_list()
+    map(lambda t: release_list.add_release(convert_release_from_track(t)), obj)
+    return release_list
 
 
 def convert_release_list_for_release_groups(obj):
@@ -464,8 +570,34 @@ def convert_label(obj):
     return label
 
 
-def convert_recording(recording):
-    pass
+def convert_recording(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomRecording`
+    """
+    recording = models.recording()
+    recording.set_id(obj.gid)
+    recording.set_title(obj.name)
+
+    recording.set_artist_credit(convert_artist_credit(obj.artist_credit))
+
+    if obj.comment is not None and obj.comment != "":
+        recording.set_disambiguation(obj.comment)
+    
+    recording.set_length(obj.length)
+    
+    if len(obj.isrcs) > 0:
+        recording.set_isrc_list(convert_isrc_list(obj.isrcs))
+    
+    if len(obj.tags) > 0:
+        recording.set_tag_list(convert_tag_list(obj.tags))
+
+    if len(obj.tracks) > 0:
+        recording.set_release_list(convert_release_list_for_recordings(obj.tracks))
+    
+    if obj.video:
+        recording.set_video("true")
+
+    return recording
 
 
 def convert_release(obj):
