@@ -90,6 +90,10 @@ class HandlerTest(AmqpTestCase):
 
         handler.SCHEMA = {self.entity_type: None}
 
+        solr_version_check_patcher = mock.patch("sir.amqp.handler.solr_version_check")
+        self.addCleanup(solr_version_check_patcher.stop)
+        solr_version_check_patcher.start()
+
         self.handler = handler.Handler()
         self.handler.cores[self.entity_type] = mock.Mock()
 

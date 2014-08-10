@@ -23,7 +23,7 @@ class PathPart(object):
         """
         :param str tablename: The name of the table
         :param str pkname: The primary key of the table
-        :param sir.trigger_generation.PathPart inner:
+        :param sir.trigger_generation.types.PathPart inner:
         """
         self.tablename = tablename
         self.pkname = pkname

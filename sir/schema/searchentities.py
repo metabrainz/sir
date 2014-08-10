@@ -1,8 +1,10 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from .. import config
 from ..querying import _iterate_path_values
 from collections import defaultdict
 from logging import getLogger
+from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
@@ -80,16 +82,30 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An entity with searchable fields."""
-    def __init__(self, model, fields, version):
+    def __init__(self, model, fields, version, compatconverter=None, extrapaths=None):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
         :param float version: The supported schema version of this entity.
+        :param compatconverter: A function to convert this object into an XML
+                                document compliant with the MMD schema version 2
+        :param [str] extrapaths: A list of paths that don't correspond to any
+                                 field but are used by the compatibility
+                                 conversion
         """
         self.model = model
         self.fields = fields
-        self.query = self.build_entity_query()
+        self.extrapaths = extrapaths
+        self._query = None
         self.version = version
+        self.compatconverter = compatconverter
+
+    @property
+    def query(self):
+        if self._query is None:
+            self._query = self.build_entity_query()
+
+        return self._query
 
     def build_entity_query(self):
         """
@@ -102,6 +118,11 @@ class SearchEntity(object):
         root_model = self.model
         query = Query(root_model)
         paths = [field.paths for field in self.fields]
+
+        if (config.CFG.getboolean("sir", "wscompat")
+            and self.extrapaths is not None):
+            paths.extend([self.extrapaths])
+
         merged_paths = merge_paths(paths)
 
         for field_paths in paths:
@@ -159,4 +180,9 @@ class SearchEntity(object):
                 tempvals = tempvals.pop()
             logger.debug("Field %s: %s", fieldname, tempvals)
             data[fieldname] = tempvals
+
+        if config.CFG.getboolean("sir", "wscompat") and self.compatconverter is not None:
+            logger.debug("Field _store")
+            data["_store"] = tostring(self.compatconverter(obj).to_etree())
+
         return data

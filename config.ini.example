@@ -6,6 +6,7 @@ batch_size = 60
 [sir]
 import_threads = 2
 query_batch_size = 20000
+wscompat = on
 [rabbitmq]
 host = localhost
 user = guest
