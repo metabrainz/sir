@@ -36,7 +36,7 @@ def partialdate_to_string(obj):
 
 def convert_iso_3166_1_code_list(obj):
     """
-    :type obj: [:class:`mbdata.models.ISO31661`]
+    :type obj: :class:`[mbdata.models.ISO31661]`
     """
     l = models.iso_3166_1_code_list()
     map(lambda c: l.add_iso_3166_1_code(c.code), obj)
@@ -115,7 +115,7 @@ def convert_alias(obj, has_sort_name=True):
 
 def convert_alias_list(obj, has_sort_name=True):
     """
-    :type obj: [:class:`mbdata.models.WorkAlias`]
+    :type obj: :class:`[mbdata.models.WorkAlias]`
     """
     alias_list = models.alias_list()
     map(lambda a: alias_list.add_alias(convert_alias(a, has_sort_name)), obj)
@@ -182,7 +182,7 @@ def convert_artist_work_relation(obj):
 
 def convert_artist_work_relation_list(obj):
     """
-    :type obj: [:class:`mbdata.models.LinkArtistWork`]
+    :type obj: :class:`[mbdata.models.LinkArtistWork]`
     """
     relation_list = models.relation_list(target_type="artist")
     map(lambda r: relation_list.add_relation(convert_artist_work_relation(r)), obj)
@@ -191,7 +191,7 @@ def convert_artist_work_relation_list(obj):
 
 def convert_ipi_list(obj):
     """
-    :type obj: [:class:`mbdata.models.ArtistIPI`]
+    :type obj: :class:`[mbdata.models.ArtistIPI]`
     """
     ipi_list = models.ipi_list()
     map(lambda i: ipi_list.add_ipi(i.ipi), obj)
@@ -215,7 +215,7 @@ def convert_label_info(obj):
 
 def convert_label_info_list(obj):
     """
-    :type obj: [:class:`mbdata.models.ReleaseLabel`]
+    :type obj: :class:`[mbdata.models.ReleaseLabel]`
     """
     lil = models.label_info_list()
     lil.set_count(len(obj))
@@ -245,7 +245,7 @@ def convert_medium(obj):
 
 def convert_medium_list(obj):
     """
-    :type obj: [:class:`mbdata.models.Medium`]
+    :type obj: :class:`[mbdata.models.Medium]`
     """
     ml = models.medium_list()
     ml.set_count(len(obj))
@@ -272,7 +272,7 @@ def convert_release_event(obj):
 
 def convert_release_event_list(obj):
     """
-    :type obj: [:class:`mbdata.models.CountryDates`]
+    :type obj: :class:`[mbdata.models.CountryDates]`
     """
     rel = models.release_event_list()
     rel.set_count(len(obj))
@@ -327,7 +327,7 @@ def convert_release_group_simple(obj):
 
 def convert_release_list_for_release_groups(obj):
     """
-    :type obj: [:class:`mbdata.models.Release`]
+    :type obj: :class:`[mbdata.models.Release]`
     """
     release_list = models.release_list()
     release_list.set_count(len(obj))
@@ -351,7 +351,7 @@ def convert_secondary_type(obj):
 
 def convert_secondary_type_list(obj):
     """
-    :type obj: [:class:`mbdata.models.ReleaseGroupSecondaryType`]
+    :type obj: :class:`[mbdata.models.ReleaseGroupSecondaryType]`
     """
     type_list = models.secondary_type_list()
     map(lambda t: type_list.add_secondary_type(convert_secondary_type(t)), obj)
@@ -359,7 +359,7 @@ def convert_secondary_type_list(obj):
 
 def convert_tag_list(obj):
     """
-    :type obj: [:class:`mbdata.models.ArtistTag`]
+    :type obj: :class:`[mbdata.models.ArtistTag]`
     """
     tag_list = models.tag_list()
     tag_list.set_count(len(obj))
