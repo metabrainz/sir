@@ -1,6 +1,6 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import Area, Artist, ArtistAlias, Label, LinkAttribute, Recording, ReleaseGroup, Work
+from mbdata.models import Area, Artist, ArtistAlias, Label, LinkAttribute, MediumCDTOC, Recording, ReleaseGroup, ReleaseTag, Work
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -28,6 +28,10 @@ class CustomLabel(Label):
     aliases = relationship("LabelAlias")
 
 
+class CustomMediumCDToc(MediumCDTOC):
+    medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id], innerjoin=True, backref="cdtocs")
+
+
 class CustomRecording(Recording):
     tracks = relationship("Track")
 
@@ -36,6 +40,8 @@ class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
 
+class CustomReleaseTag(ReleaseTag):
+    release = relationship('Release', foreign_keys=[ReleaseTag.release_id], innerjoin=True, backref="tags")
 
 class CustomWork(Work):
     aliases = relationship("WorkAlias")

@@ -5,6 +5,12 @@ from mbrng import models
 
 fix()
 
+#: Constant for a missing barcode
+BARCODE_NONE = "none"
+
+#: Constant for unknown barcode values
+BARCODE_UNKOWN = "-"
+
 
 def partialdate_to_string(obj):
     """
@@ -27,6 +33,16 @@ def partialdate_to_string(obj):
 
     return formatstring % tuple(args)
 
+
+def convert_iso_3166_1_code_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.ISO31661`]
+    """
+    l = models.iso_3166_1_code_list()
+    map(lambda c: l.add_iso_3166_1_code(c.code), obj)
+    return l
+
+
 def convert_area_inner(obj):
     """
     :type obj: :class:`mbdata.models.Area`
@@ -35,7 +51,18 @@ def convert_area_inner(obj):
     area.set_id(obj.gid)
     area.set_name(obj.name)
     area.set_sort_name(obj.name)
-    # TODO: aliases
+    return area
+
+
+def convert_area_for_release_event(obj):
+    """
+    :type obj: :class:`mbdata.models.Area`
+    """
+    area = models.def_area_element_inner()
+    area.set_id(obj.gid)
+    area.set_name(obj.name)
+    area.set_sort_name(obj.name)
+    area.set_iso_3166_1_code_list(convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
     return area
 
 
@@ -44,7 +71,8 @@ def convert_name_credit(obj):
     :type obj: :class:`mbdata.models.ArtistCreditName`
     """
     nc = models.name_credit()
-    nc.set_joinphrase(obj.join_phrase)
+    if obj.join_phrase != "":
+        nc.set_joinphrase(obj.join_phrase)
     nc.set_name(obj.name)
     nc.set_artist(convert_artist_simple(obj.artist))
     return nc
@@ -75,11 +103,14 @@ def convert_alias(obj, has_sort_name=True):
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date is not None:
-        alias.set_begin_date(partialdate_to_string(obj.begin_date))
+        converted_date = partialdate_to_string(obj.begin_date)
+        if converted_date != "":
+            alias.set_begin_date(converted_date)
     if obj.end_date is not None:
-        alias.set_end_date(partialdate_to_string(obj.end_date))
+        converted_date = partialdate_to_string(obj.end_date)
+        if converted_date != "":
+            alias.set_end_date(converted_date)
     return alias
-
 
 
 def convert_alias_list(obj, has_sort_name=True):
@@ -99,7 +130,6 @@ def convert_tag(obj):
     tag.set_count(obj.count)
     tag.set_name(obj.tag.name)
     return tag
-
 
 
 def convert_attribute(obj):
@@ -168,11 +198,171 @@ def convert_ipi_list(obj):
     return ipi_list
 
 
+def convert_label_info(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseLabel`
+    """
+    li = models.label_info()
+    if obj.catalog_number is not None and obj.catalog_number != "":
+        li.set_catalog_number(obj.catalog_number)
+    if obj.label is not None:
+        label = models.label()
+        label.set_id(obj.label.gid)
+        label.set_name(obj.label.name)
+        li.set_label(label)
+    return li
+
+
+def convert_label_info_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.ReleaseLabel`]
+    """
+    lil = models.label_info_list()
+    lil.set_count(len(obj))
+    map(lambda li: lil.add_label_info(convert_label_info(li)), obj)
+    return lil
+
+
+def convert_medium(obj):
+    """
+    :type obj: :class:`mbdata.models.Medium`
+    """
+    m = models.medium()
+
+    if obj.format is not None:
+        m.set_format(obj.format.name)
+
+    dl = models.disc_list()
+    dl.set_count(len(obj.cdtocs))
+    m.set_disc_list(dl)
+
+    tl = models.track_listType()
+    tl.set_count(obj.track_count)
+    m.set_track_list(tl)
+
+    return m
+
+
+def convert_medium_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.Medium`]
+    """
+    ml = models.medium_list()
+    ml.set_count(len(obj))
+    ml.set_track_count
+    map(lambda m: ml.add_medium(convert_medium(m)), obj)
+
+    tracks = 0
+    for medium in obj:
+        tracks += int(medium.track_count)
+    ml.set_track_count(tracks)
+
+    return ml
+
+
+def convert_release_event(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseCountry`
+    """
+    re = models.release_event()
+    re.set_area(convert_area_for_release_event(obj.country.area))
+    re.set_date(partialdate_to_string(obj.date))
+    return re
+
+
+def convert_release_event_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.CountryDates`]
+    """
+    rel = models.release_event_list()
+    rel.set_count(len(obj))
+    map(lambda re: rel.add_release_event(convert_release_event(re)), obj)
+    return rel
+
+
+def convert_release_group_for_release(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseGroup`
+    """
+    rg = models.release_group()
+    rg.set_id(obj.gid)
+    rg.set_title(obj.name)
+
+    if obj.type is not None:
+        rg.set_primary_type(obj.type.name)
+        rg.set_type(obj.type.name)
+
+    if len(obj.secondary_types) > 0:
+        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+
+    if obj.comment is not None:
+        rg.set_disambiguation(obj.comment)
+
+    return rg
+
+
+def convert_release_group_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseGroup`
+    """
+    rg = models.release_group()
+    rg.set_id(obj.gid)
+    rg.set_title(obj.name)
+
+    if obj.type is not None:
+        rg.set_primary_type(obj.type.name)
+        rg.set_type(obj.type.name)
+
+    if len(obj.secondary_types) > 0:
+        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+
+    rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
+
+
+    if obj.comment is not None:
+        rg.set_disambiguation(obj.comment)
+
+    return rg
+
+
+def convert_release_list_for_release_groups(obj):
+    """
+    :type obj: [:class:`mbdata.models.Release`]
+    """
+    release_list = models.release_list()
+    release_list.set_count(len(obj))
+    for r in obj:
+        release = models.release()
+        release.set_id(r.gid)
+        release.set_title(r.name)
+        if r.status is not None:
+            release.set_status(r.status.name)
+
+        release_list.add_release(release)
+    return release_list
+
+
+def convert_secondary_type(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseGroupSecondaryTypeJoin`
+    """
+    return obj.secondary_type.name
+
+
+def convert_secondary_type_list(obj):
+    """
+    :type obj: [:class:`mbdata.models.ReleaseGroupSecondaryType`]
+    """
+    type_list = models.secondary_type_list()
+    map(lambda t: type_list.add_secondary_type(convert_secondary_type(t)), obj)
+
+
 def convert_tag_list(obj):
     """
     :type obj: [:class:`mbdata.models.ArtistTag`]
     """
     tag_list = models.tag_list()
+    tag_list.set_count(len(obj))
     map(lambda t: tag_list.add_tag(convert_tag(t)), obj)
     return tag_list
 
@@ -270,10 +460,70 @@ def convert_recording(recording):
     pass
 
 
-def convert_release(release):
-    pass
+def convert_release(obj):
+    """
+    :type obj: :class:`mbdata.models.Release`
+    """
+    # TODO: ASIN
+    release = models.release()
+    release.set_id(obj.gid)
+    release.set_title(obj.name)
 
+    release.set_artist_credit(convert_artist_credit(obj.artist_credit))
 
+    if obj.barcode is not None:
+        if obj.barcode != "":
+            release.set_barcode(obj.barcode)
+        else:
+            release.set_barcode(BARCODE_NONE)
+    else:
+        release.set_barcode(BARCODE_UNKOWN)
+
+    if obj.comment is not None and obj.comment != "":
+        release.set_disambiguation(obj.comment)
+
+    if obj.packaging is not None:
+        release.set_packaging(obj.packaging.name)
+
+    if len(obj.country_dates) > 0:
+        release.set_release_event_list(convert_release_event_list(obj.country_dates))
+        first_release = release.release_event_list.release_event[0]
+
+        if first_release.date is not None:
+            release.set_date(first_release.date)
+
+        if (first_release.area is not None and first_release.area.iso_3166_1_code_list
+            is not None and len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
+            release.set_country(first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
+
+    if len(obj.labels) > 0:
+        release.set_label_info_list(convert_label_info_list(obj.labels))
+
+    if len(obj.mediums) > 0:
+        release.set_medium_list(convert_medium_list(obj.mediums))
+
+    release.set_release_group(convert_release_group_for_release(obj.release_group))
+
+    if obj.status is not None:
+        release.set_status(obj.status.name)
+
+    if obj.tags is not None:
+        release.set_tag_list(convert_tag_list(obj.tags))
+
+    tr = None
+    if obj.language is not None:
+        tr = models.text_representation()
+        tr.set_language(obj.language.iso_code_3)
+
+    if obj.script is not None:
+        if tr is None:
+            tr = models.text_representation()
+        tr.set_script(obj.script.iso_code)
+
+    if tr is not None:
+        release.set_text_representation(tr)
+
+    return release
 
 
 def convert_release_group(obj):
