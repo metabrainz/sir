@@ -96,9 +96,16 @@ class SearchEntity(object):
         self.model = model
         self.fields = fields
         self.extrapaths = extrapaths
-        self.query = self.build_entity_query()
+        self._query = None
         self.version = version
         self.compatconverter = compatconverter
+
+    @property
+    def query(self):
+        if self._query is None:
+            self._query = self.build_entity_query()
+
+        return self._query
 
     def build_entity_query(self):
         """
@@ -112,7 +119,8 @@ class SearchEntity(object):
         query = Query(root_model)
         paths = [field.paths for field in self.fields]
 
-        if self.extrapaths is not None:
+        if (config.CFG.getboolean("sir", "wscompat")
+            and self.extrapaths is not None):
             paths.extend([self.extrapaths])
 
         merged_paths = merge_paths(paths)
