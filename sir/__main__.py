@@ -30,10 +30,6 @@ def main():
 
         Available are: %s""" % (", ".join(SCHEMA.keys())))
 
-    watch_parser = subparsers.add_parser("watch",
-        help="Watches for incoming messages on an AMQP queue")
-    watch_parser.set_defaults(func=watch)
-
     generate_trigger_parser = subparsers.add_parser("triggers",
         help="Generate triggers")
     generate_trigger_parser.set_defaults(func=generate_triggers)
