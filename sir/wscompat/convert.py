@@ -704,5 +704,5 @@ def convert_work(obj):
     work.set_id(obj.gid)
     work.set_title(obj.name)
     if obj.language is not None:
-        work.set_language(obj.language.name)
+        work.set_language(obj.language.iso_code_3)
     return work
