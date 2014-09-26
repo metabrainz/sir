@@ -203,7 +203,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 
 SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("artist", "name"),
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
@@ -224,7 +224,7 @@ SearchArtist = E(modelext.CustomArtist, [
 
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("work", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_links.artist.gid"),
     F("artist", "artist_links.artist.name"),
