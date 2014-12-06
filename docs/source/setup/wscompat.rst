@@ -10,5 +10,5 @@ Installing `mb-solrquerywriter`_ on your Solr server will then allow you to
 retrieve responses as mmd-compatible XML or the derived JSON.
 
 .. _mmd-schema: https://github.com/metabrainz/mmd-schema
-.. _derived JSON: https://beta.musicbrainz.org/doc/Development/JSON_Web_Service
+.. _derived JSON: https://musicbrainz.org/doc/Development/JSON_Web_Service
 .. _mb-solrquerywriter: https://github.com/mineo/mb-solrquerywriter/
