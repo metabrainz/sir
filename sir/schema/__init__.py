@@ -168,7 +168,7 @@ SearchRelease = E(models.Release, [
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
-    F("release-group", "name"),
+    F("releasegroup", "name"),
     # F("release", "releases.name"),
     F("reid", "releases.gid"),
     F("releases", "releases.gid", transformfunc=len),
