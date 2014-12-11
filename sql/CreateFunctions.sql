@@ -2,7 +2,7 @@
 \set ON_ERROR_STOP 1
 BEGIN;
 
-CREATE OR REPLACE FUNCTION search_artist_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -12,8 +12,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -23,8 +24,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_artist_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -34,8 +36,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -45,8 +48,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -56,8 +60,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_update_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -67,8 +72,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -78,8 +84,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -89,8 +96,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_artist_update_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -100,8 +108,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_6_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -111,8 +120,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_3() IS 'The path for this function is area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_6_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -122,8 +132,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_3() IS 'The path for this function is area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_update_6_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -133,8 +144,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_3() IS 'The path for this function is area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_8_begin_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -144,8 +156,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_4() IS 'The path for this function is begin_area';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_8_begin_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -155,8 +168,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_4() IS 'The path for this function is begin_area';
 
-CREATE OR REPLACE FUNCTION search_artist_update_8_begin_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -166,8 +180,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_4() IS 'The path for this function is begin_area';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_10_begin_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -177,8 +192,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_5() IS 'The path for this function is begin_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_10_begin_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -188,8 +204,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_5() IS 'The path for this function is begin_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_update_10_begin_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -199,8 +216,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_5() IS 'The path for this function is begin_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_12_end_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -210,8 +228,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_6() IS 'The path for this function is end_area';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_12_end_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -221,8 +240,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_6() IS 'The path for this function is end_area';
 
-CREATE OR REPLACE FUNCTION search_artist_update_12_end_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -232,8 +252,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_6() IS 'The path for this function is end_area';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_14_end_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -243,8 +264,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_7() IS 'The path for this function is end_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_14_end_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -254,8 +276,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_7() IS 'The path for this function is end_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_update_14_end_area_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -265,8 +288,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_7() IS 'The path for this function is end_area.aliases';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_17_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -276,8 +300,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_8() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_17_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -287,8 +312,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_8() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_artist_update_17_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -298,8 +324,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_8() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_artist_delete_19_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_delete_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -309,8 +336,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_delete_9() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_artist_insert_19_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_insert_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -320,8 +348,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_insert_9() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_artist_update_19_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_artist_update_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -331,8 +360,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_artist_update_9() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_work_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -342,8 +372,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_work_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -353,8 +384,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_work_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -364,8 +396,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_work_delete_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -375,8 +408,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_work_insert_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -386,8 +420,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_work_update_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -397,8 +432,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_work_delete_4_artist_links() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -408,8 +444,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_2() IS 'The path for this function is artist_links';
 
-CREATE OR REPLACE FUNCTION search_work_insert_4_artist_links() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -419,8 +456,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_2() IS 'The path for this function is artist_links';
 
-CREATE OR REPLACE FUNCTION search_work_update_4_artist_links() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -430,8 +468,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_2() IS 'The path for this function is artist_links';
 
-CREATE OR REPLACE FUNCTION search_work_delete_5_artist_links_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -441,8 +480,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_3() IS 'The path for this function is artist_links.artist';
 
-CREATE OR REPLACE FUNCTION search_work_insert_5_artist_links_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -452,8 +492,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_3() IS 'The path for this function is artist_links.artist';
 
-CREATE OR REPLACE FUNCTION search_work_update_5_artist_links_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -463,8 +504,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_3() IS 'The path for this function is artist_links.artist';
 
-CREATE OR REPLACE FUNCTION search_work_delete_9_iswcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -474,8 +516,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_4() IS 'The path for this function is iswcs';
 
-CREATE OR REPLACE FUNCTION search_work_insert_9_iswcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -485,8 +528,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_4() IS 'The path for this function is iswcs';
 
-CREATE OR REPLACE FUNCTION search_work_update_9_iswcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -496,8 +540,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_4() IS 'The path for this function is iswcs';
 
-CREATE OR REPLACE FUNCTION search_work_delete_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_delete_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -507,8 +552,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_delete_5() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_work_insert_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_insert_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -518,8 +564,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_insert_5() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_work_update_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_work_update_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -529,8 +576,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_work_update_5() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_label_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -540,8 +588,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_label_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -551,8 +600,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_label_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -562,8 +612,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_label_delete_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -573,8 +624,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_delete_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_label_insert_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -584,8 +636,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_insert_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_label_update_2_aliases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -595,8 +648,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_update_1() IS 'The path for this function is aliases';
 
-CREATE OR REPLACE FUNCTION search_label_delete_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -606,8 +660,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_delete_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_label_insert_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -617,8 +672,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_insert_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_label_update_4_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -628,8 +684,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_update_2() IS 'The path for this function is area';
 
-CREATE OR REPLACE FUNCTION search_label_delete_7_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -639,8 +696,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_delete_3() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_label_insert_7_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -650,8 +708,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_insert_3() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_label_update_7_ipis() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -661,8 +720,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_update_3() IS 'The path for this function is ipis';
 
-CREATE OR REPLACE FUNCTION search_label_delete_9_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -672,8 +732,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_delete_4() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_label_insert_9_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -683,8 +744,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_insert_4() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_label_update_9_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_label_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -694,8 +756,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_label_update_4() IS 'The path for this function is type';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -705,8 +768,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -716,8 +780,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_recording_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -727,8 +792,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_0_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -738,8 +804,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_0_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -749,8 +816,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_recording_update_0_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -760,8 +828,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_1_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -771,8 +840,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_1_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -782,8 +852,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_recording_update_1_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -793,8 +864,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_2_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -804,8 +876,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_2_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -815,8 +888,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_recording_update_2_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -826,8 +900,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_7_tracks() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -837,8 +912,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_4() IS 'The path for this function is tracks';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_7_tracks() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -848,8 +924,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_4() IS 'The path for this function is tracks';
 
-CREATE OR REPLACE FUNCTION search_recording_update_7_tracks() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -859,8 +936,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_4() IS 'The path for this function is tracks';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_8_tracks_medium() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -870,8 +948,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_5() IS 'The path for this function is tracks.medium';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_8_tracks_medium() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -881,8 +960,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_5() IS 'The path for this function is tracks.medium';
 
-CREATE OR REPLACE FUNCTION search_recording_update_8_tracks_medium() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -892,8 +972,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_5() IS 'The path for this function is tracks.medium';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_9_tracks_medium_release() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -903,8 +984,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_6() IS 'The path for this function is tracks.medium.release';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_9_tracks_medium_release() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -914,8 +996,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_6() IS 'The path for this function is tracks.medium.release';
 
-CREATE OR REPLACE FUNCTION search_recording_update_9_tracks_medium_release() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -925,8 +1008,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_6() IS 'The path for this function is tracks.medium.release';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_10_tracks_medium_release_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -936,8 +1020,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_7() IS 'The path for this function is tracks.medium.release.country_dates';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_10_tracks_medium_release_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -947,8 +1032,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_7() IS 'The path for this function is tracks.medium.release.country_dates';
 
-CREATE OR REPLACE FUNCTION search_recording_update_10_tracks_medium_release_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -958,8 +1044,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_7() IS 'The path for this function is tracks.medium.release.country_dates';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_11_tracks_medium_release_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -969,8 +1056,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_8() IS 'The path for this function is tracks.medium.release.country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_11_tracks_medium_release_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -980,8 +1068,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_8() IS 'The path for this function is tracks.medium.release.country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_recording_update_11_tracks_medium_release_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -991,8 +1080,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_8() IS 'The path for this function is tracks.medium.release.country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_12_tracks_medium_release_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1002,8 +1092,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_9() IS 'The path for this function is tracks.medium.release.country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_12_tracks_medium_release_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1013,8 +1104,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_9() IS 'The path for this function is tracks.medium.release.country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_recording_update_12_tracks_medium_release_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_9() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1024,8 +1116,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_9() IS 'The path for this function is tracks.medium.release.country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_16_tracks_medium_format() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_10() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1035,8 +1128,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_10() IS 'The path for this function is tracks.medium.format';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_16_tracks_medium_format() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_10() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1046,8 +1140,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_10() IS 'The path for this function is tracks.medium.format';
 
-CREATE OR REPLACE FUNCTION search_recording_update_16_tracks_medium_format() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_10() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1057,8 +1152,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_10() IS 'The path for this function is tracks.medium.format';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_18_isrcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_11() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1068,8 +1164,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_11() IS 'The path for this function is isrcs';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_18_isrcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_11() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1079,8 +1176,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_11() IS 'The path for this function is isrcs';
 
-CREATE OR REPLACE FUNCTION search_recording_update_18_isrcs() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_11() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1090,8 +1188,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_11() IS 'The path for this function is isrcs';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_23_tracks_medium_release_release_group() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_12() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1101,8 +1200,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_12() IS 'The path for this function is tracks.medium.release.release_group';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_23_tracks_medium_release_release_group() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_12() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1112,8 +1212,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_12() IS 'The path for this function is tracks.medium.release.release_group';
 
-CREATE OR REPLACE FUNCTION search_recording_update_23_tracks_medium_release_release_group() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_12() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1123,8 +1224,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_12() IS 'The path for this function is tracks.medium.release.release_group';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_24_tracks_medium_release_release_group_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_13() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1134,8 +1236,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_13() IS 'The path for this function is tracks.medium.release.release_group.type';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_24_tracks_medium_release_release_group_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_13() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1145,8 +1248,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_13() IS 'The path for this function is tracks.medium.release.release_group.type';
 
-CREATE OR REPLACE FUNCTION search_recording_update_24_tracks_medium_release_release_group_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_13() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1156,8 +1260,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_13() IS 'The path for this function is tracks.medium.release.release_group.type';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_30_tracks_medium_release_release_group_secondary_types() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_14() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1167,8 +1272,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_14() IS 'The path for this function is tracks.medium.release.release_group.secondary_types';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_30_tracks_medium_release_release_group_secondary_types() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_14() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1178,8 +1284,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_14() IS 'The path for this function is tracks.medium.release.release_group.secondary_types';
 
-CREATE OR REPLACE FUNCTION search_recording_update_30_tracks_medium_release_release_group_secondary_types() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_14() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1189,8 +1296,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_14() IS 'The path for this function is tracks.medium.release.release_group.secondary_types';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_31_tracks_medium_release_release_group_secondary_types_secondary_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_15() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1200,8 +1308,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_15() IS 'The path for this function is tracks.medium.release.release_group.secondary_types.secondary_type';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_31_tracks_medium_release_release_group_secondary_types_secondary_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_15() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1211,8 +1320,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_15() IS 'The path for this function is tracks.medium.release.release_group.secondary_types.secondary_type';
 
-CREATE OR REPLACE FUNCTION search_recording_update_31_tracks_medium_release_release_group_secondary_types_secondary_type() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_15() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1222,8 +1332,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_15() IS 'The path for this function is tracks.medium.release.release_group.secondary_types.secondary_type';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_33_tracks_medium_release_status() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_16() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1233,8 +1344,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_16() IS 'The path for this function is tracks.medium.release.status';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_33_tracks_medium_release_status() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_16() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1244,8 +1356,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_16() IS 'The path for this function is tracks.medium.release.status';
 
-CREATE OR REPLACE FUNCTION search_recording_update_33_tracks_medium_release_status() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_16() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1255,8 +1368,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_16() IS 'The path for this function is tracks.medium.release.status';
 
-CREATE OR REPLACE FUNCTION search_recording_delete_38_tracks_medium_release_mediums() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_delete_17() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1266,8 +1380,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_delete_17() IS 'The path for this function is tracks.medium.release.mediums';
 
-CREATE OR REPLACE FUNCTION search_recording_insert_38_tracks_medium_release_mediums() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_insert_17() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1277,8 +1392,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_insert_17() IS 'The path for this function is tracks.medium.release.mediums';
 
-CREATE OR REPLACE FUNCTION search_recording_update_38_tracks_medium_release_mediums() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_recording_update_17() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1288,8 +1404,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_recording_update_17() IS 'The path for this function is tracks.medium.release.mediums';
 
-CREATE OR REPLACE FUNCTION search_release_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -1299,8 +1416,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1310,8 +1428,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1321,8 +1440,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_delete_2_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1332,8 +1452,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_insert_2_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1343,8 +1464,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_update_2_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1354,8 +1476,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_1() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_delete_3_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1365,8 +1488,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_insert_3_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1376,8 +1500,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_update_3_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1387,8 +1512,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_2() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_delete_4_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1398,8 +1524,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_release_insert_4_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1409,8 +1536,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_release_update_4_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1420,8 +1548,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_3() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_release_delete_6_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1431,8 +1560,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_4() IS 'The path for this function is country_dates';
 
-CREATE OR REPLACE FUNCTION search_release_insert_6_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1442,8 +1572,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_4() IS 'The path for this function is country_dates';
 
-CREATE OR REPLACE FUNCTION search_release_update_6_country_dates() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1453,8 +1584,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_4() IS 'The path for this function is country_dates';
 
-CREATE OR REPLACE FUNCTION search_release_delete_7_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1464,8 +1596,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_5() IS 'The path for this function is country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_release_insert_7_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1475,8 +1608,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_5() IS 'The path for this function is country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_release_update_7_country_dates_country() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_5() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1486,8 +1620,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_5() IS 'The path for this function is country_dates.country';
 
-CREATE OR REPLACE FUNCTION search_release_delete_8_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1497,8 +1632,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_6() IS 'The path for this function is country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_release_insert_8_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1508,8 +1644,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_6() IS 'The path for this function is country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_release_update_8_country_dates_country_area() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_6() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1519,8 +1656,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_6() IS 'The path for this function is country_dates.country.area';
 
-CREATE OR REPLACE FUNCTION search_release_delete_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1530,8 +1668,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_7() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_release_insert_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1541,8 +1680,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_7() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_release_update_11_language() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_7() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1552,8 +1692,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_7() IS 'The path for this function is language';
 
-CREATE OR REPLACE FUNCTION search_release_delete_13_script() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_delete_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1563,8 +1704,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_delete_8() IS 'The path for this function is script';
 
-CREATE OR REPLACE FUNCTION search_release_insert_13_script() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_insert_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1574,8 +1716,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_insert_8() IS 'The path for this function is script';
 
-CREATE OR REPLACE FUNCTION search_release_update_13_script() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_update_8() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1585,8 +1728,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_update_8() IS 'The path for this function is script';
 
-CREATE OR REPLACE FUNCTION search_release_group_delete_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_delete_0() RETURNS trigger
     AS $$
 DECLARE
     gids TEXT;
@@ -1596,8 +1740,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_delete_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_group_insert_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_insert_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1607,8 +1752,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_insert_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_group_update_direct() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_update_0() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1618,8 +1764,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_update_0() IS 'The path for this function is direct';
 
-CREATE OR REPLACE FUNCTION search_release_group_delete_2_releases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_delete_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1629,8 +1776,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_delete_1() IS 'The path for this function is releases';
 
-CREATE OR REPLACE FUNCTION search_release_group_insert_2_releases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_insert_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1640,8 +1788,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_insert_1() IS 'The path for this function is releases';
 
-CREATE OR REPLACE FUNCTION search_release_group_update_2_releases() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_update_1() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1651,8 +1800,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_update_1() IS 'The path for this function is releases';
 
-CREATE OR REPLACE FUNCTION search_release_group_delete_4_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_delete_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1662,8 +1812,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_delete_2() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_group_insert_4_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_insert_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1673,8 +1824,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_insert_2() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_group_update_4_artist_credit() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_update_2() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1684,8 +1836,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_update_2() IS 'The path for this function is artist_credit';
 
-CREATE OR REPLACE FUNCTION search_release_group_delete_5_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_delete_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1695,8 +1848,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_delete_3() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_group_insert_5_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_insert_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1706,8 +1860,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_insert_3() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_group_update_5_artist_credit_artists() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_update_3() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1717,8 +1872,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_update_3() IS 'The path for this function is artist_credit.artists';
 
-CREATE OR REPLACE FUNCTION search_release_group_delete_6_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_delete_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1728,8 +1884,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_delete_4() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_release_group_insert_6_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_insert_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1739,8 +1896,9 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_insert_4() IS 'The path for this function is artist_credit.artists.artist';
 
-CREATE OR REPLACE FUNCTION search_release_group_update_6_artist_credit_artists_artist() RETURNS trigger
+CREATE OR REPLACE FUNCTION search_release_group_update_4() RETURNS trigger
     AS $$
 DECLARE
     ids TEXT;
@@ -1750,4 +1908,5 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION search_release_group_update_4() IS 'The path for this function is artist_credit.artists.artist';
 COMMIT;

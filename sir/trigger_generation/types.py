@@ -93,7 +93,7 @@ class TriggerGenerator(object):
     #: The routing key to be used for the message sent via AMQP
     routing_key = None
 
-    def __init__(self, prefix, tablename, path, select, indextable):
+    def __init__(self, prefix, tablename, path, select, indextable, index):
         """
         :param str prefix: A prefix for the trigger name
         :param str tablename: The table on which to generate the trigger
@@ -101,6 +101,9 @@ class TriggerGenerator(object):
         :param str select: A SELECT statement to be embedded in the function
         :param str indextable: The table with entities that need to be
                                reindexed
+        :param int index: To allow for multiple triggers and functions on a
+                          single entity type, we suffix each of them with an
+                          index to avoid name collissions.
         """
         self.prefix = prefix.replace("-", "_")
         self.tablename = tablename
@@ -108,6 +111,7 @@ class TriggerGenerator(object):
         select = select.format(new_or_old=self.id_replacement)
         self.select = select
         self.indextable = indextable
+        self.index = index
 
     @property
     def triggername(self):
@@ -116,8 +120,7 @@ class TriggerGenerator(object):
 
         :rtype: str
         """
-        return "search_" + self.prefix + "_" + self.op + "_" +\
-               self.path.replace(".", "_")
+        return "search_" + self.prefix + "_" + self.op + "_" + str(self.index)
 
     @property
     def trigger(self):
@@ -130,8 +133,9 @@ class TriggerGenerator(object):
 """
 CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
     FOR EACH ROW EXECUTE PROCEDURE {triggername}();
+COMMENT ON TRIGGER {triggername} IS 'The path for this trigger is {path}';
 """.format(triggername=self.triggername, tablename=self.tablename,
-           op=self.op.upper(), beforeafter=self.beforeafter)
+           op=self.op.upper(), beforeafter=self.beforeafter, path=self.path)
         return trigger
 
 
@@ -154,9 +158,11 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
 """.\
             format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.indextable)
+                   routing_key=self.routing_key, tablename=self.indextable,
+                   path=self.path)
         return func
 
 
@@ -203,9 +209,11 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
 """.\
             format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.tablename)
+                   routing_key=self.routing_key, tablename=self.tablename,
+                   path=self.path)
         return func
 
 

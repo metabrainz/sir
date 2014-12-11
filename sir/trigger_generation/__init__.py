@@ -92,7 +92,7 @@ def walk_path(model, path):
 
 def write_triggers_to_file(triggerfile, functionfile,
                            generators, entityname, table, path, select,
-                           indextable):
+                           indextable, index):
     """
     Write deletion, insertion and update triggers to ``triggerfile``.
 
@@ -105,9 +105,10 @@ def write_triggers_to_file(triggerfile, functionfile,
     :param str path:
     :param str select:
     :param str indextable:
+    :param int index:
     """
     for generator in generators:
-        gen = generator(entityname, table, path, select, indextable)
+        gen = generator(entityname, table, path, select, indextable, index)
         functionfile.write(gen.function)
         triggerfile.write(gen.trigger)
 
@@ -133,7 +134,8 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
                            table=tablename,
                            path="direct",
                            select=id_select.format(pk=pk, table=tablename),
-                           indextable=tablename)
+                           indextable=tablename,
+                           index=0)
 
 
 def write_header(file_):
@@ -177,12 +179,15 @@ def generate_triggers(args):
 
             write_direct_triggers(triggerfile, functionfile, entityname, e.model)
 
-            for i, path in enumerate(paths):
-                pathname = str(i) + "_" + path
+            i_shift = 0
+            for i, path in enumerate(paths, start=1):
+                pathname = path
                 select, triggertable = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
                     writer(table=triggertable, path=pathname, select=select,
-                           indextable=entitytable)
+                           indextable=entitytable, index=i - i_shift)
+                else:
+                    i_shift += 1
         write_footer(triggerfile)
         write_footer(functionfile)

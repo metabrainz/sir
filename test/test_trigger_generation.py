@@ -89,8 +89,10 @@ class TriggerGeneratorTest(unittest.TestCase):
         beforeafter = "SOMEWHEN"
 
     def setUp(self):
-        self.gen = self.TestGenerator("PREFIX", "TABLE", "foo.bar",
-                                      "SELECTION", "INDEXTABLE")
+        self.path = "foo.bar"
+        self.index = 7
+        self.gen = self.TestGenerator("PREFIX", "TABLE", self.path,
+                                      "SELECTION", "INDEXTABLE", self.index)
 
     def test_function(self):
         self.assertEqual(self.gen.function,
@@ -105,12 +107,12 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-""".format(name=self.gen.triggername)
-                        )
+COMMENT ON FUNCTION {name}() IS 'The path for this function is {path}';
+""".format(name=self.gen.triggername, path=self.path))
 
     def test_triggername(self):
         self.assertEqual(self.gen.triggername,
-                         "search_PREFIX_OPERATION_foo_bar")
+                         "search_PREFIX_OPERATION_{index}".format(index=self.index))
 
     def test_trigger(self):
         self.assertEqual(self.gen.trigger,
@@ -118,8 +120,9 @@ $$ LANGUAGE plpgsql;
                          "CREATE TRIGGER {name} SOMEWHEN OPERATION ON TABLE"
                          "\n"
                          "    FOR EACH ROW EXECUTE PROCEDURE {name}();"
-                         "\n".
-                         format(name=self.gen.triggername))
+                         "\n"
+                         "COMMENT ON TRIGGER {name} IS 'The path for this trigger is {path}';\n".
+                         format(name=self.gen.triggername, path=self.path))
 
     def test_delete_attributes(self):
         self.assertEqual(DeleteTriggerGenerator.op, "delete")
@@ -144,12 +147,13 @@ class WriteTriggersTest(unittest.TestCase):
     def setUp(self):
         self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
+        self.index = 5
         write_triggers_to_file(self.triggerfile, self.functionfile,
                                (InsertTriggerGenerator,),
                                "entity_c", "table_c", "bs.foo", "SELECTION",
-                               "table_b")
+                               "table_b", self.index)
         self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
-                                          "SELECTION", "table_b")
+                                          "SELECTION", "table_b", self.index)
 
     def test_writes_function(self):
         self.functionfile.write.assert_any_call(self.gen.function)
@@ -174,7 +178,7 @@ class DirectTriggerWriterTest(unittest.TestCase):
                   UpdateTriggerGenerator):
             gen = g("entity_c", "table_c", "direct",
                     "SELECT table_c.id FROM table_c WHERE table_c.id = "
-                    "{new_or_old}.id", "table_c")
+                    "{new_or_old}.id", "table_c", 0)
             self.generators.append(gen)
 
     def test_writes_functions(self):
