@@ -1,0 +1,230 @@
+#+TODO: TODO(t) SCHEMA(m) | DONE(d)
+
+* Search Index Fields
+** Annotation [0/4]
+
+The [[Annotation][annotation]] index contains the following fields you
+can search:
+
+*** TODO text
+*** TODO type
+*** TODO name
+*** TODO entity
+
+** Area [0/13]
+
+The area index contains the following fields you can search:
+
+*** TODO aid
+*** TODO alias
+*** TODO area
+*** TODO begin
+*** TODO comment
+*** TODO end
+*** TODO ended
+*** TODO sortname
+*** TODO iso
+*** TODO iso1
+*** TODO iso2
+*** TODO iso3
+*** TODO type
+
+Area search terms with no fields specified search the area and sortname
+fields.
+** Artist [8/17]
+
+The artist index contains the following fields you can search:
+
+*** DONE area
+*** DONE beginarea
+*** DONE endarea
+*** TODO arid
+*** DONE artist
+*** TODO artistaccent
+*** DONE alias
+*** TODO begin
+*** DONE comment
+*** TODO country
+*** TODO end
+*** TODO ended
+*** TODO gender
+*** DONE ipi
+*** TODO sortname
+*** TODO tag
+*** DONE type
+
+Artist search terms with no fields specified search the /artist/,
+/sortname/ and /alias/ fields.
+** CDStubs [0/6]
+
+The [[CD Stub][CD Stub]] index contains the following fields you can
+search:
+
+*** TODO artist
+*** TODO title
+*** TODO barcode
+*** TODO comment
+*** TODO tracks
+*** TODO discid
+
+** Label [6/15]
+
+The label ndex contains the following fields you can search:
+
+*** DONE alias
+*** DONE area
+*** TODO begin
+*** TODO code
+*** DONE comment
+*** TODO country
+*** TODO end
+*** TODO ended
+*** DONE ipi
+*** DONE label
+*** TODO labelaccent
+*** TODO laid
+*** TODO sortname
+*** DONE type
+*** TODO tag
+
+Label search terms with no fields specified search the label, sortname
+and alias fields.
+** Place [0/12]
+
+The place index contains the following fields you can search:
+
+*** TODO pid
+*** TODO address
+*** TODO alias
+*** TODO area
+*** TODO begin
+*** TODO comment
+*** TODO end
+*** TODO ended
+*** TODO lat
+*** TODO long
+*** TODO sortname
+*** TODO type
+
+Place search terms with no fields specified search the place, alias,
+address and area fields.
+** Recording [24/30]
+
+Recording searches can contain you can search:
+
+*** DONE arid
+*** DONE artist
+*** DONE artistname
+*** DONE creditname
+*** DONE comment
+*** DONE country
+*** TODO date
+*** DONE dur
+*** DONE format
+*** DONE isrc
+*** DONE number
+*** DONE position
+*** DONE primarytype
+*** TODO puid
+*** SCHEMA qdur
+*** DONE recording
+*** TODO recordingaccent
+*** DONE reid
+*** DONE release
+*** DONE rgid
+*** DONE rid
+*** DONE secondarytype
+*** DONE status
+*** DONE tid
+*** DONE tnum
+*** DONE tracks
+*** DONE tracksrelease
+*** TODO tag
+*** SCHEMA type
+*** DONE video
+
+Recording search terms with no fields search the /recording/ field only
+** Release Group [3/16]
+
+The release group index contains the following fields you can search:
+
+*** SCHEMA arid
+*** TODO artist
+*** TODO artistname
+*** TODO comment
+*** DONE creditname
+*** TODO primarytype
+*** TODO rgid
+*** DONE releasegroup
+*** TODO releasegroupaccent
+*** DONE releases
+*** TODO release
+*** TODO reid
+*** TODO secondarytype
+*** TODO status
+*** TODO tag
+*** TODO type
+
+Release group search terms with no fields search the releasegroup field
+only.
+** Release [6/31]
+
+The release index contains these fields you can search:
+
+*** DONE arid
+*** SCHEMA artist
+*** TODO artistname
+*** TODO asin
+*** TODO barcode
+*** TODO catno
+*** DONE comment
+*** DONE country
+*** TODO creditname
+*** TODO date
+*** TODO discids
+*** TODO discidsmedium
+*** TODO format
+*** TODO laid
+*** TODO label
+*** DONE lang
+*** TODO mediums
+*** TODO primarytype
+*** TODO puid
+*** TODO quality
+*** TODO reid
+*** DONE release
+*** TODO releaseaccent
+*** TODO rgid
+*** DONE script
+*** TODO secondarytype
+*** TODO status
+*** TODO tag
+*** TODO tracks
+*** TODO tracksmedium
+*** TODO type
+
+Release search terms with no fields search the /release/ field only.
+** Tag [0/1]
+
+The Tag index contains these fields you can search:
+
+*** TODO tag
+
+** Work [7/11]
+
+The work index contains these fields you can search:
+
+*** DONE alias
+*** DONE arid
+*** DONE artist
+*** DONE comment
+*** DONE iswc
+*** DONE language
+*** TODO tag
+*** TODO type
+*** TODO wid
+*** DONE work
+*** TODO workaccent
+
+Work search terms with no fields specified search the work and alias
+fields.
