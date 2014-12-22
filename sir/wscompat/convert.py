@@ -429,7 +429,7 @@ def convert_release_group_simple(obj):
 
     return rg
 
-    
+
 def convert_release_list_for_recordings(obj):
     """
     :type obj: :class:`[mbdata.models.Track]`
@@ -582,18 +582,18 @@ def convert_recording(obj):
 
     if obj.comment is not None and obj.comment != "":
         recording.set_disambiguation(obj.comment)
-    
+
     recording.set_length(obj.length)
-    
+
     if len(obj.isrcs) > 0:
         recording.set_isrc_list(convert_isrc_list(obj.isrcs))
-    
+
     if len(obj.tags) > 0:
         recording.set_tag_list(convert_tag_list(obj.tags))
 
     if len(obj.tracks) > 0:
         recording.set_release_list(convert_release_list_for_recordings(obj.tracks))
-    
+
     if obj.video:
         recording.set_video("true")
 
