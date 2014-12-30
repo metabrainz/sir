@@ -67,25 +67,24 @@ search:
 *** TODO tracks
 *** TODO discid
 
-** Label [6/15]
+** Label [13/14]
 
 The label ndex contains the following fields you can search:
 
 *** DONE alias
 *** DONE area
-*** TODO begin
-*** TODO code
+*** DONE begin
+*** DONE code
 *** DONE comment
-*** TODO country
-*** TODO end
-*** TODO ended
+*** DONE country
+*** DONE end
+*** DONE ended
 *** DONE ipi
 *** DONE label
 *** TODO labelaccent
-*** TODO laid
-*** TODO sortname
+*** DONE laid
 *** DONE type
-*** TODO tag
+*** DONE tag
 
 Label search terms with no fields specified search the label, sortname
 and alias fields.

@@ -26,6 +26,8 @@ class CustomArtistAlias(ArtistAlias):
 
 class CustomLabel(Label):
     aliases = relationship("LabelAlias")
+    area = relationship("CustomArea", foreign_keys=[Label.area_id])
+    tags = relationship("LabelTag")
 
 
 class CustomMediumCDToc(MediumCDTOC):

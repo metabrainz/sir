@@ -11,11 +11,16 @@ SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
     F("label", "name"),
     F("alias", "aliases.name"),
-    F("area", "area.name"),
-    #F("begin", "begin_data"),
-    #F("end", "end_date")
+    F("area", ["area.name", "area.aliases.name"]),
+    F("country", "area.iso_3166_1_codes.code"),
+    F("begin", "begin_date", transformfunc=transformfuncs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=transformfuncs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=transformfuncs.ended_to_string),
+
+    F("code", "label_code"),
     F("comment", "comment"),
     F("ipi", "ipis.ipi"),
+    F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
     1.2,
