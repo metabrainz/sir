@@ -1,6 +1,7 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import modelext
+from . import transformfuncs
 from .searchentities import SearchEntity as E, SearchField as F
 from ..wscompat import convert
 from mbdata import models
@@ -204,17 +205,27 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
     F("artist", "name"),
+    F("sortname", "sort_name"),
     F("alias", "aliases.name"),
+
+    F("begin", "begin_date", transformfunc=transformfuncs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=transformfuncs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=transformfuncs.ended_to_string),
+
     F("area", ["area.name", "area.aliases.name"]),
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+    F("country", "area.iso_3166_1_codes.code"),
     F("endarea", ["end_area.name", "end_area.aliases.name"]),
+
     F("comment", "comment"),
+    F("gender", "gender.name"),
     F("ipi", "ipis.ipi"),
+    F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
     1.2,
     convert.convert_artist,
-    extrapaths=["area.iso_3166_1_codes.code", "tags.count", "tags.tag.name",
+    extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "begin_area.gid", "area.gid", "end_area.gid"]

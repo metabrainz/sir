@@ -31,26 +31,26 @@ The area index contains the following fields you can search:
 
 Area search terms with no fields specified search the area and sortname
 fields.
-** Artist [8/17]
+** Artist [16/17]
 
 The artist index contains the following fields you can search:
 
 *** DONE area
 *** DONE beginarea
 *** DONE endarea
-*** TODO arid
+*** DONE arid
 *** DONE artist
 *** TODO artistaccent
 *** DONE alias
-*** TODO begin
+*** DONE begin
 *** DONE comment
-*** TODO country
-*** TODO end
-*** TODO ended
-*** TODO gender
+*** DONE country
+*** DONE end
+*** DONE ended
+*** DONE gender
 *** DONE ipi
-*** TODO sortname
-*** TODO tag
+*** DONE sortname
+*** DONE tag
 *** DONE type
 
 Artist search terms with no fields specified search the /artist/,
