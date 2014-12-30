@@ -47,6 +47,7 @@ class CustomReleaseTag(ReleaseTag):
 class CustomWork(Work):
     aliases = relationship("WorkAlias")
     artist_links = relationship("LinkArtistWork")
+    tags = relationship("WorkTag")
 
 
 class CustomLinkAttribute(LinkAttribute):

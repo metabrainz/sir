@@ -210,7 +210,7 @@ The Tag index contains these fields you can search:
 
 *** TODO tag
 
-** Work [7/11]
+** Work [10/11]
 
 The work index contains these fields you can search:
 
@@ -220,9 +220,9 @@ The work index contains these fields you can search:
 *** DONE comment
 *** DONE iswc
 *** DONE language
-*** TODO tag
-*** TODO type
-*** TODO wid
+*** DONE tag
+*** DONE type
+*** DONE wid
 *** DONE work
 *** TODO workaccent
 

@@ -231,6 +231,8 @@ SearchWork = E(modelext.CustomWork, [
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
     F("language", "language.name"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
 ],
     1.2,
     convert.convert_work,
