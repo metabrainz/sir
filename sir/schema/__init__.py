@@ -1,7 +1,7 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import modelext
-from . import transformfuncs
+from . import transformfuncs as tfs
 from .searchentities import SearchEntity as E, SearchField as F
 from ..wscompat import convert
 from mbdata import models
@@ -13,9 +13,9 @@ SearchLabel = E(modelext.CustomLabel, [
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
-    F("begin", "begin_date", transformfunc=transformfuncs.index_partialdate_to_string),
-    F("end", "end_date", transformfunc=transformfuncs.index_partialdate_to_string),
-    F("ended", "ended", transformfunc=transformfuncs.ended_to_string),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=tfs.ended_to_string),
 
     F("code", "label_code"),
     F("comment", "comment"),
@@ -213,9 +213,9 @@ SearchArtist = E(modelext.CustomArtist, [
     F("sortname", "sort_name"),
     F("alias", "aliases.name"),
 
-    F("begin", "begin_date", transformfunc=transformfuncs.index_partialdate_to_string),
-    F("end", "end_date", transformfunc=transformfuncs.index_partialdate_to_string),
-    F("ended", "ended", transformfunc=transformfuncs.ended_to_string),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=tfs.ended_to_string),
 
     F("area", ["area.name", "area.aliases.name"]),
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
