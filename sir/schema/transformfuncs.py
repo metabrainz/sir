@@ -19,3 +19,9 @@ def index_partialdate_to_string(dates):
         d = dates.pop()
         return partialdate_to_string(d)
     return None
+
+
+def qdur(durations):
+    if len(durations):
+        return durations.pop() / 2000
+    return None

@@ -29,13 +29,13 @@ SearchLabel = E(modelext.CustomLabel, [
 
 
 SearchRecording = E(modelext.CustomRecording, [
-    # F("date", "tracks.medium.release.country_dates.country.date"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("comment", "comment"),
     F("country", "tracks.medium.release.country_dates.country.area.name"),
     F("creditname", "artist_credit.artists.name"),
+    F("date", "tracks.medium.release.country_dates.date", transformfunc=tfs.index_partialdate_to_string),
     F("dur", "length"),
     F("format", "tracks.medium.format.name"),
     F("isrc", "isrcs.isrc"),
@@ -43,6 +43,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("number", "tracks.number"),
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
+    F("qdur", "length", transformfunc=tfs.qdur),
     F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
@@ -50,6 +51,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("secondarytype",
       "tracks.medium.release.release_group.secondary_types.secondary_type.name"),
     F("status", "tracks.medium.release.status.name"),
+    F("tag", "tags.tag.name"),
     F("tid", "tracks.gid"),
     F("tnum", "tracks.position"),
     F("tracks", "tracks.medium.track_count"),
