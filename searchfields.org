@@ -143,26 +143,26 @@ Recording searches can contain you can search:
 *** DONE video
 
 Recording search terms with no fields search the /recording/ field only
-** Release Group [3/16]
+** Release Group [14/16]
 
 The release group index contains the following fields you can search:
 
-*** SCHEMA arid
-*** TODO artist
-*** TODO artistname
-*** TODO comment
+*** DONE arid
+*** DONE artist
+*** DONE artistname
+*** DONE comment
 *** DONE creditname
-*** TODO primarytype
-*** TODO rgid
+*** DONE primarytype
+*** DONE rgid
 *** DONE releasegroup
 *** TODO releasegroupaccent
 *** DONE releases
-*** TODO release
-*** TODO reid
-*** TODO secondarytype
-*** TODO status
-*** TODO tag
-*** TODO type
+*** DONE release
+*** DONE reid
+*** DONE secondarytype
+*** DONE status
+*** DONE tag
+*** SCHEMA type
 
 Release group search terms with no fields search the releasegroup field
 only.

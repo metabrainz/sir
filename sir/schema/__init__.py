@@ -177,15 +177,22 @@ SearchRelease = E(models.Release, [
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
     F("releasegroup", "name"),
-    # F("release", "releases.name"),
+    F("arid", "artist_credit.artists.artist.gid"),
+    F("artist", "artist_credit.name"),
+    F("artistname", "artist_credit.artists.artist.name"),
+    F("creditname", "artist_credit.artists.name"),
+    F("release", "releases.name"),
     F("reid", "releases.gid"),
     F("releases", "releases.gid", transformfunc=len),
-    F("credit-name", "artist_credit.artists.artist.name")
+    F("status", "releases.status.name"),
+    F("comment", "comment"),
+    F("tag", "tags.tag.name"),
+    F("primarytype", "type.name"),
+    F("secondarytype", "secondary_types.secondary_type.name")
 ],
     1.2,
     convert.convert_release_group,
-    extrapaths = ["artist_credit.artists.name",
-                  "artist_credit.artists.join_phrase", "artist_credit.name",
+    extrapaths = ["artist_credit.artists.join_phrase",
                   "artist_credit.artists.artist.aliases.begin_date_day",
                   "artist_credit.artists.artist.aliases.begin_date_month",
                   "artist_credit.artists.artist.aliases.begin_date_year",
@@ -199,13 +206,9 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                   "artist_credit.artists.artist.aliases.type.id",
                   "artist_credit.artists.artist.aliases.type.name",
                   "artist_credit.artists.artist.gid",
-                  "artist_credit.artists.artist.name",
                   "artist_credit.artists.artist.sort_name",
-                  "type.name", "secondary_types.secondary_type.name",
-                  "tags.count",
-                  "tags.tag.name",
-                  "releases.name",
-                  "releases.status.name"
+                  "artist_credit.artists.artist.comment",
+                  "tags.count"
 ]
 )
 
