@@ -43,8 +43,10 @@ class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
 
+
 class CustomReleaseTag(ReleaseTag):
     release = relationship('Release', foreign_keys=[ReleaseTag.release_id], innerjoin=True, backref="tags")
+
 
 class CustomWork(Work):
     aliases = relationship("WorkAlias")
