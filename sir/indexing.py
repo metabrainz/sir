@@ -10,6 +10,7 @@ from functools import partial
 from logging import getLogger
 from solr import SolrException
 from sqlalchemy import and_
+from traceback import format_exc
 
 
 logger = getLogger("sir")
@@ -119,6 +120,9 @@ def _index_entity_process_wrapper(args):
     """
     try:
         return index_entity(*args)
+    except Exception:
+        logger.exception(format_exc())
+        raise
     except (KeyboardInterrupt) as exc:
         return exc
 
