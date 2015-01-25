@@ -112,8 +112,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.country_dates.date_year",
                 "tracks.medium.release.release_group.comment",
                 "tracks.medium.release.release_group.name",
-                "tracks.name"
-    ]
+                "tracks.name"]
 )
 
 
@@ -121,17 +120,34 @@ SearchRelease = E(models.Release, [
     F("mbid", "gid"),
     F("release", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
+    F("artist", "artist_credit.name"),
+    F("artistname", "artist_credit.artists.artist.name"),
+    F("creditname", "artist_credit.artists.name"),
     F("country", "country_dates.country.area.name"),
-    #F("data", "country_dates.date")
+    F("date", "country_dates.date",
+      transformfunc=tfs.index_partialdate_to_string),
+    F("barcode", "barcode"),
+    F("catno", "labels.catalog_number"),
     F("comment", "comment"),
+    F("discids", "mediums.cdtocs.id", transformfunc=len),
+    F("format", "mediums.format.name"),
+    F("laid", "labels.label.gid"),
+    F("label", "labels.label.name"),
     F("lang", "language.name"),
-    F("script", "script.name")
+    F("mediums", "mediums.id", transformfunc=len),
+    F("primarytype", "release_group.type.name"),
+    F("rgid", "release_group.gid"),
+    F("script", "script.iso_code"),
+    F("secondarytype", "release_group.secondary_types.secondary_type.name"),
+    F("status", "status.name"),
+    F("tracks", "mediums.track_count",
+      transformfunc=lambda values: reduce(lambda x, y: x + y, values, 0)),
+    F("tracksmedium", "mediums.track_count"),
+    F("tag", "tags.tag.name")
 ],
     1.2,
     convert.convert_release,
-    extrapaths=["artist_credit.artists.name",
-                "artist_credit.artists.join_phrase",
-                "artist_credit.name",
+    extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date_day",
                 "artist_credit.artists.artist.aliases.begin_date_month",
                 "artist_credit.artists.artist.aliases.begin_date_year",
@@ -145,32 +161,19 @@ SearchRelease = E(models.Release, [
                 "artist_credit.artists.artist.aliases.type.id",
                 "artist_credit.artists.artist.aliases.type.name",
                 "artist_credit.artists.artist.gid",
-                "artist_credit.artists.artist.name",
                 "artist_credit.artists.artist.sort_name",
-                "barcode",
                 "country_dates.country.area.gid",
                 "country_dates.country.area.name",
                 "country_dates.country.area.iso_3166_1_codes.code",
                 "country_dates.date_day",
                 "country_dates.date_month",
                 "country_dates.date_year",
-                "labels.catalog_number",
-                "labels.label.gid",
-                "labels.label.name",
-                "mediums.format.name",
                 "mediums.cdtocs.id",
-                "mediums.track_count",
                 "packaging.name",
                 "release_group.comment",
-                "release_group.gid",
                 "release_group.name",
-                "release_group.secondary_types.secondary_type.name",
-                "release_group.type.name",
-                "status.name",
                 "language.iso_code_3",
-                "script.iso_code",
-                "tags.count",
-                "tags.tag.name"]
+                "tags.count"]
 )
 
 

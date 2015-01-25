@@ -166,40 +166,40 @@ The release group index contains the following fields you can search:
 
 Release group search terms with no fields search the releasegroup field
 only.
-** Release [6/31]
+** Release [25/31]
 
 The release index contains these fields you can search:
 
 *** DONE arid
-*** SCHEMA artist
-*** SCHEMA artistname
+*** DONE artist
+*** DONE artistname
 *** SCHEMA asin
-*** SCHEMA barcode
-*** SCHEMA catno
+*** DONE barcode
+*** DONE catno
 *** DONE comment
 *** DONE country
-*** SCHEMA creditname
-*** SCHEMA date
-*** SCHEMA discids
+*** DONE creditname
+*** DONE date
+*** DONE discids
 *** TODO discidsmedium
-*** SCHEMA format
-*** SCHEMA laid
-*** SCHEMA label
+*** DONE format
+*** DONE laid
+*** DONE label
 *** DONE lang
-*** SCHEMA mediums
-*** SCHEMA primarytype
+*** DONE mediums
+*** DONE primarytype
 *** TODO puid
 *** SCHEMA quality
-*** SCHEMA reid
+*** DONE reid
 *** DONE release
 *** TODO releaseaccent
-*** SCHEMA rgid
+*** DONE rgid
 *** DONE script
-*** SCHEMA secondarytype
-*** SCHEMA status
-*** SCHEMA tag
-*** SCHEMA tracks
-*** SCHEMA tracksmedium
+*** DONE secondarytype
+*** DONE status
+*** DONE tag
+*** DONE tracks
+*** DONE tracksmedium
 *** SCHEMA type
 
 Release search terms with no fields search the /release/ field only.
