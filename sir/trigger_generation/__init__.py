@@ -7,6 +7,7 @@ from logging import getLogger
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
+from sqlalchemy.orm.descriptor_props import CompositeProperty
 
 
 logger = getLogger("sir")
@@ -71,9 +72,11 @@ def walk_path(model, path):
 
             current_model = prop.mapper.class_
 
-        elif isinstance(prop, ColumnProperty):
-            # We're not interested in columns because the relationship handling
-            # takes care of selections on primary keys etc.
+        elif (isinstance(prop, ColumnProperty) or
+              isinstance(prop, CompositeProperty)):
+            # We're not interested in columns (or a collection or them) because
+            # the relationship handling takes care of selections on primary keys
+            # etc.
             return None, None
 
         if path_part is None:

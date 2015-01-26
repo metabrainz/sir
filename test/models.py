@@ -1,8 +1,12 @@
+from collections import namedtuple
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import composite, relationship
 
 Base = declarative_base()
+
+
+Comp = namedtuple("Comp", ["foo", "c_id"])
 
 
 class B(Base):
@@ -14,6 +18,7 @@ class B(Base):
     id = Column(Integer, primary_key=True)
     foo = Column(Integer)
     c_id = Column('c', Integer, ForeignKey("table_c.id"))
+    composite_column = composite(Comp, foo, c_id)
     c = relationship("C")
 
 

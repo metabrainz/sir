@@ -81,6 +81,13 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(result is None)
         self.assertTrue(table is None)
 
+    def test_composite_column_returns_none(self):
+        path = "composite_column"
+        model = models.B
+        result, table = walk_path(model, path)
+        self.assertTrue(result is None)
+        self.assertTrue(table is None)
+
 
 class TriggerGeneratorTest(unittest.TestCase):
     class TestGenerator(TriggerGenerator):
