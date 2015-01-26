@@ -57,7 +57,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("tnum", "tracks.position"),
     F("tracks", "tracks.medium.track_count"),
     F("tracksrelease", "tracks.medium.release.mediums.track_count",
-        transformfunc=lambda values: reduce(lambda x, y: x+y, values, 0)),
+        transformfunc=sum),
     F("video", "video")
 ],
     1.2,
@@ -142,7 +142,7 @@ SearchRelease = E(models.Release, [
     F("secondarytype", "release_group.secondary_types.secondary_type.name"),
     F("status", "status.name"),
     F("tracks", "mediums.track_count",
-      transformfunc=lambda values: reduce(lambda x, y: x + y, values, 0)),
+      transformfunc=sum),
     F("tracksmedium", "mediums.track_count"),
     F("tag", "tags.tag.name")
 ],
