@@ -2,6 +2,7 @@
 # License: MIT, see LICENSE for details
 from ..schema import SCHEMA
 from .types import *
+from enumerate_skip import enumerate_skip
 from functools import partial
 from logging import getLogger
 from sqlalchemy.orm import class_mapper
@@ -182,15 +183,15 @@ def generate_triggers(args):
 
             write_direct_triggers(triggerfile, functionfile, entityname, e.model)
 
-            i_shift = 0
-            for i, path in enumerate(paths, start=1):
+            it = enumerate_skip(paths, start=1)
+            for i, path in it:
                 pathname = path
                 select, triggertable = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
                     writer(table=triggertable, path=pathname, select=select,
-                           indextable=entitytable, index=i - i_shift)
+                           indextable=entitytable, index=i)
                 else:
-                    i_shift += 1
+                    it.skip()
         write_footer(triggerfile)
         write_footer(functionfile)
