@@ -247,6 +247,15 @@ SearchArtist = E(modelext.CustomArtist, [
 )
 
 
+SearchTag = E(models.Tag,[
+    F("id", "id"),
+    F("tag", "name")
+],
+    1.2,
+    convert.convert_standalone_tag
+)
+
+
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
     F("work", "name"),
@@ -275,5 +284,6 @@ SCHEMA = {
     "recording": SearchRecording,
     "release": SearchRelease,
     "release-group": SearchReleaseGroup,
+    "tag": SearchTag,
     "work": SearchWork,
 }

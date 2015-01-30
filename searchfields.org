@@ -1,4 +1,4 @@
-#+TODO: TODO(t) SCHEMA(m) | DONE(d)
+#+TODO: TODO(t) SCHEMA(m) QUERYWRITER(q) PATHS(p) | DONE(d)
 
 * Search Index Fields
 ** Annotation [0/4]
@@ -203,11 +203,11 @@ The release index contains these fields you can search:
 *** SCHEMA type
 
 Release search terms with no fields search the /release/ field only.
-** Tag [0/1]
+** Tag [1/1]
 
 The Tag index contains these fields you can search:
 
-*** TODO tag
+*** DONE tag
 
 ** Work [10/11]
 

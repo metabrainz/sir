@@ -6,6 +6,7 @@ try:
     from functools import lru_cache
 except ImportError:
     from backports.functools_lru_cache import lru_cache
+from mbdata import models as mbdata_models
 from mbrng import models
 
 fix()
@@ -690,6 +691,17 @@ def convert_release_group(obj):
         rg.set_tag_list(convert_tag_list(obj.tags))
 
     return rg
+
+
+def convert_standalone_tag(obj):
+    """
+    Converts a standalone tag - one that does not have a `count` attribute
+
+    :type obj: :class:`mbdata_models.Tag`
+    """
+    tag = models.tag()
+    tag.set_name(obj.name)
+    return tag
 
 
 def convert_work(obj):
