@@ -221,23 +221,23 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 ],
     1.2,
     convert.convert_release_group,
-    extrapaths = ["artist_credit.artists.join_phrase",
-                  "artist_credit.artists.artist.aliases.begin_date_day",
-                  "artist_credit.artists.artist.aliases.begin_date_month",
-                  "artist_credit.artists.artist.aliases.begin_date_year",
-                  "artist_credit.artists.artist.aliases.end_date_day",
-                  "artist_credit.artists.artist.aliases.end_date_month",
-                  "artist_credit.artists.artist.aliases.end_date_year",
-                  "artist_credit.artists.artist.aliases.locale",
-                  "artist_credit.artists.artist.aliases.name",
-                  "artist_credit.artists.artist.aliases.primary_for_locale",
-                  "artist_credit.artists.artist.aliases.sort_name",
-                  "artist_credit.artists.artist.aliases.type.id",
-                  "artist_credit.artists.artist.aliases.type.name",
-                  "artist_credit.artists.artist.gid",
-                  "artist_credit.artists.artist.sort_name",
-                  "artist_credit.artists.artist.comment",
-                  "tags.count"
+    extrapaths=["artist_credit.artists.join_phrase",
+                "artist_credit.artists.artist.aliases.begin_date_day",
+                "artist_credit.artists.artist.aliases.begin_date_month",
+                "artist_credit.artists.artist.aliases.begin_date_year",
+                 "artist_credit.artists.artist.aliases.end_date_day",
+                 "artist_credit.artists.artist.aliases.end_date_month",
+                 "artist_credit.artists.artist.aliases.end_date_year",
+                 "artist_credit.artists.artist.aliases.locale",
+                 "artist_credit.artists.artist.aliases.name",
+                 "artist_credit.artists.artist.aliases.primary_for_locale",
+                 "artist_credit.artists.artist.aliases.sort_name",
+                 "artist_credit.artists.artist.aliases.type.id",
+                 "artist_credit.artists.artist.aliases.type.name",
+                 "artist_credit.artists.artist.gid",
+                 "artist_credit.artists.artist.sort_name",
+                 "artist_credit.artists.artist.comment",
+                 "tags.count"
 ]
 )
 
@@ -268,11 +268,10 @@ SearchArtist = E(modelext.CustomArtist, [
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "begin_area.gid", "area.gid", "end_area.gid"]
-
 )
 
 
-SearchTag = E(models.Tag,[
+SearchTag = E(models.Tag, [
     F("id", "id"),
     F("tag", "name")
 ],
