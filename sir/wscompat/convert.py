@@ -132,6 +132,16 @@ def convert_alias_list(obj, has_sort_name=True):
     return alias_list
 
 
+def convert_coordinates(obj):
+    """
+    :type obj: :class:`mbdata.types.Point`
+    """
+    coords = models.coordinates()
+    coords.set_latitude(str(obj[0]))
+    coords.set_longitude(str(obj[1]))
+    return coords
+
+
 def convert_tag(obj):
     """
     :type obj: :class:`mbdata.models.ArtistTag`
@@ -324,6 +334,50 @@ def convert_medium_list_from_track(obj):
     ml.set_track_count(tracks)
 
     return ml
+
+
+def convert_place(obj):
+    """
+    :type obj: :class:`mbdata.models.Place`
+    """
+    place = models.place()
+    place.set_id(obj.gid)
+    place.set_name(obj.name)
+
+    if obj.address:
+        place.set_address(obj.address)
+
+    if len(obj.aliases) > 0:
+        place.set_alias_list(convert_alias_list(obj.aliases))
+
+    if obj.area is not None:
+        place.set_area(convert_area_inner(obj.area))
+
+    if obj.comment:
+        place.set_disambiguation(obj.comment)
+
+    if obj.coordinates is not None:
+        place.set_coordinates(convert_coordinates(obj.coordinates))
+
+    lifespan = models.life_span()
+
+    if obj.begin_date is not None:
+        lifespan.set_begin(partialdate_to_string(obj.begin_date))
+
+    if obj.end_date is not None:
+        lifespan.set_end(partialdate_to_string(obj.end_date))
+
+    if obj.ended:
+        lifespan.set_ended("true")
+    else:
+        lifespan.set_ended("false")
+
+    place.set_life_span(lifespan)
+
+    if obj.type is not None:
+        place.set_type(obj.type.name)
+
+    return place
 
 
 def convert_release_event(obj):

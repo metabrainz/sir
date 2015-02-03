@@ -1,4 +1,4 @@
-#+TODO: TODO(t) SCHEMA(m) QUERYWRITER(q) PATHS(p) | DONE(d)
+#+TODO: TODO(t) SCHEMA(m) | DONE(d)
 
 * Search Index Fields
 ** Annotation [0/4]
@@ -88,22 +88,23 @@ The label ndex contains the following fields you can search:
 
 Label search terms with no fields specified search the label, sortname
 and alias fields.
-** Place [0/12]
+** Place [12/13]
 
 The place index contains the following fields you can search:
 
-*** TODO pid
-*** TODO address
-*** TODO alias
-*** TODO area
-*** TODO begin
-*** TODO comment
-*** TODO end
-*** TODO ended
-*** TODO lat
-*** TODO long
-*** TODO sortname
-*** TODO type
+*** DONE pid
+*** DONE address
+*** DONE alias
+*** DONE area
+*** DONE begin
+*** DONE comment
+*** DONE end
+*** DONE ended
+*** DONE lat
+*** DONE long
+*** DONE place
+*** TODO sortname -- places don't actually have one
+*** DONE type
 
 Place search terms with no fields specified search the place, alias,
 address and area fields.

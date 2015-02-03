@@ -1,6 +1,8 @@
 # Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import Area, Artist, ArtistAlias, Label, LinkAttribute, MediumCDTOC, Recording, ReleaseGroup, ReleaseTag, Work
+from mbdata.models import (Area, Artist, ArtistAlias, Label, LinkAttribute,
+                           MediumCDTOC, Place, Recording, ReleaseGroup,
+                           ReleaseTag, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -32,6 +34,11 @@ class CustomLabel(Label):
 
 class CustomMediumCDToc(MediumCDTOC):
     medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id], innerjoin=True, backref="cdtocs")
+
+
+class CustomPlace(Place):
+    area = relationship("CustomArea", foreign_keys=[Place.area_id])
+    aliases = relationship("PlaceAlias")
 
 
 class CustomRecording(Recording):

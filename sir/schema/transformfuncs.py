@@ -25,3 +25,13 @@ def qdur(durations):
     if len(durations):
         return durations.pop() / 2000
     return None
+
+
+def lat(points):
+    if len(points):
+        return points.pop()[0]
+
+
+def long(points):
+    if len(points):
+        return points.pop()[1]

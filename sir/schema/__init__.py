@@ -28,6 +28,31 @@ SearchLabel = E(modelext.CustomLabel, [
 )
 
 
+SearchPlace = E(modelext.CustomPlace, [
+    F("mbid", "gid"),
+    F("address", "address"),
+    F("alias", "aliases.name"),
+    F("area", ["area.name", "area.aliases.name"]),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("comment", "comment"),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=tfs.ended_to_string),
+    F("lat", "coordinates", transformfunc=tfs.lat),
+    F("long", "coordinates", transformfunc=tfs.long),
+    F("place", "name"),
+    F("type", "type.name")
+],
+    1.2,
+    convert.convert_place,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date_year", "aliases.begin_date_month",
+                "aliases.begin_date_day", "aliases.end_date_year",
+                "aliases.end_date_month", "aliases.end_date_day",
+                "area.gid", "area.gid"]
+)
+
+
 SearchRecording = E(modelext.CustomRecording, [
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
@@ -281,6 +306,7 @@ SearchWork = E(modelext.CustomWork, [
 SCHEMA = {
     "artist": SearchArtist,
     "label": SearchLabel,
+    "place": SearchPlace,
     "recording": SearchRecording,
     "release": SearchRelease,
     "release-group": SearchReleaseGroup,
