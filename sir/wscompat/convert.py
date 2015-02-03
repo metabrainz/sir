@@ -112,11 +112,11 @@ def convert_alias(obj, has_sort_name=True):
         alias.set_type(obj.type.name)
     if obj.primary_for_locale:
         alias.set_primary("primary")
-    if obj.begin_date is not None:
+    if obj.begin_date_year is not None:
         converted_date = partialdate_to_string(obj.begin_date)
         if converted_date != "":
             alias.set_begin_date(converted_date)
-    if obj.end_date is not None:
+    if obj.end_date_year is not None:
         converted_date = partialdate_to_string(obj.end_date)
         if converted_date != "":
             alias.set_end_date(converted_date)
@@ -361,10 +361,10 @@ def convert_place(obj):
 
     lifespan = models.life_span()
 
-    if obj.begin_date is not None:
+    if obj.begin_date_year is not None:
         lifespan.set_begin(partialdate_to_string(obj.begin_date))
 
-    if obj.end_date is not None:
+    if obj.end_date_year is not None:
         lifespan.set_end(partialdate_to_string(obj.end_date))
 
     if obj.ended:
@@ -568,10 +568,10 @@ def convert_artist(obj):
 
     lifespan = models.life_span()
 
-    if obj.begin_date is not None:
+    if obj.begin_date_year is not None:
         lifespan.set_begin(partialdate_to_string(obj.begin_date))
 
-    if obj.end_date is not None:
+    if obj.end_date_year is not None:
         lifespan.set_end(partialdate_to_string(obj.end_date))
 
     if obj.ended:
