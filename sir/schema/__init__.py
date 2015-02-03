@@ -267,6 +267,9 @@ SearchArtist = E(modelext.CustomArtist, [
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date_year", "aliases.begin_date_month",
+                "aliases.begin_date_day", "aliases.end_date_year",
+                "aliases.end_date_month", "aliases.end_date_day",
                 "begin_area.gid", "area.gid", "end_area.gid"]
 )
 
