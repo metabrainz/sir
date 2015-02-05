@@ -49,6 +49,13 @@ SearchLabel = E(modelext.CustomLabel, [
 ],
     1.2,
     convert.convert_label,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date_year", "aliases.begin_date_month",
+                "aliases.begin_date_day", "aliases.end_date_year",
+                "aliases.end_date_month", "aliases.end_date_day", "tags.count",
+                "area.gid"
+                ]
 )
 
 
