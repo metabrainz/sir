@@ -49,6 +49,24 @@ def convert_iso_3166_1_code_list(obj):
     return l
 
 
+def convert_iso_3166_2_code_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ISO31662]`
+    """
+    l = models.iso_3166_2_code_list()
+    map(lambda c: l.add_iso_3166_2_code(c.code), obj)
+    return l
+
+
+def convert_iso_3166_3_code_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ISO31663]`
+    """
+    l = models.iso_3166_3_code_list()
+    map(lambda c: l.add_iso_3166_3_code(c.code), obj)
+    return l
+
+
 @lru_cache()
 def convert_area_inner(obj):
     """
@@ -534,6 +552,53 @@ def convert_tag_list(obj):
     tag_list.set_count(len(obj))
     map(lambda t: tag_list.add_tag(convert_tag(t)), obj)
     return tag_list
+
+
+def convert_area(obj):
+    """
+    :type obj: :class:`mbdata.models.Area`
+    """
+    arealist = models.area_list()
+    area = models.def_area_element_inner()
+    area.set_id(obj.gid)
+    area.set_name(obj.name)
+    area.set_sort_name(obj.name)
+
+    if len(obj.aliases) > 0:
+        area.set_alias_list(convert_alias_list(obj.aliases))
+
+    if obj.comment:
+        area.set_disambiguation(obj.comment)
+
+    if obj.type is not None:
+        area.set_type(obj.type.name)
+
+    lifespan = models.life_span()
+
+    if obj.begin_date_year is not None:
+        lifespan.set_begin(partialdate_to_string(obj.begin_date))
+
+    if obj.end_date_year is not None:
+        lifespan.set_end(partialdate_to_string(obj.end_date))
+
+    if obj.ended:
+        lifespan.set_ended("true")
+    else:
+        lifespan.set_ended("false")
+
+    area.set_life_span(lifespan)
+
+    if len(obj.iso_3166_1_codes):
+        area.set_iso_3166_1_code_list(convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
+    if len(obj.iso_3166_2_codes):
+        area.set_iso_3166_2_code_list(convert_iso_3166_2_code_list(obj.iso_3166_2_codes))
+    if len(obj.iso_3166_3_codes):
+        area.set_iso_3166_3_code_list(convert_iso_3166_3_code_list(obj.iso_3166_3_codes))
+
+    # DefAreaElementInner are XMLRootElements, so store each area in a 1-element
+    # arealist
+    arealist.add_area(area)
+    return arealist
 
 
 def convert_artist(obj):

@@ -11,23 +11,23 @@ can search:
 *** TODO name
 *** TODO entity
 
-** Area [0/13]
+** Area [12/13]
 
 The area index contains the following fields you can search:
 
-*** TODO aid
-*** TODO alias
-*** TODO area
-*** TODO begin
-*** TODO comment
-*** TODO end
-*** TODO ended
-*** TODO sortname
-*** TODO iso
-*** TODO iso1
-*** TODO iso2
-*** TODO iso3
-*** TODO type
+*** DONE aid
+*** DONE alias
+*** DONE area
+*** DONE begin
+*** DONE comment
+*** DONE end
+*** DONE ended
+*** TODO sortname -- areas don't have one
+*** DONE iso
+*** DONE iso1
+*** DONE iso2
+*** DONE iso3
+*** DONE type
 
 Area search terms with no fields specified search the area and sortname
 fields.

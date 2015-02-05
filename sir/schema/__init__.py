@@ -7,6 +7,30 @@ from ..wscompat import convert
 from mbdata import models
 
 
+SearchArea = E(modelext.CustomArea, [
+    F("mbid", "gid"),
+    F("area", "name"),
+    F("alias", "aliases.name"),
+    F("comment", "comment"),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=tfs.ended_to_string),
+    F("iso1", "iso_3166_1_codes.code"),
+    F("iso2", "iso_3166_2_codes.code"),
+    F("iso3", "iso_3166_3_codes.code"),
+    F("type", "type.name")
+],
+    1.2,
+    convert.convert_area,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date_year", "aliases.begin_date_month",
+                "aliases.begin_date_day", "aliases.end_date_year",
+                "aliases.end_date_month", "aliases.end_date_day",
+                ]
+)
+
+
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
     F("label", "name"),
@@ -307,6 +331,7 @@ SearchWork = E(modelext.CustomWork, [
 
 SCHEMA = {
     "artist": SearchArtist,
+    "area": SearchArea,
     "label": SearchLabel,
     "place": SearchPlace,
     "recording": SearchRecording,
