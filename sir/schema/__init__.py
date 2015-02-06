@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Wieland Hoffmann
+# Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import modelext
 from . import transformfuncs as tfs

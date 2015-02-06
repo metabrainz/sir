@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from mbdata.models import (Area, Artist, ArtistAlias, Label, LinkAttribute,
                            MediumCDTOC, Place, Recording, ReleaseGroup,
