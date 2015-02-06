@@ -658,6 +658,33 @@ def convert_artist(obj):
     return artist
 
 
+def convert_cdstub(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomReleaseRaw`
+    """
+    cdstub = models.cdstub()
+    if obj.artist is not None:
+        cdstub.set_artist(obj.artist)
+    else:
+        cdstub.set_artist("")
+
+    cdstub.set_title(obj.title)
+
+    toc = obj.discids[0]
+    cdstub.set_id(toc.discid)
+
+    tracklist = models.track_listType()
+    tracklist.count = toc.track_count
+    cdstub.set_track_list(tracklist)
+
+    if obj.barcode:
+        cdstub.set_barcode(obj.barcode)
+
+    if obj.comment:
+        cdstub.set_comment(obj.comment)
+
+    return cdstub
+
 def convert_label(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomLabel`

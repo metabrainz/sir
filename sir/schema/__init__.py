@@ -31,6 +31,19 @@ SearchArea = E(modelext.CustomArea, [
 )
 
 
+SearchCDStub = E(modelext.CustomReleaseRaw, [
+    F("id", "id"),
+    F("title", "title"),
+    F("artist", "artist"),
+    F("comment", "comment"),
+    F("barcode", "barcode"),
+    F("tracks", "discids.track_count"),
+    F("discid", "discids.discid")
+],
+    1.2,
+    convert.convert_cdstub
+)
+
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
     F("label", "name"),
@@ -339,6 +352,7 @@ SearchWork = E(modelext.CustomWork, [
 SCHEMA = {
     "artist": SearchArtist,
     "area": SearchArea,
+    "cdstub": SearchCDStub,
     "label": SearchLabel,
     "place": SearchPlace,
     "recording": SearchRecording,

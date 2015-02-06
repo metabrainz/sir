@@ -2,7 +2,7 @@
 # License: MIT, see LICENSE for details
 from mbdata.models import (Area, Artist, ArtistAlias, Label, LinkAttribute,
                            MediumCDTOC, Place, Recording, ReleaseGroup,
-                           ReleaseTag, Work)
+                           ReleaseRaw, ReleaseTag, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -49,6 +49,10 @@ class CustomRecording(Recording):
 class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
+
+
+class CustomReleaseRaw(ReleaseRaw):
+    discids = relationship("CDTOCRaw")
 
 
 class CustomReleaseTag(ReleaseTag):
