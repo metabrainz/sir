@@ -55,17 +55,17 @@ The artist index contains the following fields you can search:
 
 Artist search terms with no fields specified search the /artist/,
 /sortname/ and /alias/ fields.
-** CDStubs [0/6]
+** CDStubs [6/6]
 
 The [[CD Stub][CD Stub]] index contains the following fields you can
 search:
 
-*** TODO artist
-*** TODO title
-*** TODO barcode
-*** TODO comment
-*** TODO tracks
-*** TODO discid
+*** DONE artist
+*** DONE title
+*** DONE barcode
+*** DONE comment
+*** DONE tracks
+*** DONE discid
 
 ** Label [13/14]
 
