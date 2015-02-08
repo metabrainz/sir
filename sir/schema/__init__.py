@@ -24,9 +24,7 @@ SearchArea = E(modelext.CustomArea, [
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date_year", "aliases.begin_date_month",
-                "aliases.begin_date_day", "aliases.end_date_year",
-                "aliases.end_date_month", "aliases.end_date_day",
+                "aliases.begin_date", "aliases.end_date"
                 ]
 )
 
@@ -64,9 +62,7 @@ SearchLabel = E(modelext.CustomLabel, [
     convert.convert_label,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date_year", "aliases.begin_date_month",
-                "aliases.begin_date_day", "aliases.end_date_year",
-                "aliases.end_date_month", "aliases.end_date_day", "tags.count",
+                "aliases.begin_date", "aliases.end_date"
                 "area.gid"
                 ]
 )
@@ -90,10 +86,8 @@ SearchPlace = E(modelext.CustomPlace, [
     convert.convert_place,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date_year", "aliases.begin_date_month",
-                "aliases.begin_date_day", "aliases.end_date_year",
-                "aliases.end_date_month", "aliases.end_date_day",
-                "area.gid", "area.gid"]
+                "aliases.begin_date", "aliases.end_date"
+                "area.gid"]
 )
 
 
@@ -131,12 +125,8 @@ SearchRecording = E(modelext.CustomRecording, [
 ],
     1.2,
     convert.convert_recording,
-    extrapaths=["artist_credit.artists.artist.aliases.begin_date_day",
-                "artist_credit.artists.artist.aliases.begin_date_month",
-                "artist_credit.artists.artist.aliases.begin_date_year",
-                "artist_credit.artists.artist.aliases.end_date_day",
-                "artist_credit.artists.artist.aliases.end_date_month",
-                "artist_credit.artists.artist.aliases.end_date_year",
+    extrapaths=["artist_credit.artists.artist.aliases.begin_date",
+                "artist_credit.artists.artist.aliases.end_date",
                 "artist_credit.artists.artist.aliases.locale",
                 "artist_credit.artists.artist.aliases.name",
                 "artist_credit.artists.artist.aliases.primary_for_locale",
@@ -154,12 +144,8 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tags.tag.name",
                 "tracks.length",
                 "tracks.medium.cdtocs.id",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.begin_date_day",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.begin_date_month",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.begin_date_year",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.end_date_day",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.end_date_month",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.end_date_year",
+                "tracks.medium.release.artist_credit.artists.artist.aliases.begin_date",
+                "tracks.medium.release.artist_credit.artists.artist.aliases.end_date",
                 "tracks.medium.release.artist_credit.artists.artist.aliases.locale",
                 "tracks.medium.release.artist_credit.artists.artist.aliases.name",
                 "tracks.medium.release.artist_credit.artists.artist.aliases.primary_for_locale",
@@ -218,12 +204,8 @@ SearchRelease = E(models.Release, [
     1.2,
     convert.convert_release,
     extrapaths=["artist_credit.artists.join_phrase",
-                "artist_credit.artists.artist.aliases.begin_date_day",
-                "artist_credit.artists.artist.aliases.begin_date_month",
-                "artist_credit.artists.artist.aliases.begin_date_year",
-                "artist_credit.artists.artist.aliases.end_date_day",
-                "artist_credit.artists.artist.aliases.end_date_month",
-                "artist_credit.artists.artist.aliases.end_date_year",
+                "artist_credit.artists.artist.aliases.begin_date",
+                "artist_credit.artists.artist.aliases.end_date",
                 "artist_credit.artists.artist.aliases.locale",
                 "artist_credit.artists.artist.aliases.name",
                 "artist_credit.artists.artist.aliases.primary_for_locale",
@@ -266,12 +248,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     1.2,
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
-                "artist_credit.artists.artist.aliases.begin_date_day",
-                "artist_credit.artists.artist.aliases.begin_date_month",
-                "artist_credit.artists.artist.aliases.begin_date_year",
-                 "artist_credit.artists.artist.aliases.end_date_day",
-                 "artist_credit.artists.artist.aliases.end_date_month",
-                 "artist_credit.artists.artist.aliases.end_date_year",
+                "artist_credit.artists.artist.aliases.begin_date",
+                 "artist_credit.artists.artist.aliases.end_date",
                  "artist_credit.artists.artist.aliases.locale",
                  "artist_credit.artists.artist.aliases.name",
                  "artist_credit.artists.artist.aliases.primary_for_locale",
@@ -311,9 +289,7 @@ SearchArtist = E(modelext.CustomArtist, [
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date_year", "aliases.begin_date_month",
-                "aliases.begin_date_day", "aliases.end_date_year",
-                "aliases.end_date_month", "aliases.end_date_day",
+                "aliases.begin_date", "aliases.end_date",
                 "begin_area.gid", "area.gid", "end_area.gid"]
 )
 
