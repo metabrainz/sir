@@ -249,17 +249,17 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
-                 "artist_credit.artists.artist.aliases.end_date",
-                 "artist_credit.artists.artist.aliases.locale",
-                 "artist_credit.artists.artist.aliases.name",
-                 "artist_credit.artists.artist.aliases.primary_for_locale",
-                 "artist_credit.artists.artist.aliases.sort_name",
-                 "artist_credit.artists.artist.aliases.type.id",
-                 "artist_credit.artists.artist.aliases.type.name",
-                 "artist_credit.artists.artist.gid",
-                 "artist_credit.artists.artist.sort_name",
-                 "artist_credit.artists.artist.comment",
-                 "tags.count"
+                "artist_credit.artists.artist.aliases.end_date",
+                "artist_credit.artists.artist.aliases.locale",
+                "artist_credit.artists.artist.aliases.name",
+                "artist_credit.artists.artist.aliases.primary_for_locale",
+                "artist_credit.artists.artist.aliases.sort_name",
+                "artist_credit.artists.artist.aliases.type.id",
+                "artist_credit.artists.artist.aliases.type.name",
+                "artist_credit.artists.artist.gid",
+                "artist_credit.artists.artist.sort_name",
+                "artist_credit.artists.artist.comment",
+                "tags.count"
 ]
 )
 

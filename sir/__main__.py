@@ -23,7 +23,8 @@ def main():
     parser.add_argument("--sqltimings", action="store_true")
     subparsers = parser.add_subparsers()
 
-    reindex_parser = subparsers.add_parser("reindex", help="Reindexes all or a single entity type")
+    reindex_parser = subparsers.add_parser("reindex",
+                                           help="Reindexes all or a single entity type")
     reindex_parser.set_defaults(func=reindex)
     reindex_parser.add_argument('--entities', action='append', help="""Which
         entity types to index.
@@ -31,21 +32,23 @@ def main():
         Available are: %s""" % (", ".join(SCHEMA.keys())))
 
     generate_trigger_parser = subparsers.add_parser("triggers",
-        help="Generate triggers")
+                                                    help="Generate triggers")
     generate_trigger_parser.set_defaults(func=generate_triggers)
     generate_trigger_parser.add_argument('-t', '--trigger-file',
-        action="store", default="sql/CreateTriggers.sql",
-        help="The filename to save the triggers into")
+                                         action="store",
+                                         default="sql/CreateTriggers.sql",
+                                         help="The filename to save the triggers into")
     generate_trigger_parser.add_argument('-f', '--function-file',
-        action="store", default="sql/CreateFunctions.sql",
-        help="The filename to save the functions into")
+                                         action="store",
+                                         default="sql/CreateFunctions.sql",
+                                         help="The filename to save the functions into")
 
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
-        help="Set up AMQP exchanges and queues")
+                                              help="Set up AMQP exchanges and queues")
     amqp_setup_parser.set_defaults(func=setup_rabbitmq)
 
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
-        help="Watch AMQP queues for changes")
+                                              help="Watch AMQP queues for changes")
     amqp_watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()
