@@ -153,7 +153,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         query = search_entity.query.\
             filter(condition).\
             with_session(session)
-        map(lambda row: data_queue.put(row_converter(row)), query)
+        (data_queue.put(row_converter(row)) for row in query)
         logger.info("Retrieved all %s records in %s", model, bounds)
 
 

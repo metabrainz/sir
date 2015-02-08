@@ -155,17 +155,15 @@ class SearchEntity(object):
                         # For composite properties, load the columns they
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
-                        composite_columns = filter(lambda cname:
-                                                   isinstance(getattr(model,
-                                                                      cname).
-                                                              property,
-                                                              CompositeProperty),
-                                                   required_columns)
+                        composite_columns = (isinstance(getattr(model, cname).
+                                                        property,
+                                                        CompositeProperty)
+                                             for cname in required_columns)
                         for composite_column in composite_columns:
-                            composite_parts = map(lambda c: c.name,
-                                                  getattr(model,
-                                                          composite_column).
-                                                  property.columns)
+                            composite_parts = (c.name for c in
+                                               getattr(model,
+                                                       composite_column).
+                                               property.columns)
                             logger.debug("Loading %s instead of %s on %s",
                                          composite_parts,
                                          composite_column,

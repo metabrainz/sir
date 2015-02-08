@@ -101,7 +101,7 @@ class Handler(object):
         with db_session_ctx(self.session) as session:
             query = query.filter(condition).with_session(session)
             send_data_to_solr(self.cores[parsed_message.entity_type],
-                              map(lambda obj: converter(obj), query.all()))
+                              (converter(obj) for obj in query.all()))
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
