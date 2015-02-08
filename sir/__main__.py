@@ -79,14 +79,14 @@ def main():
         def before_cursor_execute(conn, cursor, statement,
                                   parameters, context, executemany):
             conn.info.setdefault('query_start_time', []).append(time.time())
-            sqltimelogger.debug("Start Query: %s" % statement)
+            sqltimelogger.debug("Start Query: %s", statement)
 
         @event.listens_for(Engine, "after_cursor_execute")
         def after_cursor_execute(conn, cursor, statement,
                                  parameters, context, executemany):
             total = time.time() - conn.info['query_start_time'].pop(-1)
             sqltimelogger.debug("Query Complete!")
-            sqltimelogger.debug("Total Time: %f" % total)
+            sqltimelogger.debug("Total Time: %f", total)
 
     config.read_config()
     func = args.func
