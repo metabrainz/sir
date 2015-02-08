@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from .. import config
 from ..querying import _iterate_path_values
@@ -6,6 +6,7 @@ from collections import defaultdict
 from logging import getLogger
 from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
+from sqlalchemy.orm.descriptor_props import CompositeProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
 from sqlalchemy.orm.query import Query
@@ -146,9 +147,31 @@ class SearchEntity(object):
                             load = load.defaultload(pathelem)
                         required_columns = current_merged_path.keys()
                         required_columns.append(pk)
+
                         # Get the mapper class of the current element of the path so
                         # the next iteration can access it.
                         model = prop.mapper.class_
+
+                        # For composite properties, load the columns they
+                        # consist of because eagerly loading a composite
+                        # property doesn't load automatically load them.
+                        composite_columns = filter(lambda cname:
+                                                   isinstance(getattr(model,
+                                                                      cname).
+                                                              property,
+                                                              CompositeProperty),
+                                                   required_columns)
+                        for composite_column in composite_columns:
+                            composite_parts = map(lambda c: c.name,
+                                                  getattr(model,
+                                                          composite_column).
+                                                  property.columns)
+                            logger.debug("Loading %s instead of %s on %s",
+                                         composite_parts,
+                                         composite_column,
+                                         model)
+                            required_columns.remove(composite_column)
+                            required_columns.extend(composite_parts)
 
                         logger.debug("Loading only %s on %s",
                                      required_columns,
