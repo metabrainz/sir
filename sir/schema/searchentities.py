@@ -6,6 +6,7 @@ from collections import defaultdict
 from logging import getLogger
 from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
@@ -135,8 +136,12 @@ class SearchEntity(object):
                 for pathelem in split_path:
                     current_merged_path = current_merged_path[pathelem]
                     column = getattr(model, pathelem)
-                    prop = column.property
 
+                    # __tablename__s in annotation paths
+                    if not isinstance(column, InstrumentedAttribute):
+                        break
+
+                    prop = column.property
                     if isinstance(prop, RelationshipProperty):
                         pk = column.mapper.primary_key[0].name
                         if prop.direction == ONETOMANY:
@@ -156,9 +161,11 @@ class SearchEntity(object):
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
                         composite_columns = filter(
-                            lambda cname:isinstance(getattr(model, cname).
-                                                    property,
-                                                    CompositeProperty),
+                            lambda cname: isinstance(getattr(model, cname),
+                                                     InstrumentedAttribute) and
+                            isinstance(getattr(model, cname).
+                                       property,
+                                       CompositeProperty),
                             required_columns)
                         for composite_column in composite_columns:
                             composite_parts = (c.name for c in

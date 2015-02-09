@@ -4,6 +4,7 @@ import logging
 
 
 from sqlalchemy import func
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
 
@@ -19,15 +20,19 @@ def _iterate_path_values(path, obj):
     else:
         pathelem, rest = path, None
 
-    prop = getattr(obj.__class__, pathelem).property
-    if isinstance(prop, RelationshipProperty):
-        if prop.direction == ONETOMANY:
-            for sub_obj in getattr(obj, pathelem):
-                for val in _iterate_path_values(rest, sub_obj):
+    column = getattr(obj.__class__, pathelem)
+    if isinstance(column, InstrumentedAttribute):
+        prop = column.property
+        if isinstance(column.property, RelationshipProperty):
+            if prop.direction == ONETOMANY:
+                for sub_obj in getattr(obj, pathelem):
+                    for val in _iterate_path_values(rest, sub_obj):
+                        yield val
+            elif prop.direction == MANYTOONE:
+                for val in _iterate_path_values(rest, getattr(obj, pathelem)):
                     yield val
-        elif prop.direction == MANYTOONE:
-            for val in _iterate_path_values(rest, getattr(obj, pathelem)):
-                yield val
+        else:
+            yield getattr(obj, pathelem)
     else:
         yield getattr(obj, pathelem)
 
