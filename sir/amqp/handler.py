@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2014 Wieland Hoffmann
+# Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import message
 from ..schema import SCHEMA
@@ -101,7 +101,7 @@ class Handler(object):
         with db_session_ctx(self.session) as session:
             query = query.filter(condition).with_session(session)
             send_data_to_solr(self.cores[parsed_message.entity_type],
-                              (converter(obj) for obj in query.all()))
+                              [converter(obj) for obj in query.all()])
 
     @callback_wrapper
     def delete_callback(self, parsed_message):

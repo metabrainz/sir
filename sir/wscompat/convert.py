@@ -45,7 +45,7 @@ def convert_iso_3166_1_code_list(obj):
     :type obj: :class:`[mbdata.models.ISO31661]`
     """
     l = models.iso_3166_1_code_list()
-    (l.add_iso_3166_1_code(c.code) for c in obj)
+    [l.add_iso_3166_1_code(c.code) for c in obj]
     return l
 
 
@@ -54,7 +54,7 @@ def convert_iso_3166_2_code_list(obj):
     :type obj: :class:`[mbdata.models.ISO31662]`
     """
     l = models.iso_3166_2_code_list()
-    (l.add_iso_3166_2_code(c.code) for c in obj)
+    [l.add_iso_3166_2_code(c.code) for c in obj]
     return l
 
 
@@ -63,7 +63,7 @@ def convert_iso_3166_3_code_list(obj):
     :type obj: :class:`[mbdata.models.ISO31663]`
     """
     l = models.iso_3166_3_code_list()
-    (l.add_iso_3166_3_code(c.code) for c in obj)
+    [l.add_iso_3166_3_code(c.code) for c in obj]
     return l
 
 
@@ -146,7 +146,7 @@ def convert_alias_list(obj, has_sort_name=True):
     :type obj: :class:`[mbdata.models.WorkAlias]`
     """
     alias_list = models.alias_list()
-    (alias_list.add_alias(convert_alias(a, has_sort_name)) for a in obj)
+    [alias_list.add_alias(convert_alias(a, has_sort_name)) for a in obj]
     return alias_list
 
 
@@ -222,7 +222,7 @@ def convert_artist_work_relation_list(obj):
     :type obj: :class:`[mbdata.models.LinkArtistWork]`
     """
     relation_list = models.relation_list(target_type="artist")
-    (relation_list.add_relation(convert_artist_work_relation(r)) for r in obj)
+    [relation_list.add_relation(convert_artist_work_relation(r)) for r in obj]
     return relation_list
 
 
@@ -231,7 +231,7 @@ def convert_ipi_list(obj):
     :type obj: :class:`[mbdata.models.ArtistIPI]`
     """
     ipi_list = models.ipi_list()
-    (ipi_list.add_ipi(i.ipi) for i in obj)
+    [ipi_list.add_ipi(i.ipi) for i in obj]
     return ipi_list
 
 
@@ -249,7 +249,7 @@ def convert_isrc_list(obj):
     :type obj: :class:`[mbdata.models.ISRC]`
     """
     isrc_list = models.isrc_list()
-    (isrc_list.add_isrc(convert_isrc(i)) for i in obj)
+    [isrc_list.add_isrc(convert_isrc(i)) for i in obj]
     return isrc_list
 
 
@@ -274,7 +274,7 @@ def convert_label_info_list(obj):
     """
     lil = models.label_info_list()
     lil.set_count(len(obj))
-    (lil.add_label_info(convert_label_info(li)) for li in obj)
+    [lil.add_label_info(convert_label_info(li)) for li in obj]
     return lil
 
 
@@ -328,7 +328,7 @@ def convert_medium_list(obj):
     """
     ml = models.medium_list()
     ml.set_count(len(obj))
-    (ml.add_medium(convert_medium(m)) for m in obj)
+    [ml.add_medium(convert_medium(m)) for m in obj]
 
     tracks = 0
     for medium in obj:
@@ -414,7 +414,7 @@ def convert_release_event_list(obj):
     """
     rel = models.release_event_list()
     rel.set_count(len(obj))
-    (rel.add_release_event(convert_release_event(re)) for re in obj)
+    [rel.add_release_event(convert_release_event(re)) for re in obj]
     return rel
 
 
@@ -508,7 +508,7 @@ def convert_release_list_for_recordings(obj):
     :type obj: :class:`[mbdata.models.Track]`
     """
     release_list = models.release_list()
-    (release_list.add_release(convert_release_from_track(t)) for t in obj)
+    [release_list.add_release(convert_release_from_track(t)) for t in obj]
     return release_list
 
 
@@ -541,7 +541,7 @@ def convert_secondary_type_list(obj):
     :type obj: :class:`[mbdata.models.ReleaseGroupSecondaryType]`
     """
     type_list = models.secondary_type_list()
-    (type_list.add_secondary_type(convert_secondary_type(t)) for t in obj)
+    [type_list.add_secondary_type(convert_secondary_type(t)) for t in obj]
 
 
 def convert_tag_list(obj):
@@ -550,7 +550,7 @@ def convert_tag_list(obj):
     """
     tag_list = models.tag_list()
     tag_list.set_count(len(obj))
-    (tag_list.add_tag(convert_tag(t)) for t in obj)
+    [tag_list.add_tag(convert_tag(t)) for t in obj]
     return tag_list
 
 
