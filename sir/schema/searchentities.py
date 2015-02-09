@@ -155,10 +155,11 @@ class SearchEntity(object):
                         # For composite properties, load the columns they
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
-                        composite_columns = (isinstance(getattr(model, cname).
-                                                        property,
-                                                        CompositeProperty)
-                                             for cname in required_columns)
+                        composite_columns = filter(
+                            lambda cname:isinstance(getattr(model, cname).
+                                                    property,
+                                                    CompositeProperty),
+                            required_columns)
                         for composite_column in composite_columns:
                             composite_parts = (c.name for c in
                                                getattr(model,
