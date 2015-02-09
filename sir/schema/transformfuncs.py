@@ -1,6 +1,21 @@
-# Copyright (c) 2014 Wieland Hoffmann
+# Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from ..wscompat.convert import partialdate_to_string
+
+
+ANNOTATION_TABLE_TO_ENTITYTYPE = {
+    "area_annotation": "area",
+    "artist_annotation": "artist",
+    "event_annotation": "event",
+    "instrument_annotation": "instrument",
+    "label_annotation": "label",
+    "place_annotation": "place",
+    "recording_annotation": "recording",
+    "release_annotation": "release",
+    "release_group_annotation": "releasegroup",
+    "series_annotation": "series",
+    "work_annotation": "work"
+}
 
 
 def ended_to_string(ended):
@@ -35,3 +50,9 @@ def lat(points):
 def long(points):
     if len(points):
         return points.pop()[1]
+
+
+def annotation_type(entities):
+    if len(entities):
+        first_entity_table = entities.pop()
+        return ANNOTATION_TABLE_TO_ENTITYTYPE[first_entity_table]

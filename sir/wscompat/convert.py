@@ -554,6 +554,14 @@ def convert_tag_list(obj):
     return tag_list
 
 
+def convert_annotation(obj):
+    """
+    :type obj: :class:`mbdata.models.Annotation`
+    """
+    annotation = models.annotation()
+    return annotation
+
+
 def convert_area(obj):
     """
     :type obj: :class:`mbdata.models.Area`

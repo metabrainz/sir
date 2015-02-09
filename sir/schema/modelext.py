@@ -1,14 +1,28 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import (Area, Artist, ArtistAlias, Label, LinkAttribute,
-                           MediumCDTOC, Place, Recording, ReleaseGroup,
-                           ReleaseRaw, ReleaseTag, Work)
+from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Label,
+                           LinkAttribute, MediumCDTOC, Place, Recording,
+                           ReleaseGroup, ReleaseRaw, ReleaseTag, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
 
 # Ignore SQLAlchemys warnings that we're overriding some attributes
 simplefilter(action="ignore", category=sa_exc.SAWarning)
+
+
+class CustomAnnotation(Annotation):
+    areas = relationship("AreaAnnotation")
+    artists = relationship("ArtistAnnotation")
+    events = relationship("EventAnnotation")
+    instruments = relationship("InstrumentAnnotation")
+    labels = relationship("LabelAnnotation")
+    places = relationship("PlaceAnnotation")
+    recordings = relationship("RecordingAnnotation")
+    releases = relationship("ReleaseAnnotation")
+    release_groups = relationship("ReleaseGroupAnnotation")
+    series = relationship("SeriesAnnotation")
+    works = relationship("WorkAnnotation")
 
 
 class CustomArea(Area):

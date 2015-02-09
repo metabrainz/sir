@@ -1,15 +1,15 @@
 #+TODO: TODO(t) SCHEMA(m) | DONE(d)
 
 * Search Index Fields
-** Annotation [0/4]
+** Annotation [4/4]
 
 The [[Annotation][annotation]] index contains the following fields you
 can search:
 
-*** TODO text
-*** TODO type
-*** TODO name
-*** TODO entity
+*** DONE text
+*** DONE type
+*** DONE name
+*** DONE entity
 
 ** Area [12/13]
 

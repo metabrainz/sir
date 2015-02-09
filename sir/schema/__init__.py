@@ -7,6 +7,32 @@ from ..wscompat import convert
 from mbdata import models
 
 
+SearchAnnotation = E(modelext.CustomAnnotation, [
+    F("id", "id"),
+    F("entity", ["areas.area.gid", "artists.artist.gid", "events.event.gid",
+                 "instruments.instrument.gid", "labels.label.gid",
+                 "places.place.gid", "recordings.recording.gid",
+                 "releases.release.gid", "release_groups.release_group.gid",
+                 "series.series.gid", "works.work.gid"]),
+    F("name", ["areas.area.name", "artists.artist.name", "events.event.name",
+               "instruments.instrument.name", "labels.label.name",
+               "places.place.name", "recordings.recording.name",
+               "releases.release.name", "release_groups.release_group.name",
+               "series.series.name", "works.work.name"]),
+    F("text", "text"),
+    F("type", ["areas.__tablename__", "artists.__tablename__",
+               "events.__tablename__", "instruments.__tablename__",
+               "labels.__tablename__", "places.__tablename__",
+               "recordings.__tablename__", "releases.__tablename__",
+               "release_groups.__tablename__", "series.__tablename__",
+               "works.__tablename__"],
+      transformfunc=tfs.annotation_type)
+],
+    1.2,
+    convert.convert_annotation,
+)
+
+
 SearchArea = E(modelext.CustomArea, [
     F("mbid", "gid"),
     F("area", "name"),
@@ -326,6 +352,7 @@ SearchWork = E(modelext.CustomWork, [
 
 
 SCHEMA = {
+    "annotation": SearchAnnotation,
     "artist": SearchArtist,
     "area": SearchArea,
     "cdstub": SearchCDStub,
