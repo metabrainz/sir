@@ -228,3 +228,52 @@ The work index contains these fields you can search:
 
 Work search terms with no fields specified search the work and alias
 fields.
+
+** Editor [0/2]
+
+*** TODO bio
+*** TODO editor
+
+** Event [0/14]
+
+*** TODO aid
+*** TODO alias
+*** TODO area
+*** TODO arid
+*** TODO artist
+*** TODO begin
+*** TODO comment
+*** TODO eid
+*** TODO end
+*** TODO event
+*** TODO pid
+*** TODO place
+*** TODO tag
+*** TODO type
+
+** FreeDB [0/6]
+
+*** TODO artist
+*** TODO cat
+*** TODO discid
+*** TODO title
+*** TODO tracks
+*** TODO year
+
+** Series [0/7]
+
+*** TODO alias
+*** TODO comment
+*** TODO orderingattribute
+*** TODO series
+*** TODO sid
+*** TODO tag
+*** TODO type
+
+** URL [0/5]
+
+*** TODO relationtype
+*** TODO targetid
+*** TODO targettype
+*** TODO uid
+*** TODO url
