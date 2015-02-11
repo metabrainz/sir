@@ -1,9 +1,8 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Label,
-                           LinkAreaArea, LinkAttribute, MediumCDTOC, Place,
-                           Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
-                           Work)
+                           LinkAttribute, MediumCDTOC, Place, Recording,
+                           ReleaseGroup, ReleaseRaw, ReleaseTag, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -29,19 +28,20 @@ class CustomAnnotation(Annotation):
 class CustomArea(Area):
     aliases = relationship("AreaAlias")
     area_links = relationship("LinkAreaArea",
-                              primaryjoin="Area.id == LinkAreaArea.entity1_id",
-    )
+                              primaryjoin="Area.id == LinkAreaArea.entity1_id")
 
 
 class CustomArtist(Artist):
     area = relationship('CustomArea', foreign_keys=[Artist.area_id])
-    begin_area = relationship('CustomArea', foreign_keys=[Artist.begin_area_id])
+    begin_area = relationship('CustomArea',
+                              foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
     tags = relationship('ArtistTag')
 
 
 class CustomArtistAlias(ArtistAlias):
-    artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id], innerjoin=True, backref="aliases")
+    artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id],
+                          innerjoin=True, backref="aliases")
 
 
 class CustomLabel(Label):
@@ -51,7 +51,8 @@ class CustomLabel(Label):
 
 
 class CustomMediumCDToc(MediumCDTOC):
-    medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id], innerjoin=True, backref="cdtocs")
+    medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id],
+                          innerjoin=True, backref="cdtocs")
 
 
 class CustomPlace(Place):

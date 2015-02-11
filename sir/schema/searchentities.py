@@ -54,8 +54,9 @@ def defer_everything_but(mapper, load, *columns):
     for prop in mapper.iterate_properties:
         if hasattr(prop, "columns"):
             key = prop.key
-            if key not in columns and key[:-3] not in columns and \
-               key[-3:] != "_id" and key != "position" and key not in primary_keys:
+            if (key not in columns and key[:-3] not in columns and
+                key[-3:] != "_id" and key != "position" and
+                key not in primary_keys):
                 # We need the _id columns for subqueries and joins
                 # Position is needed because sqla automatically orders by
                 # artist_credit_name.position
@@ -72,8 +73,8 @@ class SearchField(object):
         :param str path: A dot-delimited path (or a list of them) along which
                          the value of this field can be found, beginning at
                          an instance of the model class this field is bound to.
-        :param method transformfunc: An optional function to transform the value
-                         before sending it to Solr.
+        :param method transformfunc: An optional function to transform the
+                         value before sending it to Solr.
         """
         self.name = name
         if not isinstance(paths, list):
@@ -84,13 +85,15 @@ class SearchField(object):
 
 class SearchEntity(object):
     """An entity with searchable fields."""
-    def __init__(self, model, fields, version, compatconverter=None, extrapaths=None):
+    def __init__(self, model, fields, version, compatconverter=None,
+                 extrapaths=None):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
         :param float version: The supported schema version of this entity.
         :param compatconverter: A function to convert this object into an XML
-                                document compliant with the MMD schema version 2
+                                document compliant with the MMD schema version
+                                2
         :param [str] extrapaths: A list of paths that don't correspond to any
                                  field but are used by the compatibility
                                  conversion
@@ -154,8 +157,8 @@ class SearchEntity(object):
                         required_columns = current_merged_path.keys()
                         required_columns.append(pk)
 
-                        # Get the mapper class of the current element of the path so
-                        # the next iteration can access it.
+                        # Get the mapper class of the current element of the
+                        # path so the next iteration can access it.
                         model = prop.mapper.class_
 
                         # For composite properties, load the columns they
@@ -211,7 +214,8 @@ class SearchEntity(object):
             if tempvals is not None and tempvals:
                 data[fieldname] = tempvals
 
-        if config.CFG.getboolean("sir", "wscompat") and self.compatconverter is not None:
+        if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
+            not None):
             logger.debug("Field _store")
             data["_store"] = tostring(self.compatconverter(obj).to_etree())
 

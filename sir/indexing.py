@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import multiprocessing
 
@@ -34,7 +34,8 @@ def reindex(args):
             _entities.extend(e.split(','))
         unknown_entities = set(_entities) - set(known_entities)
         if unknown_entities:
-            raise ValueError("{0} are unkown entity types".format(unknown_entities))
+            raise ValueError("{0} are unkown entity types".format(
+                unknown_entities))
     else:
         _entities = known_entities
 
@@ -83,7 +84,8 @@ def _multiprocessed_import(entities):
                                    solr_batch_size,
                                    solr_connection)
 
-        solr_process = multiprocessing.Process(name="solr", target=process_function)
+        solr_process = multiprocessing.Process(name="solr",
+                                               target=process_function)
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
         with util.db_session_ctx(db_session) as session:
@@ -113,7 +115,8 @@ def _index_entity_process_wrapper(args):
     If a :exc:`KeyboardInterrupt` happens while this functions runs, the
     exception will be **returned**, **not** (re-)raised.
 
-    See http://jessenoller.com/2009/01/08/multiprocessingpool-and-keyboardinterrupt/
+    See
+    http://jessenoller.com/2009/01/08/multiprocessingpool-and-keyboardinterrupt/
     for reasons why.
 
     :rtype: None or an Exception

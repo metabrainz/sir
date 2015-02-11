@@ -6,7 +6,6 @@ try:
     from functools import lru_cache
 except ImportError:
     from backports.functools_lru_cache import lru_cache
-from mbdata import models as mbdata_models
 from mbrng import models
 
 fix()
@@ -92,7 +91,8 @@ def convert_area_for_release_event(obj):
     area.set_id(obj.gid)
     area.set_name(obj.name)
     area.set_sort_name(obj.name)
-    area.set_iso_3166_1_code_list(convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
+    area.set_iso_3166_1_code_list(
+        convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
     return area
 
 
@@ -484,19 +484,23 @@ def convert_release_from_track(obj):
         release.set_disambiguation(rel.comment)
 
     if len(rel.country_dates) > 0:
-        release.set_release_event_list(convert_release_event_list(rel.country_dates))
+        release.set_release_event_list(
+            convert_release_event_list(rel.country_dates))
         first_release = release.release_event_list.release_event[0]
 
         if first_release.date is not None:
             release.set_date(first_release.date)
 
-        if (first_release.area is not None and first_release.area.iso_3166_1_code_list
-            is not None and len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
-            release.set_country(first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
+        if (first_release.area is not None and
+            first_release.area.iso_3166_1_code_list is not None and
+            len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
+            release.set_country(
+                first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
 
     release.set_medium_list(convert_medium_list_from_track(obj))
 
-    release.set_release_group(convert_release_group_for_release(rel.release_group))
+    release.set_release_group(
+        convert_release_group_for_release(rel.release_group))
 
     if rel.status is not None:
         release.set_status(rel.status.name)
@@ -517,7 +521,8 @@ def convert_release_group_for_release(obj):
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
-        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+        rg.set_secondary_type_list(
+            convert_secondary_type_list(obj.secondary_types))
 
     if obj.comment is not None:
         rg.set_disambiguation(obj.comment)
@@ -538,10 +543,10 @@ def convert_release_group_simple(obj):
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
-        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+        rg.set_secondary_type_list(
+            convert_secondary_type_list(obj.secondary_types))
 
     rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
-
 
     if obj.comment is not None:
         rg.set_disambiguation(obj.comment)
@@ -631,11 +636,14 @@ def convert_area(obj):
     area.set_life_span(lifespan)
 
     if len(obj.iso_3166_1_codes):
-        area.set_iso_3166_1_code_list(convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
+        area.set_iso_3166_1_code_list(
+            convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
     if len(obj.iso_3166_2_codes):
-        area.set_iso_3166_2_code_list(convert_iso_3166_2_code_list(obj.iso_3166_2_codes))
+        area.set_iso_3166_2_code_list(
+            convert_iso_3166_2_code_list(obj.iso_3166_2_codes))
     if len(obj.iso_3166_3_codes):
-        area.set_iso_3166_3_code_list(convert_iso_3166_3_code_list(obj.iso_3166_3_codes))
+        area.set_iso_3166_3_code_list(
+            convert_iso_3166_3_code_list(obj.iso_3166_3_codes))
     if len(obj.area_links):
         area.add_relation_list(convert_area_relation_list(obj.area_links))
     # DefAreaElementInner are XMLRootElements, so store each area in a 1-element
@@ -750,7 +758,8 @@ def convert_label(obj):
         label.set_label_code(obj.label_code)
 
     if len(obj.aliases) > 0:
-        label.set_alias_list(convert_alias_list(obj.aliases, has_sort_name=False))
+        label.set_alias_list(
+            convert_alias_list(obj.aliases, has_sort_name=False))
 
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
@@ -783,7 +792,8 @@ def convert_recording(obj):
         recording.set_tag_list(convert_tag_list(obj.tags))
 
     if len(obj.tracks) > 0:
-        recording.set_release_list(convert_release_list_for_recordings(obj.tracks))
+        recording.set_release_list(
+            convert_release_list_for_recordings(obj.tracks))
 
     if obj.video:
         recording.set_video("true")
@@ -817,15 +827,18 @@ def convert_release(obj):
         release.set_packaging(obj.packaging.name)
 
     if len(obj.country_dates) > 0:
-        release.set_release_event_list(convert_release_event_list(obj.country_dates))
+        release.set_release_event_list(
+            convert_release_event_list(obj.country_dates))
         first_release = release.release_event_list.release_event[0]
 
         if first_release.date is not None:
             release.set_date(first_release.date)
 
-        if (first_release.area is not None and first_release.area.iso_3166_1_code_list
-            is not None and len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
-            release.set_country(first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
+        if (first_release.area is not None and
+            first_release.area.iso_3166_1_code_list is not None and
+            len(first_release.area.iso_3166_1_code_list.iso_3166_1_code) > 0):
+            release.set_country(
+                first_release.area.iso_3166_1_code_list.iso_3166_1_code[0])
 
     if len(obj.labels) > 0:
         release.set_label_info_list(convert_label_info_list(obj.labels))
@@ -833,7 +846,8 @@ def convert_release(obj):
     if len(obj.mediums) > 0:
         release.set_medium_list(convert_medium_list(obj.mediums))
 
-    release.set_release_group(convert_release_group_for_release(obj.release_group))
+    release.set_release_group(
+        convert_release_group_for_release(obj.release_group))
 
     if obj.status is not None:
         release.set_status(obj.status.name)
@@ -873,7 +887,8 @@ def convert_release_group(obj):
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
-        rg.set_secondary_type_list(convert_secondary_type_list(obj.secondary_types))
+        rg.set_secondary_type_list(
+            convert_secondary_type_list(obj.secondary_types))
 
     rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
 
@@ -902,7 +917,8 @@ def convert_work(obj):
     if len(obj.aliases) > 0:
         work.set_alias_list(convert_alias_list(obj.aliases))
     if len(obj.artist_links) > 0:
-        work.add_relation_list(convert_artist_work_relation_list(obj.artist_links))
+        work.add_relation_list(
+            convert_artist_work_relation_list(obj.artist_links))
     work.set_id(obj.gid)
     work.set_title(obj.name)
     if obj.language is not None:

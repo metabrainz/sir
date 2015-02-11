@@ -131,7 +131,8 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
     :param str entityname:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     """
-    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = {{new_or_old}}.{pk}"
+    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = "\
+                "{{new_or_old}}.{pk}"
     mapper = class_mapper(model)
     pk = mapper.primary_key[0].name
     tablename = mapper.mapped_table.name
@@ -188,8 +189,8 @@ def generate_triggers(args):
             paths = unique_split_paths([path for field in e.fields for path in
                                         field.paths])
 
-            write_direct_triggers(triggerfile, functionfile, entityname, e.model)
-
+            write_direct_triggers(triggerfile, functionfile, entityname,
+                                  e.model)
             it = enumerate_skip(paths, start=1)
             for i, path in it:
                 pathname = path

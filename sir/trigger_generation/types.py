@@ -18,7 +18,7 @@ class PathPart(object):
     >>> outer.inner = inner
     >>> outer.render()
     'SELECT table_1.id FROM table_1 WHERE table_1.table_2_id IN ({new_or_old}.id)'
-    """
+    """  # noqa
     def __init__(self, tablename, pkname, inner=None):
         """
         :param str tablename: The name of the table
@@ -31,8 +31,8 @@ class PathPart(object):
 
     def render():
         """
-        Render the selection represented by this object and its inner object into a
-        string.
+        Render the selection represented by this object and its inner object
+        into a string.
 
         :rtype: str
         """
@@ -46,9 +46,9 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN ({inner})".\
-            format(pk=self.pkname, table=self.tablename,
-                   inner=self.inner.render())
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN "\
+            "({inner})".format(pk=self.pkname, table=self.tablename,
+                               inner=self.inner.render())
 
 
 class ManyToOnePathPart(PathPart):
@@ -62,9 +62,9 @@ class ManyToOnePathPart(PathPart):
         self.fkname = fkname
 
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN ({inner})".\
-            format(pk=self.pkname, table=self.tablename,
-                   inner=self.inner.render(), fk=self.fkname)
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN "\
+            "({inner})". format(pk=self.pkname, table=self.tablename,
+                                inner=self.inner.render(), fk=self.fkname)
 
 
 class ColumnPathPart(PathPart):
@@ -137,7 +137,6 @@ COMMENT ON TRIGGER {triggername} IS 'The path for this trigger is {path}';
 """.format(triggername=self.triggername, tablename=self.tablename,
            op=self.op.upper(), beforeafter=self.beforeafter, path=self.path)
         return trigger
-
 
     @property
     def function(self):
@@ -234,5 +233,3 @@ class UpdateTriggerGenerator(TriggerGenerator):
     op = "update"
     id_replacement = "NEW"
     routing_key = "update"
-
-

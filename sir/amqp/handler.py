@@ -88,7 +88,7 @@ class Handler(object):
             self.cores[corename] = solr_connection(corename)
             solr_version_check(corename)
 
-        self.session = db_session()  #: The database session used by this handler
+        self.session = db_session()  #: The database session used by the handler
 
     @callback_wrapper
     def index_callback(self, parsed_message):

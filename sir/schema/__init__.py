@@ -146,7 +146,8 @@ SearchRecording = E(modelext.CustomRecording, [
     F("release", "tracks.medium.release.name"),
     F("rgid", "tracks.medium.release.release_group.gid"),
     F("secondarytype",
-      "tracks.medium.release.release_group.secondary_types.secondary_type.name"),
+      "tracks.medium.release.release_group.secondary_types.secondary_type."
+      "name"),
     F("status", "tracks.medium.release.status.name"),
     F("tag", "tags.tag.name"),
     F("tid", "tracks.gid"),
@@ -177,14 +178,22 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tags.tag.name",
                 "tracks.length",
                 "tracks.medium.cdtocs.id",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.begin_date",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.end_date",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.locale",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.name",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.primary_for_locale",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.sort_name",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.type.id",
-                "tracks.medium.release.artist_credit.artists.artist.aliases.type.name",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "begin_date",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "end_date",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "locale",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "name",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "primary_for_locale",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "sort_name",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "type.id",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "type.name",
                 "tracks.medium.release.artist_credit.artists.artist.comment",
                 "tracks.medium.release.artist_credit.artists.artist.gid",
                 "tracks.medium.release.artist_credit.artists.artist.name",
@@ -194,7 +203,8 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.artist_credit.name",
                 "tracks.medium.release.comment",
                 "tracks.medium.release.country_dates.country.area.gid",
-                "tracks.medium.release.country_dates.country.area.iso_3166_1_codes.code",
+                "tracks.medium.release.country_dates.country.area."
+                "iso_3166_1_codes.code",
                 "tracks.medium.release.country_dates.country.area.name",
                 "tracks.medium.release.country_dates.date_day",
                 "tracks.medium.release.country_dates.date_month",
@@ -293,7 +303,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.artist.comment",
                 "tags.count"
-]
+                ]
 )
 
 SearchArtist = E(modelext.CustomArtist, [

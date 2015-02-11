@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Wieland Hoffmann
+# Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import argparse
 import logging
@@ -24,7 +24,8 @@ def main():
     subparsers = parser.add_subparsers()
 
     reindex_parser = subparsers.add_parser("reindex",
-                                           help="Reindexes all or a single entity type")
+                                           help="Reindexes all or a single "
+                                           "entity type")
     reindex_parser.set_defaults(func=reindex)
     reindex_parser.add_argument('--entities', action='append', help="""Which
         entity types to index.
@@ -37,18 +38,22 @@ def main():
     generate_trigger_parser.add_argument('-t', '--trigger-file',
                                          action="store",
                                          default="sql/CreateTriggers.sql",
-                                         help="The filename to save the triggers into")
+                                         help="The filename to save the "
+                                         "triggers into")
     generate_trigger_parser.add_argument('-f', '--function-file',
                                          action="store",
                                          default="sql/CreateFunctions.sql",
-                                         help="The filename to save the functions into")
+                                         help="The filename to save the "
+                                         "functions into")
 
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
-                                              help="Set up AMQP exchanges and queues")
+                                              help="Set up AMQP exchanges and "
+                                              "queues")
     amqp_setup_parser.set_defaults(func=setup_rabbitmq)
 
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
-                                              help="Watch AMQP queues for changes")
+                                              help="Watch AMQP queues for "
+                                              "changes")
     amqp_watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()
@@ -59,7 +64,8 @@ def main():
 
     loghandler = logging.StreamHandler()
     if args.debug:
-        formatter = logging.Formatter(fmt="%(processName)s %(asctime)s  %(levelname)s: %(message)s")
+        formatter = logging.Formatter(fmt="%(processName)s %(asctime)s  "
+                                      "%(levelname)s: %(message)s")
     else:
         formatter = logging.Formatter(fmt="%(asctime)s: %(message)s")
     loghandler.setFormatter(formatter)
