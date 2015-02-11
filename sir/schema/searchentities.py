@@ -138,7 +138,8 @@ class SearchEntity(object):
                     column = getattr(model, pathelem)
 
                     # __tablename__s in annotation paths
-                    if not isinstance(column, InstrumentedAttribute):
+                    if (not isinstance(column, InstrumentedAttribute) and not
+                        isinstance(column, CompositeProperty)):
                         break
 
                     prop = column.property
@@ -161,11 +162,9 @@ class SearchEntity(object):
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
                         composite_columns = filter(
-                            lambda cname: isinstance(getattr(model, cname),
-                                                     InstrumentedAttribute) and
-                            isinstance(getattr(model, cname).
-                                       property,
-                                       CompositeProperty),
+                            lambda cname: isinstance(getattr(model, cname).
+                                                     property,
+                                                     CompositeProperty),
                             required_columns)
                         for composite_column in composite_columns:
                             composite_parts = (c.name for c in
