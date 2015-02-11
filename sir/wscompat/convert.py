@@ -805,7 +805,6 @@ def convert_release(obj):
     """
     :type obj: :class:`mbdata.models.Release`
     """
-    # TODO: ASIN
     release = models.release()
     release.set_id(obj.gid)
     release.set_title(obj.name)

@@ -229,7 +229,6 @@ class UpdateTriggerGenerator(TriggerGenerator):
     """
     A trigger generator for UPDATE operations.
     """
-    # TODO: WHEN
     op = "update"
     id_replacement = "NEW"
     routing_key = "update"
