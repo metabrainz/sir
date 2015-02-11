@@ -76,6 +76,10 @@ def convert_area_inner(obj):
     area.set_id(obj.gid)
     area.set_name(obj.name)
     area.set_sort_name(obj.name)
+
+    if obj.type is not None:
+        area.set_type(obj.type.name)
+
     return area
 
 
@@ -90,6 +94,32 @@ def convert_area_for_release_event(obj):
     area.set_sort_name(obj.name)
     area.set_iso_3166_1_code_list(convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
     return area
+
+
+def convert_area_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkAreaArea`
+    """
+    relation = models.relation()
+    relation.set_direction("backward")
+
+    relation.set_target(models.target(valueOf_=obj.area0.gid))
+
+    relation.set_type(obj.link.link_type.name)
+    relation.set_type_id(obj.link.link_type.gid)
+    relation.set_area(convert_area_inner(obj.area0))
+
+    return relation
+
+
+def convert_area_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkAreaArea]`
+    """
+    relations = models.relation_list()
+    relations.set_target_type("area")
+    [relations.add_relation(convert_area_relation(a)) for a in obj]
+    return relations
 
 
 def convert_name_credit(obj, include_aliases=True):
@@ -276,6 +306,22 @@ def convert_label_info_list(obj):
     lil.set_count(len(obj))
     [lil.add_label_info(convert_label_info(li)) for li in obj]
     return lil
+
+
+def convert_life_span(begin_date, end_date, ended):
+    lifespan = models.life_span()
+
+    if begin_date.year is not None:
+        lifespan.set_begin(partialdate_to_string(begin_date))
+
+    if end_date.year is not None:
+        lifespan.set_end(partialdate_to_string(end_date))
+
+    if ended:
+        lifespan.set_ended("true")
+    else:
+        lifespan.set_ended("false")
+    return lifespan
 
 
 def convert_medium(obj):
@@ -581,19 +627,7 @@ def convert_area(obj):
     if obj.type is not None:
         area.set_type(obj.type.name)
 
-    lifespan = models.life_span()
-
-    if obj.begin_date_year is not None:
-        lifespan.set_begin(partialdate_to_string(obj.begin_date))
-
-    if obj.end_date_year is not None:
-        lifespan.set_end(partialdate_to_string(obj.end_date))
-
-    if obj.ended:
-        lifespan.set_ended("true")
-    else:
-        lifespan.set_ended("false")
-
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
 
     if len(obj.iso_3166_1_codes):
@@ -602,7 +636,8 @@ def convert_area(obj):
         area.set_iso_3166_2_code_list(convert_iso_3166_2_code_list(obj.iso_3166_2_codes))
     if len(obj.iso_3166_3_codes):
         area.set_iso_3166_3_code_list(convert_iso_3166_3_code_list(obj.iso_3166_3_codes))
-
+    if len(obj.area_links):
+        area.add_relation_list(convert_area_relation_list(obj.area_links))
     # DefAreaElementInner are XMLRootElements, so store each area in a 1-element
     # arealist
     arealist.add_area(area)
@@ -692,6 +727,7 @@ def convert_cdstub(obj):
         cdstub.set_comment(obj.comment)
 
     return cdstub
+
 
 def convert_label(obj):
     """

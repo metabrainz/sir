@@ -50,7 +50,14 @@ SearchArea = E(modelext.CustomArea, [
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date"
+                "aliases.begin_date", "aliases.end_date",
+                "area_links.area0.name",
+                "area_links.area0.gid",
+                "area_links.area0.begin_date",
+                "area_links.area0.end_date",
+                "area_links.area0.type.name",
+                "area_links.link.link_type.name",
+                "area_links.link.link_type.gid",
                 ]
 )
 
