@@ -26,22 +26,22 @@ def update_version_py():
                               "--tags", "--dirty", "--always"],
                              stdout=subprocess.PIPE)
     except EnvironmentError:
-        print("unable to run git, leaving sir/__init__.py alone")
+        print("unable to run git, leaving sir/version.py alone")
         return
     stdout = p.communicate()[0]
     if p.returncode != 0:
-        print("unable to run git, leaving sir/__init__.py alone")
+        print("unable to run git, leaving sir/version.py alone")
         return
     ver = stdout.strip()
-    f = open("sir/__init__.py", "w")
+    f = open("sir/version.py", "w")
     f.write(VERSION_PY % ver)
     f.close()
-    print("set sir/__init__.py to '%s'" % ver)
+    print("set sir/version.py to '%s'" % ver)
 
 
 def get_version():
     try:
-        f = open("sir/__init__.py")
+        f = open("sir/version.py")
     except IOError, e:
         import errno
         if e.errno == errno.ENOENT:
@@ -58,7 +58,7 @@ def get_version():
 
 
 class Version(Command):
-    description = "update sir/__init__.py from Git repo"
+    description = "update sir/version.py from Git repo"
     user_options = []
     boolean_options = []
 
