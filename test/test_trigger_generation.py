@@ -88,6 +88,13 @@ class WalkPathTest(unittest.TestCase):
         self.assertTrue(result is None)
         self.assertTrue(table is None)
 
+    def test_non_sqlalchemy_paths(self):
+        path = "c.__tablename__"
+        model = models.B
+        result, table = walk_path(model, path)
+        self.assertTrue(result is None)
+        self.assertTrue(table is None)
+
 
 class TriggerGeneratorTest(unittest.TestCase):
     class TestGenerator(TriggerGenerator):

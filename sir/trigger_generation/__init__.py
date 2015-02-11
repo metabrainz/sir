@@ -6,6 +6,7 @@ from enumerate_skip import enumerate_skip
 from functools import partial
 from logging import getLogger
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
@@ -51,6 +52,12 @@ def walk_path(model, path):
 
     for i, path_elem in enumerate(path.split(".")):
         column = getattr(current_model, path_elem)
+
+        # This is not a column managed by sqlalchemy, ignore it
+        if not isinstance(column, InstrumentedAttribute):
+            # Let's assume some other path also covers this table
+            return None, None
+
         prop = column.property
 
         if isinstance(prop, RelationshipProperty):
