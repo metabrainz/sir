@@ -83,7 +83,7 @@ class IteratePathValuesTest(unittest.TestCase):
         self.assertEqual(res, [1])
 
     def test_non_sqlalchemy_paths(self):
-        res = list(_iterate_path_values("__tablename__"), self.c)
+        res = list(_iterate_path_values("__tablename__", self.c))
         self.assertEqual(res, [models.C.__tablename__])
 
 
