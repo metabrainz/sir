@@ -124,8 +124,8 @@ class SearchEntity(object):
         query = Query(root_model)
         paths = [field.paths for field in self.fields]
 
-        if (config.CFG.getboolean("sir", "wscompat")
-            and self.extrapaths is not None):
+        if (config.CFG.getboolean("sir", "wscompat") and
+            self.extrapaths is not None):
             paths.extend([self.extrapaths])
 
         merged_paths = merge_paths(paths)
