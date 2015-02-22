@@ -3,7 +3,8 @@ import unittest
 
 from . import models
 from xml.etree.ElementTree import Element, tostring
-from sir.schema.searchentities import SearchEntity as E, SearchField as F
+from sir.schema.searchentities import (SearchEntity as E, SearchField as F,
+                                       is_composite_column)
 
 
 class QueryResultToDictTest(unittest.TestCase):
@@ -43,3 +44,14 @@ class QueryResultToDictTest(unittest.TestCase):
         self.expected["_store"] = tostring(elem)
         self.assertDictEqual(self.expected, res)
         self.assertEqual(convmock.to_etree.call_count, 1)
+
+
+class TestIsCompositeColumn(unittest.TestCase):
+    def test_composite_column(self):
+        self.assertTrue(is_composite_column(models.B, "composite_column"))
+
+    def test_not_sqla_column(self):
+        self.assertFalse(is_composite_column(models.B, "__tablename__"))
+
+    def test_sqla_column(self):
+        self.assertFalse(is_composite_column(models.B, "c"))

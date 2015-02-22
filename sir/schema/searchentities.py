@@ -3,6 +3,7 @@
 from .. import config
 from ..querying import _iterate_path_values
 from collections import defaultdict
+from functools import partial
 from logging import getLogger
 from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
@@ -14,6 +15,19 @@ from sqlalchemy.orm.query import Query
 
 
 logger = getLogger("sir")
+
+
+def is_composite_column(model, colname):
+    """
+    Checks if a models attribute is a composite column.
+
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param str colname: The column name.
+    :rtype: bool
+    """
+    attr = getattr(model, colname)
+    return (hasattr(attr, "property") and
+            isinstance(attr.property, CompositeProperty))
 
 
 def merge_paths(field_paths):
@@ -165,9 +179,7 @@ class SearchEntity(object):
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
                         composite_columns = filter(
-                            lambda cname: isinstance(getattr(model, cname).
-                                                     property,
-                                                     CompositeProperty),
+                            partial(is_composite_column, model),
                             required_columns)
                         for composite_column in composite_columns:
                             composite_parts = (c.name for c in
