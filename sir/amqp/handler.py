@@ -18,6 +18,7 @@ from socket import error as socket_error
 from sqlalchemy import and_
 from urllib2 import URLError
 
+__all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
 
