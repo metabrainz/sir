@@ -21,8 +21,10 @@ from urllib2 import URLError
 
 logger = getLogger("sir")
 
-
+#: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
+
+#: The number of seconds between each connection attempt to the AMQP server.
 _RETRY_WAIT_SECS = 30
 
 
