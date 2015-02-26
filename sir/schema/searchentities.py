@@ -100,7 +100,7 @@ class SearchField(object):
 class SearchEntity(object):
     """An entity with searchable fields."""
     def __init__(self, model, fields, version, compatconverter=None,
-                 extrapaths=None):
+                 extrapaths=None, extraquery=None):
         """
         :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
         :param list fields: A list of :class:`SearchField` objects.
@@ -111,16 +111,22 @@ class SearchEntity(object):
         :param [str] extrapaths: A list of paths that don't correspond to any
                                  field but are used by the compatibility
                                  conversion
+        :param extraquery: A function to apply to the object returned by
+                           :meth:`query`.
         """
         self.model = model
         self.fields = fields
         self.extrapaths = extrapaths
+        self.extraquery = extraquery
         self._query = None
         self.version = version
         self.compatconverter = compatconverter
 
     @property
     def query(self):
+        """
+        See :meth:`build_entity_query`.
+        """
         if self._query is None:
             self._query = self.build_entity_query()
 
@@ -200,6 +206,8 @@ class SearchEntity(object):
                                                     load,
                                                     *required_columns)
                 query = query.options(load)
+        if self.extraquery is not None:
+            query = self.extraquery(query)
         return query
 
     def query_result_to_dict(self, obj):
