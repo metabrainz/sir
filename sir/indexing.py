@@ -12,6 +12,9 @@ from solr import SolrException
 from sqlalchemy import and_
 from traceback import format_exc
 
+__all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
+           "_multiprocessed_import", "_index_entity_process_wrapper"]
+
 
 logger = getLogger("sir")
 
