@@ -1,5 +1,6 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from . import queryext
 from . import modelext
 from . import transformfuncs as tfs
 from .searchentities import SearchEntity as E, SearchField as F
@@ -30,6 +31,7 @@ SearchAnnotation = E(modelext.CustomAnnotation, [
 ],
     1.2,
     convert.convert_annotation,
+    extraquery=queryext.filter_valid_annotations
 )
 
 
