@@ -41,21 +41,21 @@ def iterate_path_values(path, obj):
 
     will return the final value::
 
-    >>> from mbdata.models import Artist, Area
-    >>> artist = Artist(name="Johan de Meij")
-    >>> area = Area(name="Netherlands")
-    >>> artist.begin_area = area
-    >>> list(iterate_path_values("begin_area.name", artist))
-    ['Netherlands']
+        >>> from mbdata.models import Artist, Area
+        >>> artist = Artist(name="Johan de Meij")
+        >>> area = Area(name="Netherlands")
+        >>> artist.begin_area = area
+        >>> list(iterate_path_values("begin_area.name", artist))
+        ['Netherlands']
 
-    One-to-many relationships will of course be handled as well:
+    One-to-many relationships will of course be handled as well::
 
-    >>> from mbdata.models import Recording, ISRC
-    >>> recording = Recording(name="Carmina Burana: Fortuna Imperatrix Mundi: O Fortuna")
-    >>> recording.isrcs.append(ISRC(isrc="DEF056730100"))
-    >>> recording.isrcs.append(ISRC(isrc="DEF056730101"))
-    >>> list(iterate_path_values("isrcs.isrc", recording))
-    ['DEF056730100', 'DEF056730101']
+        >>> from mbdata.models import Recording, ISRC
+        >>> recording = Recording(name="Carmina Burana: Fortuna Imperatrix Mundi: O Fortuna")
+        >>> recording.isrcs.append(ISRC(isrc="DEF056730100"))
+        >>> recording.isrcs.append(ISRC(isrc="DEF056730101"))
+        >>> list(iterate_path_values("isrcs.isrc", recording))
+        ['DEF056730100', 'DEF056730101']
 
     """
     if obj is None:
