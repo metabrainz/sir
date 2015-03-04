@@ -1,3 +1,4 @@
+import doctest
 import mock
 import unittest
 
@@ -104,3 +105,9 @@ class MergePathsTest(unittest.TestCase):
                                 )
         }
         self.assertEqual(dict(merge_paths(paths)), expected)
+
+
+def load_tests(loader, tests, ignore):
+    from sir import querying
+    tests.addTests(doctest.DocTestSuite(querying))
+    return tests

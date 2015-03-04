@@ -11,3 +11,4 @@ API
     api/schema
     api/config
     api/util
+    api/examples

@@ -19,3 +19,20 @@ The result of the conversion will be passed into a
 :class:`multiprocessing.Queue`.
 On the other end of the queue, another process running
 :func:`sir.indexing.queue_to_solr` will send them to Solr in batches.
+
+.. _paths:
+
+Paths
+-----
+
+Each :class:`~sir.schema.searchentities.SearchEntity` is assigned a
+:ref:`declarative <sqla:declarative_toplevel>` via its **model** attribute and a
+collection of :class:`~sir.schema.searchentities.SearchField` objects, each
+corresponding to a field in the entities Solr core. Those fields each have one
+or more paths that "lead" to the values that will be put into the field in
+Solr. :func:`~sir.querying.iterate_path_values` is a method that returns an
+iterator over all values for a specific field from an instance of a
+:ref:`declarative <sqla:declarative_toplevel>` class and its docstring describes
+how that works, so here's a verbatim copy of it:
+
+.. automethod:: sir.querying.iterate_path_values

@@ -12,6 +12,52 @@ logger = logging.getLogger("sir")
 
 
 def iterate_path_values(path, obj):
+    """
+    Return an iterator over all values for `path` on `obj`, an instance of
+    a :ref:`declarative <sqla:declarative_toplevel>` class by first splitting
+    the path into its elements by splitting it on the dots, resulting in a list
+    of path elements. Then, for each element, a call to :func:`getattr` is made
+    - the arguments will be the current model (which initially is the **model**
+    assigned to the :class:`~sir.schema.searchentities.SearchEntity`) and the
+    current path element. After doing this, there are two cases:
+
+    1. The path element is not the last one in the path. In this case, the
+       :func:`getattr` call returns one or more objects of another model which
+       will replace the current one.
+
+    2. The path element is the last one in the path. In this case, the value
+       returned by the :func:`getattr` call will be returned and added to the
+       list of values for this field.
+
+    To give an example, lets presume the object we're starting with is an
+    instance of :class:`~mbdata.models.Artist` and the path is
+    "begin_area.name". The first :func:`getattr` call will be::
+
+      getattr(obj, "begin_area")
+
+    which returns an :class:`~mbdata.models.Area` object, on which the call::
+
+      getattr(obj, "name")
+
+    will return the final value::
+
+    >>> from mbdata.models import Artist, Area
+    >>> artist = Artist(name="Johan de Meij")
+    >>> area = Area(name="Netherlands")
+    >>> artist.begin_area = area
+    >>> list(iterate_path_values("begin_area.name", artist))
+    ['Netherlands']
+
+    One-to-many relationships will of course be handled as well:
+
+    >>> from mbdata.models import Recording, ISRC
+    >>> recording = Recording(name="Carmina Burana: Fortuna Imperatrix Mundi: O Fortuna")
+    >>> recording.isrcs.append(ISRC(isrc="DEF056730100"))
+    >>> recording.isrcs.append(ISRC(isrc="DEF056730101"))
+    >>> list(iterate_path_values("isrcs.isrc", recording))
+    ['DEF056730100', 'DEF056730101']
+
+    """
     if obj is None:
         return
 
