@@ -65,3 +65,4 @@ iterator over all values for a specific field from an instance of a
 how that works, so here's a verbatim copy of it:
 
 .. automethod:: sir.querying.iterate_path_values
+                :noindex:
