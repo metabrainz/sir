@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Lukas Lalinsky, Wieland Hoffmann
+# Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import logging
 
@@ -51,7 +51,7 @@ def iterate_path_values(path, obj):
     One-to-many relationships will of course be handled as well::
 
         >>> from mbdata.models import Recording, ISRC
-        >>> recording = Recording(name="Carmina Burana: Fortuna Imperatrix Mundi: O Fortuna")
+        >>> recording = Recording(name="Fortuna Imperatrix Mundi: O Fortuna")
         >>> recording.isrcs.append(ISRC(isrc="DEF056730100"))
         >>> recording.isrcs.append(ISRC(isrc="DEF056730101"))
         >>> list(iterate_path_values("isrcs.isrc", recording))
