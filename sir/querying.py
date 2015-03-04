@@ -11,7 +11,7 @@ from sqlalchemy.orm.properties import RelationshipProperty
 logger = logging.getLogger("sir")
 
 
-def _iterate_path_values(path, obj):
+def iterate_path_values(path, obj):
     if obj is None:
         return
 
@@ -26,10 +26,10 @@ def _iterate_path_values(path, obj):
         if isinstance(column.property, RelationshipProperty):
             if prop.direction == ONETOMANY:
                 for sub_obj in getattr(obj, pathelem):
-                    for val in _iterate_path_values(rest, sub_obj):
+                    for val in iterate_path_values(rest, sub_obj):
                         yield val
             elif prop.direction == MANYTOONE:
-                for val in _iterate_path_values(rest, getattr(obj, pathelem)):
+                for val in iterate_path_values(rest, getattr(obj, pathelem)):
                     yield val
         else:
             yield getattr(obj, pathelem)

@@ -1,7 +1,7 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from .. import config
-from ..querying import _iterate_path_values
+from ..querying import iterate_path_values
 from collections import defaultdict
 from functools import partial
 from logging import getLogger
@@ -223,7 +223,7 @@ class SearchEntity(object):
             fieldname = field.name
             tempvals = set()
             for path in field.paths:
-                for val in _iterate_path_values(path, obj):
+                for val in iterate_path_values(path, obj):
                     if val is not None:
                         tempvals.add(val)
             if field.transformfunc is not None:

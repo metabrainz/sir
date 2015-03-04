@@ -3,7 +3,7 @@ import unittest
 
 from . import helpers, models
 from collections import defaultdict
-from sir.querying import _iterate_path_values
+from sir.querying import iterate_path_values
 from sir.schema.searchentities import defer_everything_but, merge_paths
 
 
@@ -71,19 +71,19 @@ class IteratePathValuesTest(unittest.TestCase):
         cls.b_path = "c.id"
 
     def test_one_to_many(self):
-        res = list(_iterate_path_values(self.c_path, self.c))
+        res = list(iterate_path_values(self.c_path, self.c))
         self.assertEqual(res, [1, 2])
 
     def test_attribute_without_relationship(self):
-        res = list(_iterate_path_values("id", self.c))
+        res = list(iterate_path_values("id", self.c))
         self.assertEqual(res, [1])
 
     def test_many_to_one(self):
-        res = list(_iterate_path_values(self.b_path, self.b))
+        res = list(iterate_path_values(self.b_path, self.b))
         self.assertEqual(res, [1])
 
     def test_non_sqlalchemy_paths(self):
-        res = list(_iterate_path_values("__tablename__", self.c))
+        res = list(iterate_path_values("__tablename__", self.c))
         self.assertEqual(res, [models.C.__tablename__])
 
 
