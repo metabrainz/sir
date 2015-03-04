@@ -20,7 +20,36 @@ The result of the conversion will be passed into a
 On the other end of the queue, another process running
 :func:`sir.indexing.queue_to_solr` will send them to Solr in batches.
 
-.. _paths:
+.. graphviz::
+
+   digraph indexing {
+   graph [rankdir=TB]
+
+   subgraph cluster_processes {
+       graph [rankdir=LR]
+       p_n [label="Process n"]
+       p_dot [label="Process ..."]
+       p_2 [label="Process #2"]
+       p_1 [label="Process #1"]
+       color = lightgrey
+   }
+
+   mb [label="MusicBrainz DB"]
+   push_proc [label="Push process"]
+   queue [label="Data queue" shape=diamond]
+   solr [label="Solr server"]
+
+   mb -> p_1;
+   mb -> p_2;
+   mb -> p_dot;
+   mb -> p_n;
+   p_n -> queue;
+   p_dot -> queue;
+   p_1 -> queue;
+   p_2 -> queue;
+   queue -> push_proc;
+   push_proc -> solr;
+   }
 
 Paths
 -----
