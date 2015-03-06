@@ -12,9 +12,17 @@ You can easily clone the code with git::
 
     git clone git://github.com/mineo/sir.git
 
-Now you can start hacking on the code or install it system-wide::
+Now you can install it system-wide::
 
     python2 setup.py install
+
+or start hacking on the code. To do that, you'll need to run at least::
+
+    python2 setup version
+
+once to generate the file **sir/version.py** which the code needs. This file
+does not have to be added to into the git repository because it only contains
+the hash of the current git commit, which changes after each commit operation.
 
 Setup
 ~~~~~
