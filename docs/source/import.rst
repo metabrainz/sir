@@ -66,3 +66,7 @@ how that works, so here's a verbatim copy of it:
 
 .. automethod:: sir.querying.iterate_path_values
                 :noindex:
+
+
+:data:`sir.schema.SCHEMA` is a dictionary mapping core names to
+:class:`~sir.schema.searchentities.SearchEntity` objects.

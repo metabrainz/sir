@@ -370,6 +370,7 @@ SearchWork = E(modelext.CustomWork, [
 )
 
 
+#: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
 SCHEMA = {
     "annotation": SearchAnnotation,
     "artist": SearchArtist,
