@@ -737,6 +737,20 @@ def convert_cdstub(obj):
     return cdstub
 
 
+def convert_editor(obj):
+    """
+    :type obj: :class:`mbdata.models.Editor`
+    """
+    editor = models.editor()
+    editor.set_id(obj.id)
+    editor.set_name(obj.name)
+
+    if obj.bio:
+        editor.set_bio(obj.bio)
+
+    return editor
+
+
 def convert_label(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomLabel`

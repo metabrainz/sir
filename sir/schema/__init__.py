@@ -77,6 +77,15 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     convert.convert_cdstub
 )
 
+SearchEditor = E(models.Editor, [
+    F("id", "id"),
+    F("bio", "bio"),
+    F("editor", "name")
+],
+    1.2,
+    convert.convert_editor
+)
+
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
     F("label", "name"),
@@ -376,6 +385,7 @@ SCHEMA = {
     "artist": SearchArtist,
     "area": SearchArea,
     "cdstub": SearchCDStub,
+    "editor": SearchEditor,
     "label": SearchLabel,
     "place": SearchPlace,
     "recording": SearchRecording,
