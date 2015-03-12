@@ -5,6 +5,7 @@ from . import modelext
 from . import transformfuncs as tfs
 from .searchentities import SearchEntity as E, SearchField as F
 from ..wscompat import convert
+from collections import OrderedDict
 from mbdata import models
 
 
@@ -380,7 +381,8 @@ SearchWork = E(modelext.CustomWork, [
 
 
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
-SCHEMA = {
+SCHEMA = OrderedDict(sorted({
+    # The dict gets sorted to guarantee a sorted order in `reindex`s --help
     "annotation": SearchAnnotation,
     "artist": SearchArtist,
     "area": SearchArea,
@@ -393,4 +395,7 @@ SCHEMA = {
     "release-group": SearchReleaseGroup,
     "tag": SearchTag,
     "work": SearchWork,
-}
+}.items(),
+    key=lambda tuple: tuple[0]
+
+))
