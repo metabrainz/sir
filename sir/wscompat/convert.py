@@ -911,6 +911,26 @@ def convert_release_group(obj):
     return rg
 
 
+def convert_series(obj):
+    """
+    :param obj: :class:`mbdata.models.Series
+    """
+    series = models.series()
+    series.set_id(obj.gid)
+    series.set_name(obj.name)
+
+    if obj.comment is not None and obj.comment != "":
+        series.set_disambiguation(obj.comment)
+
+    if len(obj.aliases) > 0:
+        series.set_alias_list(convert_alias_list(obj.aliases))
+
+    if len(obj.tags) > 0:
+        series.set_tag_list(convert_tag_list(obj.tags))
+
+    return series
+
+
 def convert_standalone_tag(obj):
     """
     Converts a standalone tag - one that does not have a `count` attribute

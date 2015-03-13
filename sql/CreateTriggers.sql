@@ -2,6 +2,354 @@
 \set ON_ERROR_STOP 1
 BEGIN;
 
+CREATE TRIGGER search_annotation_delete_0 BEFORE DELETE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_0();
+COMMENT ON TRIGGER search_annotation_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_annotation_insert_0 AFTER INSERT ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_0();
+COMMENT ON TRIGGER search_annotation_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_annotation_update_0 AFTER UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_0();
+COMMENT ON TRIGGER search_annotation_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_annotation_delete_1 BEFORE DELETE ON area_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_1();
+COMMENT ON TRIGGER search_annotation_delete_1 IS 'The path for this trigger is areas';
+
+CREATE TRIGGER search_annotation_insert_1 AFTER INSERT ON area_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_1();
+COMMENT ON TRIGGER search_annotation_insert_1 IS 'The path for this trigger is areas';
+
+CREATE TRIGGER search_annotation_update_1 AFTER UPDATE ON area_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_1();
+COMMENT ON TRIGGER search_annotation_update_1 IS 'The path for this trigger is areas';
+
+CREATE TRIGGER search_annotation_delete_2 BEFORE DELETE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_2();
+COMMENT ON TRIGGER search_annotation_delete_2 IS 'The path for this trigger is areas.area';
+
+CREATE TRIGGER search_annotation_insert_2 AFTER INSERT ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_2();
+COMMENT ON TRIGGER search_annotation_insert_2 IS 'The path for this trigger is areas.area';
+
+CREATE TRIGGER search_annotation_update_2 AFTER UPDATE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_2();
+COMMENT ON TRIGGER search_annotation_update_2 IS 'The path for this trigger is areas.area';
+
+CREATE TRIGGER search_annotation_delete_3 BEFORE DELETE ON artist_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_3();
+COMMENT ON TRIGGER search_annotation_delete_3 IS 'The path for this trigger is artists';
+
+CREATE TRIGGER search_annotation_insert_3 AFTER INSERT ON artist_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_3();
+COMMENT ON TRIGGER search_annotation_insert_3 IS 'The path for this trigger is artists';
+
+CREATE TRIGGER search_annotation_update_3 AFTER UPDATE ON artist_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_3();
+COMMENT ON TRIGGER search_annotation_update_3 IS 'The path for this trigger is artists';
+
+CREATE TRIGGER search_annotation_delete_4 BEFORE DELETE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_4();
+COMMENT ON TRIGGER search_annotation_delete_4 IS 'The path for this trigger is artists.artist';
+
+CREATE TRIGGER search_annotation_insert_4 AFTER INSERT ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_4();
+COMMENT ON TRIGGER search_annotation_insert_4 IS 'The path for this trigger is artists.artist';
+
+CREATE TRIGGER search_annotation_update_4 AFTER UPDATE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_4();
+COMMENT ON TRIGGER search_annotation_update_4 IS 'The path for this trigger is artists.artist';
+
+CREATE TRIGGER search_annotation_delete_5 BEFORE DELETE ON event_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_5();
+COMMENT ON TRIGGER search_annotation_delete_5 IS 'The path for this trigger is events';
+
+CREATE TRIGGER search_annotation_insert_5 AFTER INSERT ON event_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_5();
+COMMENT ON TRIGGER search_annotation_insert_5 IS 'The path for this trigger is events';
+
+CREATE TRIGGER search_annotation_update_5 AFTER UPDATE ON event_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_5();
+COMMENT ON TRIGGER search_annotation_update_5 IS 'The path for this trigger is events';
+
+CREATE TRIGGER search_annotation_delete_6 BEFORE DELETE ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_6();
+COMMENT ON TRIGGER search_annotation_delete_6 IS 'The path for this trigger is events.event';
+
+CREATE TRIGGER search_annotation_insert_6 AFTER INSERT ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_6();
+COMMENT ON TRIGGER search_annotation_insert_6 IS 'The path for this trigger is events.event';
+
+CREATE TRIGGER search_annotation_update_6 AFTER UPDATE ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_6();
+COMMENT ON TRIGGER search_annotation_update_6 IS 'The path for this trigger is events.event';
+
+CREATE TRIGGER search_annotation_delete_7 BEFORE DELETE ON instrument_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_7();
+COMMENT ON TRIGGER search_annotation_delete_7 IS 'The path for this trigger is instruments';
+
+CREATE TRIGGER search_annotation_insert_7 AFTER INSERT ON instrument_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_7();
+COMMENT ON TRIGGER search_annotation_insert_7 IS 'The path for this trigger is instruments';
+
+CREATE TRIGGER search_annotation_update_7 AFTER UPDATE ON instrument_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_7();
+COMMENT ON TRIGGER search_annotation_update_7 IS 'The path for this trigger is instruments';
+
+CREATE TRIGGER search_annotation_delete_8 BEFORE DELETE ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_8();
+COMMENT ON TRIGGER search_annotation_delete_8 IS 'The path for this trigger is instruments.instrument';
+
+CREATE TRIGGER search_annotation_insert_8 AFTER INSERT ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_8();
+COMMENT ON TRIGGER search_annotation_insert_8 IS 'The path for this trigger is instruments.instrument';
+
+CREATE TRIGGER search_annotation_update_8 AFTER UPDATE ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_8();
+COMMENT ON TRIGGER search_annotation_update_8 IS 'The path for this trigger is instruments.instrument';
+
+CREATE TRIGGER search_annotation_delete_9 BEFORE DELETE ON label_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_9();
+COMMENT ON TRIGGER search_annotation_delete_9 IS 'The path for this trigger is labels';
+
+CREATE TRIGGER search_annotation_insert_9 AFTER INSERT ON label_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_9();
+COMMENT ON TRIGGER search_annotation_insert_9 IS 'The path for this trigger is labels';
+
+CREATE TRIGGER search_annotation_update_9 AFTER UPDATE ON label_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_9();
+COMMENT ON TRIGGER search_annotation_update_9 IS 'The path for this trigger is labels';
+
+CREATE TRIGGER search_annotation_delete_10 BEFORE DELETE ON label
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_10();
+COMMENT ON TRIGGER search_annotation_delete_10 IS 'The path for this trigger is labels.label';
+
+CREATE TRIGGER search_annotation_insert_10 AFTER INSERT ON label
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_10();
+COMMENT ON TRIGGER search_annotation_insert_10 IS 'The path for this trigger is labels.label';
+
+CREATE TRIGGER search_annotation_update_10 AFTER UPDATE ON label
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_10();
+COMMENT ON TRIGGER search_annotation_update_10 IS 'The path for this trigger is labels.label';
+
+CREATE TRIGGER search_annotation_delete_11 BEFORE DELETE ON place_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_11();
+COMMENT ON TRIGGER search_annotation_delete_11 IS 'The path for this trigger is places';
+
+CREATE TRIGGER search_annotation_insert_11 AFTER INSERT ON place_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_11();
+COMMENT ON TRIGGER search_annotation_insert_11 IS 'The path for this trigger is places';
+
+CREATE TRIGGER search_annotation_update_11 AFTER UPDATE ON place_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_11();
+COMMENT ON TRIGGER search_annotation_update_11 IS 'The path for this trigger is places';
+
+CREATE TRIGGER search_annotation_delete_12 BEFORE DELETE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_12();
+COMMENT ON TRIGGER search_annotation_delete_12 IS 'The path for this trigger is places.place';
+
+CREATE TRIGGER search_annotation_insert_12 AFTER INSERT ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_12();
+COMMENT ON TRIGGER search_annotation_insert_12 IS 'The path for this trigger is places.place';
+
+CREATE TRIGGER search_annotation_update_12 AFTER UPDATE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_12();
+COMMENT ON TRIGGER search_annotation_update_12 IS 'The path for this trigger is places.place';
+
+CREATE TRIGGER search_annotation_delete_13 BEFORE DELETE ON recording_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_13();
+COMMENT ON TRIGGER search_annotation_delete_13 IS 'The path for this trigger is recordings';
+
+CREATE TRIGGER search_annotation_insert_13 AFTER INSERT ON recording_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_13();
+COMMENT ON TRIGGER search_annotation_insert_13 IS 'The path for this trigger is recordings';
+
+CREATE TRIGGER search_annotation_update_13 AFTER UPDATE ON recording_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_13();
+COMMENT ON TRIGGER search_annotation_update_13 IS 'The path for this trigger is recordings';
+
+CREATE TRIGGER search_annotation_delete_14 BEFORE DELETE ON recording
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_14();
+COMMENT ON TRIGGER search_annotation_delete_14 IS 'The path for this trigger is recordings.recording';
+
+CREATE TRIGGER search_annotation_insert_14 AFTER INSERT ON recording
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_14();
+COMMENT ON TRIGGER search_annotation_insert_14 IS 'The path for this trigger is recordings.recording';
+
+CREATE TRIGGER search_annotation_update_14 AFTER UPDATE ON recording
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_14();
+COMMENT ON TRIGGER search_annotation_update_14 IS 'The path for this trigger is recordings.recording';
+
+CREATE TRIGGER search_annotation_delete_15 BEFORE DELETE ON release_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_15();
+COMMENT ON TRIGGER search_annotation_delete_15 IS 'The path for this trigger is releases';
+
+CREATE TRIGGER search_annotation_insert_15 AFTER INSERT ON release_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_15();
+COMMENT ON TRIGGER search_annotation_insert_15 IS 'The path for this trigger is releases';
+
+CREATE TRIGGER search_annotation_update_15 AFTER UPDATE ON release_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_15();
+COMMENT ON TRIGGER search_annotation_update_15 IS 'The path for this trigger is releases';
+
+CREATE TRIGGER search_annotation_delete_16 BEFORE DELETE ON release
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_16();
+COMMENT ON TRIGGER search_annotation_delete_16 IS 'The path for this trigger is releases.release';
+
+CREATE TRIGGER search_annotation_insert_16 AFTER INSERT ON release
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_16();
+COMMENT ON TRIGGER search_annotation_insert_16 IS 'The path for this trigger is releases.release';
+
+CREATE TRIGGER search_annotation_update_16 AFTER UPDATE ON release
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_16();
+COMMENT ON TRIGGER search_annotation_update_16 IS 'The path for this trigger is releases.release';
+
+CREATE TRIGGER search_annotation_delete_17 BEFORE DELETE ON release_group_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_17();
+COMMENT ON TRIGGER search_annotation_delete_17 IS 'The path for this trigger is release_groups';
+
+CREATE TRIGGER search_annotation_insert_17 AFTER INSERT ON release_group_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_17();
+COMMENT ON TRIGGER search_annotation_insert_17 IS 'The path for this trigger is release_groups';
+
+CREATE TRIGGER search_annotation_update_17 AFTER UPDATE ON release_group_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_17();
+COMMENT ON TRIGGER search_annotation_update_17 IS 'The path for this trigger is release_groups';
+
+CREATE TRIGGER search_annotation_delete_18 BEFORE DELETE ON release_group
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_18();
+COMMENT ON TRIGGER search_annotation_delete_18 IS 'The path for this trigger is release_groups.release_group';
+
+CREATE TRIGGER search_annotation_insert_18 AFTER INSERT ON release_group
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_18();
+COMMENT ON TRIGGER search_annotation_insert_18 IS 'The path for this trigger is release_groups.release_group';
+
+CREATE TRIGGER search_annotation_update_18 AFTER UPDATE ON release_group
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_18();
+COMMENT ON TRIGGER search_annotation_update_18 IS 'The path for this trigger is release_groups.release_group';
+
+CREATE TRIGGER search_annotation_delete_19 BEFORE DELETE ON series_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_19();
+COMMENT ON TRIGGER search_annotation_delete_19 IS 'The path for this trigger is series';
+
+CREATE TRIGGER search_annotation_insert_19 AFTER INSERT ON series_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_19();
+COMMENT ON TRIGGER search_annotation_insert_19 IS 'The path for this trigger is series';
+
+CREATE TRIGGER search_annotation_update_19 AFTER UPDATE ON series_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_19();
+COMMENT ON TRIGGER search_annotation_update_19 IS 'The path for this trigger is series';
+
+CREATE TRIGGER search_annotation_delete_20 BEFORE DELETE ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_20();
+COMMENT ON TRIGGER search_annotation_delete_20 IS 'The path for this trigger is series.series';
+
+CREATE TRIGGER search_annotation_insert_20 AFTER INSERT ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_20();
+COMMENT ON TRIGGER search_annotation_insert_20 IS 'The path for this trigger is series.series';
+
+CREATE TRIGGER search_annotation_update_20 AFTER UPDATE ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_20();
+COMMENT ON TRIGGER search_annotation_update_20 IS 'The path for this trigger is series.series';
+
+CREATE TRIGGER search_annotation_delete_21 BEFORE DELETE ON work_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_21();
+COMMENT ON TRIGGER search_annotation_delete_21 IS 'The path for this trigger is works';
+
+CREATE TRIGGER search_annotation_insert_21 AFTER INSERT ON work_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_21();
+COMMENT ON TRIGGER search_annotation_insert_21 IS 'The path for this trigger is works';
+
+CREATE TRIGGER search_annotation_update_21 AFTER UPDATE ON work_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_21();
+COMMENT ON TRIGGER search_annotation_update_21 IS 'The path for this trigger is works';
+
+CREATE TRIGGER search_annotation_delete_22 BEFORE DELETE ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_delete_22();
+COMMENT ON TRIGGER search_annotation_delete_22 IS 'The path for this trigger is works.work';
+
+CREATE TRIGGER search_annotation_insert_22 AFTER INSERT ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert_22();
+COMMENT ON TRIGGER search_annotation_insert_22 IS 'The path for this trigger is works.work';
+
+CREATE TRIGGER search_annotation_update_22 AFTER UPDATE ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_annotation_update_22();
+COMMENT ON TRIGGER search_annotation_update_22 IS 'The path for this trigger is works.work';
+
+CREATE TRIGGER search_area_delete_0 BEFORE DELETE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_0();
+COMMENT ON TRIGGER search_area_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_area_insert_0 AFTER INSERT ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_0();
+COMMENT ON TRIGGER search_area_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_area_update_0 AFTER UPDATE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_0();
+COMMENT ON TRIGGER search_area_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_area_delete_1 BEFORE DELETE ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_1();
+COMMENT ON TRIGGER search_area_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_area_insert_1 AFTER INSERT ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_1();
+COMMENT ON TRIGGER search_area_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_area_update_1 AFTER UPDATE ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_1();
+COMMENT ON TRIGGER search_area_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_area_delete_2 BEFORE DELETE ON iso_3166_1
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_2();
+COMMENT ON TRIGGER search_area_delete_2 IS 'The path for this trigger is iso_3166_1_codes';
+
+CREATE TRIGGER search_area_insert_2 AFTER INSERT ON iso_3166_1
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_2();
+COMMENT ON TRIGGER search_area_insert_2 IS 'The path for this trigger is iso_3166_1_codes';
+
+CREATE TRIGGER search_area_update_2 AFTER UPDATE ON iso_3166_1
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_2();
+COMMENT ON TRIGGER search_area_update_2 IS 'The path for this trigger is iso_3166_1_codes';
+
+CREATE TRIGGER search_area_delete_3 BEFORE DELETE ON iso_3166_2
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_3();
+COMMENT ON TRIGGER search_area_delete_3 IS 'The path for this trigger is iso_3166_2_codes';
+
+CREATE TRIGGER search_area_insert_3 AFTER INSERT ON iso_3166_2
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_3();
+COMMENT ON TRIGGER search_area_insert_3 IS 'The path for this trigger is iso_3166_2_codes';
+
+CREATE TRIGGER search_area_update_3 AFTER UPDATE ON iso_3166_2
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_3();
+COMMENT ON TRIGGER search_area_update_3 IS 'The path for this trigger is iso_3166_2_codes';
+
+CREATE TRIGGER search_area_delete_4 BEFORE DELETE ON iso_3166_3
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_4();
+COMMENT ON TRIGGER search_area_delete_4 IS 'The path for this trigger is iso_3166_3_codes';
+
+CREATE TRIGGER search_area_insert_4 AFTER INSERT ON iso_3166_3
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_4();
+COMMENT ON TRIGGER search_area_insert_4 IS 'The path for this trigger is iso_3166_3_codes';
+
+CREATE TRIGGER search_area_update_4 AFTER UPDATE ON iso_3166_3
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_4();
+COMMENT ON TRIGGER search_area_update_4 IS 'The path for this trigger is iso_3166_3_codes';
+
+CREATE TRIGGER search_area_delete_5 BEFORE DELETE ON area_type
+    FOR EACH ROW EXECUTE PROCEDURE search_area_delete_5();
+COMMENT ON TRIGGER search_area_delete_5 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_area_insert_5 AFTER INSERT ON area_type
+    FOR EACH ROW EXECUTE PROCEDURE search_area_insert_5();
+COMMENT ON TRIGGER search_area_insert_5 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_area_update_5 AFTER UPDATE ON area_type
+    FOR EACH ROW EXECUTE PROCEDURE search_area_update_5();
+COMMENT ON TRIGGER search_area_update_5 IS 'The path for this trigger is type';
+
 CREATE TRIGGER search_artist_delete_0 BEFORE DELETE ON artist
     FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_0();
 COMMENT ON TRIGGER search_artist_delete_0 IS 'The path for this trigger is direct';
@@ -170,113 +518,41 @@ CREATE TRIGGER search_artist_update_13 AFTER UPDATE ON artist_type
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update_13();
 COMMENT ON TRIGGER search_artist_update_13 IS 'The path for this trigger is type';
 
-CREATE TRIGGER search_work_delete_0 BEFORE DELETE ON work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_0();
-COMMENT ON TRIGGER search_work_delete_0 IS 'The path for this trigger is direct';
+CREATE TRIGGER search_cdstub_delete_0 BEFORE DELETE ON release_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_delete_0();
+COMMENT ON TRIGGER search_cdstub_delete_0 IS 'The path for this trigger is direct';
 
-CREATE TRIGGER search_work_insert_0 AFTER INSERT ON work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_0();
-COMMENT ON TRIGGER search_work_insert_0 IS 'The path for this trigger is direct';
+CREATE TRIGGER search_cdstub_insert_0 AFTER INSERT ON release_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_insert_0();
+COMMENT ON TRIGGER search_cdstub_insert_0 IS 'The path for this trigger is direct';
 
-CREATE TRIGGER search_work_update_0 AFTER UPDATE ON work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_0();
-COMMENT ON TRIGGER search_work_update_0 IS 'The path for this trigger is direct';
+CREATE TRIGGER search_cdstub_update_0 AFTER UPDATE ON release_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_update_0();
+COMMENT ON TRIGGER search_cdstub_update_0 IS 'The path for this trigger is direct';
 
-CREATE TRIGGER search_work_delete_1 BEFORE DELETE ON work_alias
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_1();
-COMMENT ON TRIGGER search_work_delete_1 IS 'The path for this trigger is aliases';
+CREATE TRIGGER search_cdstub_delete_1 BEFORE DELETE ON cdtoc_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_delete_1();
+COMMENT ON TRIGGER search_cdstub_delete_1 IS 'The path for this trigger is discids';
 
-CREATE TRIGGER search_work_insert_1 AFTER INSERT ON work_alias
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_1();
-COMMENT ON TRIGGER search_work_insert_1 IS 'The path for this trigger is aliases';
+CREATE TRIGGER search_cdstub_insert_1 AFTER INSERT ON cdtoc_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_insert_1();
+COMMENT ON TRIGGER search_cdstub_insert_1 IS 'The path for this trigger is discids';
 
-CREATE TRIGGER search_work_update_1 AFTER UPDATE ON work_alias
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_1();
-COMMENT ON TRIGGER search_work_update_1 IS 'The path for this trigger is aliases';
+CREATE TRIGGER search_cdstub_update_1 AFTER UPDATE ON cdtoc_raw
+    FOR EACH ROW EXECUTE PROCEDURE search_cdstub_update_1();
+COMMENT ON TRIGGER search_cdstub_update_1 IS 'The path for this trigger is discids';
 
-CREATE TRIGGER search_work_delete_2 BEFORE DELETE ON l_artist_work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_2();
-COMMENT ON TRIGGER search_work_delete_2 IS 'The path for this trigger is artist_links';
+CREATE TRIGGER search_editor_delete_0 BEFORE DELETE ON editor
+    FOR EACH ROW EXECUTE PROCEDURE search_editor_delete_0();
+COMMENT ON TRIGGER search_editor_delete_0 IS 'The path for this trigger is direct';
 
-CREATE TRIGGER search_work_insert_2 AFTER INSERT ON l_artist_work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_2();
-COMMENT ON TRIGGER search_work_insert_2 IS 'The path for this trigger is artist_links';
+CREATE TRIGGER search_editor_insert_0 AFTER INSERT ON editor
+    FOR EACH ROW EXECUTE PROCEDURE search_editor_insert_0();
+COMMENT ON TRIGGER search_editor_insert_0 IS 'The path for this trigger is direct';
 
-CREATE TRIGGER search_work_update_2 AFTER UPDATE ON l_artist_work
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_2();
-COMMENT ON TRIGGER search_work_update_2 IS 'The path for this trigger is artist_links';
-
-CREATE TRIGGER search_work_delete_3 BEFORE DELETE ON artist
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_3();
-COMMENT ON TRIGGER search_work_delete_3 IS 'The path for this trigger is artist_links.artist';
-
-CREATE TRIGGER search_work_insert_3 AFTER INSERT ON artist
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_3();
-COMMENT ON TRIGGER search_work_insert_3 IS 'The path for this trigger is artist_links.artist';
-
-CREATE TRIGGER search_work_update_3 AFTER UPDATE ON artist
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_3();
-COMMENT ON TRIGGER search_work_update_3 IS 'The path for this trigger is artist_links.artist';
-
-CREATE TRIGGER search_work_delete_4 BEFORE DELETE ON iswc
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_4();
-COMMENT ON TRIGGER search_work_delete_4 IS 'The path for this trigger is iswcs';
-
-CREATE TRIGGER search_work_insert_4 AFTER INSERT ON iswc
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_4();
-COMMENT ON TRIGGER search_work_insert_4 IS 'The path for this trigger is iswcs';
-
-CREATE TRIGGER search_work_update_4 AFTER UPDATE ON iswc
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_4();
-COMMENT ON TRIGGER search_work_update_4 IS 'The path for this trigger is iswcs';
-
-CREATE TRIGGER search_work_delete_5 BEFORE DELETE ON language
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_5();
-COMMENT ON TRIGGER search_work_delete_5 IS 'The path for this trigger is language';
-
-CREATE TRIGGER search_work_insert_5 AFTER INSERT ON language
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_5();
-COMMENT ON TRIGGER search_work_insert_5 IS 'The path for this trigger is language';
-
-CREATE TRIGGER search_work_update_5 AFTER UPDATE ON language
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_5();
-COMMENT ON TRIGGER search_work_update_5 IS 'The path for this trigger is language';
-
-CREATE TRIGGER search_work_delete_6 BEFORE DELETE ON work_tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_6();
-COMMENT ON TRIGGER search_work_delete_6 IS 'The path for this trigger is tags';
-
-CREATE TRIGGER search_work_insert_6 AFTER INSERT ON work_tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_6();
-COMMENT ON TRIGGER search_work_insert_6 IS 'The path for this trigger is tags';
-
-CREATE TRIGGER search_work_update_6 AFTER UPDATE ON work_tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_6();
-COMMENT ON TRIGGER search_work_update_6 IS 'The path for this trigger is tags';
-
-CREATE TRIGGER search_work_delete_7 BEFORE DELETE ON tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_7();
-COMMENT ON TRIGGER search_work_delete_7 IS 'The path for this trigger is tags.tag';
-
-CREATE TRIGGER search_work_insert_7 AFTER INSERT ON tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_7();
-COMMENT ON TRIGGER search_work_insert_7 IS 'The path for this trigger is tags.tag';
-
-CREATE TRIGGER search_work_update_7 AFTER UPDATE ON tag
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_7();
-COMMENT ON TRIGGER search_work_update_7 IS 'The path for this trigger is tags.tag';
-
-CREATE TRIGGER search_work_delete_8 BEFORE DELETE ON work_type
-    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_8();
-COMMENT ON TRIGGER search_work_delete_8 IS 'The path for this trigger is type';
-
-CREATE TRIGGER search_work_insert_8 AFTER INSERT ON work_type
-    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_8();
-COMMENT ON TRIGGER search_work_insert_8 IS 'The path for this trigger is type';
-
-CREATE TRIGGER search_work_update_8 AFTER UPDATE ON work_type
-    FOR EACH ROW EXECUTE PROCEDURE search_work_update_8();
-COMMENT ON TRIGGER search_work_update_8 IS 'The path for this trigger is type';
+CREATE TRIGGER search_editor_update_0 AFTER UPDATE ON editor
+    FOR EACH ROW EXECUTE PROCEDURE search_editor_update_0();
+COMMENT ON TRIGGER search_editor_update_0 IS 'The path for this trigger is direct';
 
 CREATE TRIGGER search_label_delete_0 BEFORE DELETE ON label
     FOR EACH ROW EXECUTE PROCEDURE search_label_delete_0();
@@ -385,6 +661,66 @@ COMMENT ON TRIGGER search_label_insert_8 IS 'The path for this trigger is type';
 CREATE TRIGGER search_label_update_8 AFTER UPDATE ON label_type
     FOR EACH ROW EXECUTE PROCEDURE search_label_update_8();
 COMMENT ON TRIGGER search_label_update_8 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_place_delete_0 BEFORE DELETE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_place_delete_0();
+COMMENT ON TRIGGER search_place_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_place_insert_0 AFTER INSERT ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_place_insert_0();
+COMMENT ON TRIGGER search_place_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_place_update_0 AFTER UPDATE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_place_update_0();
+COMMENT ON TRIGGER search_place_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_place_delete_1 BEFORE DELETE ON place_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_delete_1();
+COMMENT ON TRIGGER search_place_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_place_insert_1 AFTER INSERT ON place_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_insert_1();
+COMMENT ON TRIGGER search_place_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_place_update_1 AFTER UPDATE ON place_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_update_1();
+COMMENT ON TRIGGER search_place_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_place_delete_2 BEFORE DELETE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_place_delete_2();
+COMMENT ON TRIGGER search_place_delete_2 IS 'The path for this trigger is area';
+
+CREATE TRIGGER search_place_insert_2 AFTER INSERT ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_place_insert_2();
+COMMENT ON TRIGGER search_place_insert_2 IS 'The path for this trigger is area';
+
+CREATE TRIGGER search_place_update_2 AFTER UPDATE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_place_update_2();
+COMMENT ON TRIGGER search_place_update_2 IS 'The path for this trigger is area';
+
+CREATE TRIGGER search_place_delete_3 BEFORE DELETE ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_delete_3();
+COMMENT ON TRIGGER search_place_delete_3 IS 'The path for this trigger is area.aliases';
+
+CREATE TRIGGER search_place_insert_3 AFTER INSERT ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_insert_3();
+COMMENT ON TRIGGER search_place_insert_3 IS 'The path for this trigger is area.aliases';
+
+CREATE TRIGGER search_place_update_3 AFTER UPDATE ON area_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_place_update_3();
+COMMENT ON TRIGGER search_place_update_3 IS 'The path for this trigger is area.aliases';
+
+CREATE TRIGGER search_place_delete_4 BEFORE DELETE ON place_type
+    FOR EACH ROW EXECUTE PROCEDURE search_place_delete_4();
+COMMENT ON TRIGGER search_place_delete_4 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_place_insert_4 AFTER INSERT ON place_type
+    FOR EACH ROW EXECUTE PROCEDURE search_place_insert_4();
+COMMENT ON TRIGGER search_place_insert_4 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_place_update_4 AFTER UPDATE ON place_type
+    FOR EACH ROW EXECUTE PROCEDURE search_place_update_4();
+COMMENT ON TRIGGER search_place_update_4 IS 'The path for this trigger is type';
 
 CREATE TRIGGER search_recording_delete_0 BEFORE DELETE ON recording
     FOR EACH ROW EXECUTE PROCEDURE search_recording_delete_0();
@@ -1009,4 +1345,124 @@ COMMENT ON TRIGGER search_release_group_insert_10 IS 'The path for this trigger 
 CREATE TRIGGER search_release_group_update_10 AFTER UPDATE ON release_group_secondary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_update_10();
 COMMENT ON TRIGGER search_release_group_update_10 IS 'The path for this trigger is secondary_types.secondary_type';
+
+CREATE TRIGGER search_tag_delete_0 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_delete_0();
+COMMENT ON TRIGGER search_tag_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_tag_insert_0 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_insert_0();
+COMMENT ON TRIGGER search_tag_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_tag_update_0 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_update_0();
+COMMENT ON TRIGGER search_tag_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_work_delete_0 BEFORE DELETE ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_0();
+COMMENT ON TRIGGER search_work_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_work_insert_0 AFTER INSERT ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_0();
+COMMENT ON TRIGGER search_work_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_work_update_0 AFTER UPDATE ON work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_0();
+COMMENT ON TRIGGER search_work_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_work_delete_1 BEFORE DELETE ON work_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_1();
+COMMENT ON TRIGGER search_work_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_work_insert_1 AFTER INSERT ON work_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_1();
+COMMENT ON TRIGGER search_work_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_work_update_1 AFTER UPDATE ON work_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_1();
+COMMENT ON TRIGGER search_work_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_work_delete_2 BEFORE DELETE ON l_artist_work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_2();
+COMMENT ON TRIGGER search_work_delete_2 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_work_insert_2 AFTER INSERT ON l_artist_work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_2();
+COMMENT ON TRIGGER search_work_insert_2 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_work_update_2 AFTER UPDATE ON l_artist_work
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_2();
+COMMENT ON TRIGGER search_work_update_2 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_work_delete_3 BEFORE DELETE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_3();
+COMMENT ON TRIGGER search_work_delete_3 IS 'The path for this trigger is artist_links.artist';
+
+CREATE TRIGGER search_work_insert_3 AFTER INSERT ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_3();
+COMMENT ON TRIGGER search_work_insert_3 IS 'The path for this trigger is artist_links.artist';
+
+CREATE TRIGGER search_work_update_3 AFTER UPDATE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_3();
+COMMENT ON TRIGGER search_work_update_3 IS 'The path for this trigger is artist_links.artist';
+
+CREATE TRIGGER search_work_delete_4 BEFORE DELETE ON iswc
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_4();
+COMMENT ON TRIGGER search_work_delete_4 IS 'The path for this trigger is iswcs';
+
+CREATE TRIGGER search_work_insert_4 AFTER INSERT ON iswc
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_4();
+COMMENT ON TRIGGER search_work_insert_4 IS 'The path for this trigger is iswcs';
+
+CREATE TRIGGER search_work_update_4 AFTER UPDATE ON iswc
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_4();
+COMMENT ON TRIGGER search_work_update_4 IS 'The path for this trigger is iswcs';
+
+CREATE TRIGGER search_work_delete_5 BEFORE DELETE ON language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_5();
+COMMENT ON TRIGGER search_work_delete_5 IS 'The path for this trigger is language';
+
+CREATE TRIGGER search_work_insert_5 AFTER INSERT ON language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_5();
+COMMENT ON TRIGGER search_work_insert_5 IS 'The path for this trigger is language';
+
+CREATE TRIGGER search_work_update_5 AFTER UPDATE ON language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_5();
+COMMENT ON TRIGGER search_work_update_5 IS 'The path for this trigger is language';
+
+CREATE TRIGGER search_work_delete_6 BEFORE DELETE ON work_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_6();
+COMMENT ON TRIGGER search_work_delete_6 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_work_insert_6 AFTER INSERT ON work_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_6();
+COMMENT ON TRIGGER search_work_insert_6 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_work_update_6 AFTER UPDATE ON work_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_6();
+COMMENT ON TRIGGER search_work_update_6 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_work_delete_7 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_7();
+COMMENT ON TRIGGER search_work_delete_7 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_work_insert_7 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_7();
+COMMENT ON TRIGGER search_work_insert_7 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_work_update_7 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_7();
+COMMENT ON TRIGGER search_work_update_7 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_work_delete_8 BEFORE DELETE ON work_type
+    FOR EACH ROW EXECUTE PROCEDURE search_work_delete_8();
+COMMENT ON TRIGGER search_work_delete_8 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_work_insert_8 AFTER INSERT ON work_type
+    FOR EACH ROW EXECUTE PROCEDURE search_work_insert_8();
+COMMENT ON TRIGGER search_work_insert_8 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_work_update_8 AFTER UPDATE ON work_type
+    FOR EACH ROW EXECUTE PROCEDURE search_work_update_8();
+COMMENT ON TRIGGER search_work_update_8 IS 'The path for this trigger is type';
 COMMIT;

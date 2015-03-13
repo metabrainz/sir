@@ -1,8 +1,9 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Label,
-                           LinkAttribute, MediumCDTOC, Place, Recording,
-                           ReleaseGroup, ReleaseRaw, ReleaseTag, Work)
+                           LinkAttribute, LinkAttributeType, MediumCDTOC, Place,
+                           Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
+                           Series, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -77,6 +78,17 @@ class CustomReleaseRaw(ReleaseRaw):
 class CustomReleaseTag(ReleaseTag):
     release = relationship('Release', foreign_keys=[ReleaseTag.release_id],
                            innerjoin=True, backref="tags")
+
+
+class CustomSeries(Series):
+    aliases = relationship("SeriesAlias")
+    link_attribute_type = relationship("LinkAttributeType",
+                                       primaryjoin="\
+                                       CustomSeries.ordering_attribute ==\
+                                       LinkAttributeType.id",
+                                       foreign_keys=Series.ordering_attribute,
+                                       remote_side=LinkAttributeType.id)
+    tags = relationship("SeriesTag")
 
 
 class CustomWork(Work):

@@ -260,15 +260,15 @@ fields.
 *** TODO tracks
 *** TODO year
 
-** Series [0/7]
+** Series [7/7]
 
-*** TODO alias
-*** TODO comment
-*** TODO orderingattribute
-*** TODO series
-*** TODO sid
-*** TODO tag
-*** TODO type
+*** DONE alias
+*** DONE comment
+*** DONE orderingattribute
+*** DONE series
+*** DONE sid
+*** DONE tag
+*** DONE type
 
 ** URL [0/5]
 

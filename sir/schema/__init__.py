@@ -349,6 +349,24 @@ SearchArtist = E(modelext.CustomArtist, [
 )
 
 
+SearchSeries = E(modelext.CustomSeries, [
+    F("mbid", "gid"),
+    F("alias", "aliases.name"),
+    F("comment", "comment"),
+    F("orderingattribute", "link_attribute_type.name"),
+    F("series", "name"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
+],
+    1.2,
+    convert.convert_series,
+    extrapaths=["tags.count",
+                "aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date"]
+)
+
+
 SearchTag = E(models.Tag, [
     F("id", "id"),
     F("tag", "name")
@@ -393,6 +411,7 @@ SCHEMA = OrderedDict(sorted({
     "recording": SearchRecording,
     "release": SearchRelease,
     "release-group": SearchReleaseGroup,
+    "series": SearchSeries,
     "tag": SearchTag,
     "work": SearchWork,
 }.items(),
