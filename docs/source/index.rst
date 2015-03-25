@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    setup/index
+   usage
    import
    queues
    api

@@ -1,3 +1,5 @@
+.. _amqp:
+
 AMQP Setup
 ----------
 
