@@ -3,6 +3,8 @@
 AMQP Setup
 ----------
 
+* Install `RabbitMQ <https://rabbitmq.com/>`_.
+* Start RabbitMQ
 * Install `pg_amqp <https://github.com/omniti-labs/pg_amqp>`_.
 * Connect to your database as a superuser with ``psql`` and execute
 
