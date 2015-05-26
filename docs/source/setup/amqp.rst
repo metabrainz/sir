@@ -26,6 +26,9 @@ What          Description
 <password>    The password of <user>
 ============= ===========
 
+The default values for the RabbitMQ configuration options can be found in `the
+RabbitMQ documentation <https://www.rabbitmq.com/configure.html>`_.
+
 * Configure your AMQP access data in ``config.ini``
 * Run ``python -m sir amqp_setup`` to configure the necessary exchanges and
   queues on your AMQP server.
