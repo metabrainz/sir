@@ -107,7 +107,7 @@ SearchLabel = E(modelext.CustomLabel, [
     convert.convert_label,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date"
+                "aliases.begin_date", "aliases.end_date",
                 "area.gid"
                 ]
 )
@@ -131,7 +131,7 @@ SearchPlace = E(modelext.CustomPlace, [
     convert.convert_place,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date"
+                "aliases.begin_date", "aliases.end_date",
                 "area.gid"]
 )
 
