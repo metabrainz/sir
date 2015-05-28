@@ -167,7 +167,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("tracks", "tracks.medium.track_count"),
     F("tracksrelease", "tracks.medium.release.mediums.track_count",
         transformfunc=sum),
-    F("video", "video")
+    F("video", "video", transformfunc=tfs.boolean)
 ],
     1.2,
     convert.convert_recording,

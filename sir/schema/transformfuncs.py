@@ -56,3 +56,14 @@ def annotation_type(entities):
     if len(entities):
         first_entity_table = entities.pop()
         return ANNOTATION_TABLE_TO_ENTITYTYPE[first_entity_table]
+
+
+def boolean(values):
+    """
+    :type values: set
+    """
+    value = values.pop()
+    if value:
+        return "t"
+    else:
+        return "f"
