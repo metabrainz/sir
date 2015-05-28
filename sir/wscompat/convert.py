@@ -353,7 +353,7 @@ def convert_medium_from_track(obj):
 
     m.set_position(medium.position)
 
-    track = models.trackType()
+    track = models.def_track_data()
     track.set_id(obj.gid)
     track.set_length(obj.length)
     track.set_number(obj.number)
