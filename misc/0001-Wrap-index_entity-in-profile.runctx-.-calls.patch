@@ -1,0 +1,41 @@
+From f4410610f872c262d8afb883d2aef738acfbff17 Mon Sep 17 00:00:00 2001
+From: Wieland Hoffmann <themineo@gmail.com>
+Date: Fri, 29 May 2015 10:10:54 +0200
+Subject: [PATCH] Wrap index_entity in profile.runctx(...) calls
+
+---
+ sir/indexing.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/sir/indexing.py b/sir/indexing.py
+index add455b..a2736b6 100644
+--- a/sir/indexing.py
++++ b/sir/indexing.py
+@@ -1,6 +1,7 @@
+ # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
+ # License: MIT, see LICENSE for details
+ import multiprocessing
++import profile
+ 
+ 
+ from . import config, querying, util
+@@ -8,6 +9,7 @@ from .schema import SCHEMA
+ from ConfigParser import NoOptionError
+ from functools import partial
+ from logging import getLogger
++from os import getpid
+ from solr import SolrException
+ from sqlalchemy import and_
+ from traceback import format_exc
+@@ -125,7 +127,7 @@ def _index_entity_process_wrapper(args):
+     :rtype: None or an Exception
+     """
+     try:
+-        return index_entity(*args)
++        profile.runctx("index_entity(*args)", globals(), locals(), filename="profile-{}".format(getpid()))
+     except Exception:
+         logger.exception(format_exc())
+         raise
+-- 
+2.4.1
+
