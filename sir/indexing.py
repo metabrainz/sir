@@ -24,33 +24,25 @@ STOP = None
 
 def reindex(args):
     """
-    Reindexes all entity types in args["entities"].
+    Reindexes all entity types in args["entity_type"].
 
     :param args: A dictionary with a key named ``entities``.
     :type args: dict
     """
-    entities = args["entities"]
+    entities = args["entity_type"]
     known_entities = SCHEMA.keys()
-    if entities is not None:
-        _entities = []
-        for e in entities:
-            _entities.extend(e.split(','))
-        unknown_entities = set(_entities) - set(known_entities)
-        if unknown_entities:
-            raise ValueError("{0} are unkown entity types".format(
-                unknown_entities))
-    else:
-        _entities = known_entities
+    if entities is None:
+        entities = known_entities
 
     try:
         logger.info("Checking whether the versions of the Solr cores are "
                     "supported")
-        util.check_solr_cores_version(_entities)
+        util.check_solr_cores_version(entities)
     except util.VersionMismatchException as exc:
         logger.error(exc)
         return
 
-    _multiprocessed_import(_entities)
+    _multiprocessed_import(entities)
 
 
 def _multiprocessed_import(entities):

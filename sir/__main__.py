@@ -27,10 +27,9 @@ def main():
                                            help="Reindexes all or a single "
                                            "entity type")
     reindex_parser.set_defaults(func=reindex)
-    reindex_parser.add_argument('--entities', action='append', help="""Which
-        entity types to index.
-
-        Available are: %s""" % (", ".join(SCHEMA.keys())))
+    reindex_parser.add_argument('--entity-type', action='append',
+                                help="Which entity types to index.",
+                                choices=SCHEMA.keys())
 
     generate_trigger_parser = subparsers.add_parser("triggers",
                                                     help="Generate triggers")
