@@ -5,7 +5,10 @@ from ..querying import iterate_path_values
 from collections import defaultdict
 from functools import partial
 from logging import getLogger
-from xml.etree.ElementTree import tostring
+try:
+    from xml.etree.cElementTree import tostring
+except ImportError:
+    from xml.etree.ElementTree import tostring
 from sqlalchemy.orm import class_mapper, Load
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.descriptor_props import CompositeProperty
