@@ -233,13 +233,12 @@ class SearchEntity(object):
                 tempvals = field.transformfunc(tempvals)
             if isinstance(tempvals, set) and len(tempvals) == 1:
                 tempvals = tempvals.pop()
-            logger.debug("Field %s: %s", fieldname, tempvals)
             if tempvals is not None and tempvals:
                 data[fieldname] = tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
             not None):
-            logger.debug("Field _store")
             data["_store"] = tostring(self.compatconverter(obj).to_etree())
 
+        logger.debug("Data: %s", data)
         return data
