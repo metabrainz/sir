@@ -153,6 +153,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("number", "tracks.number"),
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
+    ''' ****** F("puid", "puid"), *****'''
     F("qdur", "length", transformfunc=tfs.qdur),
     F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
