@@ -31,7 +31,7 @@ The area index contains the following fields you can search:
 
 Area search terms with no fields specified search the area and sortname
 fields.
-** Artist [16/17]
+** Artist [17/17]
 
 The artist index contains the following fields you can search:
 
@@ -40,7 +40,7 @@ The artist index contains the following fields you can search:
 *** DONE endarea
 *** DONE arid
 *** DONE artist
-*** TODO artistaccent
+*** DONE artistaccent
 *** DONE alias
 *** DONE begin
 *** DONE comment
@@ -81,7 +81,7 @@ The label ndex contains the following fields you can search:
 *** DONE ended
 *** DONE ipi
 *** DONE label
-*** TODO labelaccent
+*** DONE labelaccent
 *** DONE laid
 *** DONE type
 *** DONE tag

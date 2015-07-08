@@ -30,7 +30,7 @@ SearchAnnotation = E(modelext.CustomAnnotation, [
                "works.__tablename__"],
       transformfunc=tfs.annotation_type)
 ],
-    1.2,
+    1.5,
     convert.convert_annotation,
     extraquery=queryext.filter_valid_annotations
 )
@@ -49,7 +49,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso3", "iso_3166_3_codes.code"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -71,10 +71,11 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("artist", "artist"),
     F("comment", "comment"),
     F("barcode", "barcode"),
+    F("added", "added"),
     F("tracks", "discids.track_count"),
     F("discid", "discids.discid")
 ],
-    1.2,
+    1.5,
     convert.convert_cdstub
 )
 
@@ -83,13 +84,13 @@ SearchEditor = E(models.Editor, [
     F("bio", "bio"),
     F("editor", "name")
 ],
-    1.2,
+    1.5,
     convert.convert_editor
 )
 
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
-    F("label", "name"),
+    F("name", "name"),
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -103,7 +104,7 @@ SearchLabel = E(modelext.CustomLabel, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_label,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -127,7 +128,7 @@ SearchPlace = E(modelext.CustomPlace, [
     F("place", "name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_place,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -152,6 +153,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("number", "tracks.number"),
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
+    ''' ****** F("puid", "puid"), *****'''
     F("qdur", "length", transformfunc=tfs.qdur),
     F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
@@ -169,7 +171,7 @@ SearchRecording = E(modelext.CustomRecording, [
         transformfunc=sum),
     F("video", "video", transformfunc=tfs.boolean)
 ],
-    1.2,
+    1.5,
     convert.convert_recording,
     extrapaths=["artist_credit.artists.artist.aliases.begin_date",
                 "artist_credit.artists.artist.aliases.end_date",
@@ -256,7 +258,7 @@ SearchRelease = E(models.Release, [
     F("tracksmedium", "mediums.track_count"),
     F("tag", "tags.tag.name")
 ],
-    1.2,
+    1.5,
     convert.convert_release,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -300,7 +302,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -320,7 +322,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 
 SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
-    F("artist", "name"),
+    F("name", "name"),
     F("sortname", "sort_name"),
     F("alias", "aliases.name"),
 
@@ -339,7 +341,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_artist,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
@@ -358,7 +360,7 @@ SearchSeries = E(modelext.CustomSeries, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_series,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
@@ -371,7 +373,7 @@ SearchTag = E(models.Tag, [
     F("id", "id"),
     F("tag", "name")
 ],
-    1.2,
+    1.5,
     convert.convert_standalone_tag
 )
 
@@ -388,7 +390,7 @@ SearchWork = E(modelext.CustomWork, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.locale",
