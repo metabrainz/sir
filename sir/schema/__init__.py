@@ -288,7 +288,7 @@ SearchRelease = E(models.Release, [
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
-    F("releasegroup", "name"),
+    F("name", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
@@ -299,6 +299,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("status", "releases.status.name"),
     F("comment", "comment"),
     F("tag", "tags.tag.name"),
+    F("type", "type"), // TODO path?
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
