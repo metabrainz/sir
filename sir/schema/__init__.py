@@ -382,7 +382,7 @@ SearchTag = E(models.Tag, [
 
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
-    F("work", "name"),
+    F("name", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_links.artist.gid"),
     F("artist", "artist_links.artist.name"),
