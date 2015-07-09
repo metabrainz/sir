@@ -47,6 +47,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso1", "iso_3166_1_codes.code"),
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
+    F("sort_name", "sortname"),
     F("type", "type.name")
 ],
     1.5,
@@ -100,6 +101,7 @@ SearchLabel = E(modelext.CustomLabel, [
 
     F("code", "label_code"),
     F("comment", "comment"),
+    F("sortname", "sort_name"),
     F("ipi", "ipis.ipi"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
@@ -153,7 +155,6 @@ SearchRecording = E(modelext.CustomRecording, [
     F("number", "tracks.number"),
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
-    ''' ****** F("puid", "puid"), *****'''
     F("qdur", "length", transformfunc=tfs.qdur),
     F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
@@ -231,7 +232,7 @@ SearchRecording = E(modelext.CustomRecording, [
 
 SearchRelease = E(models.Release, [
     F("mbid", "gid"),
-    F("release", "name"),
+    F("name", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
@@ -243,6 +244,7 @@ SearchRelease = E(models.Release, [
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
+    ''' *** F("discidsmedium", "?", transformfunc=len), **** '''
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
