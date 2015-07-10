@@ -88,6 +88,51 @@ SearchEditor = E(models.Editor, [
     1.5,
     convert.convert_editor
 )
+#############################
+SearchEvent = E(models.Event, [
+    # artist, place
+    F("mbid", "gid"),
+    F("alias", "aliases.name"),
+    F("area", ["area.name", "area.aliases.name"]),
+    F("artist", "artist_credit.name"),
+    F("comment", "comment"),
+    F("event", "name"),
+    F("place", ["place.name", "place.aliases.name"]),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name"),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string)
+],
+    1.5,
+    convert.convert_event
+)
+
+SearchFreedb = E(models.Freedb, [
+    # artist, title, discid, cat, year, tracks
+    F("artist", "artist"),
+    F("title", "title"),
+    F("discid", "discid"),
+    F("cat", "cat"),
+    F("year", "year"),
+    F("tracks", "tracks")
+],
+    1.5,
+    convert.convert_freedb
+)
+
+SearchInstrument = E(models.Instrument, [
+    # alias, comment, description, iid, instrument, tag, type
+    F("alias", "aliases.name"),
+    F("comment", "comment"),
+    F("description", "description"),
+    F("mbid", "gid"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
+],
+    1.5,
+    convert.convert_instrument
+)
+#############################
 
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
@@ -244,7 +289,7 @@ SearchRelease = E(models.Release, [
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
-    ''' *** F("discidsmedium", "?", transformfunc=len), **** '''
+    #### F("discidsmedium", "?", transformfunc=len), ####
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
@@ -402,6 +447,16 @@ SearchWork = E(modelext.CustomWork, [
                 "artist_links.link.attributes.attribute_type.name"]
 )
 
+##############################
+SearchUrl = E(models.Url, [
+ # mbid, relationtype, targetid, targettype, uid, url, urls, url_ancestor, url_descendent
+    F("mbid", "gid"),
+    F("url", "url")
+],
+    1.5,
+    convert.convert_url
+)
+#############################
 
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
 SCHEMA = OrderedDict(sorted({
@@ -411,6 +466,9 @@ SCHEMA = OrderedDict(sorted({
     "area": SearchArea,
     "cdstub": SearchCDStub,
     "editor": SearchEditor,
+    "event": SearchEvent,
+    "freedb": SearchFreedb,
+    "instrument": SearchInstrument,
     "label": SearchLabel,
     "place": SearchPlace,
     "recording": SearchRecording,
@@ -419,6 +477,7 @@ SCHEMA = OrderedDict(sorted({
     "series": SearchSeries,
     "tag": SearchTag,
     "work": SearchWork,
+    "url": SearchUrl,
 }.items(),
     key=lambda tuple: tuple[0]
 
