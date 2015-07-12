@@ -244,7 +244,7 @@ SearchRelease = E(models.Release, [
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
-    ''' *** F("discidsmedium", "?", transformfunc=len), **** '''
+    # discidsmedium
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
@@ -301,7 +301,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("status", "releases.status.name"),
     F("comment", "comment"),
     F("tag", "tags.tag.name"),
-    F("type", "type"), // TODO path?
+    F("type", "type"), # path
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
