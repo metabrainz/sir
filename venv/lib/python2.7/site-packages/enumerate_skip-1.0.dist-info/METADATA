@@ -1,0 +1,59 @@
+Metadata-Version: 2.0
+Name: enumerate-skip
+Version: 1.0
+Summary: enumerate extended to support manual advancement or skipping      of the index
+Home-page: ['http://github.com/mineo/enumerate_skip']
+Author: Wieland Hoffmann
+Author-email: themineo@gmail.com
+License: MIT
+Download-URL: ['https://github.com/mineo/enumerate_skip/tarball/master']
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+
+===============================
+enumerate_skip
+===============================
+
+This package provides 2 iterators, `enumerate_skip` and `enumerate_manual`, that
+extend the behaviour of the standard libraries `enumerate` a bit.
+
+`enumerate_skip` has been extended with a `skip` method that makes sure the next
+`index` yielded is the same as the current one. The word `skip` might not make
+sense at first, but this function was written because I needed to not handle
+some values yielded by an iterator, like::
+
+  for index, obj in enumerate(...):
+      if obj.has_some_attr():
+          continue
+      # do something with object and index here
+
+If `index` in that example was printed to the user (or something similar), there
+would be gaps. Using `enumerate_skip` instead, the above example could be
+written as::
+
+  it = enumerate_skip(...)
+  for index, obj in it:
+      if obj.has_some_attr():
+          it.skip()
+          continue
+      # do something with object and index here
+
+`enumerate_manual` works the other way around: you have to manually call
+`advance` on it to increment the `index`::
+
+  it = enumerate_manual(...)
+  for index, obj in it:
+      if obj.has_some_attr():
+          continue
+      # do something with object and index here
+      it.advance()
+
+
