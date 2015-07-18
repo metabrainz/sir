@@ -1,3 +1,4 @@
 *.pyc
 config.ini
 venv*
+build*
