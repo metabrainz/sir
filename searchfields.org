@@ -125,10 +125,10 @@ Recording searches can contain you can search:
 *** DONE number
 *** DONE position
 *** DONE primarytype
-*** TODO puid
+*** TODO puid -- deprecated
 *** DONE qdur
 *** DONE recording
-*** TODO recordingaccent
+*** DONE recordingaccent
 *** DONE reid
 *** DONE release
 *** DONE rgid
@@ -156,7 +156,7 @@ The release group index contains the following fields you can search:
 *** DONE primarytype
 *** DONE rgid
 *** DONE releasegroup
-*** TODO releasegroupaccent
+*** DONE releasegroupaccent
 *** DONE releases
 *** DONE release
 *** DONE reid
@@ -189,11 +189,11 @@ The release index contains these fields you can search:
 *** DONE lang
 *** DONE mediums
 *** DONE primarytype
-*** TODO puid
+*** TODO puid -- deprecated
 *** SCHEMA quality
 *** DONE reid
 *** DONE release
-*** TODO releaseaccent
+*** DONE releaseaccent
 *** DONE rgid
 *** DONE script
 *** DONE secondarytype
@@ -210,7 +210,7 @@ The Tag index contains these fields you can search:
 
 *** DONE tag
 
-** Work [10/11]
+** Work [11/11]
 
 The work index contains these fields you can search:
 
@@ -224,7 +224,7 @@ The work index contains these fields you can search:
 *** DONE type
 *** DONE wid
 *** DONE work
-*** TODO workaccent
+*** DONE workaccent
 
 Work search terms with no fields specified search the work and alias
 fields.
@@ -234,24 +234,24 @@ fields.
 *** DONE bio
 *** DONE editor
 
-** Event [0/14]
+** Event [14/14]
 
-*** TODO aid
-*** TODO alias
-*** TODO area
-*** TODO arid
-*** TODO artist
-*** TODO begin
-*** TODO comment
-*** TODO eid
-*** TODO end
-*** TODO event
-*** TODO pid
-*** TODO place
-*** TODO tag
-*** TODO type
+*** DONE aid
+*** DONE alias
+*** DONE area
+*** DONE arid
+*** DONE artist
+*** DONE begin
+*** DONE comment
+*** DONE eid
+*** DONE end
+*** DONE event
+*** DONE pid
+*** DONE place
+*** DONE tag
+*** DONE type
 
-** FreeDB [0/6]
+** FreeDB [0/6] -- deprecated
 
 *** TODO artist
 *** TODO cat
@@ -270,10 +270,10 @@ fields.
 *** DONE tag
 *** DONE type
 
-** URL [0/5]
+** URL [2/5]
 
 *** TODO relationtype
 *** TODO targetid
 *** TODO targettype
-*** TODO uid
-*** TODO url
+*** DONE uid
+*** DONE url
