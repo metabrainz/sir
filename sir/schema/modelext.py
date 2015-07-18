@@ -1,8 +1,8 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Label,
-                           LinkAttribute, LinkAttributeType, MediumCDTOC, Place,
-                           Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
+from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event, Instrument, Label,
+                           LinkAttribute, LinkAttributeType, LinkEventPlace, MediumCDTOC, Place,
+                           PlaceAlias, Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
                            Series, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
@@ -43,6 +43,17 @@ class CustomArtist(Artist):
 class CustomArtistAlias(ArtistAlias):
     artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id],
                           innerjoin=True, backref="aliases")
+
+class CustomEvent(Event):
+    aliases = relationship("EventAlias")
+    place_link = relationship("LinkEventPlace")
+    area_link = relationship("LinkAreaEvent")
+    artist_link = relationship("LinkArtistEvent")
+    tags = relationship("EventTag")
+
+class CustomInstrument(Instrument):
+    aliases = relationship("InstrumentAlias")
+    tags = relationship("InstrumentTag")
 
 
 class CustomLabel(Label):

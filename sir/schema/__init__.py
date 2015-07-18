@@ -47,7 +47,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso1", "iso_3166_1_codes.code"),
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
-    F("sort_name", "sortname"),
+    F("sortname", "aliases.sort_name"),
     F("type", "type.name")
 ],
     1.5,
@@ -88,39 +88,44 @@ SearchEditor = E(models.Editor, [
     1.5,
     convert.convert_editor
 )
-#############################
-SearchEvent = E(models.Event, [
-    # artist, place
+
+SearchEvent = E(modelext.CustomEvent, [
     F("mbid", "gid"),
     F("alias", "aliases.name"),
-    F("area", ["area.name", "area.aliases.name"]),
-    F("artist", "artist_credit.name"),
+    F("aid", "area_link.entity0.gid"),
+    F("area", "area_link.entity0.name"),
+    F("arid", "artist_link.entity0.gid"),
+    F("artist", "artist_link.entity0.name"),
+    F("pid", "place_link.entity1.gid"),
+    F("place", "place_link.entity1.name"),
     F("comment", "comment"),
     F("event", "name"),
-    F("place", ["place.name", "place.aliases.name"]),
     F("tag", "tags.tag.name"),
     F("type", "type.name"),
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string)
 ],
     1.5,
-    convert.convert_event
+    convert.convert_event,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date"]
 )
 
-SearchFreedb = E(models.Freedb, [
+#SearchFreedb = E(models.freedb-disc, [
     # artist, title, discid, cat, year, tracks
-    F("artist", "artist"),
-    F("title", "title"),
-    F("discid", "discid"),
-    F("cat", "cat"),
-    F("year", "year"),
-    F("tracks", "tracks")
-],
-    1.5,
-    convert.convert_freedb
-)
+#    F("artist", "artist"),
+#    F("title", "title"),
+#    F("discid", "discid"),
+#    F("cat", "cat"),
+#    F("year", "year"),
+#    F("tracks", "tracks")
+#],
+#    1.5,
+#    convert.convert_freedb_disc
+#)
 
-SearchInstrument = E(models.Instrument, [
+SearchInstrument = E(modelext.CustomInstrument, [
     # alias, comment, description, iid, instrument, tag, type
     F("alias", "aliases.name"),
     F("comment", "comment"),
@@ -201,7 +206,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
     F("qdur", "length", transformfunc=tfs.qdur),
-    F("recording", "name"),
+    F("name", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
     F("rgid", "tracks.medium.release.release_group.gid"),
@@ -448,14 +453,14 @@ SearchWork = E(modelext.CustomWork, [
 )
 
 ##############################
-SearchUrl = E(models.Url, [
- # mbid, relationtype, targetid, targettype, uid, url, urls, url_ancestor, url_descendent
-    F("mbid", "gid"),
-    F("url", "url")
-],
-    1.5,
-    convert.convert_url
-)
+#SearchUrl = E(models.Url, [
+ # mbid, relationtype, targetid, targettype, uid, url
+#    F("mbid", "gid"),
+#    F("url", "url")
+#],
+#    1.5,
+#    convert.convert_url
+#)
 #############################
 
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
@@ -467,7 +472,7 @@ SCHEMA = OrderedDict(sorted({
     "cdstub": SearchCDStub,
     "editor": SearchEditor,
     "event": SearchEvent,
-    "freedb": SearchFreedb,
+#    "freedb": SearchFreedb,
     "instrument": SearchInstrument,
     "label": SearchLabel,
     "place": SearchPlace,
@@ -477,7 +482,7 @@ SCHEMA = OrderedDict(sorted({
     "series": SearchSeries,
     "tag": SearchTag,
     "work": SearchWork,
-    "url": SearchUrl,
+#    "url": SearchUrl,
 }.items(),
     key=lambda tuple: tuple[0]
 
