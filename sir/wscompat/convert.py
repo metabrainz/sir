@@ -931,6 +931,14 @@ def convert_standalone_tag(obj):
     tag.set_name(obj.name)
     return tag
 
+def convert_url(obj):
+    """
+    :type obj: :class'mbdata_models.URL'
+    """
+    url = models.url()
+
+    return url
+
 
 def convert_work(obj):
     """
