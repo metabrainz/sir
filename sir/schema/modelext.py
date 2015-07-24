@@ -1,8 +1,8 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event, Instrument, Label,
+from mbdata.models import (Annotation, Area, AreaAlias, Artist, ArtistAlias, Event, Instrument, Label,
                            LinkAttribute, LinkAttributeType, LinkEventPlace, MediumCDTOC, Place,
-                           PlaceAlias, Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
+                           PlaceAlias, Recording, Release, ReleaseGroup, ReleaseRaw, ReleaseTag,
                            Series, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
@@ -45,10 +45,11 @@ class CustomArtistAlias(ArtistAlias):
                           innerjoin=True, backref="aliases")
 
 class CustomEvent(Event):
+    # still need to allow searching with place/area/artist aliases
     aliases = relationship("EventAlias")
-    place_link = relationship("LinkEventPlace")
-    area_link = relationship("LinkAreaEvent")
-    artist_link = relationship("LinkArtistEvent")
+    place_links = relationship("LinkEventPlace")
+    area_links = relationship("LinkAreaEvent")
+    artist_links = relationship("LinkArtistEvent")
     tags = relationship("EventTag")
 
 class CustomInstrument(Instrument):
@@ -81,6 +82,8 @@ class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
 
+class CustomRelease(Release):
+    asin = relationship("ReleaseMeta")
 
 class CustomReleaseRaw(ReleaseRaw):
     discids = relationship("CDTOCRaw")
@@ -106,6 +109,11 @@ class CustomWork(Work):
     aliases = relationship("WorkAlias")
     artist_links = relationship("LinkArtistWork")
     tags = relationship("WorkTag")
+
+#class CustomURL(URL):
+#    relationtype
+#    targetid
+#    targettype
 
 
 class CustomLinkAttribute(LinkAttribute):
