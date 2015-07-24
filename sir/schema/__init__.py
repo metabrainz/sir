@@ -92,12 +92,12 @@ SearchEditor = E(models.Editor, [
 SearchEvent = E(modelext.CustomEvent, [
     F("mbid", "gid"),
     F("alias", "aliases.name"),
-    F("aid", "area_link.entity0.gid"),
-    F("area", "area_link.entity0.name"),
-    F("arid", "artist_link.entity0.gid"),
-    F("artist", "artist_link.entity0.name"),
-    F("pid", "place_link.entity1.gid"),
-    F("place", "place_link.entity1.name"),
+    F("aid", "area_links.entity0.gid"),
+    F("area", "area_links.entity0.name"),
+    F("arid", "artist_links.entity0.gid"),
+    F("artist", "artist_links.entity0.name"),
+    F("pid", "place_links.entity1.gid"),
+    F("place", "place_links.entity1.name"),
     F("comment", "comment"),
     F("event", "name"),
     F("tag", "tags.tag.name"),
@@ -112,21 +112,7 @@ SearchEvent = E(modelext.CustomEvent, [
                 "aliases.begin_date", "aliases.end_date"]
 )
 
-#SearchFreedb = E(models.freedb-disc, [
-    # artist, title, discid, cat, year, tracks
-#    F("artist", "artist"),
-#    F("title", "title"),
-#    F("discid", "discid"),
-#    F("cat", "cat"),
-#    F("year", "year"),
-#    F("tracks", "tracks")
-#],
-#    1.5,
-#    convert.convert_freedb_disc
-#)
-
 SearchInstrument = E(modelext.CustomInstrument, [
-    # alias, comment, description, iid, instrument, tag, type
     F("alias", "aliases.name"),
     F("comment", "comment"),
     F("description", "description"),
@@ -137,7 +123,7 @@ SearchInstrument = E(modelext.CustomInstrument, [
     1.5,
     convert.convert_instrument
 )
-#############################
+
 
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
@@ -151,7 +137,7 @@ SearchLabel = E(modelext.CustomLabel, [
 
     F("code", "label_code"),
     F("comment", "comment"),
-    F("sortname", "sort_name"),
+    F("sortname", "aliases.sort_name"),
     F("ipi", "ipis.ipi"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
@@ -280,12 +266,13 @@ SearchRecording = E(modelext.CustomRecording, [
 )
 
 
-SearchRelease = E(models.Release, [
+SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
     F("name", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
+    F("asin", "asin.amazon_asin"),
     F("creditname", "artist_credit.artists.name"),
     F("country", "country_dates.country.area.name"),
     F("date", "country_dates.date",
@@ -302,6 +289,7 @@ SearchRelease = E(models.Release, [
     F("lang", "language.name"),
     F("mediums", "mediums.id", transformfunc=len),
     F("primarytype", "release_group.type.name"),
+    F("quality", "quality"),
     F("rgid", "release_group.gid"),
     F("script", "script.iso_code"),
     F("secondarytype", "release_group.secondary_types.secondary_type.name"),
@@ -352,7 +340,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("status", "releases.status.name"),
     F("comment", "comment"),
     F("tag", "tags.tag.name"),
-    F("type", "type"), # path
+    #F("type", "type"), # path
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
@@ -453,16 +441,16 @@ SearchWork = E(modelext.CustomWork, [
                 "artist_links.link.attributes.attribute_type.name"]
 )
 
-##############################
-#SearchUrl = E(models.Url, [
- # mbid, relationtype, targetid, targettype, uid, url
-#    F("mbid", "gid"),
-#    F("url", "url")
-#],
-#    1.5,
-#    convert.convert_url
-#)
-#############################
+
+SearchUrl = E(models.URL, [
+# TODO relationtype, targetid, targettype
+    F("mbid", "gid"),
+    F("url", "url")
+],
+    1.5,
+    convert.convert_url
+)
+
 
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
 SCHEMA = OrderedDict(sorted({
@@ -473,7 +461,6 @@ SCHEMA = OrderedDict(sorted({
     "cdstub": SearchCDStub,
     "editor": SearchEditor,
     "event": SearchEvent,
-#    "freedb": SearchFreedb,
     "instrument": SearchInstrument,
     "label": SearchLabel,
     "place": SearchPlace,
@@ -483,7 +470,7 @@ SCHEMA = OrderedDict(sorted({
     "series": SearchSeries,
     "tag": SearchTag,
     "work": SearchWork,
-#    "url": SearchUrl,
+    "url": SearchUrl,
 }.items(),
     key=lambda tuple: tuple[0]
 
