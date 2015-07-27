@@ -11,7 +11,7 @@ can search:
 *** DONE name
 *** DONE entity
 
-** Area [12/13]
+** Area [13/13]
 
 The area index contains the following fields you can search:
 
@@ -22,7 +22,7 @@ The area index contains the following fields you can search:
 *** DONE comment
 *** DONE end
 *** DONE ended
-*** TODO sortname -- areas don't have one
+*** DONE sortname -- areas don't have one
 *** DONE iso
 *** DONE iso1
 *** DONE iso2
@@ -67,7 +67,7 @@ search:
 *** DONE tracks
 *** DONE discid
 
-** Label [13/14]
+** Label [14/14]
 
 The label ndex contains the following fields you can search:
 
@@ -88,7 +88,7 @@ The label ndex contains the following fields you can search:
 
 Label search terms with no fields specified search the label, sortname
 and alias fields.
-** Place [12/13]
+** Place [13/13]
 
 The place index contains the following fields you can search:
 
@@ -103,12 +103,12 @@ The place index contains the following fields you can search:
 *** DONE lat
 *** DONE long
 *** DONE place
-*** TODO sortname -- places don't actually have one
+*** DONE sortname -- places don't actually have one
 *** DONE type
 
 Place search terms with no fields specified search the place, alias,
 address and area fields.
-** Recording [27/30]
+** Recording [30/30]
 
 Recording searches can contain you can search:
 
@@ -125,7 +125,7 @@ Recording searches can contain you can search:
 *** DONE number
 *** DONE position
 *** DONE primarytype
-*** TODO puid -- deprecated
+*** DONE puid -- deprecated
 *** DONE qdur
 *** DONE recording
 *** DONE recordingaccent
@@ -140,11 +140,11 @@ Recording searches can contain you can search:
 *** DONE tracks
 *** DONE tracksrelease
 *** DONE tag
-*** SCHEMA type
+*** DONE type
 *** DONE video
 
 Recording search terms with no fields search the /recording/ field only
-** Release Group [14/16]
+** Release Group [16/16]
 
 The release group index contains the following fields you can search:
 
@@ -163,18 +163,18 @@ The release group index contains the following fields you can search:
 *** DONE secondarytype
 *** DONE status
 *** DONE tag
-*** SCHEMA type
+*** DONE type
 
 Release group search terms with no fields search the releasegroup field
 only.
-** Release [25/31]
+** Release [30/31]
 
 The release index contains these fields you can search:
 
 *** DONE arid
 *** DONE artist
 *** DONE artistname
-*** SCHEMA asin
+*** DONE asin
 *** DONE barcode
 *** DONE catno
 *** DONE comment
@@ -189,8 +189,8 @@ The release index contains these fields you can search:
 *** DONE lang
 *** DONE mediums
 *** DONE primarytype
-*** TODO puid -- deprecated
-*** SCHEMA quality
+*** DONE puid -- deprecated
+*** DONE quality
 *** DONE reid
 *** DONE release
 *** DONE releaseaccent
@@ -201,7 +201,7 @@ The release index contains these fields you can search:
 *** DONE tag
 *** DONE tracks
 *** DONE tracksmedium
-*** SCHEMA type
+*** DONE type
 
 Release search terms with no fields search the /release/ field only.
 ** Tag [1/1]
@@ -238,16 +238,16 @@ fields.
 
 *** DONE aid
 *** DONE alias
-*** DONE area
+*** DONE area -- would like to allow an alias to be used
 *** DONE arid
-*** DONE artist
+*** DONE artist -- would like to allow an alias to be used
 *** DONE begin
 *** DONE comment
 *** DONE eid
 *** DONE end
 *** DONE event
 *** DONE pid
-*** DONE place
+*** DONE place -- would like to allow an alias to be used
 *** DONE tag
 *** DONE type
 
