@@ -48,7 +48,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
     F("sortname", "aliases.sort_name"),
-    F("type", "type.name")
+    F("type", "type.id")
 ],
     1.5,
     convert.convert_area,
