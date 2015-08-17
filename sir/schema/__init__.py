@@ -48,7 +48,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
     F("sortname", "aliases.sort_name"),
-    F("type", "type.id")
+    F("type", "type.name")
 ],
     1.5,
     convert.convert_area,
@@ -59,9 +59,9 @@ SearchArea = E(modelext.CustomArea, [
                 "area_links.area0.gid",
                 "area_links.area0.begin_date",
                 "area_links.area0.end_date",
-                "area_links.area0.type.name",
+                "area_links.area0.type.id",
                 "area_links.link.link_type.name",
-                "area_links.link.link_type.gid",
+                "area_links.link.link_type.name",
                 ]
 )
 
