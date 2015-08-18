@@ -99,7 +99,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("pid", "place_links.entity1.gid"),
     F("place", "place_links.entity1.name"),
     F("comment", "comment"),
-    F("event", "name"),
+    F("name", "name"),
     F("tag", "tags.tag.name"),
     F("type", "type.name"),
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
