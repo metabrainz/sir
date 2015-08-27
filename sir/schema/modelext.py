@@ -1,6 +1,6 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import (Annotation, Area, AreaAlias, Artist, ArtistAlias, Event, Instrument, Label,
+from mbdata.models import (Annotation, Area, AreaAlias, Artist, ArtistAlias, ArtistCreditName, Event, Instrument, Label,
                            LinkAttribute, LinkAttributeType, LinkEventPlace, MediumCDTOC, Place,
                            PlaceAlias, Recording, Release, ReleaseGroup, ReleaseRaw, ReleaseTag,
                            Series, Work)
@@ -38,6 +38,8 @@ class CustomArtist(Artist):
                               foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
     tags = relationship('ArtistTag')
+    releases = relationship("ArtistCreditName",
+                             primaryjoin="Artist.id == ArtistCreditName.artist_id")
 
 
 class CustomArtistAlias(ArtistAlias):
