@@ -363,7 +363,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 
 SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("artist", "name"),
     F("sortname", "sort_name"),
     F("alias", "aliases.name"),
 
@@ -379,7 +379,9 @@ SearchArtist = E(modelext.CustomArtist, [
     F("comment", "comment"),
     F("gender", "gender.name"),
     F("ipi", "ipis.ipi"),
+    F("isni", "isnis.isni"),
     F("tag", "tags.tag.name"),
+    F("releases", "releases.artist_credit_id", transformfunc=len),
     F("type", "type.name")
 ],
     1.5,
