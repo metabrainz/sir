@@ -4,6 +4,7 @@ from .. import config
 from ..querying import iterate_path_values
 from collections import defaultdict
 from functools import partial
+from itertools import chain
 from logging import getLogger
 try:
     from xml.etree.cElementTree import tostring
@@ -224,11 +225,8 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
-            tempvals = set()
             for path in field.paths:
-                for val in iterate_path_values(path, obj):
-                    if val is not None:
-                        tempvals.add(val)
+                tempvals = set(chain(iter for iter in iterate_path_values(path, obj)))  # noqa
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
             if isinstance(tempvals, set) and len(tempvals) == 1:
