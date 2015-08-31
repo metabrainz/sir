@@ -38,9 +38,7 @@ class CustomArtist(Artist):
                               foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
     tags = relationship('ArtistTag')
-    releases = relationship("ArtistCredit",
-                             primaryjoin="Artist.id == ArtistCredit.id",
-                             foreign_keys=[Artist.id])
+    artist_credit_names = relationship("ArtistCreditName", innerjoin=True)
 
 class CustomArtistAlias(ArtistAlias):
     artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id],
