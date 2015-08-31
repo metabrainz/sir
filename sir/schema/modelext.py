@@ -1,8 +1,8 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Label,
-                           LinkAttribute, LinkAttributeType, MediumCDTOC, Place,
-                           Recording, ReleaseGroup, ReleaseRaw, ReleaseTag,
+from mbdata.models import (Annotation, Area, AreaAlias, Artist, ArtistAlias, ArtistCredit, Event, Instrument, Label,
+                           LinkAttribute, LinkAttributeType, LinkEventPlace, MediumCDTOC, Place,
+                           PlaceAlias, Recording, Release, ReleaseGroup, ReleaseRaw, ReleaseTag,
                            Series, Work)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
@@ -38,11 +38,23 @@ class CustomArtist(Artist):
                               foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
     tags = relationship('ArtistTag')
-
+    artist_credit_names = relationship("ArtistCreditName", innerjoin=True)
 
 class CustomArtistAlias(ArtistAlias):
     artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id],
                           innerjoin=True, backref="aliases")
+
+class CustomEvent(Event):
+    # still need to allow searching with place/area/artist aliases
+    aliases = relationship("EventAlias")
+    place_links = relationship("LinkEventPlace")
+    area_links = relationship("LinkAreaEvent")
+    artist_links = relationship("LinkArtistEvent")
+    tags = relationship("EventTag")
+
+class CustomInstrument(Instrument):
+    aliases = relationship("InstrumentAlias")
+    tags = relationship("InstrumentTag")
 
 
 class CustomLabel(Label):
@@ -70,6 +82,8 @@ class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
 
+class CustomRelease(Release):
+    asin = relationship("ReleaseMeta")
 
 class CustomReleaseRaw(ReleaseRaw):
     discids = relationship("CDTOCRaw")
@@ -95,6 +109,11 @@ class CustomWork(Work):
     aliases = relationship("WorkAlias")
     artist_links = relationship("LinkArtistWork")
     tags = relationship("WorkTag")
+
+#class CustomURL(URL):
+#    relationtype
+#    targetid
+#    targettype
 
 
 class CustomLinkAttribute(LinkAttribute):

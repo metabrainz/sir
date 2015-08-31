@@ -30,7 +30,7 @@ SearchAnnotation = E(modelext.CustomAnnotation, [
                "works.__tablename__"],
       transformfunc=tfs.annotation_type)
 ],
-    1.2,
+    1.5,
     convert.convert_annotation,
     extraquery=queryext.filter_valid_annotations
 )
@@ -47,9 +47,10 @@ SearchArea = E(modelext.CustomArea, [
     F("iso1", "iso_3166_1_codes.code"),
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
+    F("sortname", "aliases.sort_name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -58,9 +59,9 @@ SearchArea = E(modelext.CustomArea, [
                 "area_links.area0.gid",
                 "area_links.area0.begin_date",
                 "area_links.area0.end_date",
-                "area_links.area0.type.name",
+                "area_links.area0.type.id",
                 "area_links.link.link_type.name",
-                "area_links.link.link_type.gid",
+                "area_links.link.link_type.name",
                 ]
 )
 
@@ -71,10 +72,11 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("artist", "artist"),
     F("comment", "comment"),
     F("barcode", "barcode"),
+    F("added", "added"),
     F("tracks", "discids.track_count"),
     F("discid", "discids.discid")
 ],
-    1.2,
+    1.5,
     convert.convert_cdstub
 )
 
@@ -83,13 +85,49 @@ SearchEditor = E(models.Editor, [
     F("bio", "bio"),
     F("editor", "name")
 ],
-    1.2,
+    1.5,
     convert.convert_editor
 )
 
+SearchEvent = E(modelext.CustomEvent, [
+    F("mbid", "gid"),
+    F("alias", "aliases.name"),
+    F("aid", "area_links.entity0.gid"),
+    F("area", "area_links.entity0.name"),
+    F("arid", "artist_links.entity0.gid"),
+    F("artist", "artist_links.entity0.name"),
+    F("pid", "place_links.entity1.gid"),
+    F("place", "place_links.entity1.name"),
+    F("comment", "comment"),
+    F("name", "name"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name"),
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string)
+],
+    1.5,
+    convert.convert_event,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date"]
+)
+
+SearchInstrument = E(modelext.CustomInstrument, [
+    F("alias", "aliases.name"),
+    F("comment", "comment"),
+    F("description", "description"),
+    F("mbid", "gid"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
+],
+    1.5,
+    convert.convert_instrument
+)
+
+
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
-    F("label", "name"),
+    F("name", "name"),
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -99,11 +137,12 @@ SearchLabel = E(modelext.CustomLabel, [
 
     F("code", "label_code"),
     F("comment", "comment"),
+    F("sortname", "aliases.sort_name"),
     F("ipi", "ipis.ipi"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_label,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -127,7 +166,7 @@ SearchPlace = E(modelext.CustomPlace, [
     F("place", "name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_place,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
@@ -153,7 +192,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
     F("qdur", "length", transformfunc=tfs.qdur),
-    F("recording", "name"),
+    F("name", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
     F("rgid", "tracks.medium.release.release_group.gid"),
@@ -169,7 +208,7 @@ SearchRecording = E(modelext.CustomRecording, [
         transformfunc=sum),
     F("video", "video", transformfunc=tfs.boolean)
 ],
-    1.2,
+    1.5,
     convert.convert_recording,
     extrapaths=["artist_credit.artists.artist.aliases.begin_date",
                 "artist_credit.artists.artist.aliases.end_date",
@@ -227,12 +266,13 @@ SearchRecording = E(modelext.CustomRecording, [
 )
 
 
-SearchRelease = E(models.Release, [
+SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
-    F("release", "name"),
+    F("name", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
+    F("asin", "asin.amazon_asin"),
     F("creditname", "artist_credit.artists.name"),
     F("country", "country_dates.country.area.name"),
     F("date", "country_dates.date",
@@ -241,12 +281,14 @@ SearchRelease = E(models.Release, [
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
+    #### F("discidsmedium", "?", transformfunc=len), ####
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
     F("lang", "language.name"),
     F("mediums", "mediums.id", transformfunc=len),
     F("primarytype", "release_group.type.name"),
+    F("quality", "quality"),
     F("rgid", "release_group.gid"),
     F("script", "script.iso_code"),
     F("secondarytype", "release_group.secondary_types.secondary_type.name"),
@@ -256,7 +298,7 @@ SearchRelease = E(models.Release, [
     F("tracksmedium", "mediums.track_count"),
     F("tag", "tags.tag.name")
 ],
-    1.2,
+    1.5,
     convert.convert_release,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -286,7 +328,7 @@ SearchRelease = E(models.Release, [
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
-    F("releasegroup", "name"),
+    F("name", "name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
@@ -300,7 +342,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -336,10 +378,12 @@ SearchArtist = E(modelext.CustomArtist, [
     F("comment", "comment"),
     F("gender", "gender.name"),
     F("ipi", "ipis.ipi"),
+    F("isni", "isnis.isni"),
     F("tag", "tags.tag.name"),
+    F("ref_count", "artist_credit_names.artist_credit.ref_count", transformfunc=sum),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_artist,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
@@ -358,7 +402,7 @@ SearchSeries = E(modelext.CustomSeries, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_series,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id", "aliases.sort_name",
@@ -371,14 +415,14 @@ SearchTag = E(models.Tag, [
     F("id", "id"),
     F("tag", "name")
 ],
-    1.2,
+    1.5,
     convert.convert_standalone_tag
 )
 
 
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
-    F("work", "name"),
+    F("name", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_links.artist.gid"),
     F("artist", "artist_links.artist.name"),
@@ -388,13 +432,23 @@ SearchWork = E(modelext.CustomWork, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.2,
+    1.5,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
                 "artist_links.link.link_type.name",
                 "artist_links.link.attributes.attribute_type.name"]
+)
+
+
+SearchUrl = E(models.URL, [
+# TODO relationtype, targetid, targettype
+    F("mbid", "gid"),
+    F("url", "url")
+],
+    1.5,
+    convert.convert_url
 )
 
 
@@ -406,6 +460,8 @@ SCHEMA = OrderedDict(sorted({
     "area": SearchArea,
     "cdstub": SearchCDStub,
     "editor": SearchEditor,
+    "event": SearchEvent,
+    "instrument": SearchInstrument,
     "label": SearchLabel,
     "place": SearchPlace,
     "recording": SearchRecording,
@@ -414,6 +470,7 @@ SCHEMA = OrderedDict(sorted({
     "series": SearchSeries,
     "tag": SearchTag,
     "work": SearchWork,
+    "url": SearchUrl,
 }.items(),
     key=lambda tuple: tuple[0]
 
