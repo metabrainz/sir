@@ -381,7 +381,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
     F("tag", "tags.tag.name"),
-    F("releases", "releases.ref_count"),
+    F("ref_count", "artist_credit_names.artist_credit.ref_count", transformfunc=sum),
     F("type", "type.name")
 ],
     1.5,
