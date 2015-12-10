@@ -707,6 +707,7 @@ def convert_editor(obj):
 
     return editor
 
+
 def convert_event(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomEvent`
@@ -753,7 +754,6 @@ def convert_instrument(obj):
         instrument.set_type(obj.type.name)
 
     return instrument
-
 
 
 def convert_label(obj):
@@ -930,6 +930,7 @@ def convert_standalone_tag(obj):
     tag = models.tag()
     tag.set_name(obj.name)
     return tag
+
 
 def convert_url(obj):
     """

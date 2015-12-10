@@ -2,4 +2,4 @@
 # This file is originally generated from Git information by running 'setup.py
 # version'. Distribution tarballs contain a pre-generated copy of this file.
 
-__version__ = '4259758-dirty'
+__version__ = 'd1b7453-dirty'

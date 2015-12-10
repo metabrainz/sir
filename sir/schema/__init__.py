@@ -282,7 +282,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
     # discidsmedium
-    #### F("discidsmedium", "?", transformfunc=len), ####
+    # F("discidsmedium", "?", transformfunc=len), ####
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
@@ -381,7 +381,8 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
     F("tag", "tags.tag.name"),
-    F("ref_count", "artist_credit_names.artist_credit.ref_count", transformfunc=sum),
+    F("ref_count", "artist_credit_names.artist_credit.ref_count",
+      transformfunc=sum),
     F("type", "type.name")
 ],
     1.5,
@@ -444,7 +445,7 @@ SearchWork = E(modelext.CustomWork, [
 
 
 SearchUrl = E(models.URL, [
-# TODO relationtype, targetid, targettype
+    # relationtype, targetid, targettype
     F("mbid", "gid"),
     F("url", "url")
 ],
