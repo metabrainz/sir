@@ -1,6 +1,6 @@
-===============================
-sir - the search index rabbit
-===============================
+================================
+sir - the search index rebuilder
+================================
 
 This repository contains the code necessary to index documents from a MusicBrainz
 database into a Solr search server. The documentation_ contains detailed
