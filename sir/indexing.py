@@ -69,6 +69,7 @@ def _multiprocessed_import(entities):
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     index_function_args = []
     for e in entities:
+        index_function_args = []
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
