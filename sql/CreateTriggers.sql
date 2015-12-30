@@ -482,41 +482,77 @@ CREATE TRIGGER search_artist_update_10 AFTER UPDATE ON artist_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update_10();
 COMMENT ON TRIGGER search_artist_update_10 IS 'The path for this trigger is ipis';
 
-CREATE TRIGGER search_artist_delete_11 BEFORE DELETE ON artist_tag
+CREATE TRIGGER search_artist_delete_11 BEFORE DELETE ON artist_isni
     FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_11();
-COMMENT ON TRIGGER search_artist_delete_11 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_artist_delete_11 IS 'The path for this trigger is isnis';
 
-CREATE TRIGGER search_artist_insert_11 AFTER INSERT ON artist_tag
+CREATE TRIGGER search_artist_insert_11 AFTER INSERT ON artist_isni
     FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_11();
-COMMENT ON TRIGGER search_artist_insert_11 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_artist_insert_11 IS 'The path for this trigger is isnis';
 
-CREATE TRIGGER search_artist_update_11 AFTER UPDATE ON artist_tag
+CREATE TRIGGER search_artist_update_11 AFTER UPDATE ON artist_isni
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update_11();
-COMMENT ON TRIGGER search_artist_update_11 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_artist_update_11 IS 'The path for this trigger is isnis';
 
-CREATE TRIGGER search_artist_delete_12 BEFORE DELETE ON tag
+CREATE TRIGGER search_artist_delete_12 BEFORE DELETE ON artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_12();
-COMMENT ON TRIGGER search_artist_delete_12 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_artist_delete_12 IS 'The path for this trigger is tags';
 
-CREATE TRIGGER search_artist_insert_12 AFTER INSERT ON tag
+CREATE TRIGGER search_artist_insert_12 AFTER INSERT ON artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_12();
-COMMENT ON TRIGGER search_artist_insert_12 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_artist_insert_12 IS 'The path for this trigger is tags';
 
-CREATE TRIGGER search_artist_update_12 AFTER UPDATE ON tag
+CREATE TRIGGER search_artist_update_12 AFTER UPDATE ON artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update_12();
-COMMENT ON TRIGGER search_artist_update_12 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_artist_update_12 IS 'The path for this trigger is tags';
 
-CREATE TRIGGER search_artist_delete_13 BEFORE DELETE ON artist_type
+CREATE TRIGGER search_artist_delete_13 BEFORE DELETE ON tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_13();
-COMMENT ON TRIGGER search_artist_delete_13 IS 'The path for this trigger is type';
+COMMENT ON TRIGGER search_artist_delete_13 IS 'The path for this trigger is tags.tag';
 
-CREATE TRIGGER search_artist_insert_13 AFTER INSERT ON artist_type
+CREATE TRIGGER search_artist_insert_13 AFTER INSERT ON tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_13();
-COMMENT ON TRIGGER search_artist_insert_13 IS 'The path for this trigger is type';
+COMMENT ON TRIGGER search_artist_insert_13 IS 'The path for this trigger is tags.tag';
 
-CREATE TRIGGER search_artist_update_13 AFTER UPDATE ON artist_type
+CREATE TRIGGER search_artist_update_13 AFTER UPDATE ON tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update_13();
-COMMENT ON TRIGGER search_artist_update_13 IS 'The path for this trigger is type';
+COMMENT ON TRIGGER search_artist_update_13 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_artist_delete_14 BEFORE DELETE ON artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_14();
+COMMENT ON TRIGGER search_artist_delete_14 IS 'The path for this trigger is artist_credit_names';
+
+CREATE TRIGGER search_artist_insert_14 AFTER INSERT ON artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_14();
+COMMENT ON TRIGGER search_artist_insert_14 IS 'The path for this trigger is artist_credit_names';
+
+CREATE TRIGGER search_artist_update_14 AFTER UPDATE ON artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_update_14();
+COMMENT ON TRIGGER search_artist_update_14 IS 'The path for this trigger is artist_credit_names';
+
+CREATE TRIGGER search_artist_delete_15 BEFORE DELETE ON artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_15();
+COMMENT ON TRIGGER search_artist_delete_15 IS 'The path for this trigger is artist_credit_names.artist_credit';
+
+CREATE TRIGGER search_artist_insert_15 AFTER INSERT ON artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_15();
+COMMENT ON TRIGGER search_artist_insert_15 IS 'The path for this trigger is artist_credit_names.artist_credit';
+
+CREATE TRIGGER search_artist_update_15 AFTER UPDATE ON artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_update_15();
+COMMENT ON TRIGGER search_artist_update_15 IS 'The path for this trigger is artist_credit_names.artist_credit';
+
+CREATE TRIGGER search_artist_delete_16 BEFORE DELETE ON artist_type
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_delete_16();
+COMMENT ON TRIGGER search_artist_delete_16 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_artist_insert_16 AFTER INSERT ON artist_type
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_insert_16();
+COMMENT ON TRIGGER search_artist_insert_16 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_artist_update_16 AFTER UPDATE ON artist_type
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_update_16();
+COMMENT ON TRIGGER search_artist_update_16 IS 'The path for this trigger is type';
 
 CREATE TRIGGER search_cdstub_delete_0 BEFORE DELETE ON release_raw
     FOR EACH ROW EXECUTE PROCEDURE search_cdstub_delete_0();
@@ -553,6 +589,198 @@ COMMENT ON TRIGGER search_editor_insert_0 IS 'The path for this trigger is direc
 CREATE TRIGGER search_editor_update_0 AFTER UPDATE ON editor
     FOR EACH ROW EXECUTE PROCEDURE search_editor_update_0();
 COMMENT ON TRIGGER search_editor_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_event_delete_0 BEFORE DELETE ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_0();
+COMMENT ON TRIGGER search_event_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_event_insert_0 AFTER INSERT ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_0();
+COMMENT ON TRIGGER search_event_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_event_update_0 AFTER UPDATE ON event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_0();
+COMMENT ON TRIGGER search_event_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_event_delete_1 BEFORE DELETE ON event_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_1();
+COMMENT ON TRIGGER search_event_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_event_insert_1 AFTER INSERT ON event_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_1();
+COMMENT ON TRIGGER search_event_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_event_update_1 AFTER UPDATE ON event_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_1();
+COMMENT ON TRIGGER search_event_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_event_delete_2 BEFORE DELETE ON l_area_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_2();
+COMMENT ON TRIGGER search_event_delete_2 IS 'The path for this trigger is area_links';
+
+CREATE TRIGGER search_event_insert_2 AFTER INSERT ON l_area_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_2();
+COMMENT ON TRIGGER search_event_insert_2 IS 'The path for this trigger is area_links';
+
+CREATE TRIGGER search_event_update_2 AFTER UPDATE ON l_area_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_2();
+COMMENT ON TRIGGER search_event_update_2 IS 'The path for this trigger is area_links';
+
+CREATE TRIGGER search_event_delete_3 BEFORE DELETE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_3();
+COMMENT ON TRIGGER search_event_delete_3 IS 'The path for this trigger is area_links.entity0';
+
+CREATE TRIGGER search_event_insert_3 AFTER INSERT ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_3();
+COMMENT ON TRIGGER search_event_insert_3 IS 'The path for this trigger is area_links.entity0';
+
+CREATE TRIGGER search_event_update_3 AFTER UPDATE ON area
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_3();
+COMMENT ON TRIGGER search_event_update_3 IS 'The path for this trigger is area_links.entity0';
+
+CREATE TRIGGER search_event_delete_4 BEFORE DELETE ON l_artist_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_4();
+COMMENT ON TRIGGER search_event_delete_4 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_event_insert_4 AFTER INSERT ON l_artist_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_4();
+COMMENT ON TRIGGER search_event_insert_4 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_event_update_4 AFTER UPDATE ON l_artist_event
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_4();
+COMMENT ON TRIGGER search_event_update_4 IS 'The path for this trigger is artist_links';
+
+CREATE TRIGGER search_event_delete_5 BEFORE DELETE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_5();
+COMMENT ON TRIGGER search_event_delete_5 IS 'The path for this trigger is artist_links.entity0';
+
+CREATE TRIGGER search_event_insert_5 AFTER INSERT ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_5();
+COMMENT ON TRIGGER search_event_insert_5 IS 'The path for this trigger is artist_links.entity0';
+
+CREATE TRIGGER search_event_update_5 AFTER UPDATE ON artist
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_5();
+COMMENT ON TRIGGER search_event_update_5 IS 'The path for this trigger is artist_links.entity0';
+
+CREATE TRIGGER search_event_delete_6 BEFORE DELETE ON l_event_place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_6();
+COMMENT ON TRIGGER search_event_delete_6 IS 'The path for this trigger is place_links';
+
+CREATE TRIGGER search_event_insert_6 AFTER INSERT ON l_event_place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_6();
+COMMENT ON TRIGGER search_event_insert_6 IS 'The path for this trigger is place_links';
+
+CREATE TRIGGER search_event_update_6 AFTER UPDATE ON l_event_place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_6();
+COMMENT ON TRIGGER search_event_update_6 IS 'The path for this trigger is place_links';
+
+CREATE TRIGGER search_event_delete_7 BEFORE DELETE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_7();
+COMMENT ON TRIGGER search_event_delete_7 IS 'The path for this trigger is place_links.entity1';
+
+CREATE TRIGGER search_event_insert_7 AFTER INSERT ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_7();
+COMMENT ON TRIGGER search_event_insert_7 IS 'The path for this trigger is place_links.entity1';
+
+CREATE TRIGGER search_event_update_7 AFTER UPDATE ON place
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_7();
+COMMENT ON TRIGGER search_event_update_7 IS 'The path for this trigger is place_links.entity1';
+
+CREATE TRIGGER search_event_delete_8 BEFORE DELETE ON event_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_8();
+COMMENT ON TRIGGER search_event_delete_8 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_event_insert_8 AFTER INSERT ON event_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_8();
+COMMENT ON TRIGGER search_event_insert_8 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_event_update_8 AFTER UPDATE ON event_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_8();
+COMMENT ON TRIGGER search_event_update_8 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_event_delete_9 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_9();
+COMMENT ON TRIGGER search_event_delete_9 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_event_insert_9 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_9();
+COMMENT ON TRIGGER search_event_insert_9 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_event_update_9 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_9();
+COMMENT ON TRIGGER search_event_update_9 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_event_delete_10 BEFORE DELETE ON event_type
+    FOR EACH ROW EXECUTE PROCEDURE search_event_delete_10();
+COMMENT ON TRIGGER search_event_delete_10 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_event_insert_10 AFTER INSERT ON event_type
+    FOR EACH ROW EXECUTE PROCEDURE search_event_insert_10();
+COMMENT ON TRIGGER search_event_insert_10 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_event_update_10 AFTER UPDATE ON event_type
+    FOR EACH ROW EXECUTE PROCEDURE search_event_update_10();
+COMMENT ON TRIGGER search_event_update_10 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_instrument_delete_0 BEFORE DELETE ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_delete_0();
+COMMENT ON TRIGGER search_instrument_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_instrument_insert_0 AFTER INSERT ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert_0();
+COMMENT ON TRIGGER search_instrument_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_instrument_update_0 AFTER UPDATE ON instrument
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_update_0();
+COMMENT ON TRIGGER search_instrument_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_instrument_delete_1 BEFORE DELETE ON instrument_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_delete_1();
+COMMENT ON TRIGGER search_instrument_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_instrument_insert_1 AFTER INSERT ON instrument_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert_1();
+COMMENT ON TRIGGER search_instrument_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_instrument_update_1 AFTER UPDATE ON instrument_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_update_1();
+COMMENT ON TRIGGER search_instrument_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_instrument_delete_2 BEFORE DELETE ON instrument_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_delete_2();
+COMMENT ON TRIGGER search_instrument_delete_2 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_instrument_insert_2 AFTER INSERT ON instrument_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert_2();
+COMMENT ON TRIGGER search_instrument_insert_2 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_instrument_update_2 AFTER UPDATE ON instrument_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_update_2();
+COMMENT ON TRIGGER search_instrument_update_2 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_instrument_delete_3 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_delete_3();
+COMMENT ON TRIGGER search_instrument_delete_3 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_instrument_insert_3 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert_3();
+COMMENT ON TRIGGER search_instrument_insert_3 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_instrument_update_3 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_update_3();
+COMMENT ON TRIGGER search_instrument_update_3 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_instrument_delete_4 BEFORE DELETE ON instrument_type
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_delete_4();
+COMMENT ON TRIGGER search_instrument_delete_4 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_instrument_insert_4 AFTER INSERT ON instrument_type
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert_4();
+COMMENT ON TRIGGER search_instrument_insert_4 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_instrument_update_4 AFTER UPDATE ON instrument_type
+    FOR EACH ROW EXECUTE PROCEDURE search_instrument_update_4();
+COMMENT ON TRIGGER search_instrument_update_4 IS 'The path for this trigger is type';
 
 CREATE TRIGGER search_label_delete_0 BEFORE DELETE ON label
     FOR EACH ROW EXECUTE PROCEDURE search_label_delete_0();
@@ -1010,209 +1238,221 @@ CREATE TRIGGER search_release_update_3 AFTER UPDATE ON artist
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_3();
 COMMENT ON TRIGGER search_release_update_3 IS 'The path for this trigger is artist_credit.artists.artist';
 
-CREATE TRIGGER search_release_delete_4 BEFORE DELETE ON release_country
+CREATE TRIGGER search_release_delete_4 BEFORE DELETE ON release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_4();
-COMMENT ON TRIGGER search_release_delete_4 IS 'The path for this trigger is country_dates';
+COMMENT ON TRIGGER search_release_delete_4 IS 'The path for this trigger is asin';
 
-CREATE TRIGGER search_release_insert_4 AFTER INSERT ON release_country
+CREATE TRIGGER search_release_insert_4 AFTER INSERT ON release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_4();
-COMMENT ON TRIGGER search_release_insert_4 IS 'The path for this trigger is country_dates';
+COMMENT ON TRIGGER search_release_insert_4 IS 'The path for this trigger is asin';
 
-CREATE TRIGGER search_release_update_4 AFTER UPDATE ON release_country
+CREATE TRIGGER search_release_update_4 AFTER UPDATE ON release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_4();
-COMMENT ON TRIGGER search_release_update_4 IS 'The path for this trigger is country_dates';
+COMMENT ON TRIGGER search_release_update_4 IS 'The path for this trigger is asin';
 
-CREATE TRIGGER search_release_delete_5 BEFORE DELETE ON country_area
+CREATE TRIGGER search_release_delete_5 BEFORE DELETE ON release_country
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_5();
-COMMENT ON TRIGGER search_release_delete_5 IS 'The path for this trigger is country_dates.country';
+COMMENT ON TRIGGER search_release_delete_5 IS 'The path for this trigger is country_dates';
 
-CREATE TRIGGER search_release_insert_5 AFTER INSERT ON country_area
+CREATE TRIGGER search_release_insert_5 AFTER INSERT ON release_country
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_5();
-COMMENT ON TRIGGER search_release_insert_5 IS 'The path for this trigger is country_dates.country';
+COMMENT ON TRIGGER search_release_insert_5 IS 'The path for this trigger is country_dates';
 
-CREATE TRIGGER search_release_update_5 AFTER UPDATE ON country_area
+CREATE TRIGGER search_release_update_5 AFTER UPDATE ON release_country
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_5();
-COMMENT ON TRIGGER search_release_update_5 IS 'The path for this trigger is country_dates.country';
+COMMENT ON TRIGGER search_release_update_5 IS 'The path for this trigger is country_dates';
 
-CREATE TRIGGER search_release_delete_6 BEFORE DELETE ON area
+CREATE TRIGGER search_release_delete_6 BEFORE DELETE ON country_area
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_6();
-COMMENT ON TRIGGER search_release_delete_6 IS 'The path for this trigger is country_dates.country.area';
+COMMENT ON TRIGGER search_release_delete_6 IS 'The path for this trigger is country_dates.country';
 
-CREATE TRIGGER search_release_insert_6 AFTER INSERT ON area
+CREATE TRIGGER search_release_insert_6 AFTER INSERT ON country_area
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_6();
-COMMENT ON TRIGGER search_release_insert_6 IS 'The path for this trigger is country_dates.country.area';
+COMMENT ON TRIGGER search_release_insert_6 IS 'The path for this trigger is country_dates.country';
 
-CREATE TRIGGER search_release_update_6 AFTER UPDATE ON area
+CREATE TRIGGER search_release_update_6 AFTER UPDATE ON country_area
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_6();
-COMMENT ON TRIGGER search_release_update_6 IS 'The path for this trigger is country_dates.country.area';
+COMMENT ON TRIGGER search_release_update_6 IS 'The path for this trigger is country_dates.country';
 
-CREATE TRIGGER search_release_delete_7 BEFORE DELETE ON release_label
+CREATE TRIGGER search_release_delete_7 BEFORE DELETE ON area
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_7();
-COMMENT ON TRIGGER search_release_delete_7 IS 'The path for this trigger is labels';
+COMMENT ON TRIGGER search_release_delete_7 IS 'The path for this trigger is country_dates.country.area';
 
-CREATE TRIGGER search_release_insert_7 AFTER INSERT ON release_label
+CREATE TRIGGER search_release_insert_7 AFTER INSERT ON area
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_7();
-COMMENT ON TRIGGER search_release_insert_7 IS 'The path for this trigger is labels';
+COMMENT ON TRIGGER search_release_insert_7 IS 'The path for this trigger is country_dates.country.area';
 
-CREATE TRIGGER search_release_update_7 AFTER UPDATE ON release_label
+CREATE TRIGGER search_release_update_7 AFTER UPDATE ON area
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_7();
-COMMENT ON TRIGGER search_release_update_7 IS 'The path for this trigger is labels';
+COMMENT ON TRIGGER search_release_update_7 IS 'The path for this trigger is country_dates.country.area';
 
-CREATE TRIGGER search_release_delete_8 BEFORE DELETE ON medium
+CREATE TRIGGER search_release_delete_8 BEFORE DELETE ON release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_8();
-COMMENT ON TRIGGER search_release_delete_8 IS 'The path for this trigger is mediums';
+COMMENT ON TRIGGER search_release_delete_8 IS 'The path for this trigger is labels';
 
-CREATE TRIGGER search_release_insert_8 AFTER INSERT ON medium
+CREATE TRIGGER search_release_insert_8 AFTER INSERT ON release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_8();
-COMMENT ON TRIGGER search_release_insert_8 IS 'The path for this trigger is mediums';
+COMMENT ON TRIGGER search_release_insert_8 IS 'The path for this trigger is labels';
 
-CREATE TRIGGER search_release_update_8 AFTER UPDATE ON medium
+CREATE TRIGGER search_release_update_8 AFTER UPDATE ON release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_8();
-COMMENT ON TRIGGER search_release_update_8 IS 'The path for this trigger is mediums';
+COMMENT ON TRIGGER search_release_update_8 IS 'The path for this trigger is labels';
 
-CREATE TRIGGER search_release_delete_9 BEFORE DELETE ON medium_cdtoc
+CREATE TRIGGER search_release_delete_9 BEFORE DELETE ON medium
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_9();
-COMMENT ON TRIGGER search_release_delete_9 IS 'The path for this trigger is mediums.cdtocs';
+COMMENT ON TRIGGER search_release_delete_9 IS 'The path for this trigger is mediums';
 
-CREATE TRIGGER search_release_insert_9 AFTER INSERT ON medium_cdtoc
+CREATE TRIGGER search_release_insert_9 AFTER INSERT ON medium
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_9();
-COMMENT ON TRIGGER search_release_insert_9 IS 'The path for this trigger is mediums.cdtocs';
+COMMENT ON TRIGGER search_release_insert_9 IS 'The path for this trigger is mediums';
 
-CREATE TRIGGER search_release_update_9 AFTER UPDATE ON medium_cdtoc
+CREATE TRIGGER search_release_update_9 AFTER UPDATE ON medium
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_9();
-COMMENT ON TRIGGER search_release_update_9 IS 'The path for this trigger is mediums.cdtocs';
+COMMENT ON TRIGGER search_release_update_9 IS 'The path for this trigger is mediums';
 
-CREATE TRIGGER search_release_delete_10 BEFORE DELETE ON medium_format
+CREATE TRIGGER search_release_delete_10 BEFORE DELETE ON medium_cdtoc
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_10();
-COMMENT ON TRIGGER search_release_delete_10 IS 'The path for this trigger is mediums.format';
+COMMENT ON TRIGGER search_release_delete_10 IS 'The path for this trigger is mediums.cdtocs';
 
-CREATE TRIGGER search_release_insert_10 AFTER INSERT ON medium_format
+CREATE TRIGGER search_release_insert_10 AFTER INSERT ON medium_cdtoc
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_10();
-COMMENT ON TRIGGER search_release_insert_10 IS 'The path for this trigger is mediums.format';
+COMMENT ON TRIGGER search_release_insert_10 IS 'The path for this trigger is mediums.cdtocs';
 
-CREATE TRIGGER search_release_update_10 AFTER UPDATE ON medium_format
+CREATE TRIGGER search_release_update_10 AFTER UPDATE ON medium_cdtoc
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_10();
-COMMENT ON TRIGGER search_release_update_10 IS 'The path for this trigger is mediums.format';
+COMMENT ON TRIGGER search_release_update_10 IS 'The path for this trigger is mediums.cdtocs';
 
-CREATE TRIGGER search_release_delete_11 BEFORE DELETE ON label
+CREATE TRIGGER search_release_delete_11 BEFORE DELETE ON medium_format
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_11();
-COMMENT ON TRIGGER search_release_delete_11 IS 'The path for this trigger is labels.label';
+COMMENT ON TRIGGER search_release_delete_11 IS 'The path for this trigger is mediums.format';
 
-CREATE TRIGGER search_release_insert_11 AFTER INSERT ON label
+CREATE TRIGGER search_release_insert_11 AFTER INSERT ON medium_format
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_11();
-COMMENT ON TRIGGER search_release_insert_11 IS 'The path for this trigger is labels.label';
+COMMENT ON TRIGGER search_release_insert_11 IS 'The path for this trigger is mediums.format';
 
-CREATE TRIGGER search_release_update_11 AFTER UPDATE ON label
+CREATE TRIGGER search_release_update_11 AFTER UPDATE ON medium_format
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_11();
-COMMENT ON TRIGGER search_release_update_11 IS 'The path for this trigger is labels.label';
+COMMENT ON TRIGGER search_release_update_11 IS 'The path for this trigger is mediums.format';
 
-CREATE TRIGGER search_release_delete_12 BEFORE DELETE ON language
+CREATE TRIGGER search_release_delete_12 BEFORE DELETE ON label
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_12();
-COMMENT ON TRIGGER search_release_delete_12 IS 'The path for this trigger is language';
+COMMENT ON TRIGGER search_release_delete_12 IS 'The path for this trigger is labels.label';
 
-CREATE TRIGGER search_release_insert_12 AFTER INSERT ON language
+CREATE TRIGGER search_release_insert_12 AFTER INSERT ON label
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_12();
-COMMENT ON TRIGGER search_release_insert_12 IS 'The path for this trigger is language';
+COMMENT ON TRIGGER search_release_insert_12 IS 'The path for this trigger is labels.label';
 
-CREATE TRIGGER search_release_update_12 AFTER UPDATE ON language
+CREATE TRIGGER search_release_update_12 AFTER UPDATE ON label
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_12();
-COMMENT ON TRIGGER search_release_update_12 IS 'The path for this trigger is language';
+COMMENT ON TRIGGER search_release_update_12 IS 'The path for this trigger is labels.label';
 
-CREATE TRIGGER search_release_delete_13 BEFORE DELETE ON release_group
+CREATE TRIGGER search_release_delete_13 BEFORE DELETE ON language
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_13();
-COMMENT ON TRIGGER search_release_delete_13 IS 'The path for this trigger is release_group';
+COMMENT ON TRIGGER search_release_delete_13 IS 'The path for this trigger is language';
 
-CREATE TRIGGER search_release_insert_13 AFTER INSERT ON release_group
+CREATE TRIGGER search_release_insert_13 AFTER INSERT ON language
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_13();
-COMMENT ON TRIGGER search_release_insert_13 IS 'The path for this trigger is release_group';
+COMMENT ON TRIGGER search_release_insert_13 IS 'The path for this trigger is language';
 
-CREATE TRIGGER search_release_update_13 AFTER UPDATE ON release_group
+CREATE TRIGGER search_release_update_13 AFTER UPDATE ON language
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_13();
-COMMENT ON TRIGGER search_release_update_13 IS 'The path for this trigger is release_group';
+COMMENT ON TRIGGER search_release_update_13 IS 'The path for this trigger is language';
 
-CREATE TRIGGER search_release_delete_14 BEFORE DELETE ON release_group_primary_type
+CREATE TRIGGER search_release_delete_14 BEFORE DELETE ON release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_14();
-COMMENT ON TRIGGER search_release_delete_14 IS 'The path for this trigger is release_group.type';
+COMMENT ON TRIGGER search_release_delete_14 IS 'The path for this trigger is release_group';
 
-CREATE TRIGGER search_release_insert_14 AFTER INSERT ON release_group_primary_type
+CREATE TRIGGER search_release_insert_14 AFTER INSERT ON release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_14();
-COMMENT ON TRIGGER search_release_insert_14 IS 'The path for this trigger is release_group.type';
+COMMENT ON TRIGGER search_release_insert_14 IS 'The path for this trigger is release_group';
 
-CREATE TRIGGER search_release_update_14 AFTER UPDATE ON release_group_primary_type
+CREATE TRIGGER search_release_update_14 AFTER UPDATE ON release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_14();
-COMMENT ON TRIGGER search_release_update_14 IS 'The path for this trigger is release_group.type';
+COMMENT ON TRIGGER search_release_update_14 IS 'The path for this trigger is release_group';
 
-CREATE TRIGGER search_release_delete_15 BEFORE DELETE ON script
+CREATE TRIGGER search_release_delete_15 BEFORE DELETE ON release_group_primary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_15();
-COMMENT ON TRIGGER search_release_delete_15 IS 'The path for this trigger is script';
+COMMENT ON TRIGGER search_release_delete_15 IS 'The path for this trigger is release_group.type';
 
-CREATE TRIGGER search_release_insert_15 AFTER INSERT ON script
+CREATE TRIGGER search_release_insert_15 AFTER INSERT ON release_group_primary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_15();
-COMMENT ON TRIGGER search_release_insert_15 IS 'The path for this trigger is script';
+COMMENT ON TRIGGER search_release_insert_15 IS 'The path for this trigger is release_group.type';
 
-CREATE TRIGGER search_release_update_15 AFTER UPDATE ON script
+CREATE TRIGGER search_release_update_15 AFTER UPDATE ON release_group_primary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_15();
-COMMENT ON TRIGGER search_release_update_15 IS 'The path for this trigger is script';
+COMMENT ON TRIGGER search_release_update_15 IS 'The path for this trigger is release_group.type';
 
-CREATE TRIGGER search_release_delete_16 BEFORE DELETE ON release_group_secondary_type_join
+CREATE TRIGGER search_release_delete_16 BEFORE DELETE ON script
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_16();
-COMMENT ON TRIGGER search_release_delete_16 IS 'The path for this trigger is release_group.secondary_types';
+COMMENT ON TRIGGER search_release_delete_16 IS 'The path for this trigger is script';
 
-CREATE TRIGGER search_release_insert_16 AFTER INSERT ON release_group_secondary_type_join
+CREATE TRIGGER search_release_insert_16 AFTER INSERT ON script
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_16();
-COMMENT ON TRIGGER search_release_insert_16 IS 'The path for this trigger is release_group.secondary_types';
+COMMENT ON TRIGGER search_release_insert_16 IS 'The path for this trigger is script';
 
-CREATE TRIGGER search_release_update_16 AFTER UPDATE ON release_group_secondary_type_join
+CREATE TRIGGER search_release_update_16 AFTER UPDATE ON script
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_16();
-COMMENT ON TRIGGER search_release_update_16 IS 'The path for this trigger is release_group.secondary_types';
+COMMENT ON TRIGGER search_release_update_16 IS 'The path for this trigger is script';
 
-CREATE TRIGGER search_release_delete_17 BEFORE DELETE ON release_group_secondary_type
+CREATE TRIGGER search_release_delete_17 BEFORE DELETE ON release_group_secondary_type_join
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_17();
-COMMENT ON TRIGGER search_release_delete_17 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
+COMMENT ON TRIGGER search_release_delete_17 IS 'The path for this trigger is release_group.secondary_types';
 
-CREATE TRIGGER search_release_insert_17 AFTER INSERT ON release_group_secondary_type
+CREATE TRIGGER search_release_insert_17 AFTER INSERT ON release_group_secondary_type_join
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_17();
-COMMENT ON TRIGGER search_release_insert_17 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
+COMMENT ON TRIGGER search_release_insert_17 IS 'The path for this trigger is release_group.secondary_types';
 
-CREATE TRIGGER search_release_update_17 AFTER UPDATE ON release_group_secondary_type
+CREATE TRIGGER search_release_update_17 AFTER UPDATE ON release_group_secondary_type_join
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_17();
-COMMENT ON TRIGGER search_release_update_17 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
+COMMENT ON TRIGGER search_release_update_17 IS 'The path for this trigger is release_group.secondary_types';
 
-CREATE TRIGGER search_release_delete_18 BEFORE DELETE ON release_status
+CREATE TRIGGER search_release_delete_18 BEFORE DELETE ON release_group_secondary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_18();
-COMMENT ON TRIGGER search_release_delete_18 IS 'The path for this trigger is status';
+COMMENT ON TRIGGER search_release_delete_18 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
 
-CREATE TRIGGER search_release_insert_18 AFTER INSERT ON release_status
+CREATE TRIGGER search_release_insert_18 AFTER INSERT ON release_group_secondary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_18();
-COMMENT ON TRIGGER search_release_insert_18 IS 'The path for this trigger is status';
+COMMENT ON TRIGGER search_release_insert_18 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
 
-CREATE TRIGGER search_release_update_18 AFTER UPDATE ON release_status
+CREATE TRIGGER search_release_update_18 AFTER UPDATE ON release_group_secondary_type
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_18();
-COMMENT ON TRIGGER search_release_update_18 IS 'The path for this trigger is status';
+COMMENT ON TRIGGER search_release_update_18 IS 'The path for this trigger is release_group.secondary_types.secondary_type';
 
-CREATE TRIGGER search_release_delete_19 BEFORE DELETE ON release_tag
+CREATE TRIGGER search_release_delete_19 BEFORE DELETE ON release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_19();
-COMMENT ON TRIGGER search_release_delete_19 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_release_delete_19 IS 'The path for this trigger is status';
 
-CREATE TRIGGER search_release_insert_19 AFTER INSERT ON release_tag
+CREATE TRIGGER search_release_insert_19 AFTER INSERT ON release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_19();
-COMMENT ON TRIGGER search_release_insert_19 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_release_insert_19 IS 'The path for this trigger is status';
 
-CREATE TRIGGER search_release_update_19 AFTER UPDATE ON release_tag
+CREATE TRIGGER search_release_update_19 AFTER UPDATE ON release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_19();
-COMMENT ON TRIGGER search_release_update_19 IS 'The path for this trigger is tags';
+COMMENT ON TRIGGER search_release_update_19 IS 'The path for this trigger is status';
 
-CREATE TRIGGER search_release_delete_20 BEFORE DELETE ON tag
+CREATE TRIGGER search_release_delete_20 BEFORE DELETE ON release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_delete_20();
-COMMENT ON TRIGGER search_release_delete_20 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_release_delete_20 IS 'The path for this trigger is tags';
 
-CREATE TRIGGER search_release_insert_20 AFTER INSERT ON tag
+CREATE TRIGGER search_release_insert_20 AFTER INSERT ON release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert_20();
-COMMENT ON TRIGGER search_release_insert_20 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_release_insert_20 IS 'The path for this trigger is tags';
 
-CREATE TRIGGER search_release_update_20 AFTER UPDATE ON tag
+CREATE TRIGGER search_release_update_20 AFTER UPDATE ON release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_update_20();
-COMMENT ON TRIGGER search_release_update_20 IS 'The path for this trigger is tags.tag';
+COMMENT ON TRIGGER search_release_update_20 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_release_delete_21 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_release_delete_21();
+COMMENT ON TRIGGER search_release_delete_21 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_release_insert_21 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_release_insert_21();
+COMMENT ON TRIGGER search_release_insert_21 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_release_update_21 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_release_update_21();
+COMMENT ON TRIGGER search_release_update_21 IS 'The path for this trigger is tags.tag';
 
 CREATE TRIGGER search_release_group_delete_0 BEFORE DELETE ON release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_delete_0();
@@ -1346,6 +1586,78 @@ CREATE TRIGGER search_release_group_update_10 AFTER UPDATE ON release_group_seco
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_update_10();
 COMMENT ON TRIGGER search_release_group_update_10 IS 'The path for this trigger is secondary_types.secondary_type';
 
+CREATE TRIGGER search_series_delete_0 BEFORE DELETE ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_0();
+COMMENT ON TRIGGER search_series_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_series_insert_0 AFTER INSERT ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_0();
+COMMENT ON TRIGGER search_series_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_series_update_0 AFTER UPDATE ON series
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_0();
+COMMENT ON TRIGGER search_series_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_series_delete_1 BEFORE DELETE ON series_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_1();
+COMMENT ON TRIGGER search_series_delete_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_series_insert_1 AFTER INSERT ON series_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_1();
+COMMENT ON TRIGGER search_series_insert_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_series_update_1 AFTER UPDATE ON series_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_1();
+COMMENT ON TRIGGER search_series_update_1 IS 'The path for this trigger is aliases';
+
+CREATE TRIGGER search_series_delete_2 BEFORE DELETE ON link_attribute_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_2();
+COMMENT ON TRIGGER search_series_delete_2 IS 'The path for this trigger is link_attribute_type';
+
+CREATE TRIGGER search_series_insert_2 AFTER INSERT ON link_attribute_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_2();
+COMMENT ON TRIGGER search_series_insert_2 IS 'The path for this trigger is link_attribute_type';
+
+CREATE TRIGGER search_series_update_2 AFTER UPDATE ON link_attribute_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_2();
+COMMENT ON TRIGGER search_series_update_2 IS 'The path for this trigger is link_attribute_type';
+
+CREATE TRIGGER search_series_delete_3 BEFORE DELETE ON series_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_3();
+COMMENT ON TRIGGER search_series_delete_3 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_series_insert_3 AFTER INSERT ON series_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_3();
+COMMENT ON TRIGGER search_series_insert_3 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_series_update_3 AFTER UPDATE ON series_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_3();
+COMMENT ON TRIGGER search_series_update_3 IS 'The path for this trigger is tags';
+
+CREATE TRIGGER search_series_delete_4 BEFORE DELETE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_4();
+COMMENT ON TRIGGER search_series_delete_4 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_series_insert_4 AFTER INSERT ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_4();
+COMMENT ON TRIGGER search_series_insert_4 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_series_update_4 AFTER UPDATE ON tag
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_4();
+COMMENT ON TRIGGER search_series_update_4 IS 'The path for this trigger is tags.tag';
+
+CREATE TRIGGER search_series_delete_5 BEFORE DELETE ON series_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_delete_5();
+COMMENT ON TRIGGER search_series_delete_5 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_series_insert_5 AFTER INSERT ON series_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_insert_5();
+COMMENT ON TRIGGER search_series_insert_5 IS 'The path for this trigger is type';
+
+CREATE TRIGGER search_series_update_5 AFTER UPDATE ON series_type
+    FOR EACH ROW EXECUTE PROCEDURE search_series_update_5();
+COMMENT ON TRIGGER search_series_update_5 IS 'The path for this trigger is type';
+
 CREATE TRIGGER search_tag_delete_0 BEFORE DELETE ON tag
     FOR EACH ROW EXECUTE PROCEDURE search_tag_delete_0();
 COMMENT ON TRIGGER search_tag_delete_0 IS 'The path for this trigger is direct';
@@ -1357,6 +1669,18 @@ COMMENT ON TRIGGER search_tag_insert_0 IS 'The path for this trigger is direct';
 CREATE TRIGGER search_tag_update_0 AFTER UPDATE ON tag
     FOR EACH ROW EXECUTE PROCEDURE search_tag_update_0();
 COMMENT ON TRIGGER search_tag_update_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_url_delete_0 BEFORE DELETE ON url
+    FOR EACH ROW EXECUTE PROCEDURE search_url_delete_0();
+COMMENT ON TRIGGER search_url_delete_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_url_insert_0 AFTER INSERT ON url
+    FOR EACH ROW EXECUTE PROCEDURE search_url_insert_0();
+COMMENT ON TRIGGER search_url_insert_0 IS 'The path for this trigger is direct';
+
+CREATE TRIGGER search_url_update_0 AFTER UPDATE ON url
+    FOR EACH ROW EXECUTE PROCEDURE search_url_update_0();
+COMMENT ON TRIGGER search_url_update_0 IS 'The path for this trigger is direct';
 
 CREATE TRIGGER search_work_delete_0 BEFORE DELETE ON work
     FOR EACH ROW EXECUTE PROCEDURE search_work_delete_0();
