@@ -223,7 +223,6 @@ class SearchEntity(object):
         :rtype: dict
         """
         data = {}
-        print obj.gid
         for field in self.fields:
             fieldname = field.name
             for path in field.paths:
