@@ -13,3 +13,7 @@ createsql:
 
 dropsql:
 	$(MB_SERVER_PATH)/admin/GenerateSQLScripts.pl sql/
+
+installsql:
+	$(MB_SERVER_PATH)/admin/psql -f sql/CreateFunctions.sql
+	$(MB_SERVER_PATH)/admin/psql -f sql/CreateTriggers.sql
