@@ -6,11 +6,11 @@ Git
 ~~~
 
 If you want the latest code or even feel like contributing, the code is
-available on `Github <https://github.com/mineo/sir>`_.
+available on `Github <https://github.com/metabrainz/sir>`_.
 
 You can easily clone the code with git::
 
-    git clone git://github.com/mineo/sir.git
+    git clone git://github.com/metabrainz/sir.git
 
 Now you can install it system-wide::
 
@@ -39,4 +39,3 @@ The easiest way to run sir at the moment is to use a `virtual environment
 You can now use sir via::
 
     python -m sir
-

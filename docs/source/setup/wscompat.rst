@@ -11,4 +11,4 @@ retrieve responses as mmd-compatible XML or the derived JSON.
 
 .. _mmd-schema: https://github.com/metabrainz/mmd-schema
 .. _derived JSON: https://musicbrainz.org/doc/Development/JSON_Web_Service
-.. _mb-solrquerywriter: https://github.com/mineo/mb-solrquerywriter/
+.. _mb-solrquerywriter: https://github.com/metabrainz/mb-solrquerywriter/
