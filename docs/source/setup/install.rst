@@ -20,7 +20,7 @@ or start hacking on the code. To do that, you'll need to run at least::
 
     python2 setup version
 
-once to generate the file **sir/version.py** which the code needs. This file
+once to generate the file ``sir/version.py`` which the code needs. This file
 does not have to be added into the git repository because it only contains the
 hash of the current git commit, which changes after each commit operation.
 
