@@ -126,7 +126,7 @@ COMMENT ON FUNCTION {name}() IS 'The path for this function is {path}';
 
     def test_triggername(self):
         self.assertEqual(self.gen.triggername,
-                         "search_PREFIX_OPERATION_{index}".format(index=self.index))
+                         "search_PREFIX_OPERATION_{index}".format(index=self.index))  # noqa
 
     def test_trigger(self):
         self.assertEqual(self.gen.trigger,
@@ -135,8 +135,9 @@ COMMENT ON FUNCTION {name}() IS 'The path for this function is {path}';
                          "\n"
                          "    FOR EACH ROW EXECUTE PROCEDURE {name}();"
                          "\n"
-                         "COMMENT ON TRIGGER {name} IS 'The path for this trigger is {path}';\n".
-                         format(name=self.gen.triggername, path=self.path))
+                         "COMMENT ON TRIGGER {name} ON {tablename} IS 'The path for this trigger is {path}';\n".  # noqa
+                         format(name=self.gen.triggername, path=self.path,
+                                tablename="TABLE"))
 
     def test_delete_attributes(self):
         self.assertEqual(DeleteTriggerGenerator.op, "delete")
