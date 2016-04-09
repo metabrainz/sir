@@ -134,7 +134,7 @@ class TriggerGenerator(object):
 CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
     FOR EACH ROW EXECUTE PROCEDURE {triggername}();
 COMMENT ON TRIGGER {triggername} ON {tablename} IS 'The path for this trigger is {path}';
-""".format(triggername=self.triggername, tablename=self.tablename,
+""".format(triggername=self.triggername, tablename=self.tablename,  # noqa
            op=self.op.upper(), beforeafter=self.beforeafter, path=self.path)
         return trigger
 
