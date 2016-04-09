@@ -301,7 +301,11 @@ def convert_life_span(begin_date, end_date, ended):
         lifespan.set_ended("true")
     else:
         lifespan.set_ended("false")
-    return lifespan
+
+    if lifespan.get_begin() is not None or lifespan.get_end() is not None:
+        return lifespan
+    else:
+        return None
 
 
 def convert_medium(obj):
@@ -394,19 +398,7 @@ def convert_place(obj):
     if obj.coordinates is not None:
         place.set_coordinates(convert_coordinates(obj.coordinates))
 
-    lifespan = models.life_span()
-
-    if obj.begin_date_year is not None:
-        lifespan.set_begin(partialdate_to_string(obj.begin_date))
-
-    if obj.end_date_year is not None:
-        lifespan.set_end(partialdate_to_string(obj.end_date))
-
-    if obj.ended:
-        lifespan.set_ended("true")
-    else:
-        lifespan.set_ended("false")
-
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     place.set_life_span(lifespan)
 
     if obj.type is not None:
@@ -638,19 +630,7 @@ def convert_artist(obj):
     if obj.end_area is not None:
         artist.set_end_area(convert_area_inner(obj.end_area))
 
-    lifespan = models.life_span()
-
-    if obj.begin_date_year is not None:
-        lifespan.set_begin(partialdate_to_string(obj.begin_date))
-
-    if obj.end_date_year is not None:
-        lifespan.set_end(partialdate_to_string(obj.end_date))
-
-    if obj.ended:
-        lifespan.set_ended("true")
-    else:
-        lifespan.set_ended("false")
-
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     artist.set_life_span(lifespan)
 
     if len(obj.aliases) > 0:
@@ -717,19 +697,7 @@ def convert_event(obj):
     if obj.type is not None:
         event.set_type(obj.type.name)
 
-    lifespan = models.life_span()
-
-    if obj.begin_date_year is not None:
-        lifespan.set_begin(partialdate_to_string(obj.begin_date))
-
-    if obj.end_date_year is not None:
-        lifespan.set_end(partialdate_to_string(obj.end_date))
-
-    if obj.ended:
-        lifespan.set_ended("true")
-    else:
-        lifespan.set_ended("false")
-
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     event.set_life_span(lifespan)
 
     return event
