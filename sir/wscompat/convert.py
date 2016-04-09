@@ -302,10 +302,7 @@ def convert_life_span(begin_date, end_date, ended):
     else:
         lifespan.set_ended("false")
 
-    if lifespan.get_begin() is not None or lifespan.get_end() is not None:
-        return lifespan
-    else:
-        return None
+    return lifespan
 
 
 def convert_medium(obj):
