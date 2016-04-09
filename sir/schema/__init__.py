@@ -109,7 +109,7 @@ SearchEvent = E(modelext.CustomEvent, [
     convert.convert_event,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date", "time"]
+                "aliases.begin_date", "aliases.end_date", "tags.count", "time"]
 )
 
 SearchInstrument = E(modelext.CustomInstrument, [
@@ -147,7 +147,7 @@ SearchLabel = E(modelext.CustomLabel, [
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area.gid"
+                "area.gid", "area.type.name", "tags.count"
                 ]
 )
 
@@ -440,7 +440,8 @@ SearchWork = E(modelext.CustomWork, [
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
                 "artist_links.link.link_type.name",
-                "artist_links.link.attributes.attribute_type.name"]
+                "artist_links.link.attributes.attribute_type.name",
+                "tags.count"]
 )
 
 
