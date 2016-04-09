@@ -756,6 +756,9 @@ def convert_label(obj):
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
 
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
+    label.set_life_span(lifespan)
+
     if len(obj.tags) > 0:
         label.set_tag_list(convert_tag_list(obj.tags))
 
