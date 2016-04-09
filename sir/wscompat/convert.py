@@ -136,16 +136,13 @@ def convert_artist_credit(obj, include_aliases=True):
     return ac
 
 
-def convert_alias(obj, has_sort_name=True):
+def convert_alias(obj):
     """
     :type obj: :class:`mbdata.models.WorkAlias`
     """
     alias = models.alias()
     alias.set_locale(obj.locale)
-    if has_sort_name:
-        alias.set_sort_name(obj.sort_name)
-    else:
-        alias.set_sort_name(obj.name)
+    alias.set_sort_name(obj.sort_name)
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
@@ -162,12 +159,12 @@ def convert_alias(obj, has_sort_name=True):
     return alias
 
 
-def convert_alias_list(obj, has_sort_name=True):
+def convert_alias_list(obj):
     """
     :type obj: :class:`[mbdata.models.WorkAlias]`
     """
     alias_list = models.alias_list()
-    [alias_list.add_alias(convert_alias(a, has_sort_name)) for a in obj]
+    [alias_list.add_alias(convert_alias(a)) for a in obj]
     return alias_list
 
 
@@ -775,7 +772,7 @@ def convert_label(obj):
 
     if len(obj.aliases) > 0:
         label.set_alias_list(
-            convert_alias_list(obj.aliases, has_sort_name=False))
+            convert_alias_list(obj.aliases))
 
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
