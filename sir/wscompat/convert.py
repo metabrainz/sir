@@ -610,8 +610,8 @@ def convert_artist(obj):
     if obj.comment is not None:
         artist.set_disambiguation(obj.comment)
 
-    if artist.gender is not None:
-        artist.set_gender(artist.gender.name)
+    if obj.gender is not None:
+        artist.set_gender(obj.gender.name.lower())
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
