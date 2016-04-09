@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015 Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2016 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import queryext
 from . import modelext
@@ -109,7 +109,7 @@ SearchEvent = E(modelext.CustomEvent, [
     convert.convert_event,
     extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date"]
+                "aliases.begin_date", "aliases.end_date", "time"]
 )
 
 SearchInstrument = E(modelext.CustomInstrument, [

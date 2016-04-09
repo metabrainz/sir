@@ -17,6 +17,10 @@ BARCODE_NONE = "none"
 BARCODE_UNKOWN = "-"
 
 
+#: Time format string
+TIME_FORMAT = "%H:%M:%S"
+
+
 def partialdate_to_string(obj):
     """
     :type obj: :class:`mbdata.types.PartialDate`
@@ -37,6 +41,13 @@ def partialdate_to_string(obj):
                 args.append(obj.day)
 
     return formatstring % tuple(args)
+
+
+def datetime_to_string(obj):
+    """
+    :type obj: :class:`datetime.time`
+    """
+    return obj.strftime(TIME_FORMAT)
 
 
 def convert_iso_3166_1_code_list(obj):
@@ -696,6 +707,9 @@ def convert_event(obj):
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     event.set_life_span(lifespan)
+
+    if obj.time is not None:
+        event.set_time(datetime_to_string(obj.time))
 
     return event
 
