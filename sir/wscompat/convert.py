@@ -730,6 +730,9 @@ def convert_instrument(obj):
     if obj.type is not None:
         instrument.set_type(obj.type.name)
 
+    if len(obj.aliases) > 0:
+        instrument.set_alias_list(convert_alias_list(obj.aliases))
+
     return instrument
 
 

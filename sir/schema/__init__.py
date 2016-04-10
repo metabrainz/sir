@@ -121,7 +121,10 @@ SearchInstrument = E(modelext.CustomInstrument, [
     F("type", "type.name")
 ],
     1.5,
-    convert.convert_instrument
+    convert.convert_instrument,
+    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date"]
 )
 
 
