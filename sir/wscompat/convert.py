@@ -706,7 +706,8 @@ def convert_event(obj):
         event.set_type(obj.type.name)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
-    event.set_life_span(lifespan)
+    if lifespan.get_begin() is not None or lifespan.get_end() is not None:
+        event.set_life_span(lifespan)
 
     if obj.time is not None:
         event.set_time(datetime_to_string(obj.time))
