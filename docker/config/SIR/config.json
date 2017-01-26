@@ -1,0 +1,4 @@
+{
+  "import_threads": "1",
+  "query_batch_size": "20000"
+}

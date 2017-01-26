@@ -1,0 +1,34 @@
+{{- define "KEY" -}}
+    {{ key (printf "docker-server-configs/SIR/config.json/%s" .) }}
+{{- end -}}
+
+
+[sir]
+import_threads = {{template "KEY" "import_threads"}}
+query_batch_size = {{template "KEY" "query_batch_size"}}
+wscompat = on
+
+{{if service "pgbouncer-slave"}}
+[database]
+{{with index (service "pgbouncer-slave") 0}}
+uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
+{{end}}
+{{end}}
+
+{{if service "solr"}}
+[solr]
+{{with index (service "solr") 0}}
+uri = http://{{.Address}}:{{.Port}}/solr
+batch_size = 60
+{{end}}
+{{end}}
+
+{{if service "sir-rabbit"}}
+[rabbitmq]
+{{with index (service "sir-rabbit") 0}}
+host = {{.Address}}:{{.Port}}
+user = sir
+password = sir
+vhost = /
+{{end}}
+{{end}}

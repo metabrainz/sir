@@ -1,6 +1,7 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import ConfigParser
+import os.path
 
 #: A :class:`ConfigParser.SafeConfigParser` instance holding the configuration
 #: data.
@@ -18,7 +19,10 @@ def read_config():
     instance.
     """
     config = ConfigParser.SafeConfigParser()
-    read_files = config.read(["config.ini"])
+    read_files = config.read([os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        "..", "config.ini"
+    )])
     if not read_files:
         raise ConfigError("No configuration file could be found")
     global CFG

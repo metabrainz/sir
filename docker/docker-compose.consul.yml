@@ -1,0 +1,35 @@
+version: "2"
+services:
+
+  consul:
+    command: -server -bootstrap
+    image: progrium/consul
+    network_mode: "host"
+    ports:
+      - "8500:8500"
+
+  git2consul:
+    command: --endpoint 127.0.0.1 --port 8500 --config-file /etc/git2consul.d/config.json
+    image: cimpress/git2consul
+    restart: always
+    depends_on:
+      - consul
+    network_mode: "host"
+    volumes:
+      - ../:/tmp/sir.git
+      - ./git2consul:/etc/git2consul.d
+
+  sir:
+    build:
+        context: ..
+        dockerfile: ./Dockerfile
+    network_mode: "host"
+    volumes:
+      - ../:/code
+
+  sir_rabbit:
+    image: rabbitmq:3.6
+    network_mode: "host"
+    environment:
+      RABBITMQ_DEFAULT_USER: "sir"
+      RABBITMQ_DEFAULT_PASS: "sir"

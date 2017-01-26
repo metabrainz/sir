@@ -26,6 +26,8 @@ def reindex(args):
     """
     Reindexes all entity types in args["entity_type"].
 
+    If no types are specified, all known entities will be reindexed.
+
     :param args: A dictionary with a key named ``entities``.
     :type args: dict
     """

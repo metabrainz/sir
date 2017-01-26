@@ -1,0 +1,19 @@
+# Docker configuration
+/docker
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+env
+venv
+/build
+
+# Logs
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Configuration generated from Consul's KV storage
+/config.ini
