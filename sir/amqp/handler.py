@@ -3,6 +3,7 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import message
+from sir import get_sentry
 from ..schema import SCHEMA
 from ..indexing import send_data_to_solr
 from ..util import (create_amqp_connection,
@@ -59,6 +60,7 @@ def callback_wrapper(f):
             parsed_message = message.Message.from_amqp_message(queue, msg)
             f(self=self, parsed_message=parsed_message)
         except Exception as exc:
+            get_sentry().captureException()
             logger.error(exc)
 
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
@@ -125,23 +127,26 @@ def _should_retry(exc):
 
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
 def _watch_impl():
-    conn = create_amqp_connection()
-    logger.info("Connection to RabbitMQ established")
-    ch = conn.channel()
-
-    handler = Handler()
 
     def add_handler(queue, f):
         logger.info("Adding a callback to %s", queue)
         handler = partial(f, queue=queue)
         ch.basic_consume(queue, callback=handler)
 
-    add_handler("search.index", handler.index_callback)
-    add_handler("search.delete", handler.delete_callback)
+    try:
+        conn = create_amqp_connection()
+        logger.info("Connection to RabbitMQ established")
+        ch = conn.channel()
 
-    while ch.callbacks:
-        ch.wait()
+        handler = Handler()
+        add_handler("search.index", handler.index_callback)
+        add_handler("search.delete", handler.delete_callback)
 
+        while ch.callbacks:
+            ch.wait()
+    except Exception:
+        get_sentry().captureException()
+        raise
 
 def watch(args):
     """
@@ -152,6 +157,7 @@ def watch(args):
     try:
         create_amqp_connection()
     except socket_error as e:
+        get_sentry().captureException()
         logger.error("Couldn't connect to RabbitMQ, check your settings")
         logger.error("The error was: %s", e)
         return
@@ -159,5 +165,6 @@ def watch(args):
     try:
         _watch_impl()
     except URLError as e:
+        get_sentry().captureException()
         logger.info("Connecting to Solr failed: %s", e)
         return

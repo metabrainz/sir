@@ -5,7 +5,7 @@ import os.path
 
 #: A :class:`ConfigParser.SafeConfigParser` instance holding the configuration
 #: data.
-CFG = None
+CFG = None  # type: ConfigParser.SafeConfigParser
 
 
 class ConfigError(Exception):

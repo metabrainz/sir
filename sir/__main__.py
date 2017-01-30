@@ -3,9 +3,11 @@
 import argparse
 import logging
 import multiprocessing
+import ConfigParser
 
 
 from . import config
+from . import init_raven_client
 from .amqp.handler import watch
 from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
@@ -97,6 +99,10 @@ def main():
             sqltimelogger.debug("Total Time: %f", total)
 
     config.read_config()
+    try:
+        init_raven_client(config.CFG.get("sentry", "dsn"))
+    except ConfigParser.Error as e:
+        logger.info("Skipping Raven client initialization. Configuration issue: %s", e)
     func = args.func
     args = vars(args)
     func(args)

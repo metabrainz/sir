@@ -3,7 +3,7 @@
 import multiprocessing
 
 
-from . import config, querying, util
+from . import config, querying, util, get_sentry
 from .schema import SCHEMA
 from ConfigParser import NoOptionError
 from functools import partial
@@ -42,6 +42,7 @@ def reindex(args):
         util.check_solr_cores_version(entities)
     except util.VersionMismatchException as exc:
         logger.error(exc)
+        get_sentry().captureException()
         return
 
     _multiprocessed_import(entities)
@@ -98,6 +99,7 @@ def _multiprocessed_import(entities):
                 pass
         except (KeyboardInterrupt, Exception) as exc:
             logger.exception(exc)
+            get_sentry().captureException()
         else:
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
@@ -122,8 +124,9 @@ def _index_entity_process_wrapper(args):
         return index_entity(*args)
     except Exception:
         logger.exception(format_exc())
+        get_sentry().captureException()
         raise
-    except (KeyboardInterrupt) as exc:
+    except KeyboardInterrupt as exc:
         return exc
 
 
@@ -173,6 +176,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
             try:
                 send_data_to_solr(solr_connection, data)
             except SolrException as exc:
+                get_sentry().captureException()
                 if exc.httpcode == 400:
                     pass
                 else:
@@ -198,6 +202,7 @@ def send_data_to_solr(solr_connection, data):
     try:
         solr_connection.add_many(data)
     except SolrException as exc:
+        get_sentry().captureException(extra={"data": data})
         if exc.httpcode == 400:
             logger.info("""Received a Bad Request response form Solr,
             continuing anyway""")

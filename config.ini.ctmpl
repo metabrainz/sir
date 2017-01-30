@@ -32,3 +32,6 @@ password = sir
 vhost = /
 {{end}}
 {{end}}
+
+[sentry]
+dsn = {{template "KEY" "sentry_dsn"}}
