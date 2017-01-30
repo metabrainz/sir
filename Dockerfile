@@ -32,8 +32,6 @@ COPY ./requirements.txt /code/
 RUN pip install -r requirements.txt
 
 COPY . /code/
-# TODO(roman): This command doesn't seem to work because it doesn't find git files
-RUN python setup.py version
 
 ############
 # Services #
