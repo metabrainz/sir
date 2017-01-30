@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-# This script MUST be executed from the root directory of the SIR repository!
+cd "$(dirname "${BASH_SOURCE[0]}")/../"
 
 docker build -t metabrainz/sir .
 docker push metabrainz/sir
