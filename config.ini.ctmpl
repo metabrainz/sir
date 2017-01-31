@@ -8,12 +8,16 @@ import_threads = {{template "KEY" "import_threads"}}
 query_batch_size = {{template "KEY" "query_batch_size"}}
 wscompat = on
 
-{{if service "pgbouncer-slave"}}
 [database]
-{{with index (service "pgbouncer-slave") 0}}
+{{- if service "pgbouncer-master"}}
+{{- with index (service "pgbouncer-master") 0}}
 uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
-{{end}}
-{{end}}
+{{- end}}
+{{- else if service "pgbouncer-slave"}}
+{{- with index (service "pgbouncer-slave") 0}}
+uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
+{{- end}}
+{{- end}}
 
 {{if service "solr"}}
 [solr]
