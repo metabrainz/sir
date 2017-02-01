@@ -1,4 +1,9 @@
-from .version import __version__  # noqa
+try:
+    # Version is required only for generating the documentation
+    from .version import __version__  # noqa
+except ImportError:
+    __version__ = None
+
 import raven
 import raven.transport.threaded_requests
 import logging
