@@ -27,9 +27,9 @@ batch_size = 60
 {{end}}
 {{end}}
 
-{{if service "sir-rabbit"}}
+{{if service "rabbitmq"}}
 [rabbitmq]
-{{with index (service "sir-rabbit") 0}}
+{{with index (service "rabbitmq") 0}}
 host = {{.Address}}:{{.Port}}
 user = sir
 password = sir
