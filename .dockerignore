@@ -19,3 +19,5 @@ pip-delete-this-directory.txt
 
 # Configuration generated from Consul's KV storage
 /config.ini
+
+/docs
