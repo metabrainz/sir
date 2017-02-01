@@ -6,7 +6,6 @@ RUN apt-get update && \
                     ca-certificates \
                     cron \
                     git \
-                    rabbitmq-server \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \
