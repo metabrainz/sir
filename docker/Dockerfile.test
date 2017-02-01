@@ -1,0 +1,28 @@
+FROM metabrainz/python:2.7
+
+RUN mkdir /code
+WORKDIR /code
+
+# Python dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+                    build-essential \
+                    ca-certificates \
+                    cron \
+                    git \
+                    libpq-dev \
+                    libffi-dev \
+                    libssl-dev \
+                    libxml2-dev \
+                    libxslt1-dev && \
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt /code/
+COPY requirements_dev.txt /code/
+RUN pip install -r requirements.txt
+RUN pip install -r requirements_dev.txt
+
+COPY . /code/
+
+CMD py.test --junitxml=/data/test_report.xml \
+            --cov-report xml:/data/coverage.xml \
+            --cov-report html:/data/coverage-html

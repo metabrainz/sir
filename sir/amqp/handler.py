@@ -60,7 +60,7 @@ def callback_wrapper(f):
             parsed_message = message.Message.from_amqp_message(queue, msg)
             f(self=self, parsed_message=parsed_message)
         except Exception as exc:
-            get_sentry().captureException()
+            get_sentry().captureException(extra={"msg": msg, "attributes": msg.__dict__})
             logger.error(exc)
 
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
