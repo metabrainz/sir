@@ -6,16 +6,16 @@
 [sir]
 import_threads = {{template "KEY" "import_threads"}}
 query_batch_size = {{template "KEY" "query_batch_size"}}
-wscompat = on
+wscompat = {{template "KEY" "wscompat"}}
 
 [database]
 {{- if service "pgbouncer-master"}}
 {{- with index (service "pgbouncer-master") 0}}
-uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
+uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/musicbrainz_db
 {{- end}}
 {{- else if service "pgbouncer-slave"}}
 {{- with index (service "pgbouncer-slave") 0}}
-uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
+uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/musicbrainz_db
 {{- end}}
 {{- end}}
 
@@ -23,7 +23,7 @@ uri = postgresql://sir:sir@{{.Address}}:{{.Port}}/musicbrainz_db
 [solr]
 {{with index (service "solr") 0}}
 uri = http://{{.Address}}:{{.Port}}/solr
-batch_size = 60
+batch_size = {{template "KEY" "solr/batch_size"}}
 {{end}}
 {{end}}
 
@@ -31,9 +31,9 @@ batch_size = 60
 [rabbitmq]
 {{with index (service "rabbitmq") 0}}
 host = {{.Address}}:{{.Port}}
-user = sir
-password = sir
-vhost = /
+user = {{template "KEY" "rabbitmq/user"}}
+password = {{template "KEY" "rabbitmq/password"}}
+vhost = {{template "KEY" "rabbitmq/vhost"}}
 {{end}}
 {{end}}
 

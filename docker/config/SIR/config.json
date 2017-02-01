@@ -1,5 +1,18 @@
 {
-  "import_threads": "1",
-  "query_batch_size": "20000",
+  "import_threads": "2",
+  "query_batch_size": "30000",
+  "wscompat": "on",
+  "db": {
+    "user": "sir",
+    "password": "sir"
+  },
+  "rabbitmq": {
+    "user": "sir",
+    "password": "sir",
+    "vhost": "/sir"
+  },
+  "solr": {
+    "batch_size": 100
+  },
   "sentry_dsn": ""
 }
