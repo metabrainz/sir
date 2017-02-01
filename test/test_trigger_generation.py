@@ -163,10 +163,19 @@ class WriteTriggersTest(unittest.TestCase):
         self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
         self.index = 5
-        write_triggers_to_file(self.triggerfile, self.functionfile,
-                               (InsertTriggerGenerator,),
-                               "entity_c", "table_c", "bs.foo", "SELECTION",
-                               "table_b", self.index)
+        write_triggers_to_file(
+            self.triggerfile,
+            self.functionfile,
+            generators=(InsertTriggerGenerator,),
+            entityname="entity_c",
+            table="table_c",
+            path="bs.foo",
+            select="SELECTION",
+            indextable="table_b",
+            index=self.index,
+            broker_id=1,
+        )
+
         self.gen = InsertTriggerGenerator("entity_c", "table_c", "bs.foo",
                                           "SELECTION", "table_b", self.index)
 
@@ -185,8 +194,13 @@ class DirectTriggerWriterTest(unittest.TestCase):
     def setUp(self):
         self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
-        write_direct_triggers(self.triggerfile, self.functionfile,
-                              "entity_c", models.C)
+        write_direct_triggers(
+            triggerfile=self.triggerfile,
+            functionfile=self.functionfile,
+            entityname="entity_c",
+            model=models.C,
+            broker_id=1,
+        )
         self.generators = []
         for g in (GIDDeleteTriggerGenerator,
                   InsertTriggerGenerator,

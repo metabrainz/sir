@@ -93,7 +93,7 @@ class TriggerGenerator(object):
     #: The routing key to be used for the message sent via AMQP
     routing_key = None
 
-    def __init__(self, prefix, tablename, path, select, indextable, index):
+    def __init__(self, prefix, tablename, path, select, indextable, index, broker_id=1):
         """
         :param str prefix: A prefix for the trigger name
         :param str tablename: The table on which to generate the trigger
@@ -104,6 +104,7 @@ class TriggerGenerator(object):
         :param int index: To allow for multiple triggers and functions on a
                           single entity type, we suffix each of them with an
                           index to avoid name collissions.
+        :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.prefix = prefix.replace("-", "_")
         self.tablename = tablename
@@ -112,6 +113,7 @@ class TriggerGenerator(object):
         self.select = select
         self.indextable = indextable
         self.index = index
+        self.broker_id = broker_id
 
     @property
     def triggername(self):
@@ -153,15 +155,20 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM ({select}) AS tmp;
-    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || ids);
+    PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{tablename} ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
 """.\
-            format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.indextable,
-                   path=self.path)
+            format(
+                triggername=self.triggername,
+                select=self.select,
+                broker_id=self.broker_id,
+                routing_key=self.routing_key,
+                tablename=self.indextable,
+                path=self.path,
+            )
         return func
 
 
@@ -204,15 +211,20 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM ({select}) AS tmp;
-    PERFORM amqp.publish(1, 'search', '{routing_key}', '{tablename} ' || gids);
+    PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{tablename} ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
-""".\
-            format(triggername=self.triggername, select=self.select,
-                   routing_key=self.routing_key, tablename=self.tablename,
-                   path=self.path)
+""". \
+            format(
+                triggername=self.triggername,
+                select=self.select,
+                broker_id=self.broker_id,
+                routing_key=self.routing_key,
+                tablename=self.tablename,
+                path=self.path,
+            )
         return func
 
 

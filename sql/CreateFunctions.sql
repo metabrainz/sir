@@ -8,7 +8,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT annotation.gid AS id FROM annotation WHERE annotation.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'annotation ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'annotation ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -20,7 +20,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -32,7 +32,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -44,7 +44,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -56,7 +56,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -68,7 +68,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -80,7 +80,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT area_annotation.area FROM area_annotation WHERE area_annotation.area IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -92,7 +92,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT area_annotation.area FROM area_annotation WHERE area_annotation.area IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -104,7 +104,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT area_annotation.area FROM area_annotation WHERE area_annotation.area IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -116,7 +116,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -128,7 +128,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -140,7 +140,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -152,7 +152,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT artist_annotation.artist FROM artist_annotation WHERE artist_annotation.artist IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -164,7 +164,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT artist_annotation.artist FROM artist_annotation WHERE artist_annotation.artist IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -176,7 +176,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT artist_annotation.artist FROM artist_annotation WHERE artist_annotation.artist IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -188,7 +188,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -200,7 +200,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -212,7 +212,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -224,7 +224,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT event_annotation.event FROM event_annotation WHERE event_annotation.event IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -236,7 +236,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT event_annotation.event FROM event_annotation WHERE event_annotation.event IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -248,7 +248,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT event_annotation.event FROM event_annotation WHERE event_annotation.event IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -260,7 +260,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -272,7 +272,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -284,7 +284,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -296,7 +296,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT instrument_annotation.instrument FROM instrument_annotation WHERE instrument_annotation.instrument IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -308,7 +308,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT instrument_annotation.instrument FROM instrument_annotation WHERE instrument_annotation.instrument IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -320,7 +320,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT instrument_annotation.instrument FROM instrument_annotation WHERE instrument_annotation.instrument IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -332,7 +332,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -344,7 +344,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -356,7 +356,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -368,7 +368,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT label_annotation.label FROM label_annotation WHERE label_annotation.label IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -380,7 +380,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT label_annotation.label FROM label_annotation WHERE label_annotation.label IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -392,7 +392,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT label_annotation.label FROM label_annotation WHERE label_annotation.label IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -404,7 +404,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -416,7 +416,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -428,7 +428,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -440,7 +440,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT place_annotation.place FROM place_annotation WHERE place_annotation.place IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -452,7 +452,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT place_annotation.place FROM place_annotation WHERE place_annotation.place IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -464,7 +464,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT place_annotation.place FROM place_annotation WHERE place_annotation.place IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -476,7 +476,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -488,7 +488,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -500,7 +500,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -512,7 +512,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT recording_annotation.recording FROM recording_annotation WHERE recording_annotation.recording IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -524,7 +524,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT recording_annotation.recording FROM recording_annotation WHERE recording_annotation.recording IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -536,7 +536,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT recording_annotation.recording FROM recording_annotation WHERE recording_annotation.recording IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -548,7 +548,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -560,7 +560,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -572,7 +572,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -584,7 +584,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_annotation.release FROM release_annotation WHERE release_annotation.release IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -596,7 +596,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_annotation.release FROM release_annotation WHERE release_annotation.release IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -608,7 +608,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_annotation.release FROM release_annotation WHERE release_annotation.release IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -620,7 +620,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -632,7 +632,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -644,7 +644,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -656,7 +656,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_group_annotation.release_group FROM release_group_annotation WHERE release_group_annotation.release_group IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -668,7 +668,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_group_annotation.release_group FROM release_group_annotation WHERE release_group_annotation.release_group IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -680,7 +680,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT release_group_annotation.release_group FROM release_group_annotation WHERE release_group_annotation.release_group IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -692,7 +692,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -704,7 +704,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -716,7 +716,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -728,7 +728,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT series_annotation.series FROM series_annotation WHERE series_annotation.series IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -740,7 +740,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT series_annotation.series FROM series_annotation WHERE series_annotation.series IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -752,7 +752,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT series_annotation.series FROM series_annotation WHERE series_annotation.series IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -764,7 +764,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (OLD.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -776,7 +776,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -788,7 +788,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (NEW.annotation)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -800,7 +800,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT work_annotation.work FROM work_annotation WHERE work_annotation.work IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -812,7 +812,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT work_annotation.work FROM work_annotation WHERE work_annotation.work IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -824,7 +824,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT annotation.id FROM annotation WHERE annotation.id IN (SELECT work_annotation.work FROM work_annotation WHERE work_annotation.work IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'annotation ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'annotation ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -836,7 +836,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT area.gid AS id FROM area WHERE area.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'area ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'area ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -848,7 +848,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -860,7 +860,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -872,7 +872,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (OLD.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -884,7 +884,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -896,7 +896,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -908,7 +908,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (OLD.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -920,7 +920,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -932,7 +932,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -944,7 +944,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (OLD.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -956,7 +956,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -968,7 +968,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -980,7 +980,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (OLD.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -992,7 +992,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1004,7 +1004,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.id IN (NEW.area)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1016,7 +1016,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1028,7 +1028,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1040,7 +1040,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT area.id FROM area WHERE area.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'area ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'area ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1052,7 +1052,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT artist.gid AS id FROM artist WHERE artist.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'artist ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'artist ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1064,7 +1064,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1076,7 +1076,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1088,7 +1088,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (OLD.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1100,7 +1100,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1112,7 +1112,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1124,7 +1124,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1136,7 +1136,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1148,7 +1148,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1160,7 +1160,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1172,7 +1172,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1184,7 +1184,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1196,7 +1196,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1208,7 +1208,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1220,7 +1220,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1232,7 +1232,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1244,7 +1244,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1256,7 +1256,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.begin_area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1268,7 +1268,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1280,7 +1280,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1292,7 +1292,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1304,7 +1304,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1316,7 +1316,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1328,7 +1328,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1340,7 +1340,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1352,7 +1352,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1364,7 +1364,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.end_area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1376,7 +1376,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.gender IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1388,7 +1388,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.gender IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1400,7 +1400,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.gender IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1412,7 +1412,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (OLD.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1424,7 +1424,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1436,7 +1436,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1448,7 +1448,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (OLD.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1460,7 +1460,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1472,7 +1472,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1484,7 +1484,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (OLD.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1496,7 +1496,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1508,7 +1508,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1520,7 +1520,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_tag.artist FROM artist_tag WHERE artist_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1532,7 +1532,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_tag.artist FROM artist_tag WHERE artist_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1544,7 +1544,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_tag.artist FROM artist_tag WHERE artist_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1556,7 +1556,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (OLD.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1568,7 +1568,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1580,7 +1580,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (NEW.artist)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1592,7 +1592,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist_credit IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1604,7 +1604,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist_credit IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1616,7 +1616,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist_credit IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1628,7 +1628,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1640,7 +1640,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1652,7 +1652,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT artist.id FROM artist WHERE artist.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'artist ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'artist ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1664,7 +1664,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT release_raw.gid AS id FROM release_raw WHERE release_raw.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'release_raw ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'release_raw ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1676,7 +1676,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_raw.id FROM release_raw WHERE release_raw.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_raw ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_raw ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1688,7 +1688,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_raw.id FROM release_raw WHERE release_raw.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_raw ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_raw ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1700,7 +1700,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_raw.id FROM release_raw WHERE release_raw.id IN (OLD.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_raw ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_raw ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1712,7 +1712,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_raw.id FROM release_raw WHERE release_raw.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_raw ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_raw ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1724,7 +1724,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_raw.id FROM release_raw WHERE release_raw.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_raw ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_raw ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1736,7 +1736,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT editor.gid AS id FROM editor WHERE editor.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'editor ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'editor ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1748,7 +1748,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT editor.id FROM editor WHERE editor.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'editor ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'editor ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1760,7 +1760,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT editor.id FROM editor WHERE editor.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'editor ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'editor ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1772,7 +1772,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT event.gid AS id FROM event WHERE event.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'event ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'event ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1784,7 +1784,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1796,7 +1796,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1808,7 +1808,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (OLD.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1820,7 +1820,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1832,7 +1832,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1844,7 +1844,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (OLD.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1856,7 +1856,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1868,7 +1868,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1880,7 +1880,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_area_event.id FROM l_area_event WHERE l_area_event.entity0 IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1892,7 +1892,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_area_event.id FROM l_area_event WHERE l_area_event.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1904,7 +1904,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_area_event.id FROM l_area_event WHERE l_area_event.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1916,7 +1916,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (OLD.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1928,7 +1928,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1940,7 +1940,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1952,7 +1952,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_artist_event.id FROM l_artist_event WHERE l_artist_event.entity0 IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1964,7 +1964,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_artist_event.id FROM l_artist_event WHERE l_artist_event.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1976,7 +1976,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_artist_event.id FROM l_artist_event WHERE l_artist_event.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1988,7 +1988,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (OLD.entity0)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2000,7 +2000,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity0)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2012,7 +2012,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.entity0)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2024,7 +2024,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_event_place.id FROM l_event_place WHERE l_event_place.entity1 IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2036,7 +2036,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_event_place.id FROM l_event_place WHERE l_event_place.entity1 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2048,7 +2048,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT l_event_place.id FROM l_event_place WHERE l_event_place.entity1 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2060,7 +2060,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (OLD.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2072,7 +2072,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2084,7 +2084,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (NEW.event)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2096,7 +2096,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT event_tag.event FROM event_tag WHERE event_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2108,7 +2108,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT event_tag.event FROM event_tag WHERE event_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2120,7 +2120,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.id IN (SELECT event_tag.event FROM event_tag WHERE event_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2132,7 +2132,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2144,7 +2144,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2156,7 +2156,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT event.id FROM event WHERE event.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'event ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'event ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2168,7 +2168,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT instrument.gid AS id FROM instrument WHERE instrument.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'instrument ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'instrument ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2180,7 +2180,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2192,7 +2192,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2204,7 +2204,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (OLD.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2216,7 +2216,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (NEW.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2228,7 +2228,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (NEW.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2240,7 +2240,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (OLD.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2252,7 +2252,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (NEW.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2264,7 +2264,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (NEW.instrument)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2276,7 +2276,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (SELECT instrument_tag.instrument FROM instrument_tag WHERE instrument_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2288,7 +2288,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (SELECT instrument_tag.instrument FROM instrument_tag WHERE instrument_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2300,7 +2300,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.id IN (SELECT instrument_tag.instrument FROM instrument_tag WHERE instrument_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2312,7 +2312,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2324,7 +2324,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2336,7 +2336,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT instrument.id FROM instrument WHERE instrument.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'instrument ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'instrument ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2348,7 +2348,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT label.gid AS id FROM label WHERE label.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'label ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'label ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2360,7 +2360,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2372,7 +2372,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2384,7 +2384,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (OLD.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2396,7 +2396,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2408,7 +2408,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2420,7 +2420,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2432,7 +2432,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2444,7 +2444,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2456,7 +2456,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2468,7 +2468,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2480,7 +2480,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2492,7 +2492,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2504,7 +2504,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2516,7 +2516,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2528,7 +2528,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (OLD.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2540,7 +2540,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2552,7 +2552,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2564,7 +2564,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (OLD.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2576,7 +2576,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2588,7 +2588,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (NEW.label)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2600,7 +2600,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (SELECT label_tag.label FROM label_tag WHERE label_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2612,7 +2612,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (SELECT label_tag.label FROM label_tag WHERE label_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2624,7 +2624,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.id IN (SELECT label_tag.label FROM label_tag WHERE label_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2636,7 +2636,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2648,7 +2648,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2660,7 +2660,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT label.id FROM label WHERE label.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'label ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'label ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2672,7 +2672,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT place.gid AS id FROM place WHERE place.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'place ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'place ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2684,7 +2684,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2696,7 +2696,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2708,7 +2708,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.id IN (OLD.place)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2720,7 +2720,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.id IN (NEW.place)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2732,7 +2732,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.id IN (NEW.place)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2744,7 +2744,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2756,7 +2756,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2768,7 +2768,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2780,7 +2780,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (SELECT area.id FROM area WHERE area.id IN (OLD.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2792,7 +2792,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2804,7 +2804,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.area IN (SELECT area.id FROM area WHERE area.id IN (NEW.area))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2816,7 +2816,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2828,7 +2828,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2840,7 +2840,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT place.id FROM place WHERE place.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'place ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'place ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2852,7 +2852,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT recording.gid AS id FROM recording WHERE recording.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'recording ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'recording ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2864,7 +2864,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2876,7 +2876,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2888,7 +2888,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2900,7 +2900,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2912,7 +2912,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2924,7 +2924,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (OLD.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2936,7 +2936,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2948,7 +2948,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2960,7 +2960,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2972,7 +2972,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2984,7 +2984,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -2996,7 +2996,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (OLD.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3008,7 +3008,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3020,7 +3020,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3032,7 +3032,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3044,7 +3044,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3056,7 +3056,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3068,7 +3068,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3080,7 +3080,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3092,7 +3092,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3104,7 +3104,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (OLD.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3116,7 +3116,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (NEW.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3128,7 +3128,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (NEW.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3140,7 +3140,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (OLD.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3152,7 +3152,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (NEW.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3164,7 +3164,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (NEW.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3176,7 +3176,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (OLD.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3188,7 +3188,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (NEW.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3200,7 +3200,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (NEW.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3212,7 +3212,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.format IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3224,7 +3224,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.format IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3236,7 +3236,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.format IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3248,7 +3248,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (OLD.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3260,7 +3260,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3272,7 +3272,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3284,7 +3284,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (OLD.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3296,7 +3296,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (NEW.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3308,7 +3308,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (NEW.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3320,7 +3320,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (OLD.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3332,7 +3332,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3344,7 +3344,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3356,7 +3356,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (OLD.release_group)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3368,7 +3368,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3380,7 +3380,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3392,7 +3392,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (OLD.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3404,7 +3404,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3416,7 +3416,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id))))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3428,7 +3428,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.status IN (OLD.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3440,7 +3440,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.status IN (NEW.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3452,7 +3452,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.status IN (NEW.id))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3464,7 +3464,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (OLD.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3476,7 +3476,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3488,7 +3488,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (NEW.recording)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3500,7 +3500,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT recording_tag.recording FROM recording_tag WHERE recording_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3512,7 +3512,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT recording_tag.recording FROM recording_tag WHERE recording_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3524,7 +3524,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT recording_tag.recording FROM recording_tag WHERE recording_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3536,7 +3536,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (OLD.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3548,7 +3548,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (NEW.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3560,7 +3560,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT recording.id FROM recording WHERE recording.id IN (SELECT track.id FROM track WHERE track.medium IN (SELECT medium.id FROM medium WHERE medium.release IN (SELECT release.id FROM release WHERE release.id IN (NEW.release))))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'recording ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'recording ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3572,7 +3572,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT release.gid AS id FROM release WHERE release.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'release ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'release ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3584,7 +3584,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3596,7 +3596,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3608,7 +3608,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3620,7 +3620,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3632,7 +3632,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3644,7 +3644,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (OLD.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3656,7 +3656,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3668,7 +3668,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3680,7 +3680,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3692,7 +3692,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3704,7 +3704,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3716,7 +3716,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3728,7 +3728,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3740,7 +3740,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3752,7 +3752,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (OLD.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3764,7 +3764,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3776,7 +3776,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3788,7 +3788,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3800,7 +3800,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3812,7 +3812,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3824,7 +3824,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3836,7 +3836,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3848,7 +3848,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_country.release FROM release_country WHERE release_country.country IN (SELECT country_area.area FROM country_area WHERE country_area.area IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3860,7 +3860,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (OLD.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3872,7 +3872,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3884,7 +3884,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3896,7 +3896,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (OLD.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3908,7 +3908,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3920,7 +3920,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3932,7 +3932,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.id IN (OLD.medium))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3944,7 +3944,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.id IN (NEW.medium))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3956,7 +3956,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.id IN (NEW.medium))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3968,7 +3968,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.format IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3980,7 +3980,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.format IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -3992,7 +3992,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT medium.id FROM medium WHERE medium.format IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4004,7 +4004,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_label.id FROM release_label WHERE release_label.label IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4016,7 +4016,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_label.id FROM release_label WHERE release_label.label IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4028,7 +4028,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_label.id FROM release_label WHERE release_label.label IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4040,7 +4040,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.language IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4052,7 +4052,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.language IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4064,7 +4064,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.language IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4076,7 +4076,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4088,7 +4088,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4100,7 +4100,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4112,7 +4112,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4124,7 +4124,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4136,7 +4136,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4148,7 +4148,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.script IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4160,7 +4160,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.script IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4172,7 +4172,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.script IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4184,7 +4184,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (OLD.release_group))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4196,7 +4196,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4208,7 +4208,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4220,7 +4220,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4232,7 +4232,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4244,7 +4244,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.release_group IN (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4256,7 +4256,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.status IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4268,7 +4268,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.status IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4280,7 +4280,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.status IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4292,7 +4292,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (OLD.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4304,7 +4304,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4316,7 +4316,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (NEW.release)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4328,7 +4328,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_tag.release FROM release_tag WHERE release_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4340,7 +4340,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_tag.release FROM release_tag WHERE release_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4352,7 +4352,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release.id FROM release WHERE release.id IN (SELECT release_tag.release FROM release_tag WHERE release_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4364,7 +4364,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT release_group.gid AS id FROM release_group WHERE release_group.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'release_group ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'release_group ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4376,7 +4376,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4388,7 +4388,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4400,7 +4400,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4412,7 +4412,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4424,7 +4424,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4436,7 +4436,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (OLD.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4448,7 +4448,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4460,7 +4460,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (NEW.artist_credit))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4472,7 +4472,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (OLD.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4484,7 +4484,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4496,7 +4496,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM artist_credit WHERE artist_credit.id IN (SELECT artist_credit_name.artist_credit FROM artist_credit_name WHERE artist_credit_name.artist IN (NEW.id)))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4508,7 +4508,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (OLD.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4520,7 +4520,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4532,7 +4532,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4544,7 +4544,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release.id FROM release WHERE release.status IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4556,7 +4556,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release.id FROM release WHERE release.status IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4568,7 +4568,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release.id FROM release WHERE release.status IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4580,7 +4580,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (OLD.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4592,7 +4592,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4604,7 +4604,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4616,7 +4616,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_tag.release_group FROM release_group_tag WHERE release_group_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4628,7 +4628,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_tag.release_group FROM release_group_tag WHERE release_group_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4640,7 +4640,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_tag.release_group FROM release_group_tag WHERE release_group_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4652,7 +4652,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4664,7 +4664,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4676,7 +4676,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4688,7 +4688,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (OLD.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4700,7 +4700,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4712,7 +4712,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (NEW.release_group)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4724,7 +4724,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4736,7 +4736,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4748,7 +4748,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT release_group.id FROM release_group WHERE release_group.id IN (SELECT release_group_secondary_type_join.release_group FROM release_group_secondary_type_join WHERE release_group_secondary_type_join.secondary_type IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'release_group ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'release_group ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4760,7 +4760,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT series.gid AS id FROM series WHERE series.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'series ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'series ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4772,7 +4772,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4784,7 +4784,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4796,7 +4796,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (OLD.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4808,7 +4808,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (NEW.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4820,7 +4820,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (NEW.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4832,7 +4832,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.link_attribute_type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4844,7 +4844,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.link_attribute_type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4856,7 +4856,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.link_attribute_type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4868,7 +4868,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (OLD.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4880,7 +4880,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (NEW.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4892,7 +4892,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (NEW.series)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4904,7 +4904,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (SELECT series_tag.series FROM series_tag WHERE series_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4916,7 +4916,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (SELECT series_tag.series FROM series_tag WHERE series_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4928,7 +4928,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.id IN (SELECT series_tag.series FROM series_tag WHERE series_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4940,7 +4940,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4952,7 +4952,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4964,7 +4964,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT series.id FROM series WHERE series.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'series ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'series ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4976,7 +4976,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT tag.gid AS id FROM tag WHERE tag.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'tag ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'tag ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -4988,7 +4988,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT tag.id FROM tag WHERE tag.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'tag ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'tag ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5000,7 +5000,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT tag.id FROM tag WHERE tag.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'tag ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'tag ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5012,7 +5012,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT url.gid AS id FROM url WHERE url.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'url ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'url ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5024,7 +5024,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT url.id FROM url WHERE url.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'url ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'url ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5036,7 +5036,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT url.id FROM url WHERE url.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'url ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'url ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5048,7 +5048,7 @@ DECLARE
     gids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO gids FROM (SELECT work.gid AS id FROM work WHERE work.id = OLD.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'delete', 'work ' || gids);
+    PERFORM amqp.publish(2, 'search', 'delete', 'work ' || gids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5060,7 +5060,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5072,7 +5072,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id = NEW.id) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5084,7 +5084,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (OLD.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5096,7 +5096,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5108,7 +5108,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5120,7 +5120,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (OLD.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5132,7 +5132,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5144,7 +5144,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.entity1)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5156,7 +5156,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT l_artist_work.id FROM l_artist_work WHERE l_artist_work.entity0 IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5168,7 +5168,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT l_artist_work.id FROM l_artist_work WHERE l_artist_work.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5180,7 +5180,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT l_artist_work.id FROM l_artist_work WHERE l_artist_work.entity0 IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5192,7 +5192,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (OLD.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5204,7 +5204,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5216,7 +5216,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5228,7 +5228,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.language IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5240,7 +5240,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.language IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5252,7 +5252,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.language IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5264,7 +5264,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (OLD.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5276,7 +5276,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5288,7 +5288,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (NEW.work)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5300,7 +5300,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT work_tag.work FROM work_tag WHERE work_tag.tag IN (OLD.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5312,7 +5312,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT work_tag.work FROM work_tag WHERE work_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5324,7 +5324,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.id IN (SELECT work_tag.work FROM work_tag WHERE work_tag.tag IN (NEW.id))) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5336,7 +5336,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.type IN (OLD.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5348,7 +5348,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'index', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'index', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -5360,7 +5360,7 @@ DECLARE
     ids TEXT;
 BEGIN
     SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECT work.id FROM work WHERE work.type IN (NEW.id)) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'update', 'work ' || ids);
+    PERFORM amqp.publish(2, 'search', 'update', 'work ' || ids);
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;

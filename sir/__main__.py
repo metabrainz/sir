@@ -46,6 +46,11 @@ def main():
                                          default="sql/CreateFunctions.sql",
                                          help="The filename to save the "
                                          "functions into")
+    generate_trigger_parser.add_argument('-bid', '--broker-id',
+                                         action="store",
+                                         default="1",
+                                         help="ID of the AMQP broker row "
+                                         "in the database.")
 
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
                                               help="Set up AMQP exchanges and "

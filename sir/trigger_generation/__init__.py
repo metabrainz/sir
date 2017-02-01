@@ -103,7 +103,7 @@ def walk_path(model, path):
 
 def write_triggers_to_file(triggerfile, functionfile,
                            generators, entityname, table, path, select,
-                           indextable, index):
+                           indextable, index, broker_id):
     """
     Write deletion, insertion and update triggers to ``triggerfile``.
 
@@ -117,14 +117,15 @@ def write_triggers_to_file(triggerfile, functionfile,
     :param str select:
     :param str indextable:
     :param int index:
+    :param int broker_id:
     """
     for generator in generators:
-        gen = generator(entityname, table, path, select, indextable, index)
+        gen = generator(entityname, table, path, select, indextable, index, broker_id)
         functionfile.write(gen.function)
         triggerfile.write(gen.trigger)
 
 
-def write_direct_triggers(triggerfile, functionfile, entityname, model):
+def write_direct_triggers(triggerfile, functionfile, entityname, model, broker_id):
     """
     :param file triggerfile:
     :param file functionfile:
@@ -137,17 +138,22 @@ def write_direct_triggers(triggerfile, functionfile, entityname, model):
     pk = mapper.primary_key[0].name
     tablename = mapper.mapped_table.name
 
-    write_triggers_to_file(triggerfile,
-                           functionfile,
-                           generators=(GIDDeleteTriggerGenerator,
-                                       InsertTriggerGenerator,
-                                       UpdateTriggerGenerator),
-                           entityname=entityname,
-                           table=tablename,
-                           path="direct",
-                           select=id_select.format(pk=pk, table=tablename),
-                           indextable=tablename,
-                           index=0)
+    write_triggers_to_file(
+        triggerfile,
+        functionfile,
+        generators=(
+            GIDDeleteTriggerGenerator,
+            InsertTriggerGenerator,
+            UpdateTriggerGenerator,
+        ),
+        entityname=entityname,
+        table=tablename,
+        path="direct",
+        select=id_select.format(pk=pk, table=tablename),
+        indextable=tablename,
+        index=0,
+        broker_id=broker_id,
+    )
 
 
 def write_header(file_):
@@ -173,24 +179,35 @@ def generate_triggers(args):
     """
     trigger_filename = args["trigger_file"]
     function_filename = args["function_file"]
+    broker_id = args["broker_id"]
     with open(trigger_filename, "w") as triggerfile,\
          open(function_filename, "w") as functionfile:
         write_header(triggerfile)
         write_header(functionfile)
         for entityname, e in SCHEMA.iteritems():
             entitytable = class_mapper(e.model).mapped_table.name
-            writer = partial(write_triggers_to_file,
-                             generators=(DeleteTriggerGenerator,
-                                         InsertTriggerGenerator,
-                                         UpdateTriggerGenerator),
-                             triggerfile=triggerfile,
-                             functionfile=functionfile,
-                             entityname=entityname)
+            writer = partial(
+                write_triggers_to_file,
+                generators=(
+                    DeleteTriggerGenerator,
+                    InsertTriggerGenerator,
+                    UpdateTriggerGenerator,
+                ),
+                triggerfile=triggerfile,
+                functionfile=functionfile,
+                entityname=entityname,
+                broker_id=broker_id,
+            )
             paths = unique_split_paths([path for field in e.fields for path in
                                         field.paths])
 
-            write_direct_triggers(triggerfile, functionfile, entityname,
-                                  e.model)
+            write_direct_triggers(
+                triggerfile=triggerfile,
+                functionfile=functionfile,
+                entityname=entityname,
+                model=e.model,
+                broker_id=broker_id,
+            )
             it = enumerate_skip(paths, start=1)
             for i, path in it:
                 pathname = path
