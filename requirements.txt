@@ -1,5 +1,5 @@
 git+https://github.com/mineo/mb-rngpy.git@master
-amqp==1.4.6
+amqp==1.4.9
 backports.functools_lru_cache==1.0.1
 enum34==1.0.4
 enumerate_skip==1.0
