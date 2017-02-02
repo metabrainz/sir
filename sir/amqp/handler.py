@@ -65,6 +65,10 @@ def callback_wrapper(f):
 
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
 
+            if not hasattr(msg, "application_headers"):
+                get_sentry().captureMessage("Message doesn't have \"application_headers\" attribute",
+                                            extra={"msg": msg, "attributes": msg.__dict__})
+                return
             retries_remaining = msg.application_headers.get("mb-retries",
                                                             _DEFAULT_MB_RETRIES)
             routing_key = msg.delivery_info["routing_key"]
