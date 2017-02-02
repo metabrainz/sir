@@ -40,5 +40,5 @@ COPY . /code/
 # Just need to copy the configuration.
 COPY ./docker/prod/consul-template.conf /etc/consul-template.conf
 
-#COPY ./docker/prod/indexer/indexer.service /etc/service/indexer/run
-#RUN chmod 755 /etc/service/indexer/run
+COPY ./docker/prod/indexer/indexer.service /etc/service/indexer/run
+RUN chmod 755 /etc/service/indexer/run
