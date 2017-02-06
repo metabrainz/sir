@@ -69,6 +69,8 @@ class Message(object):
                                                  " by spaces")
 
         entity_type = split_message[0].replace("_", "-")
+        if entity_type == "release-raw":  # See https://git.io/vDcdo
+            entity_type = "cdstub"
         if entity_type not in SCHEMA.keys():
             raise ValueError("Received a message with the invalid entity type "
                              "%s"
