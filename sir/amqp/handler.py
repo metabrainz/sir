@@ -157,9 +157,9 @@ def _watch_impl():
         add_handler("search.index", handler.index_callback)
         add_handler("search.delete", handler.delete_callback)
 
-        while ch.callbacks:
-            ch.wait()
+        while True:
             logger.debug("Waiting for a message")
+            conn.drain_events()
     except Exception:
         get_sentry().captureException()
         raise
