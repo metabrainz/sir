@@ -201,6 +201,7 @@ def send_data_to_solr(solr_connection, data):
     """
     try:
         solr_connection.add_many(data)
+        logger.debug("Done sending data to Solr")
     except SolrException as exc:
         get_sentry().captureException(extra={"data": data})
         if exc.httpcode == 400:

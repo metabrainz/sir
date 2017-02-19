@@ -8,6 +8,7 @@ of an AMQP message.
 """
 from ..schema import SCHEMA
 from enum import Enum
+from logging import getLogger
 
 MESSAGE_TYPES = Enum("MESSAGE_TYPES", "delete index")
 
@@ -15,6 +16,8 @@ QUEUE_TO_TYPE = {
     "search.delete": MESSAGE_TYPES.delete,
     "search.index": MESSAGE_TYPES.index,
 }
+
+logger = getLogger("sir")
 
 
 class InvalidMessageContentException(ValueError):
@@ -61,6 +64,11 @@ class Message(object):
             raise ValueError("%s is not a valid queue name" % queue)
         else:
             message_type = QUEUE_TO_TYPE[queue]
+
+        dbg_msg = amqp_message.body
+        if len(dbg_msg) > 20:
+            dbg_msg = dbg_msg[:20] + "..."
+        logger.debug("Recieved message from queue %s: %s" % (queue, dbg_msg))
 
         split_message = amqp_message.body.split(" ")
         if not len(split_message) >= 2:

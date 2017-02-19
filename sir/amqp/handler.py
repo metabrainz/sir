@@ -18,6 +18,7 @@ from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
 from urllib2 import URLError
+import logging
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -101,6 +102,7 @@ class Handler(object):
 
     @callback_wrapper
     def index_callback(self, parsed_message):
+        logger.debug("Processing `index` message for entity: %s" % parsed_message.entity_type)
         entity = SCHEMA[parsed_message.entity_type]
         converter = entity.query_result_to_dict
         query = entity.query
@@ -114,6 +116,7 @@ class Handler(object):
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
+        logger.debug("Processing `delete` message")
         logger.debug("Deleting {entity_type}: {ids}".format(
             entity_type=parsed_message.entity_type,
             ids=parsed_message.ids))
@@ -121,6 +124,7 @@ class Handler(object):
 
 
 def _should_retry(exc):
+    logger.debug("Retrying...")
     logger.exception(exc)
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
         logger.info("Retrying in %i seconds", _RETRY_WAIT_SECS)
@@ -140,6 +144,7 @@ def _watch_impl():
     try:
         conn = create_amqp_connection()
         logger.info("Connection to RabbitMQ established")
+        logger.debug("Heartbeat value: %s" % conn.heartbeat)
         ch = conn.channel()
         # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
         # we are currently using (https://www.rabbitmq.com/specification.html).
@@ -154,6 +159,7 @@ def _watch_impl():
 
         while ch.callbacks:
             ch.wait()
+            logger.debug("Waiting for a message")
     except Exception:
         get_sentry().captureException()
         raise
