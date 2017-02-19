@@ -238,5 +238,4 @@ class SearchEntity(object):
             not None):
             data["_store"] = tostring(self.compatconverter(obj).to_etree())
 
-        logger.debug("Data: %s", data)
         return data
