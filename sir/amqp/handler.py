@@ -3,7 +3,7 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from . import message
-from sir import get_sentry
+from sir import get_sentry, config
 from ..schema import SCHEMA
 from ..indexing import send_data_to_solr
 from ..util import (create_amqp_connection,
@@ -141,6 +141,12 @@ def _watch_impl():
         conn = create_amqp_connection()
         logger.info("Connection to RabbitMQ established")
         ch = conn.channel()
+        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
+        # we are currently using (https://www.rabbitmq.com/specification.html).
+        # Limits are requires because consumer connection might time out when receive buffer
+        # is full (http://stackoverflow.com/q/35438843/272770).
+        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
+        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
 
         handler = Handler()
         add_handler("search.index", handler.index_callback)

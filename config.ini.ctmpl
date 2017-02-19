@@ -34,6 +34,7 @@ host = {{.Address}}:{{.Port}}
 user = {{template "KEY" "rabbitmq/user"}}
 password = {{template "KEY" "rabbitmq/password"}}
 vhost = {{template "KEY" "rabbitmq/vhost"}}
+prefetch_count = {{template "KEY" "rabbitmq/prefetch_count"}}
 {{end}}
 {{end}}
 

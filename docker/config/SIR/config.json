@@ -9,7 +9,8 @@
   "rabbitmq": {
     "user": "sir",
     "password": "sir",
-    "vhost": "/sir"
+    "vhost": "/sir",
+    "prefetch_count": "350"
   },
   "solr": {
     "batch_size": 100
