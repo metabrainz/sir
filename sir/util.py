@@ -118,14 +118,16 @@ def check_solr_cores_version(cores):
 
 
 def create_amqp_connection():
+    # type: () -> amqp.Connection
     """
     Creates a connection to an AMQP server.
 
     :rtype: :class:`amqp:amqp.connection.Connection`
     """
     cget = partial(config.CFG.get, "rabbitmq")
-    conn = amqp.Connection(host=cget("host"),
-                           userid=cget("user"),
-                           password=cget("password"),
-                           virtual_host=cget("vhost"))
-    return conn
+    return amqp.Connection(
+        host=cget("host"),
+        userid=cget("user"),
+        password=cget("password"),
+        virtual_host=cget("vhost"),
+    )
