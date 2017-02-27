@@ -1,6 +1,7 @@
 import doctest
 import mock
 import unittest
+import textwrap
 
 from . import models
 from sir.trigger_generation import (unique_split_paths,
@@ -70,8 +71,10 @@ class WalkPathTest(unittest.TestCase):
         result, table = walk_path(model, path)
         self.assertTrue(isinstance(result, OneToManyPathPart))
         self.assertTrue(isinstance(result.inner, ColumnPathPart))
-        self.assertEqual(result.render(),
-        "SELECT table_c.id FROM table_c WHERE table_c.id IN ({new_or_old}.c)")
+        self.assertEqual(
+            result.render(),
+            "SELECT table_c.id FROM table_c WHERE table_c.id IN ({new_or_old}.c)",
+        )
         self.assertEqual(table, "table_b")
 
     def test_one_to_many_column_returns_none(self):
@@ -100,7 +103,7 @@ class TriggerGeneratorTest(unittest.TestCase):
     class TestGenerator(TriggerGenerator):
         id_replacement = "REPLACEMENT"
         op = "OPERATION"
-        beforeafter = "SOMEWHEN"
+        before_or_after = "SOMEWHEN"
 
     def setUp(self):
         self.path = "foo.bar"
@@ -109,69 +112,64 @@ class TriggerGeneratorTest(unittest.TestCase):
                                       "SELECTION", "INDEXTABLE", self.index)
 
     def test_function(self):
-        self.assertEqual(self.gen.function,
-"""
-CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
-    AS $$
-DECLARE
-    ids TEXT;
-BEGIN
-    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECTION) AS tmp;
-    PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || ids);
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-COMMENT ON FUNCTION {name}() IS 'The path for this function is {path}';
-""".format(name=self.gen.triggername, path=self.path))
+        self.assertEqual(self.gen.function, textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {name}() RETURNS trigger
+                AS $$
+            DECLARE
+                ids TEXT;
+            BEGIN
+                SELECT string_agg(tmp.id::text, ' ') INTO ids FROM (SELECTION) AS tmp;
+                PERFORM amqp.publish(1, 'search', 'None', 'INDEXTABLE ' || ids);
+                RETURN NULL;
+            END;
+            $$ LANGUAGE plpgsql;
+            COMMENT ON FUNCTION {name}() IS 'The path for this function is {path}';\n
+        """).format(name=self.gen.trigger_name, path=self.path))
 
     def test_triggername(self):
-        self.assertEqual(self.gen.triggername,
+        self.assertEqual(self.gen.trigger_name,
                          "search_PREFIX_OPERATION_{index}".format(index=self.index))  # noqa
 
     def test_trigger(self):
-        self.assertEqual(self.gen.trigger,
-                         "\n"
-                         "CREATE TRIGGER {name} SOMEWHEN OPERATION ON TABLE"
-                         "\n"
-                         "    FOR EACH ROW EXECUTE PROCEDURE {name}();"
-                         "\n"
-                         "COMMENT ON TRIGGER {name} ON {tablename} IS 'The path for this trigger is {path}';\n".  # noqa
-                         format(name=self.gen.triggername, path=self.path,
-                                tablename="TABLE"))
+        self.assertEqual(self.gen.trigger, textwrap.dedent("""\
+             CREATE TRIGGER {name} SOMEWHEN OPERATION ON TABLE
+                 FOR EACH ROW EXECUTE PROCEDURE {name}();
+             COMMENT ON TRIGGER {name} ON {tablename} IS 'The path for this trigger is {path}';\n
+        """).format(name=self.gen.trigger_name, path=self.path, tablename="TABLE"))
 
     def test_delete_attributes(self):
         self.assertEqual(DeleteTriggerGenerator.op, "delete")
         self.assertEqual(DeleteTriggerGenerator.id_replacement, "OLD")
-        self.assertEqual(DeleteTriggerGenerator.beforeafter, "BEFORE")
+        self.assertEqual(DeleteTriggerGenerator.before_or_after, "BEFORE")
         self.assertEqual(DeleteTriggerGenerator.routing_key, "update")
 
     def test_insert_attributes(self):
         self.assertEqual(InsertTriggerGenerator.op, "insert")
         self.assertEqual(InsertTriggerGenerator.id_replacement, "NEW")
-        self.assertEqual(InsertTriggerGenerator.beforeafter, "AFTER")
+        self.assertEqual(InsertTriggerGenerator.before_or_after, "AFTER")
         self.assertEqual(InsertTriggerGenerator.routing_key, "index")
 
     def test_update_attributes(self):
         self.assertEqual(UpdateTriggerGenerator.op, "update")
         self.assertEqual(UpdateTriggerGenerator.id_replacement, "NEW")
-        self.assertEqual(UpdateTriggerGenerator.beforeafter, "AFTER")
+        self.assertEqual(UpdateTriggerGenerator.before_or_after, "AFTER")
         self.assertEqual(UpdateTriggerGenerator.routing_key, "update")
 
 
 class WriteTriggersTest(unittest.TestCase):
     def setUp(self):
-        self.functionfile = mock.Mock()
-        self.triggerfile = mock.Mock()
+        self.function_file = mock.Mock()
+        self.trigger_file = mock.Mock()
         self.index = 5
         write_triggers_to_file(
-            self.triggerfile,
-            self.functionfile,
-            generators=(InsertTriggerGenerator,),
-            entityname="entity_c",
-            table="table_c",
+            trigger_file=self.trigger_file,
+            function_file=self.function_file,
+            generators={InsertTriggerGenerator},
+            prefix="entity_c",
+            table_name="table_c",
             path="bs.foo",
             select="SELECTION",
-            indextable="table_b",
+            index_table="table_b",
             index=self.index,
             broker_id=1,
         )
@@ -180,14 +178,14 @@ class WriteTriggersTest(unittest.TestCase):
                                           "SELECTION", "table_b", self.index)
 
     def test_writes_function(self):
-        self.functionfile.write.assert_any_call(self.gen.function)
+        self.function_file.write.assert_any_call(self.gen.function)
 
     def test_writes_trigger(self):
-        self.triggerfile.write.assert_any_call(self.gen.trigger)
+        self.trigger_file.write.assert_any_call(self.gen.trigger)
 
     def test_write_count(self):
-        self.assertEqual(self.functionfile.write.call_count, 1)
-        self.assertEqual(self.triggerfile.write.call_count, 1)
+        self.assertEqual(self.function_file.write.call_count, 1)
+        self.assertEqual(self.trigger_file.write.call_count, 1)
 
 
 class DirectTriggerWriterTest(unittest.TestCase):
@@ -195,9 +193,9 @@ class DirectTriggerWriterTest(unittest.TestCase):
         self.functionfile = mock.Mock()
         self.triggerfile = mock.Mock()
         write_direct_triggers(
-            triggerfile=self.triggerfile,
-            functionfile=self.functionfile,
-            entityname="entity_c",
+            trigger_file=self.triggerfile,
+            function_file=self.functionfile,
+            entity_name="entity_c",
             model=models.C,
             broker_id=1,
         )

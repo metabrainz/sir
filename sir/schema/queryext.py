@@ -3,19 +3,29 @@
 # Copyright (c) 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from mbdata.models import (Annotation, AreaAnnotation, ArtistAnnotation,
-        EventAnnotation, InstrumentAnnotation, LabelAnnotation,
-        PlaceAnnotation, RecordingAnnotation, ReleaseAnnotation,
-        ReleaseGroupAnnotation, SeriesAnnotation, WorkAnnotation)
+                           EventAnnotation, InstrumentAnnotation, LabelAnnotation,
+                           PlaceAnnotation, RecordingAnnotation, ReleaseAnnotation,
+                           ReleaseGroupAnnotation, SeriesAnnotation, WorkAnnotation)
 from sqlalchemy import func
 from sqlalchemy.orm.query import Query
 
-models = [AreaAnnotation, ArtistAnnotation, EventAnnotation,
-          InstrumentAnnotation, LabelAnnotation, PlaceAnnotation,
-          RecordingAnnotation, ReleaseAnnotation, ReleaseGroupAnnotation,
-          SeriesAnnotation, WorkAnnotation]
+models = [
+    AreaAnnotation,
+    ArtistAnnotation,
+    EventAnnotation,
+    InstrumentAnnotation,
+    LabelAnnotation,
+    PlaceAnnotation,
+    RecordingAnnotation,
+    ReleaseAnnotation,
+    ReleaseGroupAnnotation,
+    SeriesAnnotation,
+    WorkAnnotation,
+]
 
 
 def filter_valid_annotations(query):
+    # TODO: Document this. What's going on in this filter?
     queries = [Query(func.max(getattr(m, "annotation_id"))).
                group_by(
                    getattr(m,

@@ -1,5 +1,6 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import textwrap
 
 
 class PathPart(object):
@@ -18,18 +19,38 @@ class PathPart(object):
     >>> outer.inner = inner
     >>> outer.render()
     'SELECT table_1.id FROM table_1 WHERE table_1.table_2_id IN ({new_or_old}.id)'
+
+    For example, if the path is "areas.area" and the target table is
+    "annotation", then the resulting SQL query will be the following:
+    ```
+    SELECT annotation.id
+      FROM annotation
+     WHERE annotation.id IN (
+        SELECT area_annotation.area
+          FROM area_annotation
+         WHERE area_annotation.area IN ({new_or_old}.id)
+    )
+    ```
+
+    If the path is just "area", then for the "annotation" table the resulting
+    query will be the following:
+    ```
+    SELECT annotation.id
+      FROM annotation
+     WHERE annotation.id IN ({new_or_old}.annotation)
+    ```
     """  # noqa
-    def __init__(self, tablename, pkname, inner=None):
+    def __init__(self, table_name, pk_name, inner=None):
         """
-        :param str tablename: The name of the table
-        :param str pkname: The primary key of the table
-        :param sir.trigger_generation.types.PathPart inner:
+        :param str table_name: The name of the table.
+        :param str pk_name: The primary key of the table.
+        :param PathPart inner: Path that will be included in
         """
-        self.tablename = tablename
-        self.pkname = pkname
+        self.table_name = table_name
+        self.pk_name = pk_name
         self.inner = inner
 
-    def render():
+    def render(self):
         """
         Render the selection represented by this object and its inner object
         into a string.
@@ -46,9 +67,11 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN "\
-            "({inner})".format(pk=self.pkname, table=self.tablename,
-                               inner=self.inner.render())
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN ({inner})".format(
+            pk=self.pk_name,
+            table=self.table_name,
+            inner=self.inner.render(),
+        )
 
 
 class ManyToOnePathPart(PathPart):
@@ -57,14 +80,17 @@ class ManyToOnePathPart(PathPart):
     selection across a many-to-one relationship between two
     tables.
     """
-    def __init__(self, tablename, pkname, fkname, inner=None):
-        PathPart.__init__(self, tablename, pkname, inner)
+    def __init__(self, table_name, pk_name, fkname, inner=None):
+        PathPart.__init__(self, table_name, pk_name, inner)
         self.fkname = fkname
 
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN "\
-            "({inner})". format(pk=self.pkname, table=self.tablename,
-                                inner=self.inner.render(), fk=self.fkname)
+        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN ({inner})".format(
+            pk=self.pk_name,
+            table=self.table_name,
+            inner=self.inner.render(),
+            fk=self.fkname,
+        )
 
 
 class ColumnPathPart(PathPart):
@@ -74,7 +100,7 @@ class ColumnPathPart(PathPart):
     the chain.
     """
     def render(self):
-        return "{{new_or_old}}.{pkname}".format(pkname=self.pkname)
+        return "{{new_or_old}}.{pk_name}".format(pk_name=self.pk_name)
 
 
 class TriggerGenerator(object):
@@ -84,39 +110,42 @@ class TriggerGenerator(object):
     """
     id_replacement = None
 
-    #: The operation
+    #: The operation (insert, update, or delete)
     op = None
 
-    #: Whether to execute the trigger BEFORE or AFTER :attr:`op`
-    beforeafter = "AFTER"
+    #: Whether to execute the trigger BEFORE or AFTER :attr:`op`. Typically
+    # BEFORE is used for SELECT and UPDATE queries, AFTER for DELETE queries.
+    before_or_after = "AFTER"
 
     #: The routing key to be used for the message sent via AMQP
     routing_key = None
 
-    def __init__(self, prefix, tablename, path, select, indextable, index, broker_id=1):
+    def __init__(self, prefix, table_name, path, select, index_table, index, broker_id=1):
         """
-        :param str prefix: A prefix for the trigger name
-        :param str tablename: The table on which to generate the trigger
-        :param str path: The path for which to generate the trigger
-        :param str select: A SELECT statement to be embedded in the function
-        :param str indextable: The table with entities that need to be
-                               reindexed
+        :param str prefix: A prefix for the trigger name.
+        :param str table_name: The table on which to generate the trigger.
+        :param str path: The path for which the trigger will be generated.
+                         It is used to describe triggers and functions in a
+                         comment.
+        :param str select: A SELECT statement to be embedded in the function.
+        :param str index_table: The table with entities that need to be
+                                reindexed.
         :param int index: To allow for multiple triggers and functions on a
                           single entity type, we suffix each of them with an
-                          index to avoid name collissions.
+                          index to avoid name collisions.
         :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.prefix = prefix.replace("-", "_")
-        self.tablename = tablename
+        self.table_name = table_name
         self.path = path
         select = select.format(new_or_old=self.id_replacement)
         self.select = select
-        self.indextable = indextable
+        self.index_table = index_table
         self.index = index
         self.broker_id = broker_id
 
     @property
-    def triggername(self):
+    def trigger_name(self):
         """
         The name of this trigger.
 
@@ -131,14 +160,17 @@ class TriggerGenerator(object):
 
         :rtype: str
         """
-        trigger = \
-"""
-CREATE TRIGGER {triggername} {beforeafter} {op} ON {tablename}
-    FOR EACH ROW EXECUTE PROCEDURE {triggername}();
-COMMENT ON TRIGGER {triggername} ON {tablename} IS 'The path for this trigger is {path}';
-""".format(triggername=self.triggername, tablename=self.tablename,  # noqa
-           op=self.op.upper(), beforeafter=self.beforeafter, path=self.path)
-        return trigger
+        return textwrap.dedent("""\
+            CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {table_name}
+                FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();
+            COMMENT ON TRIGGER {trigger_name} ON {table_name} IS 'The path for this trigger is {path}';\n
+        """).format(
+            trigger_name=self.trigger_name,
+            table_name=self.table_name,
+            op=self.op.upper(),
+            before_or_after=self.before_or_after,
+            path=self.path,
+        )
 
     @property
     def function(self):
@@ -147,29 +179,26 @@ COMMENT ON TRIGGER {triggername} ON {tablename} IS 'The path for this trigger is
 
         :rtype: str
         """
-        func = \
-"""
-CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
-    AS $$
-DECLARE
-    ids TEXT;
-BEGIN
-    SELECT string_agg(tmp.id::text, ' ') INTO ids FROM ({select}) AS tmp;
-    PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{tablename} ' || ids);
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
-""".\
-            format(
-                triggername=self.triggername,
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            DECLARE
+                ids TEXT;
+            BEGIN
+                SELECT string_agg(tmp.id::text, ' ') INTO ids FROM ({select}) AS tmp;
+                PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{table_name} ' || ids);
+                RETURN NULL;
+            END;
+            $$ LANGUAGE plpgsql;
+            COMMENT ON FUNCTION {trigger_name}() IS 'The path for this function is {path}';\n
+        """).format(
+                trigger_name=self.trigger_name,
                 select=self.select,
                 broker_id=self.broker_id,
                 routing_key=self.routing_key,
-                tablename=self.indextable,
+                table_name=self.index_table,
                 path=self.path,
             )
-        return func
 
 
 class DeleteTriggerGenerator(TriggerGenerator):
@@ -178,7 +207,7 @@ class DeleteTriggerGenerator(TriggerGenerator):
     """
     op = "delete"
     id_replacement = "OLD"
-    beforeafter = "BEFORE"
+    before_or_after = "BEFORE"
     routing_key = "update"
 
 
@@ -186,15 +215,14 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
     """
     Like :class:`~sir.trigger_generation.DeleteTriggerGenerator` but replaces
     the first ``SELECT id`` with ``SELECT gid``.
-
     """
     routing_key = "delete"
 
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.select = self.select.replace(
-            "SELECT {tablename}.id".format(tablename=self.tablename),
-            "SELECT {tablename}.gid AS id".format(tablename=self.tablename))
+            "SELECT {table_name}.id".format(table_name=self.table_name),
+            "SELECT {table_name}.gid AS id".format(table_name=self.table_name))
 
     @property
     def function(self):
@@ -203,29 +231,26 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 
         :rtype: str
         """
-        func = \
-"""
-CREATE OR REPLACE FUNCTION {triggername}() RETURNS trigger
-    AS $$
-DECLARE
-    gids TEXT;
-BEGIN
-    SELECT string_agg(tmp.id::text, ' ') INTO gids FROM ({select}) AS tmp;
-    PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{tablename} ' || gids);
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-COMMENT ON FUNCTION {triggername}() IS 'The path for this function is {path}';
-""". \
-            format(
-                triggername=self.triggername,
-                select=self.select,
-                broker_id=self.broker_id,
-                routing_key=self.routing_key,
-                tablename=self.tablename,
-                path=self.path,
-            )
-        return func
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            DECLARE
+                gids TEXT;
+            BEGIN
+                SELECT string_agg(tmp.id::text, ' ') INTO gids FROM ({select}) AS tmp;
+                PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', '{table_name} ' || gids);
+                RETURN NULL;
+            END;
+            $$ LANGUAGE plpgsql;
+            COMMENT ON FUNCTION {trigger_name}() IS 'The path for this function is {path}';\n
+        """).format(
+            trigger_name=self.trigger_name,
+            select=self.select,
+            broker_id=self.broker_id,
+            routing_key=self.routing_key,
+            table_name=self.table_name,
+            path=self.path,
+        )
 
 
 class InsertTriggerGenerator(TriggerGenerator):

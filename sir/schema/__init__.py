@@ -477,7 +477,4 @@ SCHEMA = OrderedDict(sorted({
     "tag": SearchTag,
     "work": SearchWork,
     "url": SearchUrl,
-}.items(),
-    key=lambda tuple: tuple[0]
-
-))
+}.items(), key=lambda val: val[0]))

@@ -8,7 +8,7 @@ from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
 
-# Ignore SQLAlchemys warnings that we're overriding some attributes
+# Ignore SQLAlchemy's warnings that we're overriding some attributes
 simplefilter(action="ignore", category=sa_exc.SAWarning)
 
 

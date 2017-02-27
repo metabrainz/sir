@@ -1,16 +1,25 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
+
+# The goal is to move most of the data retrieval outside of the trigger functions.
+# Can send path with ID into the queue instead of retrieving all the IDs for
+# an updated entity. Then we can retrieve IDs in a separate query.
+#
+# Some paths can be very long (for example, `tracks.medium.release.country_dates.country.area`)
+# so resulting trigger functions contain a significant number of nested queries.
+
 from ..schema import SCHEMA
 from .types import *
 from enumerate_skip import enumerate_skip
-from functools import partial
 from logging import getLogger
+from sir.trigger_generation.types import TriggerGenerator
+
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
-
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 logger = getLogger("sir")
 
@@ -39,7 +48,7 @@ def walk_path(model, path):
     Walk ``path`` beginning at ``model`` and return a
     :class:`~sir.trigger_generation.PathPart` object representing a selection
     along that path. Also return the name of the last table seen while
-    following ``path``
+    following ``path``.
 
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param str path:
@@ -53,7 +62,7 @@ def walk_path(model, path):
     for i, path_elem in enumerate(path.split(".")):
         column = getattr(current_model, path_elem)
 
-        # This is not a column managed by sqlalchemy, ignore it
+        # If this is not a column managed by SQLAlchemy, ignore it
         if not isinstance(column, InstrumentedAttribute):
             # Let's assume some other path also covers this table
             return None, None
@@ -101,81 +110,81 @@ def walk_path(model, path):
     return outermost_path_part, innermost_table_name
 
 
-def write_triggers_to_file(triggerfile, functionfile,
-                           generators, entityname, table, path, select,
-                           indextable, index, broker_id):
-    """
-    Write deletion, insertion and update triggers to ``triggerfile``.
+def write_triggers_to_file(generators, trigger_file, function_file, **generator_args):
+    """Write SQL for creation of triggers (for deletion, insertion, and updates) and
+    associated functions into files.
 
-    :param file triggerfile:
-    :param file functionfile:
-    :param generators:
-    :type generators: [TriggerGenerator]
-    :param str entityname:
-    :param str table:
-    :param str path:
-    :param str select:
-    :param str indextable:
-    :param int index:
-    :param int broker_id:
+    :param set generators: A set of generator classes (based on``TriggerGenerator``)
+                           to use for creating SQL statements.
+    :param file trigger_file: File into which commands for creating triggers will be written.
+    :param file function_file: File into which commands for creating trigger functions
+                               will be written.
     """
     for generator in generators:
-        gen = generator(entityname, table, path, select, indextable, index, broker_id)
-        functionfile.write(gen.function)
-        triggerfile.write(gen.trigger)
+        gen = generator(**generator_args)
+        function_file.write(gen.function)
+        trigger_file.write(gen.trigger)
 
 
-def write_direct_triggers(triggerfile, functionfile, entityname, model, broker_id):
+def write_direct_triggers(trigger_file, function_file, entity_name, model, broker_id):
     """
-    :param file triggerfile:
-    :param file functionfile:
-    :param str entityname:
+    :param file trigger_file: File where triggers will be written.
+    :param file function_file: File where functions will be written.
+    :param str entity_name:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param int broker_id: ID of the broker in the MusicBrainz database.
     """
-    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = "\
-                "{{new_or_old}}.{pk}"
+    id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = {{new_or_old}}.{pk}"
     mapper = class_mapper(model)
     pk = mapper.primary_key[0].name
-    tablename = mapper.mapped_table.name
+    table_name = mapper.mapped_table.name
 
     write_triggers_to_file(
-        triggerfile,
-        functionfile,
-        generators=(
+        trigger_file=trigger_file,
+        function_file=function_file,
+        generators={
             GIDDeleteTriggerGenerator,
             InsertTriggerGenerator,
             UpdateTriggerGenerator,
-        ),
-        entityname=entityname,
-        table=tablename,
+        },
+        prefix=entity_name,
+        table_name=table_name,
         path="direct",
-        select=id_select.format(pk=pk, table=tablename),
-        indextable=tablename,
+        select=id_select.format(pk=pk, table=table_name),
+        index_table=table_name,
         index=0,
         broker_id=broker_id,
     )
 
 
-def write_header(file_):
+def write_header(f):
+    """Write an SQL "header" into a file.
+
+    Adds a note about editing, sets command line options, and begins a
+    transaction. Should be written at the beginning of each SQL script.
+
+    :param file f: File to write the header into.
     """
-    :param file file_:
-    """
-    file_.write("-- Automatically generated, do not edit\n")
-    file_.write("\set ON_ERROR_STOP 1\n")
-    file_.write("BEGIN;\n")
+    f.write("-- Automatically generated, do not edit\n")
+    f.write("\set ON_ERROR_STOP 1\n")
+    f.write("BEGIN;\n\n")
 
 
-def write_footer(file_):
+def write_footer(f):
+    """Write an SQL "footer" into a file.
+
+    Adds a statement to commit a transaction. Should be written at the end of
+    each SQL script that wrote a header (see `write_header` function).
+
+    :param file f: File to write the footer into.
     """
-    :param file file_:
-    """
-    file_.write("COMMIT;\n")
+    f.write("COMMIT;\n")
 
 
 def generate_triggers(args):
     """
-    The entry point for this module. This function gets called from
-    :func:`~sir.__main__.main`.
+    This is the entry point for this trigger_generation module. This function
+    gets called from :func:`~sir.__main__.main`.
     """
     trigger_filename = args["trigger_file"]
     function_filename = args["function_file"]
@@ -184,39 +193,45 @@ def generate_triggers(args):
          open(function_filename, "w") as functionfile:
         write_header(triggerfile)
         write_header(functionfile)
-        for entityname, e in SCHEMA.iteritems():
-            entitytable = class_mapper(e.model).mapped_table.name
-            writer = partial(
-                write_triggers_to_file,
-                generators=(
-                    DeleteTriggerGenerator,
-                    InsertTriggerGenerator,
-                    UpdateTriggerGenerator,
-                ),
-                triggerfile=triggerfile,
-                functionfile=functionfile,
-                entityname=entityname,
-                broker_id=broker_id,
-            )
-            paths = unique_split_paths([path for field in e.fields for path in
-                                        field.paths])
+        for entity_name, e in SCHEMA.iteritems():
 
+            # Writing "direct" triggers for the entity's table. So the "artist"
+            # table for the artist entity, "recording" for recording, etc.
             write_direct_triggers(
-                triggerfile=triggerfile,
-                functionfile=functionfile,
-                entityname=entityname,
+                trigger_file=triggerfile,
+                function_file=functionfile,
+                entity_name=entity_name,
                 model=e.model,
                 broker_id=broker_id,
             )
+
+            # Write triggers for all tables associated with an entity.
+            entity_table_name = class_mapper(e.model).mapped_table.name
+            paths = unique_split_paths([path for field in e.fields
+                                             for path in field.paths])
             it = enumerate_skip(paths, start=1)
-            for i, path in it:
-                pathname = path
-                select, triggertable = walk_path(e.model, path)
+            for i, path in it:  # The index is used as a suffix in function and trigger names to guarantee uniqueness
+                path_name = path
+                select, trigger_table = walk_path(e.model, path)
                 if select is not None:
                     select = select.render()
-                    writer(table=triggertable, path=pathname, select=select,
-                           indextable=entitytable, index=i)
+                    write_triggers_to_file(
+                        trigger_file=triggerfile,
+                        function_file=functionfile,
+                        generators={
+                            DeleteTriggerGenerator,
+                            InsertTriggerGenerator,
+                            UpdateTriggerGenerator,
+                        },
+                        prefix=entity_name,
+                        table_name=trigger_table,
+                        path=path_name,
+                        select=select,
+                        index_table=entity_table_name,
+                        index=i,
+                        broker_id=broker_id,
+                    )
                 else:
-                    it.skip()
+                    it.skip()  # not incrementing the index
         write_footer(triggerfile)
         write_footer(functionfile)
