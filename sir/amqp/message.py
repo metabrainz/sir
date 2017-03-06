@@ -6,7 +6,7 @@
 This module contains functions and classes to parse and represent the content
 of an AMQP message.
 """
-from ..schema import SCHEMA
+from sir.schema import SCHEMA
 from enum import Enum
 from logging import getLogger
 

@@ -1,6 +1,6 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from ..wscompat.convert import partialdate_to_string
+from sir.wscompat.convert import partialdate_to_string
 
 
 ANNOTATION_TABLE_TO_ENTITYTYPE = {

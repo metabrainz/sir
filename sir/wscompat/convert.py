@@ -1,6 +1,6 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from .modelfix import fix
+from sir.wscompat.modelfix import fix
 try:
     # Python 3
     from functools import lru_cache

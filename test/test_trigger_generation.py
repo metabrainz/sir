@@ -3,7 +3,7 @@ import mock
 import unittest
 import textwrap
 
-from . import models
+from test import models
 from sir.trigger_generation import (unique_split_paths,
                                     walk_path,
                                     OneToManyPathPart,

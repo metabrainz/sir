@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from . import models
+from test import models
 from xml.etree.ElementTree import Element, tostring
 from sir.schema.searchentities import (SearchEntity as E, SearchField as F,
                                        is_composite_column)

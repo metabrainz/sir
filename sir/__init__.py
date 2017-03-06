@@ -1,6 +1,6 @@
 try:
     # Version is required only for generating the documentation
-    from .version import __version__  # noqa
+    from sir.version import __version__  # noqa
 except ImportError:
     __version__ = None
 

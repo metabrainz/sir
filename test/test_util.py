@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from .models import B
+from test.models import B
 from json import dumps
 from sir import util
 from sir.schema import searchentities

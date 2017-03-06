@@ -5,7 +5,6 @@
 import mock
 import unittest
 
-
 from amqp import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
 from sir.amqp import handler

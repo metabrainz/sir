@@ -5,14 +5,13 @@ import logging
 import multiprocessing
 import ConfigParser
 
-
-from . import config
-from . import init_raven_client
-from .amqp.handler import watch
-from .amqp.setup import setup_rabbitmq
-from .indexing import reindex
-from .schema import SCHEMA
-from .trigger_generation import generate_triggers
+import config
+from sir import init_raven_client
+from sir.amqp.handler import watch
+from sir.amqp.setup import setup_rabbitmq
+from sir.indexing import reindex
+from sir.schema import SCHEMA
+from sir.trigger_generation import generate_triggers
 
 
 logger = logging.getLogger("sir")

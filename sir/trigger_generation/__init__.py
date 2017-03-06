@@ -8,11 +8,10 @@
 # Some paths can be very long (for example, `tracks.medium.release.country_dates.country.area`)
 # so resulting trigger functions contain a significant number of nested queries.
 
-from ..schema import SCHEMA
-from .types import *
+from sir.schema import SCHEMA
+from sir.trigger_generation.types import *
 from enumerate_skip import enumerate_skip
 from logging import getLogger
-from sir.trigger_generation.types import TriggerGenerator
 
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.attributes import InstrumentedAttribute

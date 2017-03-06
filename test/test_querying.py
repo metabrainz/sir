@@ -2,7 +2,7 @@ import doctest
 import mock
 import unittest
 
-from . import helpers, models
+from test import helpers, models
 from collections import defaultdict
 from sir.querying import iterate_path_values
 from sir.schema.searchentities import defer_everything_but, merge_paths

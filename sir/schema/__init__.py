@@ -1,10 +1,10 @@
 # Copyright (c) 2014, 2015, 2016 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from . import queryext
-from . import modelext
-from . import transformfuncs as tfs
-from .searchentities import SearchEntity as E, SearchField as F
-from ..wscompat import convert
+from sir.schema import queryext
+from sir.schema import modelext
+from sir.schema import transformfuncs as tfs
+from sir.schema.searchentities import SearchEntity as E, SearchField as F
+from sir.wscompat import convert
 from collections import OrderedDict
 from mbdata import models
 

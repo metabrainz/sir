@@ -2,15 +2,15 @@
 # coding: utf-8
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from . import message
+from sir.amqp import message
 from sir import get_sentry, config
-from ..schema import SCHEMA
-from ..indexing import send_data_to_solr
-from ..util import (create_amqp_connection,
-                    db_session,
-                    db_session_ctx,
-                    solr_connection,
-                    solr_version_check)
+from sir.schema import SCHEMA
+from sir.indexing import send_data_to_solr
+from sir.util import (create_amqp_connection,
+                      db_session,
+                      db_session_ctx,
+                      solr_connection,
+                      solr_version_check)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -18,7 +18,6 @@ from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
 from urllib2 import URLError
-import logging
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
