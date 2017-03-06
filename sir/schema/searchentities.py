@@ -84,15 +84,36 @@ def defer_everything_but(mapper, load, *columns):
 
 
 class SearchField(object):
-    """Represents a searchable field."""
+    """Represents a searchable field.
+
+    Each search field has a name and a set of paths. Name is used to reference
+    a field in search queries. Path indicates where the value of that field can
+    be found.
+
+    Paths are structured in the following way:
+
+        [<one or multiple dot-delimited relationships>.]<column name>
+
+    These paths can then be mapped to actual relationships and columns defined
+    in the MusicBrainz schema (see `sir.schema` package and `mbdata` module).
+
+    For example, path "areas.area.gid", when bound to the `CustomAnnotation`
+    model would be expanded in the following way:
+
+        1. `areas` relationship from the `CustomAnnotation` class
+        2. `area` relationship from the `AreaAnnotation` class (model)
+        3. `gid` column from the `Area` class (model)
+    """
+
     def __init__(self, name, paths, transformfunc=None):
         """
-        :param str name: The name of the field
-        :param str path: A dot-delimited path (or a list of them) along which
-                         the value of this field can be found, beginning at
-                         an instance of the model class this field is bound to.
+        :param str name: The name of the field.
+        :param [str] paths: A dot-delimited path (or a list of them) along which
+                            the value of this field can be found, beginning at
+                            an instance of the model class this field is bound to.
+                            See class documentation for more details.
         :param method transformfunc: An optional function to transform the
-                         value before sending it to Solr.
+                                     value before sending it to Solr.
         """
         self.name = name
         if not isinstance(paths, list):
