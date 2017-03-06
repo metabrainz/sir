@@ -164,7 +164,7 @@ class WriteTriggersTest(unittest.TestCase):
         write_triggers_to_file(
             trigger_file=self.trigger_file,
             function_file=self.function_file,
-            generators={InsertTriggerGenerator},
+            generators=[InsertTriggerGenerator],
             prefix="entity_c",
             table_name="table_c",
             path="bs.foo",
@@ -195,7 +195,7 @@ class DirectTriggerWriterTest(unittest.TestCase):
         write_direct_triggers(
             trigger_file=self.triggerfile,
             function_file=self.functionfile,
-            entity_name="entity_c",
+            prefix="entity_c",
             model=models.C,
             broker_id=1,
         )

@@ -67,8 +67,8 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{pk} IN ({inner})".format(
-            pk=self.pk_name,
+        return "SELECT {table}.{pk_name} FROM {table} WHERE {table}.{pk_name} IN ({inner})".format(
+            pk_name=self.pk_name,
             table=self.table_name,
             inner=self.inner.render(),
         )
@@ -80,16 +80,16 @@ class ManyToOnePathPart(PathPart):
     selection across a many-to-one relationship between two
     tables.
     """
-    def __init__(self, table_name, pk_name, fkname, inner=None):
+    def __init__(self, table_name, pk_name, fk_name, inner=None):
         PathPart.__init__(self, table_name, pk_name, inner)
-        self.fkname = fkname
+        self.fk_name = fk_name
 
     def render(self):
-        return "SELECT {table}.{pk} FROM {table} WHERE {table}.{fk} IN ({inner})".format(
-            pk=self.pk_name,
+        return "SELECT {table}.{pk_name} FROM {table} WHERE {table}.{fk_name} IN ({inner})".format(
+            pk_name=self.pk_name,
             table=self.table_name,
             inner=self.inner.render(),
-            fk=self.fkname,
+            fk_name=self.fk_name,
         )
 
 

@@ -10,7 +10,6 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 logger = getLogger("sir")
 
@@ -65,20 +64,19 @@ def walk_path(model, path):
             # Mapper defines correlation of model class attributes to database table columns
             mapper = class_mapper(current_model)
             pk = mapper.primary_key[0].name
-            tablename = mapper.mapped_table.name
+            table_name = mapper.mapped_table.name
+
             innermost_table_name = prop.table.name
 
             if prop.direction == ONETOMANY:
-                new_path_part = OneToManyPathPart(tablename, pk)
+                new_path_part = OneToManyPathPart(table_name, pk_name=pk)
                 if i == path_length:
                     remote_side = list(prop.remote_side)[0]
                     remote_column = remote_side.name
-                    inner = ColumnPathPart("", remote_column)
-                    new_path_part.inner = inner
+                    new_path_part.inner = ColumnPathPart("", remote_column)
                     innermost_table_name = remote_side.table.name
             elif prop.direction == MANYTOONE:
-                new_path_part = ManyToOnePathPart(tablename, pk,
-                                                  column.key)
+                new_path_part = ManyToOnePathPart(table_name, pk_name=pk, fk_name=column.key)
 
             current_model = prop.mapper.class_
 
@@ -119,13 +117,11 @@ def write_triggers_to_file(generators, trigger_file, function_file, **generator_
         trigger_file.write(gen.trigger)
 
 
-def write_direct_triggers(trigger_file, function_file, entity_name, model, broker_id):
+def write_direct_triggers(trigger_file, function_file, model, **generator_args):
     """
     :param file trigger_file: File where triggers will be written.
     :param file function_file: File where functions will be written.
-    :param str entity_name:
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
-    :param int broker_id: ID of the broker in the MusicBrainz database.
     """
     id_select = "SELECT {table}.id FROM {table} WHERE {table}.{pk} = {{new_or_old}}.{pk}"
     mapper = class_mapper(model)
@@ -135,18 +131,17 @@ def write_direct_triggers(trigger_file, function_file, entity_name, model, broke
     write_triggers_to_file(
         trigger_file=trigger_file,
         function_file=function_file,
-        generators={
-            GIDDeleteTriggerGenerator,
+        generators=[
             InsertTriggerGenerator,
             UpdateTriggerGenerator,
-        },
-        prefix=entity_name,
+            GIDDeleteTriggerGenerator,
+        ],
         table_name=table_name,
         path="direct",
         select=id_select.format(pk=pk, table=table_name),
         index_table=table_name,
         index=0,
-        broker_id=broker_id,
+        **generator_args
     )
 
 
@@ -193,7 +188,7 @@ def generate_triggers(args):
             write_direct_triggers(
                 trigger_file=triggerfile,
                 function_file=functionfile,
-                entity_name=entity_name,
+                prefix=entity_name,
                 model=e.model,
                 broker_id=broker_id,
             )
@@ -211,11 +206,11 @@ def generate_triggers(args):
                     write_triggers_to_file(
                         trigger_file=triggerfile,
                         function_file=functionfile,
-                        generators={
-                            DeleteTriggerGenerator,
+                        generators=[
                             InsertTriggerGenerator,
                             UpdateTriggerGenerator,
-                        },
+                            DeleteTriggerGenerator,
+                        ],
                         prefix=entity_name,
                         table_name=trigger_table,
                         path=path_name,
