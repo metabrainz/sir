@@ -1,13 +1,5 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-
-# The goal is to move most of the data retrieval outside of the trigger functions.
-# Can send path with ID into the queue instead of retrieving all the IDs for
-# an updated entity. Then we can retrieve IDs in a separate query.
-#
-# Some paths can be very long (for example, `tracks.medium.release.country_dates.country.area`)
-# so resulting trigger functions contain a significant number of nested queries.
-
 from sir.schema import SCHEMA
 from sir.trigger_generation.types import *
 from enumerate_skip import enumerate_skip
@@ -62,13 +54,15 @@ def walk_path(model, path):
         column = getattr(current_model, path_elem)
 
         # If this is not a column managed by SQLAlchemy, ignore it
+        # TODO(roman): Document when this might happen
         if not isinstance(column, InstrumentedAttribute):
             # Let's assume some other path also covers this table
             return None, None
 
-        prop = column.property
+        prop = column.property  # Current property in the path
 
         if isinstance(prop, RelationshipProperty):
+            # Mapper defines correlation of model class attributes to database table columns
             mapper = class_mapper(current_model)
             pk = mapper.primary_key[0].name
             tablename = mapper.mapped_table.name
@@ -113,8 +107,8 @@ def write_triggers_to_file(generators, trigger_file, function_file, **generator_
     """Write SQL for creation of triggers (for deletion, insertion, and updates) and
     associated functions into files.
 
-    :param set generators: A set of generator classes (based on``TriggerGenerator``)
-                           to use for creating SQL statements.
+    :param list generators: A set of generator classes (based on``TriggerGenerator``)
+                            to use for creating SQL statements.
     :param file trigger_file: File into which commands for creating triggers will be written.
     :param file function_file: File into which commands for creating trigger functions
                                will be written.
