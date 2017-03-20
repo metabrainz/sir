@@ -1,5 +1,6 @@
 # Copyright (c) 2014, 2015, 2016 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+# TODO: Document how paths are created, how they should be updated in the future.
 from sir.schema import queryext
 from sir.schema import modelext
 from sir.schema import transformfuncs as tfs
