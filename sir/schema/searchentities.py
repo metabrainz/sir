@@ -40,7 +40,6 @@ def merge_paths(field_paths):
     level of the path, includes a dictionary whose keys are the columns to load
     and the values are other dictionaries of the described structure.
 
-
     :param field_paths:
     :type field_paths: [[str]]
     :rtype: dict
