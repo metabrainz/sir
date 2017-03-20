@@ -1,5 +1,9 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
+"""
+This module wraps models from mbdata package and adds missing relationships
+that are used in SIR.
+"""
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
                            MediumCDTOC, Place, Recording, Release, ReleaseGroup,
