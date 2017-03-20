@@ -163,6 +163,7 @@ def _watch_impl():
         get_sentry().captureException()
         raise
 
+
 def watch(args):
     """
     Watch AMQP queues for messages.
