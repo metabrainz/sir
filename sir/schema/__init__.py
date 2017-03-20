@@ -284,8 +284,6 @@ SearchRelease = E(modelext.CustomRelease, [
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("discids", "mediums.cdtocs.id", transformfunc=len),
-    # discidsmedium
-    # F("discidsmedium", "?", transformfunc=len), ####
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
@@ -448,7 +446,7 @@ SearchWork = E(modelext.CustomWork, [
 )
 
 
-SearchUrl = E(models.URL, [
+SearchUrl = E(modelext.URL, [
     # relationtype, targetid, targettype
     F("mbid", "gid"),
     F("url", "url")

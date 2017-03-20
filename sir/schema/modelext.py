@@ -3,7 +3,7 @@
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
                            MediumCDTOC, Place, Recording, Release, ReleaseGroup,
-                           ReleaseRaw, ReleaseTag, Series, Work)
+                           ReleaseRaw, ReleaseTag, Series, Work, URL)
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import relationship
 from warnings import simplefilter
@@ -115,10 +115,9 @@ class CustomWork(Work):
     artist_links = relationship("LinkArtistWork")
     tags = relationship("WorkTag")
 
-# class CustomURL(URL):
-#    relationtype
-#    targetid
-#    targettype
+
+class CustomURL(URL):
+    pass
 
 
 class CustomLinkAttribute(LinkAttribute):
