@@ -6,7 +6,7 @@ import multiprocessing
 import ConfigParser
 
 import config
-from sir import init_raven_client
+from . import init_raven_client
 from sir.amqp.handler import watch
 from sir.amqp.setup import setup_rabbitmq
 from sir.indexing import reindex
