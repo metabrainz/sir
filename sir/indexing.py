@@ -205,8 +205,8 @@ def send_data_to_solr(solr_connection, data):
     except SolrException as exc:
         get_sentry().captureException(extra={"data": data})
         if exc.httpcode == 400:
-            logger.info("""Received a Bad Request response form Solr,
-            continuing anyway""")
+            logger.warning("Received a Bad Request response from Solr, " +
+                           "continuing anyway")
         else:
             logger.error(exc)
             raise
