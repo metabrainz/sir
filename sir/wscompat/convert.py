@@ -566,12 +566,40 @@ def convert_tag_list(obj):
     return tag_list
 
 
+def add_one_annotation(l, o, t, e):
+    l.add_annotation(models.annotation(t, e.gid, e.name, o.text))
+
+
 def convert_annotation(obj):
     """
-    :type obj: :class:`mbdata.models.Annotation`
+    :type obj: :class:`[mbdata.models.Annotation]`
     """
-    annotation = models.annotation()
-    return annotation
+    l = models.annotation_list()
+
+    for a in obj.areas:
+        add_one_annotation(l, obj, 'area',         a.area)
+    for a in obj.artists:
+        add_one_annotation(l, obj, 'artist',       a.artist)
+    for a in obj.events:
+        add_one_annotation(l, obj, 'event',        a.event)
+    for a in obj.instruments:
+        add_one_annotation(l, obj, 'instrument',   a.instrument)
+    for a in obj.labels:
+        add_one_annotation(l, obj, 'label',        a.label)
+    for a in obj.places:
+        add_one_annotation(l, obj, 'place',        a.place)
+    for a in obj.recordings:
+        add_one_annotation(l, obj, 'recording',    a.recording)
+    for a in obj.releases:
+        add_one_annotation(l, obj, 'release',      a.release)
+    for a in obj.release_groups:
+        add_one_annotation(l, obj, 'releasegroup', a.release_group)
+    for a in obj.series:
+        add_one_annotation(l, obj, 'series',       a.series)
+    for a in obj.works:
+        add_one_annotation(l, obj, 'work',         a.work)
+
+    return l
 
 
 def convert_area(obj):
