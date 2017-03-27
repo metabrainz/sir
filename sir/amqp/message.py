@@ -6,9 +6,9 @@
 This module contains functions and classes to parse and represent the content
 of an AMQP message.
 """
-from sir.schema import SCHEMA
+from sir.trigger_generation.sql_generator import MSG_JSON_TABLE_NAME_KEY
 from enum import Enum
-from logging import getLogger
+import ujson
 
 MESSAGE_TYPES = Enum("MESSAGE_TYPES", "delete index")
 
@@ -17,73 +17,52 @@ QUEUE_TO_TYPE = {
     "search.index": MESSAGE_TYPES.index,
 }
 
-logger = getLogger("sir")
+
+class Message(object):
+    """
+    A parsed message from AMQP.
+    """
+
+    def __init__(self, message_type, table_name, primary_keys):
+        """
+        Construct a new message object.
+
+        :param message_type: Type of the message. A member of :class:`MESSAGE_TYPES`.
+        :param str table_name: Name of the table the message is associated with.
+        :param dict primary_keys: Dictionary mapping PK(s) of the table to their values.
+                                  Can be used to determine which row was updated.
+        """
+        self.message_type = message_type
+        self.table_name = table_name
+        self.primary_keys = primary_keys
+
+    @classmethod
+    def from_amqp_message(cls, queue_name, amqp_message):
+        """
+        Parses an AMQP message.
+
+        :param str queue_name: Name of the queue where the message originated from.
+        :param amqp.basic_message.Message amqp_message: Message object.
+        :rtype: :class:`sir.amqp.message.Message`
+        """
+        if queue_name not in QUEUE_TO_TYPE.keys():
+            raise ValueError("Unknown queue: %s" % queue_name)
+        else:
+            message_type = QUEUE_TO_TYPE[queue_name]
+
+        data = ujson.loads(amqp_message.body)
+        table_name = data.pop(MSG_JSON_TABLE_NAME_KEY, None)
+        if not table_name:
+            raise InvalidMessageContentException("Table name is missing")
+        # After table name is extracted from the message only PK(s) should be left.
+        if not data:
+            raise InvalidMessageContentException("PK(s) not specified")
+
+        return cls(message_type, table_name, primary_keys=data)
 
 
 class InvalidMessageContentException(ValueError):
     """
-    Exception indicating an error with the content of an AMQP message
+    Exception indicating an error with the content of an AMQP message.
     """
     pass
-
-
-class Message(object):
-    """
-    A parsed message
-    """
-    def __init__(self, message_type, entity_type, ids):
-        """
-        Construct a new message object
-
-        :param message_type: A member of :class:`MESSAGE_TYPES`
-        :param str entity_type:
-        :param ids:
-        :type ids: Either a list of UUIDs as strings or a list of ints
-        """
-        self.message_type = message_type  #: The message type
-        self.entity_type = entity_type  #: The entity type
-        if message_type != MESSAGE_TYPES.delete:
-            ids = map(int, ids)
-        self.ids = ids  #: The IDs contained in the original message
-
-    @classmethod
-    def from_amqp_message(cls, queue, amqp_message):
-        """
-        Parses an AMQP message.
-
-        :param str queue: The queue name
-        :param amqp.basic_message.Message amqp_message:
-        :rtype: :class:`sir.amqp.message.Message`
-        :raises sir.amqp.message.InvalidMessageContentException: If the message
-                content could not be parsed
-        :raises ValueError: If the entity type in the message was invalid or
-                any of the IDs was not numeric (in case ``type`` is not
-                :data:`MESSAGE_TYPES.delete`) or the queue is unknown
-        """
-        if queue not in QUEUE_TO_TYPE.keys():
-            raise ValueError("%s is not a valid queue name" % queue)
-        else:
-            message_type = QUEUE_TO_TYPE[queue]
-
-        dbg_msg = amqp_message.body
-        if len(dbg_msg) > 20:
-            dbg_msg = dbg_msg[:20] + "..."
-        logger.debug("Recieved message from queue %s: %s" % (queue, dbg_msg))
-
-        split_message = amqp_message.body.split(" ")
-        if not len(split_message) >= 2:
-            raise InvalidMessageContentException("AMQP messages must at least "
-                                                 "contain 2 entries separated"
-                                                 " by spaces")
-
-        entity_type = split_message[0].replace("_", "-")
-        if entity_type == "release-raw":  # See https://git.io/vDcdo
-            entity_type = "cdstub"
-        if entity_type not in SCHEMA.keys():
-            raise ValueError("Received a message with the invalid entity type "
-                             "%s"
-                             % entity_type)
-
-        ids = split_message[1:]
-
-        return cls(message_type, entity_type, ids)
