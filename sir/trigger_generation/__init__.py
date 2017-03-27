@@ -7,6 +7,18 @@ from sqlalchemy.orm import class_mapper
 import collections
 
 
+def generate_func(args):
+    """
+    This is the entry point for this trigger_generation module. This function
+    gets called from :func:`~sir.__main__.main`.
+    """
+    generate(
+        trigger_filename=args["trigger_file"],
+        function_filename=args["function_file"],
+        broker_id=args["broker_id"],
+    )
+
+
 def generate(trigger_filename, function_filename, broker_id):
     """Generates SQL queries that create and remove triggers for the MusicBrainz database.
 
