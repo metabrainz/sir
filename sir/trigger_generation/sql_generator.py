@@ -42,10 +42,11 @@ class TriggerGenerator(object):
         :rtype: str
         """
         return textwrap.dedent("""\
-            CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {table_name}
+            CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {schema}.{table_name}
                 FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
         """).format(
             trigger_name=self.trigger_name,
+            schema="musicbrainz",
             table_name=self.table_name,
             op=self.op.upper(),
             before_or_after=self.before_or_after.upper(),
