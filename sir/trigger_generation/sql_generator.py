@@ -2,6 +2,8 @@
 # License: MIT, see LICENSE for details
 import textwrap
 
+MSG_JSON_TABLE_NAME_KEY = "_table"
+
 
 class TriggerGenerator(object):
     """
@@ -96,11 +98,12 @@ class TriggerGenerator(object):
     def message(self):
         return """
         WITH keys({column_keys}) AS ({select})
-        SELECT jsonb_set(to_jsonb(keys), '{{_table}}', '"{table_name}"')::text FROM keys
+        SELECT jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"')::text FROM keys
     """.format(
             table_name=self.table_name,
             column_keys=", ".join(self.reference_columns),
             select=self.selection,
+            table_name_key=MSG_JSON_TABLE_NAME_KEY,  # Assuming that no PK columns have the same name
         )
 
 
