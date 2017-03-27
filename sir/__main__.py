@@ -11,7 +11,7 @@ from .amqp.handler import watch
 from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
 from .schema import SCHEMA
-from .trigger_generation import generate_triggers
+from .trigger_generation import generate_func
 
 
 logger = logging.getLogger("sir")
@@ -34,7 +34,7 @@ def main():
 
     generate_trigger_parser = subparsers.add_parser("triggers",
                                                     help="Generate triggers")
-    generate_trigger_parser.set_defaults(func=generate_triggers)
+    generate_trigger_parser.set_defaults(func=generate_func)
     generate_trigger_parser.add_argument('-t', '--trigger-file',
                                          action="store",
                                          default="sql/CreateTriggers.sql",
