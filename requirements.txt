@@ -10,3 +10,4 @@ solrpy==0.9.7
 sqlalchemy==1.0.2
 requests==2.13.0
 raven==5.32.0
+ujson==1.35
