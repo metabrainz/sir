@@ -62,7 +62,6 @@ class TriggerGenerator(object):
 
         :rtype: str
         """
-        # FIXME(roman): Shouldn't `RETURN NULL;` (SOLR-39)
         return textwrap.dedent("""\
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
