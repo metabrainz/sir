@@ -126,7 +126,7 @@ def unique_split_paths(paths):
                 yield join
 
 
-def walk_path(model, path):
+def last_model_in_path(model, path):
     """
     Walk ``path`` beginning at ``model`` and return the last model in the path.
 
