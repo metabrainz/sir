@@ -1,7 +1,7 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from sir.schema import SCHEMA
-from sir.trigger_generation.paths import unique_split_paths, walk_path
+from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 from sir.trigger_generation import sql_generator
 from sqlalchemy.orm import class_mapper
 import collections
@@ -78,7 +78,7 @@ def get_trigger_tables():
         # TODO(roman): maybe come up with a better description above
         for path in unique_split_paths([path for field in entity.fields
                                              for path in field.paths]):
-            model = walk_path(entity.model, path)
+            model = last_model_in_path(entity.model, path)
             if model is not None:
                 table_name = class_mapper(model).mapped_table.name
                 if table_name not in tables:
