@@ -6,6 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA
 from sir.indexing import send_data_to_solr
+from sir.trigger_generation.paths import unique_split_paths, last_model_in_path, walk_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -16,7 +17,9 @@ from functools import partial, wraps
 from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
+from collections import defaultdict
 from sqlalchemy import and_
+from sqlalchemy.orm import class_mapper
 from urllib2 import URLError
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
@@ -92,26 +95,53 @@ class Handler(object):
     Solr cores.
     """
     def __init__(self):
-        self.cores = {}  #: Maps entity type names to Solr cores
-        for corename in SCHEMA.keys():
-            self.cores[corename] = solr_connection(corename)
-            solr_version_check(corename)
+        self.cores = {}
+        for core_name in SCHEMA.keys():
+            pass
+            self.cores[core_name] = solr_connection(core_name)
+            solr_version_check(core_name)
 
-        self.session = db_session()  #: The database session used by the handler
+        self.db_session = db_session()
+        self.update_map = self._generate_update_map()
 
     @callback_wrapper
     def index_callback(self, parsed_message):
-        logger.debug("Processing `index` message for entity: %s" % parsed_message.entity_type)
-        entity = SCHEMA[parsed_message.entity_type]
-        converter = entity.query_result_to_dict
-        query = entity.query
+        """
+        Callback for processing `index` messages.
 
-        condition = and_(entity.model.id.in_(parsed_message.ids))
+        :param sir.amqp.message.Message parsed_message:
+        """
+        logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
 
-        with db_session_ctx(self.session) as session:
-            query = query.filter(condition).with_session(session)
-            send_data_to_solr(self.cores[parsed_message.entity_type],
-                              [converter(obj) for obj in query.all()])
+        if parsed_message.table_name not in self.update_map:
+            raise ValueError("Unknown table: %s" % parsed_message.table_name)
+
+        for core_name, path in self.update_map[parsed_message.table_name]:
+            entity = SCHEMA[core_name]
+            query = entity.query
+
+            select, pk_col_name = walk_path(entity.model, path)
+            if select is None:
+                # FIXME(roman): When can this happen? Can this happen at all?
+                logger.error("SELECT is None")
+                continue
+
+            with db_session_ctx(self.db_session) as session:
+
+                # Retrieving PK values of rows in the entity table that need to be updated
+                # FIXME(roman): It would probably be a good idea to support tables with different set of PKs.
+                # We have those in the `parsed_message` anyway.
+                if pk_col_name not in parsed_message.primary_keys:
+                    raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
+                result = session.execute(select.render(), {"ids": parsed_message.primary_keys[pk_col_name]})
+                ids = [row[0] for row in result.fetchall()]
+
+                # Retrieving actual data
+                # TODO(roman): Figure out how to do this selection without doing two queries
+                condition = and_(entity.model.id.in_(ids))
+                query = query.filter(condition).with_session(session)
+                data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                send_data_to_solr(self.cores[core_name], data)
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
@@ -120,6 +150,29 @@ class Handler(object):
             entity_type=parsed_message.entity_type,
             ids=parsed_message.ids))
         self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
+
+    @staticmethod
+    def _generate_update_map():
+        """
+        Generates mapping from tables to Solr cores (entities) that depend on
+        these tables. In addition provides a path along which data of an
+        entity can be retrieved by performing a set of JOINs.
+
+        Uses paths to determine the dependency.
+
+        :rtype dict
+        """
+        tables = defaultdict(set)
+        for core_name, entity in SCHEMA.items():
+            # Entity itself:
+            tables[class_mapper(entity.model).mapped_table.name].add(core_name)
+            # Related tables:
+            for path in unique_split_paths([path for field in entity.fields
+                                            for path in field.paths]):
+                model = last_model_in_path(entity.model, path)
+                if model is not None:
+                    tables[class_mapper(model).mapped_table.name].add((core_name, path))
+        return dict(tables)
 
 
 def _should_retry(exc):
