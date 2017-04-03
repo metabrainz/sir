@@ -112,6 +112,72 @@ class ColumnPathPart(PathPart):
         return ":ids".format(pk_name=self.pk_name)
 
 
+def walk_path(model, path):
+    """
+    Walk ``path`` beginning at ``model`` and return a
+    :class:`~sir.trigger_generation.PathPart` object representing a selection
+    along that path.
+
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param str path:
+    """
+    # TODO(roman): See if comments in this function are still relevant
+    current_model = model
+    path_length = path.count(".")
+    path_part = None
+    outermost_path_part = None
+    last_pk_name = None
+
+    for i, path_elem in enumerate(path.split(".")):
+        column = getattr(current_model, path_elem)
+
+        # If this is not a column managed by SQLAlchemy, ignore it
+        if not isinstance(column, InstrumentedAttribute):
+            # Let's assume some other path also covers this table
+            return None, None
+
+        prop = column.property
+
+        if isinstance(prop, RelationshipProperty):
+            mapper = class_mapper(current_model)
+            # FIXME(roman): What if there are more than one PKs?
+            pk = mapper.primary_key[0].name
+            last_pk_name = pk
+            table_name = mapper.mapped_table.name
+
+            if prop.direction == ONETOMANY:
+                new_path_part = OneToManyPathPart(table_name, pk)
+                if i == path_length:
+                    remote_side = list(prop.remote_side)[0]
+                    remote_column = remote_side.name
+                    new_path_part.inner = ColumnPathPart("", remote_column)
+            elif prop.direction == MANYTOONE:
+                new_path_part = ManyToOnePathPart(table_name, pk, column.key)
+
+            current_model = prop.mapper.class_
+
+        elif (isinstance(prop, ColumnProperty) or
+              isinstance(prop, CompositeProperty)):
+            # We're not interested in columns (or a collection or them) because
+            # the relationship handling takes care of selections on primary keys
+            # etc.
+            return None, None
+
+        if path_part is None:
+            path_part = new_path_part
+            outermost_path_part = path_part
+        else:
+            path_part.inner = new_path_part
+            path_part = new_path_part
+
+    if path_part.inner is None:
+        # The path ended in a relationship property
+        path_part.inner = ColumnPathPart("", "id")
+        last_pk_name = "id"
+
+    return outermost_path_part, last_pk_name
+
+
 def unique_split_paths(paths):
     """
     For each path in ``paths``, yield each of its continuous subpaths.
