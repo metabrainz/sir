@@ -109,7 +109,7 @@ class ColumnPathPart(PathPart):
     the chain.
     """
     def render(self):
-        return "{{new_or_old}}.{pk_name}".format(pk_name=self.pk_name)
+        return ":ids".format(pk_name=self.pk_name)
 
 
 def unique_split_paths(paths):
