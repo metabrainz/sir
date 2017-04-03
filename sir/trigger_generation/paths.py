@@ -44,6 +44,9 @@ class PathPart(object):
      WHERE annotation.id IN ({new_or_old}.annotation)
     ```
     """  # noqa
+
+    schema = "musicbrainz"
+
     def __init__(self, table_name, pk_name, inner=None):
         """
         :param str table_name: The name of the table.
@@ -71,8 +74,9 @@ class OneToManyPathPart(PathPart):
     tables.
     """
     def render(self):
-        return "SELECT {table}.{pk_name} FROM {table} WHERE {table}.{pk_name} IN ({inner})".format(
+        return "SELECT {table}.{pk_name} FROM {schema}.{table} WHERE {table}.{pk_name} IN ({inner})".format(
             pk_name=self.pk_name,
+            schema=self.schema,
             table=self.table_name,
             inner=self.inner.render(),
         )
@@ -89,8 +93,9 @@ class ManyToOnePathPart(PathPart):
         self.fk_name = fk_name
 
     def render(self):
-        return "SELECT {table}.{pk_name} FROM {table} WHERE {table}.{fk_name} IN ({inner})".format(
+        return "SELECT {table}.{pk_name} FROM {schema}.{table} WHERE {table}.{fk_name} IN ({inner})".format(
             pk_name=self.pk_name,
+            schema=self.schema,
             table=self.table_name,
             inner=self.inner.render(),
             fk_name=self.fk_name,
