@@ -917,10 +917,11 @@ def convert_standalone_tag(obj):
 
 def convert_url(obj):
     """
-    :type obj: :class'mbdata_models.URL'
+    :type obj: :class`mbdata_models.URL`
     """
-    url = models.url()
-
+    url = models.url(id=obj.gid, resource=obj.url)
+    # obj does not seem to have any links set, so we can't include any
+    # relation lists at this time
     return url
 
 
