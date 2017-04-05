@@ -566,12 +566,49 @@ def convert_tag_list(obj):
     return tag_list
 
 
+def convert_one_annotation(obj, type_, entity):
+    """
+    :type obj: :class:`mbdata.models.Annotation`
+    """
+    return models.annotation(type_, entity.gid, entity.name, obj.text)
+
+
 def convert_annotation(obj):
     """
     :type obj: :class:`mbdata.models.Annotation`
     """
-    annotation = models.annotation()
-    return annotation
+    l = []
+
+    for a in obj.areas:
+        l.append(convert_one_annotation(obj, 'area',         a.area))
+    for a in obj.artists:
+        l.append(convert_one_annotation(obj, 'artist',       a.artist))
+    for a in obj.events:
+        l.append(convert_one_annotation(obj, 'event',        a.event))
+    for a in obj.instruments:
+        l.append(convert_one_annotation(obj, 'instrument',   a.instrument))
+    for a in obj.labels:
+        l.append(convert_one_annotation(obj, 'label',        a.label))
+    for a in obj.places:
+        l.append(convert_one_annotation(obj, 'place',        a.place))
+    for a in obj.recordings:
+        l.append(convert_one_annotation(obj, 'recording',    a.recording))
+    for a in obj.releases:
+        l.append(convert_one_annotation(obj, 'release',      a.release))
+    for a in obj.release_groups:
+        l.append(convert_one_annotation(obj, 'releasegroup', a.release_group))
+    for a in obj.series:
+        l.append(convert_one_annotation(obj, 'series',       a.series))
+    for a in obj.works:
+        l.append(convert_one_annotation(obj, 'work',         a.work))
+
+    # sanity checks - we should have gathered a single annotation object
+    if len(l) == 0:
+        raise "no annotations found; is there a new annotatable entity?"
+    elif len(l) > 1:
+        raise "found too many annotations (" + len(l) + " > 1)"
+
+    return l[0]
 
 
 def convert_area(obj):
