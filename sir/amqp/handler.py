@@ -104,8 +104,19 @@ class Handler(object):
         logger.debug("Processing `index` message for entity: %s" % parsed_message.entity_type)
         entity = SCHEMA[parsed_message.entity_type]
         converter = entity.query_result_to_dict
-        query = entity.query
 
+        TMP_ID_LIMIT = 100
+        if len(parsed_message.ids) > TMP_ID_LIMIT:
+            get_sentry().captureMessage("Too many IDs in a message", level=logging.WARN, extra={
+                "entity_type": parsed_message.entity_type,
+                "number_of_ids": len(parsed_message.ids),
+                "message_type": parsed_message.message_type,
+            })
+            logger.warning("More than %s messages (%s) for entity %s... Skipping." %
+                         (TMP_ID_LIMIT, len(parsed_message.ids), parsed_message.entity_type))
+            return
+
+        query = entity.query
         condition = and_(entity.model.id.in_(parsed_message.ids))
 
         with db_session_ctx(self.session) as session:
