@@ -604,9 +604,9 @@ def convert_annotation(obj):
 
     # sanity checks - we should have gathered a single annotation object
     if len(l) == 0:
-        raise "no annotations found; is there a new annotatable entity?"
+        raise ValueError("no annotations found; is there a new annotatable entity?")
     elif len(l) > 1:
-        raise "found too many annotations (" + len(l) + " > 1)"
+        raise ValueError("found too many annotations (" + len(l) + " > 1)")
 
     return l[0]
 
