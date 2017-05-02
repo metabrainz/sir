@@ -130,9 +130,9 @@ class Handler(object):
                 # Retrieving PK values of rows in the entity table that need to be updated
                 # FIXME(roman): It would probably be a good idea to support tables with different set of PKs.
                 # We have those in the `parsed_message` anyway.
-                if pk_col_name not in parsed_message.primary_keys:
+                if pk_col_name not in parsed_message.columns:
                     raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
-                result = session.execute(select.render(), {"ids": parsed_message.primary_keys[pk_col_name]})
+                result = session.execute(select.render(), {"ids": parsed_message.columns[pk_col_name]})
                 ids = [row[0] for row in result.fetchall()]
 
                 # Retrieving actual data
@@ -144,11 +144,29 @@ class Handler(object):
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
-        logger.debug("Processing `delete` message")
-        logger.debug("Deleting {entity_type}: {ids}".format(
-            entity_type=parsed_message.entity_type,
-            ids=parsed_message.ids))
-        self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
+        """
+        Callback for processing `delete` messages.
+
+        Messages for deletion have the following format:
+
+            <table name>, <gid>
+
+        First value is a table name for an entity that has been deleted.
+        Second is GID of the row in that table. For example:
+
+            {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
+
+        This callback function is expected to receive messages only from
+        entity tables all of which have a `gid` column on them.
+
+        :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
+        """
+        if "gid" not in parsed_message.columns:
+            raise ValueError("`gid` column missing from delete message")
+        logger.debug("Deleting {entity_type}: {id}".format(
+            entity_type=parsed_message.table_name,
+            id=parsed_message.columns["gid"]))
+        self.cores[parsed_message.table_name].delete(parsed_message.columns["gid"])
 
 
 def _should_retry(exc):
