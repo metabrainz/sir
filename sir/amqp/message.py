@@ -23,18 +23,21 @@ class Message(object):
     A parsed message from AMQP.
     """
 
-    def __init__(self, message_type, table_name, primary_keys):
+    def __init__(self, message_type, table_name, columns):
         """
         Construct a new message object.
+        
+        A message contains a set of columns (dict) which can be used to determine
+        which row has been updated. In case of messages from the `index` queue
+        it will be a set of PK columns, and `gid` column for `delete` queue messages.  
 
         :param message_type: Type of the message. A member of :class:`MESSAGE_TYPES`.
         :param str table_name: Name of the table the message is associated with.
-        :param dict primary_keys: Dictionary mapping PK(s) of the table to their values.
-                                  Can be used to determine which row was updated.
+        :param dict columns: Dictionary mapping columns of the table to their values.
         """
         self.message_type = message_type
         self.table_name = table_name
-        self.primary_keys = primary_keys
+        self.columns = columns
 
     @classmethod
     def from_amqp_message(cls, queue_name, amqp_message):
@@ -56,9 +59,11 @@ class Message(object):
             raise InvalidMessageContentException("Table name is missing")
         # After table name is extracted from the message only PK(s) should be left.
         if not data:
-            raise InvalidMessageContentException("PK(s) not specified")
+            # For the `index` queue the data will be a set of PKs, and for `delete`
+            # queue it will be a GID value.
+            raise InvalidMessageContentException("Reference values are not specified")
 
-        return cls(message_type, table_name, primary_keys=data)
+        return cls(message_type, table_name, columns=data)
 
 
 class InvalidMessageContentException(ValueError):
