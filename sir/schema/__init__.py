@@ -5,9 +5,12 @@ from sir.schema import queryext
 from sir.schema import modelext
 from sir.schema import transformfuncs as tfs
 from sir.schema.searchentities import SearchEntity as E, SearchField as F
+from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 from sir.wscompat import convert
 from collections import OrderedDict
 from mbdata import models
+from collections import defaultdict
+from sqlalchemy.orm import class_mapper
 
 
 SearchAnnotation = E(modelext.CustomAnnotation, [
@@ -477,3 +480,26 @@ SCHEMA = OrderedDict(sorted({
     "work": SearchWork,
     "url": SearchUrl,
 }.items(), key=lambda val: val[0]))
+
+
+def generate_update_map():
+    """
+    Generates mapping from tables to Solr cores (entities) that depend on
+    these tables. In addition provides a path along which data of an
+    entity can be retrieved by performing a set of JOINs.
+    
+    Uses paths to determine the dependency.
+    
+    :rtype dict 
+    """
+    tables = defaultdict(set)
+    for core_name, entity in SCHEMA.items():
+        # Entity itself:
+        tables[class_mapper(entity.model).mapped_table.name].add(core_name)
+        # Related tables:
+        for path in unique_split_paths([path for field in entity.fields
+                                        for path in field.paths]):
+            model = last_model_in_path(entity.model, path)
+            if model is not None:
+                tables[class_mapper(model).mapped_table.name].add((core_name, path))
+    return dict(tables)
