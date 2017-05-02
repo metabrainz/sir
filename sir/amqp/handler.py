@@ -4,9 +4,9 @@
 # License: MIT, see LICENSE for details
 from sir.amqp import message
 from sir import get_sentry, config
-from sir.schema import SCHEMA
+from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import unique_split_paths, last_model_in_path, walk_path
+from sir.trigger_generation.paths import walk_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -17,14 +17,14 @@ from functools import partial, wraps
 from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
-from collections import defaultdict
 from sqlalchemy import and_
-from sqlalchemy.orm import class_mapper
 from urllib2 import URLError
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
+
+update_map = generate_update_map()
 
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
@@ -35,7 +35,8 @@ _RETRY_WAIT_SECS = 30
 
 def callback_wrapper(f):
     """
-    Wraps a function ``f`` to provide basic exception handling around it.
+    Common wrapper for a message callback function that provides basic sanity
+    checking for messages and provides exception handling for a function it wraps.
 
     The following wrapper function is returned:
 
@@ -61,7 +62,10 @@ def callback_wrapper(f):
     def wrapper(self, msg, queue):
         try:
             parsed_message = message.Message.from_amqp_message(queue, msg)
+            if parsed_message.table_name not in update_map:
+                raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
+
         except Exception as exc:
             get_sentry().captureException(extra={"msg": msg, "attributes": msg.__dict__})
             logger.error(exc)
@@ -102,7 +106,6 @@ class Handler(object):
             solr_version_check(core_name)
 
         self.db_session = db_session()
-        self.update_map = self._generate_update_map()
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -113,10 +116,7 @@ class Handler(object):
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
 
-        if parsed_message.table_name not in self.update_map:
-            raise ValueError("Unknown table: %s" % parsed_message.table_name)
-
-        for core_name, path in self.update_map[parsed_message.table_name]:
+        for core_name, path in update_map[parsed_message.table_name]:
             entity = SCHEMA[core_name]
             query = entity.query
 
@@ -150,29 +150,6 @@ class Handler(object):
             entity_type=parsed_message.entity_type,
             ids=parsed_message.ids))
         self.cores[parsed_message.entity_type].delete_many(parsed_message.ids)
-
-    @staticmethod
-    def _generate_update_map():
-        """
-        Generates mapping from tables to Solr cores (entities) that depend on
-        these tables. In addition provides a path along which data of an
-        entity can be retrieved by performing a set of JOINs.
-
-        Uses paths to determine the dependency.
-
-        :rtype dict
-        """
-        tables = defaultdict(set)
-        for core_name, entity in SCHEMA.items():
-            # Entity itself:
-            tables[class_mapper(entity.model).mapped_table.name].add(core_name)
-            # Related tables:
-            for path in unique_split_paths([path for field in entity.fields
-                                            for path in field.paths]):
-                model = last_model_in_path(entity.model, path)
-                if model is not None:
-                    tables[class_mapper(model).mapped_table.name].add((core_name, path))
-        return dict(tables)
 
 
 def _should_retry(exc):
