@@ -101,7 +101,6 @@ class Handler(object):
     def __init__(self):
         self.cores = {}
         for core_name in SCHEMA.keys():
-            pass
             self.cores[core_name] = solr_connection(core_name)
             solr_version_check(core_name)
 
