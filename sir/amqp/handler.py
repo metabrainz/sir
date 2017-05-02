@@ -42,8 +42,8 @@ def callback_wrapper(f):
 
     .. py:function:: wrapper(self, msg, queue)
 
-        :param sir.amqp.handler.Handler self:
-        :param sir.amqp.message.Message msg:
+        :param sir.amqp.handler.Handler self: Handler object that is processing a message.
+        :param sir.amqp.message.Message msg: Message itself.
         :param str queue:
 
         Calls ``f`` with ``self`` and  an instance of
@@ -73,6 +73,7 @@ def callback_wrapper(f):
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
 
             if not hasattr(msg, "application_headers"):
+                # TODO(roman): Document when this might happen
                 get_sentry().captureMessage("Message doesn't have \"application_headers\" attribute",
                                             extra={"msg": msg, "attributes": msg.__dict__})
                 return
@@ -111,11 +112,23 @@ class Handler(object):
         """
         Callback for processing `index` messages.
 
-        :param sir.amqp.message.Message parsed_message:
+        Messages for indexing have the following format:
+
+            <table name>, PKs{<PK row name>, <PK value>}
+
+        First value is a table name, followed by primary key values for that
+        table. These are then used to lookup values that need to be updated.
+        For example:
+
+            {"_table": "artist_credit_name", "position": 0, "artist_credit": 1}
+
+        :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
 
         for core_name, path in update_map[parsed_message.table_name]:
+            # Going through each core/entity that needs to be updated
+            # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
             query = entity.query
 
