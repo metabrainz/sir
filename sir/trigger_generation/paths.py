@@ -117,7 +117,7 @@ def walk_path(model, path):
     Walk ``path`` beginning at ``model`` and return a
     :class:`~sir.trigger_generation.PathPart` object representing a selection
     along that path.
-
+    
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param str path:
     """
