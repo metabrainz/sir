@@ -16,14 +16,16 @@ basicConfig(level=CRITICAL)
 
 
 class AmqpTestCase(unittest.TestCase):
+
     def setUp(self):
         self.entity_type = "artist"
-        self.id_string = "123 456"
+        self.id_string = "42"
         self.routing_key = "rk"
-        self.message = Amqp_Message(body="%s %s" % (self.entity_type,
-                                    self.id_string),
-                                    channel=mock.Mock(),
-                                    application_headers={})
+        self.message = Amqp_Message(
+            body='{"_table": "%s", "id": "%s"}' % (self.entity_type, self.id_string),
+            channel=mock.Mock(),
+            application_headers={},
+        )
 
         self.message.delivery_info = {"routing_key": self.routing_key}
 
@@ -36,6 +38,7 @@ class AmqpTestCase(unittest.TestCase):
 
 
 class CallbackWrapperTest(AmqpTestCase):
+
     def test_ack(self):
         def wrapped_f(*args, **kwargs):
             pass
@@ -82,6 +85,7 @@ class CallbackWrapperTest(AmqpTestCase):
 
 
 class HandlerTest(AmqpTestCase):
+
     def setUp(self):
         super(HandlerTest, self).setUp()
         handler.solr_connection = mock.Mock()
@@ -97,12 +101,16 @@ class HandlerTest(AmqpTestCase):
         self.handler.cores[self.entity_type] = mock.Mock()
 
     def test_delete_callback(self):
+        entity_gid = u"90d7709d-feba-47e6-a2d1-8770da3c3d9c"
+        self.message = Amqp_Message(
+            body='{"_table": "%s", "gid": "%s"}' % (self.entity_type, entity_gid),
+            channel=mock.Mock(),
+            application_headers={},
+        )
+        self.message.delivery_tag = self.delivery_tag
         self.handler.delete_callback(self.message, "search.delete")
 
-        ids = self.id_string.split()
-
-        self.handler.cores[self.entity_type].delete_many.\
-            assert_called_once_with(ids)
+        self.handler.cores[self.entity_type].delete.assert_called_once_with(entity_gid)
 
     def test_handler_checks_solr_version(self):
         handler.solr_version_check.assert_called_once_with(self.entity_type)
