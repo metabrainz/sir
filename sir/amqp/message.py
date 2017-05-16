@@ -27,10 +27,10 @@ class Message(object):
     def __init__(self, message_type, table_name, columns):
         """
         Construct a new message object.
-        
+
         A message contains a set of columns (dict) which can be used to determine
         which row has been updated. In case of messages from the `index` queue
-        it will be a set of PK columns, and `gid` column for `delete` queue messages.  
+        it will be a set of PK columns, and `gid` column for `delete` queue messages.
 
         :param message_type: Type of the message. A member of :class:`MESSAGE_TYPES`.
         :param str table_name: Name of the table the message is associated with.

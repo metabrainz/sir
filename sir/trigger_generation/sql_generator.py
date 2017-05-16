@@ -97,14 +97,14 @@ class TriggerGenerator(object):
     @property
     def message(self):
         return """
-        WITH keys({column_keys}) AS ({select})
-        SELECT jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"')::text FROM keys
-    """.format(
-            table_name=self.table_name,
-            column_keys=", ".join(self.reference_columns),
-            select=self.selection,
-            table_name_key=MSG_JSON_TABLE_NAME_KEY,  # Assuming that no PK columns have the same name
-        )
+            WITH keys({column_keys}) AS ({select})
+            SELECT jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"')::text FROM keys
+        """.format(
+                table_name=self.table_name,
+                column_keys=", ".join(self.reference_columns),
+                select=self.selection,
+                table_name_key=MSG_JSON_TABLE_NAME_KEY,  # Assuming that no PK columns have the same name
+            )
 
 
 class InsertTriggerGenerator(TriggerGenerator):

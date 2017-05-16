@@ -487,10 +487,10 @@ def generate_update_map():
     Generates mapping from tables to Solr cores (entities) that depend on
     these tables. In addition provides a path along which data of an
     entity can be retrieved by performing a set of JOINs.
-    
+
     Uses paths to determine the dependency.
-    
-    :rtype dict 
+
+    :rtype dict
     """
     tables = defaultdict(set)
     for core_name, entity in SCHEMA.items():
