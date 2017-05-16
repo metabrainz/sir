@@ -54,7 +54,10 @@ class Message(object):
         else:
             message_type = QUEUE_TO_TYPE[queue_name]
 
-        data = ujson.loads(amqp_message.body)
+        try:
+            data = ujson.loads(amqp_message.body)
+        except StandardError as e:
+            raise InvalidMessageContentException("Invalid message format (expected JSON): %s" % e)
         table_name = data.pop(MSG_JSON_TABLE_NAME_KEY, None)
         if not table_name:
             raise InvalidMessageContentException("Table name is missing")
