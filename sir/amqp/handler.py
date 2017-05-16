@@ -61,6 +61,7 @@ def callback_wrapper(f):
     @wraps(f)
     def wrapper(self, msg, queue):
         try:
+            logger.debug("Received message from queue %s: %s" % (queue, msg.body))
             parsed_message = message.Message.from_amqp_message(queue, msg)
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
@@ -77,17 +78,15 @@ def callback_wrapper(f):
                 get_sentry().captureMessage("Message doesn't have \"application_headers\" attribute",
                                             extra={"msg": msg, "attributes": msg.__dict__})
                 return
-            retries_remaining = msg.application_headers.get("mb-retries",
-                                                            _DEFAULT_MB_RETRIES)
+            retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
             routing_key = msg.delivery_info["routing_key"]
             if retries_remaining:
                 msg.application_headers["mb-retries"] = retries_remaining - 1
                 msg.application_headers["mb-exception"] = str(exc)
-                msg.channel.basic_publish(msg, exchange="search.retry",
-                                          routing_key=routing_key)
+                msg.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
             else:
-                msg.channel.basic_publish(msg, exchange="search.failed",
-                                          routing_key=routing_key)
+                msg.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+
         else:
             msg.channel.basic_ack(msg.delivery_tag)
 
@@ -99,6 +98,7 @@ class Handler(object):
     This class is used to provide callbacks for AMQP messages and access to
     Solr cores.
     """
+
     def __init__(self):
         self.cores = {}
         for core_name in SCHEMA.keys():
