@@ -11,11 +11,11 @@ wscompat = {{template "KEY" "wscompat"}}
 [database]
 {{- if service "pgbouncer-master"}}
 {{- with index (service "pgbouncer-master") 0}}
-uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/musicbrainz_db
+uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/{{template "KEY" "db/musicbrainz_db"}}
 {{- end}}
 {{- else if service "pgbouncer-slave"}}
 {{- with index (service "pgbouncer-slave") 0}}
-uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/musicbrainz_db
+uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/{{template "KEY" "db/musicbrainz_db"}}
 {{- end}}
 {{- end}}
 
