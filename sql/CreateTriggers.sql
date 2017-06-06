@@ -731,6 +731,15 @@ CREATE TRIGGER search_iswc_update AFTER UPDATE ON musicbrainz.iswc
 CREATE TRIGGER search_iswc_delete BEFORE DELETE ON musicbrainz.iswc
     FOR EACH ROW EXECUTE PROCEDURE search_iswc_delete();
 
+CREATE TRIGGER search_work_language_insert AFTER INSERT ON musicbrainz.work_language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_language_insert();
+
+CREATE TRIGGER search_work_language_update AFTER UPDATE ON musicbrainz.work_language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_language_update();
+
+CREATE TRIGGER search_work_language_delete BEFORE DELETE ON musicbrainz.work_language
+    FOR EACH ROW EXECUTE PROCEDURE search_work_language_delete();
+
 CREATE TRIGGER search_work_tag_insert AFTER INSERT ON musicbrainz.work_tag
     FOR EACH ROW EXECUTE PROCEDURE search_work_tag_insert();
 
