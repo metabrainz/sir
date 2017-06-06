@@ -2675,6 +2675,39 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_work_language_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+        WITH keys(language, work) AS (SELECT NEW.language, NEW.work)
+        SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_language"')::text FROM keys
+    ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_work_language_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+        WITH keys(language, work) AS (SELECT NEW.language, NEW.work)
+        SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_language"')::text FROM keys
+    ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_work_language_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+        WITH keys(language, work) AS (SELECT OLD.language, OLD.work)
+        SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_language"')::text FROM keys
+    ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_work_tag_insert() RETURNS trigger
     AS $$
 BEGIN

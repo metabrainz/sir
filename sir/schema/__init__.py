@@ -435,7 +435,7 @@ SearchWork = E(modelext.CustomWork, [
     F("artist", "artist_links.artist.name"),
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
-    F("lang", "language.iso_code_3"),
+    F("lang", "languages.language.iso_code_3"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
