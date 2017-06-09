@@ -61,9 +61,7 @@ class Message(object):
         table_name = data.pop(MSG_JSON_TABLE_NAME_KEY, None)
         if not table_name:
             raise InvalidMessageContentException("Table name is missing")
-        if table_name not in SCHEMA.keys():
-            raise ValueError("Received a message with the invalid table (entity type): %s"
-                             % table_name)
+
         # After table name is extracted from the message only PK(s) should be left.
         if not data:
             # For the `index` queue the data will be a set of PKs, and for `delete`
