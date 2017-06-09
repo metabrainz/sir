@@ -495,7 +495,8 @@ def generate_update_map():
     tables = defaultdict(set)
     for core_name, entity in SCHEMA.items():
         # Entity itself:
-        tables[class_mapper(entity.model).mapped_table.name].add(core_name)
+        # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
+        tables[class_mapper(entity.model).mapped_table.name].add((core_name, None))
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
                                         for path in field.paths]):
