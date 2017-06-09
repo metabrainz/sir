@@ -23,9 +23,5 @@ class AmqpMessageTest(unittest.TestCase):
     def test_invalid_channel_raises(self):
         self.assertRaises(ValueError, self._parsed_message, channel="foo.bar")
 
-    @patch("sir.amqp.message.SCHEMA", new={'entity': None})
-    def test_invalid_entity_raises(self):
-        self.assertRaises(ValueError, self._parsed_message)
-
     def test_message_too_short_raises(self):
         self.assertRaises(InvalidMessageContentException, self._parsed_message, body="foo")
