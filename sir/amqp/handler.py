@@ -132,21 +132,31 @@ class Handler(object):
             entity = SCHEMA[core_name]
             query = entity.query
 
-            select, pk_col_name = walk_path(entity.model, path)
-            if select is None:
-                # FIXME(roman): When can this happen? Can this happen at all?
-                logger.error("SELECT is None")
-                continue
-
             with db_session_ctx(self.db_session) as session:
 
-                # Retrieving PK values of rows in the entity table that need to be updated
-                # FIXME(roman): It would probably be a good idea to support tables with different set of PKs.
+                # FIXME(roman): It would probably be a good idea to support tables with different set of PKs
+                # for both entity tables and others.
                 # We have those in the `parsed_message` anyway.
-                if pk_col_name not in parsed_message.columns:
-                    raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
-                result = session.execute(select.render(), {"ids": parsed_message.columns[pk_col_name]})
-                ids = [row[0] for row in result.fetchall()]
+
+                if path is None:
+                    # If `path` is `None` then we received a message for an entity itself
+                    ids = [parsed_message.columns["id"]]
+                else:
+                    # otherwise it's a different table...
+                    select, pk_col_name = walk_path(entity.model, path)
+                    if select is None:
+                        # FIXME(roman): When can this happen? Can this happen at all?
+                        logger.error("SELECT is None")
+                        continue
+                    select_sql = select.render()
+
+                    # Retrieving PK values of rows in the entity table that need to be updated
+                    # FIXME(roman): It would probably be a good idea to support tables with different set of PKs.
+                    # We have those in the `parsed_message` anyway.
+                    if pk_col_name not in parsed_message.columns:
+                        raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
+                    result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
+                    ids = [row[0] for row in result.fetchall()]
 
                 # Retrieving actual data
                 # TODO(roman): Figure out how to do this selection without doing two queries
