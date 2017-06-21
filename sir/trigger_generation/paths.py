@@ -112,17 +112,17 @@ class ColumnPathPart(PathPart):
         return ":ids".format(pk_name=self.pk_name)
 
 
-def walk_path(model, path):
+def generate_selection(base_entity_model, path):
     """
     Walk ``path`` beginning at ``model`` and return a
     :class:`~sir.trigger_generation.PathPart` object representing a selection
     along that path.
-    
-    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+
+    :param base_entity_model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param str path:
     """
     # TODO(roman): See if comments in this function are still relevant
-    current_model = model
+    current_model = base_entity_model
     path_length = path.count(".")
     path_part = None
     outermost_path_part = None
