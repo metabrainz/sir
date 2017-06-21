@@ -140,32 +140,31 @@ class Handler(object):
 
             with db_session_ctx(self.db_session) as session:
 
-                # FIXME(roman): It would probably be a good idea to support tables with different set of PKs
-                # for both entity tables and others.
-                # We have those in the `parsed_message` anyway.
-
                 if path is None:
                     # If `path` is `None` then we received a message for an entity itself
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
+
+                    # FIXME(roman): Selection below needs to support different sets of PKs for
+                    # both entity tables and other ones. `generate_selection` function might be
+                    # incorrect since it returns just one PK column name. Maybe it doesn't even
+                    # need to return PKs since we have them in the message.
                     select, pk_col_name = generate_selection(entity.model, path)
                     if select is None:
-                        # FIXME(roman): When can this happen? Can this happen at all?
-                        logger.error("SELECT is None")
+                        # See generate_selection function implementation for cases when `select`
+                        # value might be None.
+                        logger.warning("SELECT is `None`")
                         continue
                     select_sql = select.render()
 
                     # Retrieving PK values of rows in the entity table that need to be updated
-                    # FIXME(roman): It would probably be a good idea to support tables with different set of PKs.
-                    # We have those in the `parsed_message` anyway.
                     if pk_col_name not in parsed_message.columns:
                         raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
                     result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
                     ids = [row[0] for row in result.fetchall()]
 
                 # Retrieving actual data
-                # TODO(roman): Figure out how to do this selection without doing two queries
                 condition = and_(entity.model.id.in_(ids))
                 query = query.filter(condition).with_session(session)
                 data = [entity.query_result_to_dict(obj) for obj in query.all()]
