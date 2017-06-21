@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import walk_path
+from sir.trigger_generation.paths import generate_selection
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -143,7 +143,7 @@ class Handler(object):
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-                    select, pk_col_name = walk_path(entity.model, path)
+                    select, pk_col_name = generate_selection(entity.model, path)
                     if select is None:
                         # FIXME(roman): When can this happen? Can this happen at all?
                         logger.error("SELECT is None")
