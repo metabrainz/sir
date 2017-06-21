@@ -121,7 +121,6 @@ def generate_selection(base_entity_model, path):
     :param base_entity_model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param str path:
     """
-    # TODO(roman): See if comments in this function are still relevant
     current_model = base_entity_model
     path_length = path.count(".")
     path_part = None
@@ -140,7 +139,7 @@ def generate_selection(base_entity_model, path):
 
         if isinstance(prop, RelationshipProperty):
             mapper = class_mapper(current_model)
-            # FIXME(roman): What if there are more than one PKs?
+            # FIXME(roman): What if PK consists of multiple rows?
             pk = mapper.primary_key[0].name
             last_pk_name = pk
             table_name = mapper.mapped_table.name
@@ -172,6 +171,7 @@ def generate_selection(base_entity_model, path):
             path_part = new_path_part
 
     if path_part.inner is None:
+        # TODO(roman): Explain what the comment below means
         # The path ended in a relationship property
         path_part.inner = ColumnPathPart("", "id")
         last_pk_name = "id"
