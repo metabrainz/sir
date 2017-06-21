@@ -46,7 +46,7 @@ class Message(object):
         Parses an AMQP message.
 
         :param str queue_name: Name of the queue where the message originated from.
-        :param amqp.basic_message.Message amqp_message: Message object.
+        :param amqp.basic_message.Message amqp_message: Message object from the queue.
         :rtype: :class:`sir.amqp.message.Message`
         """
         if queue_name not in QUEUE_TO_TYPE.keys():

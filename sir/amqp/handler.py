@@ -43,16 +43,14 @@ def callback_wrapper(f):
     .. py:function:: wrapper(self, msg, queue)
 
         :param sir.amqp.handler.Handler self: Handler object that is processing a message.
-        :param sir.amqp.message.Message msg: Message itself.
-        :param str queue:
+        :param amqp.basic_message.Message msg: Message itself.
+        :param str queue: Name of the queue that the message has originated from.
 
-        Calls ``f`` with ``self`` and  an instance of
-        :class:`~sir.amqp.message.Message`.
-        If an exception gets raised by ``f``, it will be caught and the
-        message will be :meth:`rejected
-        <amqp:amqp.channel.Channel.basic_reject>` and sent to the
-        ``search.failed`` queue (cf. :ref:`queue_setup`).
-        Then the exception will not be reraised.
+        Calls ``f`` with ``self`` and an instance of :class:`~sir.amqp.message.Message`.
+        If an exception gets raised by ``f``, it will be caught and the message will be
+        :meth:`rejected <amqp:amqp.channel.Channel.basic_reject>` and sent to the
+        ``search.failed`` queue (cf. :ref:`queue_setup`). Then the exception will not be
+        reraised.
 
         If no exception is raised, the message will be :meth:`acknowledged
         <amqp:amqp.channel.Channel.basic_ack>`.
@@ -121,6 +119,14 @@ class Handler(object):
         For example:
 
             {"_table": "artist_credit_name", "position": 0, "artist_credit": 1}
+
+        In this handler we are doing a selection with joins which follow a "path"
+        from a table that the trigger was received from to an entity (later
+        "core"). To know which data to retrieve we are using PK(s) of a table
+        that was updated. `update_map` provides us with a view of dependencies
+        between entities (cores) and all the tables. So if data in some table
+        has been updated, we know which entities store this data in the index
+        and need to be refreshed.
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """

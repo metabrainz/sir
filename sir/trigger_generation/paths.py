@@ -164,6 +164,7 @@ def generate_selection(base_entity_model, path):
             return None, None
 
         if path_part is None:
+            # This would be the case initially
             path_part = new_path_part
             outermost_path_part = path_part
         else:
