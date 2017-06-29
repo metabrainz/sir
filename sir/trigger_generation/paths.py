@@ -158,6 +158,7 @@ def generate_selection(base_entity_model, path):
                     remote_side = list(prop.remote_side)[0]
                     remote_column = remote_side.name
                     new_path_part.inner = ColumnPathPart("", remote_column)
+                    last_pk_name = remote_column
 
 
             current_model = prop.mapper.class_
