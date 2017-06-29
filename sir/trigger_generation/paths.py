@@ -127,7 +127,7 @@ def generate_selection(base_entity_model, path):
     outermost_path_part = None
     last_pk_name = None
 
-    for i, path_elem in enumerate(path.split(".")):
+    for path_elem_n, path_elem in enumerate(path.split(".")):
         column = getattr(current_model, path_elem)
 
         # If this is not a column managed by SQLAlchemy, ignore it
@@ -137,6 +137,11 @@ def generate_selection(base_entity_model, path):
 
         prop = column.property
 
+        if isinstance(prop, ColumnProperty) or isinstance(prop, CompositeProperty):
+            # We're not interested in columns (or a collection or them) because the
+            # relationship handling takes care of selections on primary keys etc.
+            return None, None
+
         if isinstance(prop, RelationshipProperty):
             mapper = class_mapper(current_model)
             # FIXME(roman): What if PK consists of multiple rows?
@@ -144,28 +149,23 @@ def generate_selection(base_entity_model, path):
             last_pk_name = pk
             table_name = mapper.mapped_table.name
 
-            if prop.direction == ONETOMANY:
+            if prop.direction == MANYTOONE:
+                new_path_part = ManyToOnePathPart(table_name, pk, column.key)
+
+            elif prop.direction == ONETOMANY:
                 new_path_part = OneToManyPathPart(table_name, pk)
-                if i == path_length:
+                if path_elem_n == path_length:
                     remote_side = list(prop.remote_side)[0]
                     remote_column = remote_side.name
                     new_path_part.inner = ColumnPathPart("", remote_column)
-            elif prop.direction == MANYTOONE:
-                new_path_part = ManyToOnePathPart(table_name, pk, column.key)
+
 
             current_model = prop.mapper.class_
-
-        elif (isinstance(prop, ColumnProperty) or
-              isinstance(prop, CompositeProperty)):
-            # We're not interested in columns (or a collection or them) because
-            # the relationship handling takes care of selections on primary keys
-            # etc.
-            return None, None
 
         if path_part is None:
             # This would be the case initially
             path_part = new_path_part
-            outermost_path_part = path_part
+            outermost_path_part = new_path_part
         else:
             path_part.inner = new_path_part
             path_part = new_path_part
