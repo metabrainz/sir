@@ -161,7 +161,8 @@ class Handler(object):
 
                     # Retrieving PK values of rows in the entity table that need to be updated
                     if pk_col_name not in parsed_message.columns:
-                        raise ValueError("Unsupported table. PK is not `%s`." % pk_col_name)
+                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name)
+                        continue
                     result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
                     ids = [row[0] for row in result.fetchall()]
 
