@@ -174,8 +174,9 @@ def generate_selection(base_entity_model, path):
             path_part = new_path_part
 
     if path_part.inner is None:
-        # TODO(roman): Explain what the comment below means
-        # The path ended in a relationship property
+        # The path ended in a many-to-one relationship property. In that case,
+        # the last filter is on the primary key (the code assumes it's called
+        # `id`) of table B of the relationship from A (many) to B (one).
         path_part.inner = ColumnPathPart("", "id")
         last_pk_name = "id"
 
