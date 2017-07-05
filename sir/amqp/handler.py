@@ -122,11 +122,12 @@ class Handler(object):
 
         In this handler we are doing a selection with joins which follow a "path"
         from a table that the trigger was received from to an entity (later
-        "core"). To know which data to retrieve we are using PK(s) of a table
-        that was updated. `update_map` provides us with a view of dependencies
-        between entities (cores) and all the tables. So if data in some table
-        has been updated, we know which entities store this data in the index
-        and need to be refreshed.
+        "core", https://wiki.apache.org/solr/SolrTerminology). To know which
+        data to retrieve we are using PK(s) of a table that was updated.
+        `update_map` provides us with a view of dependencies between entities
+        (cores) and all the tables. So if data in some table has been updated,
+        we know which entities store this data in the index and need to be
+        refreshed.
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
