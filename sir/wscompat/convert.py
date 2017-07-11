@@ -86,7 +86,7 @@ def convert_area_inner(obj):
                                          sort_name=obj.name)
 
     if obj.type is not None:
-        area.set_type(obj.type.name)
+        area.set_type(obj.type)
 
     return area
 
@@ -156,7 +156,7 @@ def convert_alias(obj):
     alias.set_sort_name(obj.sort_name)
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
-        alias.set_type(obj.type.name)
+        alias.set_type(obj.type)
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date_year is not None:
@@ -410,7 +410,7 @@ def convert_place(obj):
     place.set_life_span(lifespan)
 
     if obj.type is not None:
-        place.set_type(obj.type.name)
+        place.set_type(obj.type)
 
     return place
 
@@ -470,7 +470,7 @@ def convert_release_from_track(obj):
         convert_release_group_for_release(rel.release_group))
 
     if rel.status is not None:
-        release.set_status(rel.status.name)
+        release.set_status(rel.status)
 
     return release
 
@@ -482,8 +482,8 @@ def convert_release_group_for_release(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
-        rg.set_type(obj.type.name)
+        rg.set_primary_type(obj.type)
+        rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -502,8 +502,8 @@ def convert_release_group_simple(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
-        rg.set_type(obj.type.name)
+        rg.set_primary_type(obj.type)
+        rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -536,7 +536,7 @@ def convert_release_list_for_release_groups(obj):
         release.set_id(r.gid)
         release.set_title(r.name)
         if r.status is not None:
-            release.set_status(r.status.name)
+            release.set_status(r.status)
 
         release_list.add_release(release)
     return release_list
@@ -589,7 +589,7 @@ def convert_area(obj):
         area.set_disambiguation(obj.comment)
 
     if obj.type is not None:
-        area.set_type(obj.type.name)
+        area.set_type(obj.type)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -625,7 +625,7 @@ def convert_artist(obj):
         artist.set_gender(obj.gender.name.lower())
 
     if obj.type is not None:
-        artist.set_type(obj.type.name)
+        artist.set_type(obj.type)
 
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
@@ -703,7 +703,7 @@ def convert_event(obj):
         event.set_disambiguation(obj.comment)
 
     if obj.type is not None:
-        event.set_type(obj.type.name)
+        event.set_type(obj.type)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     if lifespan.get_begin() is not None or lifespan.get_end() is not None:
@@ -728,7 +728,7 @@ def convert_instrument(obj):
         instrument.set_description(obj.description)
 
     if obj.type is not None:
-        instrument.set_type(obj.type.name)
+        instrument.set_type(obj.type)
 
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
@@ -743,7 +743,7 @@ def convert_label(obj):
     label = models.label(id=obj.gid, name=obj.name, sort_name=obj.name)
 
     if obj.type is not None:
-        label.set_type(obj.type.name)
+        label.set_type(obj.type)
 
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
@@ -842,7 +842,7 @@ def convert_release(obj):
         convert_release_group_for_release(obj.release_group))
 
     if obj.status is not None:
-        release.set_status(obj.status.name)
+        release.set_status(obj.status)
 
     if obj.tags is not None:
         release.set_tag_list(convert_tag_list(obj.tags))
@@ -873,8 +873,8 @@ def convert_release_group(obj):
     if obj.comment is not None:
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
-        rg.set_type(obj.type.name)
+        rg.set_primary_type(obj.type)
+        rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
