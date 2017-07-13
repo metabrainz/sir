@@ -482,7 +482,7 @@ def convert_release_group_for_release(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
@@ -502,7 +502,7 @@ def convert_release_group_simple(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
@@ -873,7 +873,7 @@ def convert_release_group(obj):
     if obj.comment is not None:
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
-        rg.set_primary_type(obj.type)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type)
 
     if len(obj.secondary_types) > 0:
@@ -937,3 +937,10 @@ def convert_work(obj):
     if obj.language is not None:
         work.set_language(obj.language.iso_code_3)
     return work
+
+
+def convert_release_group_primary_type(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
+    """
+    return models.primary_type(id=obj.id)
