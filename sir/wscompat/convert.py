@@ -470,7 +470,7 @@ def convert_release_from_track(obj):
         convert_release_group_for_release(rel.release_group))
 
     if rel.status is not None:
-        release.set_status(rel.status)
+        release.set_status(convert_status(rel.status))
 
     return release
 
@@ -536,7 +536,7 @@ def convert_release_list_for_release_groups(obj):
         release.set_id(r.gid)
         release.set_title(r.name)
         if r.status is not None:
-            release.set_status(r.status)
+            release.set_status(convert_status(r.status))
 
         release_list.add_release(release)
     return release_list
@@ -842,7 +842,7 @@ def convert_release(obj):
         convert_release_group_for_release(obj.release_group))
 
     if obj.status is not None:
-        release.set_status(obj.status)
+        release.set_status(convert_status(obj.status))
 
     if obj.tags is not None:
         release.set_tag_list(convert_tag_list(obj.tags))
@@ -945,6 +945,11 @@ def convert_release_group_primary_type(obj):
     """
     rg_type = models.primary_type(id=str(obj.id))
     return rg_type
+
+
+def convert_status(obj):
+    status = models.status(id=str(obj.id))
+    return status
 
 
 def convert_gender(obj):
