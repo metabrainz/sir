@@ -622,7 +622,7 @@ def convert_artist(obj):
         artist.set_disambiguation(obj.comment)
 
     if obj.gender is not None:
-        artist.set_gender(obj.gender.name.lower())
+        artist.set_gender(convert_gender(obj.gender))
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
@@ -945,3 +945,8 @@ def convert_release_group_primary_type(obj):
     """
     rg_type = models.primary_type(id=str(obj.id))
     return rg_type
+
+
+def convert_gender(obj):
+    gender = models.gender(id=str(obj.id))
+    return gender
