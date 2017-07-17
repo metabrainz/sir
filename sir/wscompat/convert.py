@@ -86,7 +86,7 @@ def convert_area_inner(obj):
                                          sort_name=obj.name)
 
     if obj.type is not None:
-        area.set_type(obj.type)
+        area.set_type(obj.type.name)
 
     return area
 
@@ -156,7 +156,7 @@ def convert_alias(obj):
     alias.set_sort_name(obj.sort_name)
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
-        alias.set_type(obj.type)
+        alias.set_type(obj.type.name)
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date_year is not None:
@@ -410,7 +410,7 @@ def convert_place(obj):
     place.set_life_span(lifespan)
 
     if obj.type is not None:
-        place.set_type(obj.type)
+        place.set_type(obj.type.name)
 
     return place
 
@@ -483,7 +483,7 @@ def convert_release_group_for_release(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type)
+        rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -503,7 +503,7 @@ def convert_release_group_simple(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type)
+        rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -589,7 +589,7 @@ def convert_area(obj):
         area.set_disambiguation(obj.comment)
 
     if obj.type is not None:
-        area.set_type(obj.type)
+        area.set_type(obj.type.name)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -625,7 +625,7 @@ def convert_artist(obj):
         artist.set_gender(obj.gender.name.lower())
 
     if obj.type is not None:
-        artist.set_type(obj.type)
+        artist.set_type(obj.type.name)
 
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
@@ -703,7 +703,7 @@ def convert_event(obj):
         event.set_disambiguation(obj.comment)
 
     if obj.type is not None:
-        event.set_type(obj.type)
+        event.set_type(obj.type.name)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     if lifespan.get_begin() is not None or lifespan.get_end() is not None:
@@ -728,7 +728,7 @@ def convert_instrument(obj):
         instrument.set_description(obj.description)
 
     if obj.type is not None:
-        instrument.set_type(obj.type)
+        instrument.set_type(obj.type.name)
 
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
@@ -743,7 +743,7 @@ def convert_label(obj):
     label = models.label(id=obj.gid, name=obj.name, sort_name=obj.name)
 
     if obj.type is not None:
-        label.set_type(obj.type)
+        label.set_type(obj.type.name)
 
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
@@ -874,7 +874,7 @@ def convert_release_group(obj):
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type)
+        rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -943,4 +943,5 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(id=obj.id)
+    rg_type = models.primary_type(id=str(obj.id))
+    return rg_type
