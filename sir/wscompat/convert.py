@@ -470,7 +470,7 @@ def convert_release_from_track(obj):
         convert_release_group_for_release(rel.release_group))
 
     if rel.status is not None:
-        release.set_status(rel.status.name)
+        release.set_status(convert_status(rel.status))
 
     return release
 
@@ -482,7 +482,7 @@ def convert_release_group_for_release(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
@@ -502,7 +502,7 @@ def convert_release_group_simple(obj):
     rg = models.release_group(id=obj.gid, title=obj.name)
 
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
@@ -536,7 +536,7 @@ def convert_release_list_for_release_groups(obj):
         release.set_id(r.gid)
         release.set_title(r.name)
         if r.status is not None:
-            release.set_status(r.status.name)
+            release.set_status(convert_status(r.status))
 
         release_list.add_release(release)
     return release_list
@@ -659,7 +659,7 @@ def convert_artist(obj):
         artist.set_disambiguation(obj.comment)
 
     if obj.gender is not None:
-        artist.set_gender(obj.gender.name.lower())
+        artist.set_gender(convert_gender(obj.gender))
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
@@ -879,7 +879,7 @@ def convert_release(obj):
         convert_release_group_for_release(obj.release_group))
 
     if obj.status is not None:
-        release.set_status(obj.status.name)
+        release.set_status(convert_status(obj.status))
 
     if obj.tags is not None:
         release.set_tag_list(convert_tag_list(obj.tags))
@@ -910,7 +910,7 @@ def convert_release_group(obj):
     if obj.comment is not None:
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
-        rg.set_primary_type(obj.type.name)
+        rg.set_primary_type(convert_release_group_primary_type(obj.type))
         rg.set_type(obj.type.name)
 
     if len(obj.secondary_types) > 0:
@@ -975,3 +975,21 @@ def convert_work(obj):
     if obj.language is not None:
         work.set_language(obj.language.iso_code_3)
     return work
+
+
+def convert_release_group_primary_type(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
+    """
+    rg_type = models.primary_type(id=str(obj.id))
+    return rg_type
+
+
+def convert_status(obj):
+    status = models.status(id=str(obj.id))
+    return status
+
+
+def convert_gender(obj):
+    gender = models.gender(id=str(obj.id))
+    return gender
