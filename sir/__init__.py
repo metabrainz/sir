@@ -35,6 +35,7 @@ def init_raven_client(dsn):
         dsn=dsn,
         transport=raven.transport.threaded_requests.ThreadedRequestsHTTPTransport,
         ignore_exceptions={'KeyboardInterrupt'},
+        logging=True,
     )
     sentry_errors_logger = logging.getLogger("sentry.errors")
     sentry_errors_logger.addHandler(logging.StreamHandler())

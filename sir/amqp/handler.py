@@ -66,15 +66,14 @@ def callback_wrapper(f):
             f(self=self, parsed_message=parsed_message)
 
         except Exception as exc:
-            get_sentry().captureException(extra={"msg": msg, "attributes": msg.__dict__})
-            logger.error(exc)
+            logger.error(exc, extra={"msg": msg, "attributes": msg.__dict__})
 
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
 
             if not hasattr(msg, "application_headers"):
                 # TODO(roman): Document when this might happen
-                get_sentry().captureMessage("Message doesn't have \"application_headers\" attribute",
-                                            extra={"msg": msg, "attributes": msg.__dict__})
+                logger.warning("Message doesn't have \"application_headers\" attribute",
+                               extra={"msg": msg, "attributes": msg.__dict__})
                 return
             retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
             routing_key = msg.delivery_info["routing_key"]
@@ -161,7 +160,11 @@ class Handler(object):
 
                     # Retrieving PK values of rows in the entity table that need to be updated
                     if pk_col_name not in parsed_message.columns:
-                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name)
+                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
+                            "pk_col_name": pk_col_name,
+                            "parsed_message.columns": parsed_message.columns,
+                            "select_sql": select_sql,
+                        })
                         continue
                     result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
                     ids = [row[0] for row in result.fetchall()]
@@ -250,14 +253,11 @@ def watch(args):
     try:
         create_amqp_connection()
     except socket_error as e:
-        get_sentry().captureException()
-        logger.error("Couldn't connect to RabbitMQ, check your settings")
-        logger.error("The error was: %s", e)
+        logger.error("Couldn't connect to RabbitMQ, check your settings. %s", e)
         return
 
     try:
         _watch_impl()
     except URLError as e:
-        get_sentry().captureException()
-        logger.info("Connecting to Solr failed: %s", e)
+        logger.error("Connecting to Solr failed: %s", e)
         return

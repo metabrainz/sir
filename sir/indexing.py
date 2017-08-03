@@ -42,7 +42,6 @@ def reindex(args):
         util.check_solr_cores_version(entities)
     except util.VersionMismatchException as exc:
         logger.error(exc)
-        get_sentry().captureException()
         return
 
     _multiprocessed_import(entities)
@@ -99,7 +98,6 @@ def _multiprocessed_import(entities):
                 pass
         except (KeyboardInterrupt, Exception) as exc:
             logger.exception(exc)
-            get_sentry().captureException()
         else:
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
@@ -124,7 +122,6 @@ def _index_entity_process_wrapper(args):
         return index_entity(*args)
     except Exception:
         logger.exception(format_exc())
-        get_sentry().captureException()
         raise
     except KeyboardInterrupt as exc:
         return exc
