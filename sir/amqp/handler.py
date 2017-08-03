@@ -161,8 +161,8 @@ class Handler(object):
                     # Retrieving PK values of rows in the entity table that need to be updated
                     if pk_col_name not in parsed_message.columns:
                         logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
+                            "parsed_message": vars(parsed_message),
                             "pk_col_name": pk_col_name,
-                            "parsed_message.columns": parsed_message.columns,
                             "select_sql": select_sql,
                         })
                         continue
