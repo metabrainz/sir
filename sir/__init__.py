@@ -6,6 +6,8 @@ except ImportError:
 
 import raven
 import raven.transport.threaded_requests
+from raven.handlers.logging import SentryHandler
+from raven.conf import setup_logging
 import logging
 import config
 
@@ -39,3 +41,6 @@ def init_raven_client(dsn):
     )
     sentry_errors_logger = logging.getLogger("sentry.errors")
     sentry_errors_logger.addHandler(logging.StreamHandler())
+    handler = SentryHandler(_sentry)
+    handler.setLevel(logging.ERROR)
+    setup_logging(handler)
