@@ -66,7 +66,7 @@ def callback_wrapper(f):
             f(self=self, parsed_message=parsed_message)
 
         except Exception as exc:
-            logger.error(exc, extra={"msg": msg, "attributes": msg.__dict__})
+            logger.error(exc, extra={"data": {"message": vars(msg)}})
 
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
 
@@ -161,9 +161,12 @@ class Handler(object):
                     # Retrieving PK values of rows in the entity table that need to be updated
                     if pk_col_name not in parsed_message.columns:
                         logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
-                            "parsed_message": vars(parsed_message),
-                            "pk_col_name": pk_col_name,
-                            "select_sql": select_sql,
+                            "stack": True,
+                            "data": {
+                                "parsed_message": vars(parsed_message),
+                                "pk_col_name": pk_col_name,
+                                "select_sql": select_sql,
+                            },
                         })
                         continue
                     result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
