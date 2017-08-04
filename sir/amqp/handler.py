@@ -150,13 +150,12 @@ class Handler(object):
                     # both entity tables and other ones. `generate_selection` function might be
                     # incorrect since it returns just one PK column name. Maybe it doesn't even
                     # need to return PKs since we have them in the message.
-                    select, pk_col_name = generate_selection(entity.model, path)
-                    if select is None:
-                        # See generate_selection function implementation for cases when `select`
+                    select_sql, pk_col_name = generate_selection(entity.model, path)
+                    if select_sql is None:
+                        # See generate_selection function implementation for cases when `select_sql`
                         # value might be None.
                         logger.warning("SELECT is `None`")
                         continue
-                    select_sql = select.render()
 
                     # Retrieving PK values of rows in the entity table that need to be updated
                     if pk_col_name not in parsed_message.columns:

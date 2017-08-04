@@ -180,7 +180,7 @@ def generate_selection(base_entity_model, path):
         path_part.inner = ColumnPathPart("", "id")
         last_pk_name = "id"
 
-    return outermost_path_part, last_pk_name
+    return outermost_path_part.render(), last_pk_name
 
 
 def unique_split_paths(paths):
