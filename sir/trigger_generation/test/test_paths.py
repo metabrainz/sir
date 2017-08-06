@@ -25,12 +25,6 @@ class PathsTestCase(unittest.TestCase):
             expected_pk="artist_credit",
         )
         validate_selection(
-            core_name="release-group",
-            path="releases",
-            expected_sql="SELECT release_group.id FROM musicbrainz.release_group WHERE release_group.id IN (:ids)",
-            expected_pk="release_group",
-        )
-        validate_selection(
             core_name="recording",
             path="artist_credit.artists",
             expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM musicbrainz.artist_credit WHERE artist_credit.id IN (:ids))",
