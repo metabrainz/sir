@@ -150,7 +150,9 @@ class Handler(object):
                     # both entity tables and other ones. `generate_selection` function might be
                     # incorrect since it returns just one PK column name. Maybe it doesn't even
                     # need to return PKs since we have them in the message.
+                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_sql, pk_col_name = generate_selection(entity.model, path)
+                    logger.debug("SQL: %s\nPK: %s" % (select_sql, pk_col_name))
                     if select_sql is None:
                         # See generate_selection function implementation for cases when `select_sql`
                         # value might be None.
