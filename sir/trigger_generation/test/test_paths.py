@@ -15,8 +15,8 @@ class PathsTestCase(unittest.TestCase):
         validate_selection(
             core_name="release-group",
             path="releases",
-            expected_sql="SELECT release_group.id FROM musicbrainz.release_group WHERE release_group.id IN (:ids)",
-            expected_pk="release_group",
+            expected_sql="SELECT release.release_group FROM musicbrainz.release WHERE release.id IN (:ids)",
+            expected_pk="id",
         )
         validate_selection(
             core_name="release-group",
