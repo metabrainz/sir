@@ -73,12 +73,17 @@ class OneToManyPathPart(PathPart):
     selection across a one-to-many relationship between two
     tables.
     """
+    def __init__(self, table_name, pk_name, fk_name, inner=None):
+        PathPart.__init__(self, table_name, pk_name, inner)
+        self.fk_name = fk_name
+
     def render(self):
-        return "SELECT {table}.{pk_name} FROM {schema}.{table} WHERE {table}.{pk_name} IN ({inner})".format(
+        return "SELECT {table}.{fk_name} FROM {schema}.{table} WHERE {table}.{pk_name} IN ({inner})".format(
             pk_name=self.pk_name,
             schema=self.schema,
             table=self.table_name,
             inner=self.inner.render(),
+            fk_name=self.fk_name,
         )
 
 
@@ -150,15 +155,14 @@ def generate_selection(base_entity_model, path):
             table_name = mapper.mapped_table.name
 
             if prop.direction == MANYTOONE:
-                new_path_part = ManyToOnePathPart(table_name, pk, column.key)
+                new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
 
             elif prop.direction == ONETOMANY:
-                new_path_part = OneToManyPathPart(table_name, pk)
+                remote_side = list(prop.remote_side)[0]
+                new_path_part = OneToManyPathPart(remote_side.table.name, pk, fk_name=remote_side.name)
                 if path_elem_n == path_length:
-                    remote_side = list(prop.remote_side)[0]
-                    remote_column = remote_side.name
-                    new_path_part.inner = ColumnPathPart("", remote_column)
-                    last_pk_name = remote_column
+                    new_path_part.inner = ColumnPathPart("", remote_side.name)
+                    last_pk_name = pk
 
             else:
                 raise ValueError("Unsupported direction of a relationship")
