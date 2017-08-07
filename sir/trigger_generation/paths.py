@@ -153,8 +153,13 @@ def generate_selection(base_entity_model, path):
                 # FIXME(roman): What if PK consists of multiple rows?
                 pk = mapper.primary_key[0].name
                 last_pk_name = pk
-                table_name = mapper.mapped_table.name
-                new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
+                if path_elem_n == path_length:
+                    # FIXME(michael): Why does ColumnPathPart take parameters
+                    # if it only renders ":ids"?
+                    new_path_part = ColumnPathPart("", "")
+                else:
+                    table_name = mapper.mapped_table.name
+                    new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
 
             elif prop.direction == ONETOMANY:
                 remote_side = list(prop.remote_side)[0]
