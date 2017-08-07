@@ -323,7 +323,7 @@ def convert_medium(obj):
     m = models.medium()
 
     if obj.format is not None:
-        m.set_format(obj.format)
+        m.set_format(convert_format(obj.format))
 
     dl = models.disc_list(count=len(obj.cdtocs))
     m.set_disc_list(dl)
@@ -993,3 +993,7 @@ def convert_release_status(obj):
 
 def convert_gender(obj):
     return models.gender(id=str(obj.id))
+
+
+def convert_format(obj):
+    return models.format(id=str(obj.id))
