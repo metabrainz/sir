@@ -21,24 +21,24 @@ class PathsTestCase(unittest.TestCase):
         validate_selection(
             core_name="annotation",
             path="releases.release",
-            expected_sql="SELECT annotation.id FROM musicbrainz.annotation WHERE annotation.id IN (SELECT release_annotation.release FROM musicbrainz.release_annotation WHERE release_annotation.release IN (:ids))",
+            expected_sql="SELECT release_annotation.annotation FROM musicbrainz.release_annotation WHERE release_annotation.release IN (SELECT release_annotation.release FROM musicbrainz.release_annotation WHERE release_annotation.release IN (:ids))",
             expected_pk="id",
         )
         validate_selection(
             core_name="release-group",
             path="artist_credit.artists",
-            expected_sql="SELECT release_group.id FROM musicbrainz.release_group WHERE release_group.artist_credit IN (SELECT artist_credit.id FROM musicbrainz.artist_credit WHERE artist_credit.id IN (:ids))",
+            expected_sql="SELECT release_group.id FROM musicbrainz.release_group WHERE release_group.artist_credit IN (SELECT artist_credit_name.artist_credit FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids))",
             expected_pk="artist_credit",
         )
         validate_selection(
             core_name="recording",
             path="artist_credit.artists",
-            expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (SELECT artist_credit.id FROM musicbrainz.artist_credit WHERE artist_credit.id IN (:ids))",
+            expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (SELECT artist_credit_name.artist_credit FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids))",
             expected_pk="artist_credit",
         )
         validate_selection(
             core_name="artist",
             path="artist_credit_names",
-            expected_sql="SELECT artist.id FROM musicbrainz.artist WHERE artist.id IN (:ids)",
-            expected_pk="artist",
+            expected_sql="SELECT artist_credit_name.artist FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids)",
+            expected_pk="artist_credit",
         )

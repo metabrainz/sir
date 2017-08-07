@@ -148,17 +148,17 @@ def generate_selection(base_entity_model, path):
             return None, None
 
         if isinstance(prop, RelationshipProperty):
-            mapper = class_mapper(current_model)
-            # FIXME(roman): What if PK consists of multiple rows?
-            pk = mapper.primary_key[0].name
-            last_pk_name = pk
-            table_name = mapper.mapped_table.name
-
             if prop.direction == MANYTOONE:
+                mapper = class_mapper(current_model)
+                # FIXME(roman): What if PK consists of multiple rows?
+                pk = mapper.primary_key[0].name
+                last_pk_name = pk
+                table_name = mapper.mapped_table.name
                 new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
 
             elif prop.direction == ONETOMANY:
                 remote_side = list(prop.remote_side)[0]
+                pk = list(remote_side.table.primary_key.columns)[0].name
                 new_path_part = OneToManyPathPart(remote_side.table.name, pk, fk_name=remote_side.name)
                 if path_elem_n == path_length:
                     new_path_part.inner = ColumnPathPart("", remote_side.name)
