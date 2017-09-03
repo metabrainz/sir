@@ -18,6 +18,7 @@ from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
+from sys import exit
 from urllib2 import URLError
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
@@ -258,10 +259,10 @@ def watch(args):
         create_amqp_connection()
     except socket_error as e:
         logger.error("Couldn't connect to RabbitMQ, check your settings. %s", e)
-        return
+        exit(1)
 
     try:
         _watch_impl()
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)
-        return
+        exit(1)
