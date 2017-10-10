@@ -797,6 +797,9 @@ def convert_label(obj):
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
 
+    if obj.comment:
+        label.set_disambiguation(obj.comment)
+
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     label.set_life_span(lifespan)
 
@@ -974,6 +977,9 @@ def convert_work(obj):
             convert_artist_work_relation_list(obj.artist_links))
     if obj.language is not None:
         work.set_language(obj.language.iso_code_3)
+    if obj.comment:
+        work.set_disambiguation(obj.comment)
+
     return work
 
 
