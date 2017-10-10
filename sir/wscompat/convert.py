@@ -555,6 +555,7 @@ def convert_secondary_type_list(obj):
     """
     type_list = models.secondary_type_list()
     [type_list.add_secondary_type(convert_secondary_type(t)) for t in obj]
+    return type_list
 
 
 def convert_tag_list(obj):
