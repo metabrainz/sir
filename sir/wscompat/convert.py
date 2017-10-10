@@ -299,6 +299,24 @@ def convert_label_info_list(obj):
     return lil
 
 
+def convert_language(obj):
+    """
+    :type obj: :class:`[mbdata.models.Language]`
+    """
+    language = models.languageType()
+    language.set_valueOf_(obj.iso_code_3)
+    return language
+
+
+def convert_language_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.WorkLanguage]`
+    """
+    language_list = models.language_list()
+    [language_list.add_language(convert_language(work_language.language)) for work_language in obj]
+    return language_list
+
+
 def convert_life_span(begin_date, end_date, ended):
     lifespan = models.life_span()
 
@@ -983,11 +1001,14 @@ def convert_work(obj):
     if len(obj.artist_links) > 0:
         work.add_relation_list(
             convert_artist_work_relation_list(obj.artist_links))
-    if obj.language is not None:
-        work.set_language(obj.language.iso_code_3)
     if obj.comment:
         work.set_disambiguation(obj.comment)
-
+    if obj.languages:
+        work.set_language_list(convert_language_list(obj.languages))
+        if len(obj.languages) == 1:
+            work.set_language(obj.languages[0].language.iso_code_3)
+        elif len(obj.languages) > 1:
+            work.set_language('mul')
     return work
 
 
