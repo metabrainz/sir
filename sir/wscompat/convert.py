@@ -210,7 +210,7 @@ def convert_artist_simple(obj, include_aliases=True):
     :type obj: :class:`sir.schema.modelext.CustomArtist`
     """
     artist = models.artist(id=obj.gid, name=obj.name)
-    if obj.comment is not None and obj.comment != "":
+    if obj.comment:
         artist.set_disambiguation(obj.comment)
     if obj.sort_name is not None:
         artist.set_sort_name(obj.sort_name)
@@ -489,7 +489,7 @@ def convert_release_group_for_release(obj):
         rg.set_secondary_type_list(
             convert_secondary_type_list(obj.secondary_types))
 
-    if obj.comment is not None:
+    if obj.comment:
         rg.set_disambiguation(obj.comment)
 
     return rg
@@ -511,7 +511,7 @@ def convert_release_group_simple(obj):
 
     rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
 
-    if obj.comment is not None:
+    if obj.comment:
         rg.set_disambiguation(obj.comment)
 
     return rg
@@ -656,7 +656,7 @@ def convert_artist(obj):
     artist = models.artist(id=obj.gid, name=obj.name,
                            sort_name=obj.sort_name)
 
-    if obj.comment is not None:
+    if obj.comment:
         artist.set_disambiguation(obj.comment)
 
     if obj.gender is not None:
@@ -817,7 +817,7 @@ def convert_recording(obj):
     recording = models.recording(id=obj.gid, title=obj.name,
                                  artist_credit=convert_artist_credit(obj.artist_credit))  # noqa
 
-    if obj.comment is not None and obj.comment != "":
+    if obj.comment:
         recording.set_disambiguation(obj.comment)
 
     recording.set_length(obj.length)
@@ -853,7 +853,7 @@ def convert_release(obj):
     else:
         release.set_barcode(BARCODE_UNKOWN)
 
-    if obj.comment is not None and obj.comment != "":
+    if obj.comment:
         release.set_disambiguation(obj.comment)
 
     if obj.packaging is not None:
@@ -914,7 +914,7 @@ def convert_release_group(obj):
     rg = models.release_group(artist_credit=convert_artist_credit(obj.artist_credit),  # noqa
                               release_list=convert_release_list_for_release_groups(obj.releases),  # noqa
                               id=obj.gid, title=obj.name)
-    if obj.comment is not None:
+    if obj.comment:
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
@@ -936,7 +936,7 @@ def convert_series(obj):
     """
     series = models.series(id=obj.gid, name=obj.name)
 
-    if obj.comment is not None and obj.comment != "":
+    if obj.comment:
         series.set_disambiguation(obj.comment)
 
     if len(obj.aliases) > 0:
