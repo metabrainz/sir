@@ -1002,7 +1002,7 @@ def convert_release_status(obj):
 
 
 def convert_gender(obj):
-    return models.gender(id=str(obj.id))
+    return models.gender(valueOf_=str(obj.name.lower()))
 
 
 def convert_format(obj):
