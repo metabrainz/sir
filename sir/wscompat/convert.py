@@ -88,6 +88,9 @@ def convert_area_inner(obj):
     if obj.type is not None:
         area.set_type(obj.type.name)
 
+    lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
+    area.set_life_span(lifespan)
+
     return area
 
 
@@ -652,6 +655,8 @@ def convert_area(obj):
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
 
+    if obj.tags:
+        area.set_tag_list(convert_tag_list(obj.tags))
     if len(obj.iso_3166_1_codes):
         area.set_iso_3166_1_code_list(
             convert_iso_3166_1_code_list(obj.iso_3166_1_codes))
