@@ -546,7 +546,8 @@ def convert_secondary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupSecondaryTypeJoin`
     """
-    return obj.secondary_type.name
+    secondary_type = models.secondary_type(valueOf_=obj.secondary_type.name)
+    return secondary_type
 
 
 def convert_secondary_type_list(obj):
