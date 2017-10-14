@@ -563,7 +563,7 @@ def convert_tag_list(obj):
     """
     :type obj: :class:`[mbdata.models.ArtistTag]`
     """
-    tag_list = models.tag_list(count=len(obj))
+    tag_list = models.tag_list()
     [tag_list.add_tag(convert_tag(t)) for t in obj]
     return tag_list
 
