@@ -772,6 +772,9 @@ def convert_instrument(obj):
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
 
+    if len(obj.tags) > 0:
+        instrument.set_tag_list(convert_tag_list(obj.tags))
+
     return instrument
 
 
