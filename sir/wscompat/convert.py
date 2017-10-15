@@ -383,7 +383,7 @@ def convert_label_info_list(obj):
     """
     :type obj: :class:`[mbdata.models.ReleaseLabel]`
     """
-    lil = models.label_info_list(count=len(obj))
+    lil = models.label_info_list()
     [lil.add_label_info(convert_label_info(li)) for li in obj]
     return lil
 
@@ -537,7 +537,7 @@ def convert_release_event_list(obj):
     """
     :type obj: :class:`[mbdata.models.CountryDates]`
     """
-    rel = models.release_event_list(count=len(obj))
+    rel = models.release_event_list()
     [rel.add_release_event(convert_release_event(re)) for re in obj]
     return rel
 
