@@ -515,7 +515,7 @@ def convert_release_from_track(obj):
     # same as the recording artist credit, but we've already built it so just
     # set it
     release.set_artist_credit(convert_artist_credit(rel.artist_credit,
-                                                    include_aliases=True))
+                                                    include_aliases=False))
 
     if rel.comment is not None and rel.comment != "":
         release.set_disambiguation(rel.comment)
