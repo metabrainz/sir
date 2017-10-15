@@ -245,8 +245,11 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
+            tempvals = set()
             for path in field.paths:
-                tempvals = set(chain(iter for iter in iterate_path_values(path, obj) if iter is not None))  # noqa
+                tempvals.update(set(chain(iter
+                                for iter in iterate_path_values(path, obj)
+                                if iter is not None)))
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
             if isinstance(tempvals, set) and len(tempvals) == 1:
