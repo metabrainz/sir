@@ -907,6 +907,9 @@ def convert_recording(obj):
     if len(obj.tracks) > 0:
         recording.set_release_list(
             convert_release_list_for_recordings(obj.tracks))
+        for release in recording.release_list.release:
+            if release.artist_credit == recording.artist_credit:
+                release.set_artist_credit(None)
 
     if obj.video:
         recording.set_video("true")
