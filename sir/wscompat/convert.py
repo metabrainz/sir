@@ -429,7 +429,7 @@ def convert_medium_list(obj):
     """
     :type obj: :class:`[mbdata.models.Medium]`
     """
-    ml = models.medium_list(count=len(obj))
+    ml = models.medium_list()
     [ml.add_medium(convert_medium(m)) for m in obj]
 
     tracks = 0
