@@ -395,9 +395,6 @@ def convert_medium(obj):
     if obj.format is not None:
         m.set_format(convert_format(obj.format))
 
-    dl = models.disc_list(count=len(obj.cdtocs))
-    m.set_disc_list(dl)
-
     tl = models.track_listType6(count=obj.track_count)
     m.set_track_list(tl)
 
