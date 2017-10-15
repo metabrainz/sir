@@ -608,7 +608,7 @@ def convert_release_group_simple(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type.name)
+        rg.set_type(calculate_type(obj.type, obj.secondary_types))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -1032,7 +1032,7 @@ def convert_release_group(obj):
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type.name)
+        rg.set_type(calculate_type(obj.type, obj.secondary_types))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
