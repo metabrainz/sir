@@ -424,7 +424,7 @@ def convert_life_span(begin_date, end_date, ended):
     return lifespan
 
 
-def convert_medium(obj):
+def convert_medium(obj, disc_list=True):
     """
     :type obj: :class:`mbdata.models.Medium`
     """
@@ -432,6 +432,10 @@ def convert_medium(obj):
 
     if obj.format is not None:
         m.set_format(convert_format(obj.format))
+
+    if disc_list:
+        dl = models.disc_list(count=len(obj.cdtocs))
+        m.set_disc_list(dl)
 
     tl = models.track_listType6(count=obj.track_count)
     m.set_track_list(tl)
@@ -444,7 +448,7 @@ def convert_medium_from_track(obj):
     :type obj: :class:`mbdata.models.Track`
     """
     medium = obj.medium
-    m = convert_medium(medium)
+    m = convert_medium(medium, disc_list=False)
 
     m.set_position(medium.position)
 
