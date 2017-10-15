@@ -1096,4 +1096,4 @@ def convert_gender(obj):
 
 
 def convert_format(obj):
-    return models.format(id=str(obj.id))
+    return models.format(valueOf_=obj.name)
