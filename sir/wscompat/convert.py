@@ -1081,7 +1081,7 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(id=str(obj.id))
+    return models.primary_type(valueOf_=obj.name)
 
 
 def convert_release_status(obj):
