@@ -904,6 +904,9 @@ def convert_event(obj):
     if obj.aliases:
         event.set_alias_list(convert_alias_list(obj.aliases))
 
+    if obj.tags:
+        event.set_tag_list(convert_tag_list(obj.tags))
+
     return event
 
 
