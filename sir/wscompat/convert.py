@@ -560,6 +560,42 @@ def convert_place(obj):
     return place
 
 
+def convert_place_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Place`
+    """
+    place = models.place(id=obj.gid, name=obj.name)
+    return place
+
+
+def convert_place_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkEventPlace`
+    """
+    relation = models.relation(direction="backward",
+                               type_=obj.link.link_type.name)
+
+    place = convert_place_simple(obj.place)
+    relation.set_place(place)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        (attribute_list.add_attribute(convert_attribute(a)) for a in
+         obj.link.attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
+def convert_place_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkEventPlace]`
+    """
+    relation_list = models.relation_list(target_type="place")
+    [relation_list.add_relation(convert_place_relation(p)) for p in obj]
+    return relation_list
+
+
 def convert_release_event(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseCountry`
@@ -900,6 +936,9 @@ def convert_event(obj):
 
     if obj.area_links:
         event.add_relation_list(convert_event_area_relation_list(obj.area_links))
+
+    if obj.place_links:
+        event.add_relation_list(convert_place_relation_list(obj.place_links))
 
     if obj.aliases:
         event.set_alias_list(convert_alias_list(obj.aliases))
