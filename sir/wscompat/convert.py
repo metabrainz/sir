@@ -901,6 +901,9 @@ def convert_event(obj):
     if obj.area_links:
         event.add_relation_list(convert_event_area_relation_list(obj.area_links))
 
+    if obj.aliases:
+        event.set_alias_list(convert_alias_list(obj.aliases))
+
     return event
 
 
