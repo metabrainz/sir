@@ -133,6 +133,14 @@ def convert_area_inner(obj):
     return area
 
 
+def convert_area_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Area`
+    """
+    area = models.def_area_element_inner(id=obj.gid, name=obj.name)
+    return area
+
+
 @lru_cache()
 def convert_area_for_release_event(obj):
     """
@@ -157,12 +165,40 @@ def convert_area_relation(obj):
     return relation
 
 
+def convert_event_area_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkAreaEvent`
+    """
+    relation = models.relation(direction="backward",
+                               type_=obj.link.link_type.name)
+
+    area = convert_area_simple(obj.area)
+    relation.set_area(area)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        (attribute_list.add_attribute(convert_attribute(a)) for a in
+         obj.link.attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
 def convert_area_relation_list(obj):
     """
     :type obj: :class:`[mbdata.models.LinkAreaArea]`
     """
     relations = models.relation_list(target_type="area")
     [relations.add_relation(convert_area_relation(a)) for a in obj]
+    return relations
+
+
+def convert_event_area_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkAreaEvent]`
+    """
+    relations = models.relation_list(target_type="area")
+    [relations.add_relation(convert_event_area_relation(a)) for a in obj]
     return relations
 
 
@@ -861,6 +897,9 @@ def convert_event(obj):
 
     if obj.time is not None:
         event.set_time(datetime_to_string(obj.time))
+
+    if obj.area_links:
+        event.add_relation_list(convert_event_area_relation_list(obj.area_links))
 
     return event
 
