@@ -321,8 +321,8 @@ def convert_iswc_list(obj):
     :type obj: :class:`[mbdata.models.ISWC]`
     """
     iswc_list = models.iswc_list()
-    for i in obj:
-        iswc_list.add_iswc(i.iswc)
+    iswcs = [i.iswc for i in obj]
+    iswc_list.set_iswc(iswcs)
     return iswc_list
 
 
