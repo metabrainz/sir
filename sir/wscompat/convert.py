@@ -968,6 +968,9 @@ def convert_series(obj):
     if len(obj.tags) > 0:
         series.set_tag_list(convert_tag_list(obj.tags))
 
+    if obj.type:
+        series.set_type(obj.type.name)
+
     return series
 
 
