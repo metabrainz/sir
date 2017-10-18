@@ -58,6 +58,7 @@ def datetime_to_string(obj):
     return obj.strftime(TIME_FORMAT)
 
 
+@lru_cache
 def calculate_type(primary_type, secondary_types):
     """
     :type primary_type: :class:`mbdata.models.ReleaseGroupPrimaryType`
