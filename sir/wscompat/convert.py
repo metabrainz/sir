@@ -235,8 +235,8 @@ def convert_artist_work_relation(obj):
 
     if len(obj.link.attributes) > 0:
         attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
+        attributes = [convert_attribute(a) for a in obj.link.attributes]
+        attribute_list.set_attribute(attributes)
         relation.set_attribute_list(attribute_list)
 
     return relation
@@ -273,8 +273,8 @@ def convert_recording_work_relation(obj):
 
     if len(obj.link.attributes) > 0:
         attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
+        attributes = [convert_attribute(a) for a in obj.link.attributes]
+        attribute_list.set_attribute(attributes)
         relation.set_attribute_list(attribute_list)
 
     return relation
