@@ -11,7 +11,7 @@ can search:
 *** DONE name
 *** DONE entity
 
-** Area [13/13]
+** Area [14/14]
 
 The area index contains the following fields you can search:
 
@@ -28,6 +28,7 @@ The area index contains the following fields you can search:
 *** DONE iso2
 *** DONE iso3
 *** DONE type
+*** DONE tag
 
 Area search terms with no fields specified search the area and sortname
 fields.
