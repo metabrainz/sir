@@ -313,7 +313,8 @@ def convert_language_list(obj):
     :type obj: :class:`[mbdata.models.WorkLanguage]`
     """
     language_list = models.language_list()
-    [language_list.add_language(convert_language(work_language.language)) for work_language in obj]
+    languages = [convert_language(work_language.language) for work_language in obj]
+    language_list.set_language(languages)
     return language_list
 
 
