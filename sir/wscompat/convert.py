@@ -58,11 +58,11 @@ def datetime_to_string(obj):
     return obj.strftime(TIME_FORMAT)
 
 
-@lru_cache
-def calculate_type(primary_type, secondary_types):
+@lru_cache()
+def _calculate_type_helper(primary_type, secondary_types):
     """
     :type primary_type: :class:`mbdata.models.ReleaseGroupPrimaryType`
-    :type secondary_types: :class:`[mbdata.models.ReleaseGroupSecondaryType]`
+    :type secondary_types: :class:`(mbdata.models.ReleaseGroupSecondaryType)`
     """
 
     if primary_type.name == 'Album':
@@ -79,6 +79,14 @@ def calculate_type(primary_type, secondary_types):
     # values from the predetermined secondary order list
     # return the primary type
     return primary_type.name
+
+
+def calculate_type(primary_type, secondary_types):
+    """
+    :type primary_type: :class:`mbdata.models.ReleaseGroupPrimaryType`
+    :type secondary_types: :class:`[mbdata.models.ReleaseGroupSecondaryType]`
+    """
+    return _calculate_type_helper(primary_type, tuple(secondary_types))
 
 
 def convert_iso_3166_1_code_list(obj):

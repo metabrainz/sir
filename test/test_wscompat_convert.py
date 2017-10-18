@@ -1,7 +1,8 @@
 import unittest
 
 from mbdata.types import PartialDate
-from sir.wscompat.convert import partialdate_to_string
+from mock import MagicMock
+from sir.wscompat.convert import partialdate_to_string, calculate_type
 
 
 class PartialDateConverterTest(unittest.TestCase):
@@ -25,3 +26,49 @@ class PartialDateConverterTest(unittest.TestCase):
 
         for d, expected in ds:
             self.do(d, expected)
+
+
+class OldTypeCalculatorTest(unittest.TestCase):
+
+    def do(self, primary_type, secondary_types, expected):
+        output = calculate_type(primary_type, secondary_types)
+        self.assertEqual(output, expected)
+
+    def _create_type_object(self, name):
+        type_ = MagicMock()
+        type_.name = name
+        return type_
+
+    def _create_secondary_types(self, secondary_type_list):
+        secondary_types = []
+        for type_ in secondary_type_list:
+            secondary_type = MagicMock()
+            secondary_type.secondary_type = self._create_type_object(type_)
+            secondary_types.append(secondary_type)
+        return secondary_types
+
+    def test_non_album_type(self):
+        primary_type_list = ["Random", "ABCDE", "Test"]
+        secondary_types = ["Concert", "Remix", "Compilation", "Live"]
+
+        for primary_type in primary_type_list:
+            self.do(self._create_type_object(primary_type),
+                    self._create_secondary_types(secondary_types),
+                    primary_type)
+
+    def test_album_type(self):
+        primary_type = self._create_type_object('Album')
+        secondary_type_lists = [
+            ['Concert', 'Remix', 'Random'],
+            ['Random', 'ABCDE'],
+            ['Compilation', 'Remix'],
+            ['Remix', 'Compilation'],
+            ['Live', 'Interview', 'Random', 'Compilation'],
+            ['Live', 'Soundtrack', 'Interview']
+        ]
+        excepted_outputs = ['Remix', 'Album', 'Compilation', 'Compilation',
+                            'Compilation', 'Soundtrack']
+        for secondary_type_list, excepted_output in zip(secondary_type_lists,
+                                                        excepted_outputs):
+            secondary_types = self._create_secondary_types(secondary_type_list)
+            self.do(primary_type, secondary_types, excepted_output)
