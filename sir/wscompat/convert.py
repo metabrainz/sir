@@ -203,7 +203,7 @@ def convert_attribute(obj):
     :type obj: :class:`mbdata.models.LinkAttribute`
     """
     attribute = models.attributeType()
-    attribute.value = obj.attribute_type.name
+    attribute.set_valueOf_(obj.attribute_type.name)
     return attribute
 
 
