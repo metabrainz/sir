@@ -203,7 +203,7 @@ def convert_attribute(obj):
     :type obj: :class:`mbdata.models.LinkAttribute`
     """
     attribute = models.attributeType()
-    attribute.value = obj.attribute_type.name
+    attribute.set_valueOf_(obj.attribute_type.name)
     return attribute
 
 
@@ -235,8 +235,8 @@ def convert_artist_work_relation(obj):
 
     if len(obj.link.attributes) > 0:
         attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
+        attributes = [convert_attribute(a) for a in obj.link.attributes]
+        attribute_list.set_attribute(attributes)
         relation.set_attribute_list(attribute_list)
 
     return relation
@@ -248,6 +248,44 @@ def convert_artist_work_relation_list(obj):
     """
     relation_list = models.relation_list(target_type="artist")
     [relation_list.add_relation(convert_artist_work_relation(r)) for r in obj]
+    return relation_list
+
+
+def convert_recording_simple(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomRecording`
+    """
+    recording = models.recording(id=obj.gid, title=obj.name)
+    if obj.video:
+        recording.set_video("true")
+    return recording
+
+
+def convert_recording_work_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkRecordingWork`
+    """
+    relation = models.relation(direction="backward",
+                               type_=obj.link.link_type.name)
+
+    recording = convert_recording_simple(obj.recording)
+    relation.set_recording(recording)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        attributes = [convert_attribute(a) for a in obj.link.attributes]
+        attribute_list.set_attribute(attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
+def convert_recording_work_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkRecordingWork]`
+    """
+    relation_list = models.relation_list(target_type="recording")
+    [relation_list.add_relation(convert_recording_work_relation(r)) for r in obj]
     return relation_list
 
 
@@ -276,6 +314,16 @@ def convert_isrc_list(obj):
     isrc_list = models.isrc_list()
     [isrc_list.add_isrc(convert_isrc(i)) for i in obj]
     return isrc_list
+
+
+def convert_iswc_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ISWC]`
+    """
+    iswc_list = models.iswc_list()
+    iswcs = [i.iswc for i in obj]
+    iswc_list.set_iswc(iswcs)
+    return iswc_list
 
 
 def convert_label_info(obj):
@@ -1012,12 +1060,20 @@ def convert_work(obj):
             convert_artist_work_relation_list(obj.artist_links))
     if obj.comment:
         work.set_disambiguation(obj.comment)
+    if obj.recording_links:
+        work.add_relation_list(
+            convert_recording_work_relation_list(obj.recording_links))
     if obj.languages:
         work.set_language_list(convert_language_list(obj.languages))
         if len(obj.languages) == 1:
             work.set_language(obj.languages[0].language.iso_code_3)
         elif len(obj.languages) > 1:
             work.set_language('mul')
+    if obj.type:
+        work.set_type(obj.type.name)
+    if obj.iswcs:
+        work.set_iswc_list(convert_iswc_list(obj.iswcs))
+
     return work
 
 

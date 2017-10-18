@@ -461,6 +461,8 @@ SearchWork = E(modelext.CustomWork, [
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
     F("lang", "languages.language.iso_code_3"),
+    F("recording", "recording_links.recording.name"),
+    F("rid", "recording_links.recording.gid"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
@@ -471,6 +473,8 @@ SearchWork = E(modelext.CustomWork, [
                 "aliases.primary_for_locale",
                 "artist_links.link.link_type.name",
                 "artist_links.link.attributes.attribute_type.name",
+                "recording_links.link.link_type.name",
+                "recording_links.link.attributes.attribute_type.name",
                 "tags.count"]
 )
 

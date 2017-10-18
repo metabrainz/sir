@@ -120,6 +120,7 @@ class CustomWork(Work):
     artist_links = relationship("LinkArtistWork")
     tags = relationship("WorkTag")
     languages = relationship("WorkLanguage")
+    recording_links = relationship("LinkRecordingWork")
 
 
 class CustomURL(URL):
