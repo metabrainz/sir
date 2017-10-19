@@ -20,6 +20,14 @@ BARCODE_UNKOWN = "-"
 #: Time format string
 TIME_FORMAT = "%H:%M:%S"
 
+#: Fallback order for determining release group type
+SECONDARY_TYPE_ORDER = ['Compilation',
+                        'Remix',
+                        'Soundtrack',
+                        'Live',
+                        'Spokenword',
+                        'Interview']
+
 
 def partialdate_to_string(obj):
     """
@@ -48,6 +56,37 @@ def datetime_to_string(obj):
     :type obj: :class:`datetime.time`
     """
     return obj.strftime(TIME_FORMAT)
+
+
+@lru_cache()
+def _calculate_type_helper(primary_type, secondary_types):
+    """
+    :type primary_type: :class:`mbdata.models.ReleaseGroupPrimaryType`
+    :type secondary_types: :class:`(mbdata.models.ReleaseGroupSecondaryType)`
+    """
+
+    if primary_type.name == 'Album':
+        if secondary_types:
+            secondary_type_list = [obj.secondary_type.name
+                                   for obj in secondary_types]
+            # The first type in the ordered secondary type list
+            # is returned as the result
+            for type_ in SECONDARY_TYPE_ORDER:
+                if type_ in secondary_type_list:
+                    return type_
+    # If primary type is not 'Album' or
+    # the secondary type list is empty or does not have
+    # values from the predetermined secondary order list
+    # return the primary type
+    return primary_type.name
+
+
+def calculate_type(primary_type, secondary_types):
+    """
+    :type primary_type: :class:`mbdata.models.ReleaseGroupPrimaryType`
+    :type secondary_types: :class:`[mbdata.models.ReleaseGroupSecondaryType]`
+    """
+    return _calculate_type_helper(primary_type, tuple(secondary_types))
 
 
 def convert_iso_3166_1_code_list(obj):
@@ -131,8 +170,7 @@ def convert_name_credit(obj, include_aliases=True):
     """
     :type obj: :class:`mbdata.models.ArtistCreditName`
     """
-    nc = models.name_credit(name=obj.name,
-                            artist=convert_artist_simple(obj.artist,
+    nc = models.name_credit(artist=convert_artist_simple(obj.artist,
                                                          include_aliases))
     if obj.join_phrase != "":
         nc.set_joinphrase(obj.join_phrase)
@@ -395,9 +433,6 @@ def convert_medium(obj):
     if obj.format is not None:
         m.set_format(convert_format(obj.format))
 
-    dl = models.disc_list(count=len(obj.cdtocs))
-    m.set_disc_list(dl)
-
     tl = models.track_listType6(count=obj.track_count)
     m.set_track_list(tl)
 
@@ -429,7 +464,7 @@ def convert_medium_list(obj):
     """
     :type obj: :class:`[mbdata.models.Medium]`
     """
-    ml = models.medium_list(count=len(obj))
+    ml = models.medium_list()
     [ml.add_medium(convert_medium(m)) for m in obj]
 
     tracks = 0
@@ -515,7 +550,7 @@ def convert_release_from_track(obj):
     # same as the recording artist credit, but we've already built it so just
     # set it
     release.set_artist_credit(convert_artist_credit(rel.artist_credit,
-                                                    include_aliases=True))
+                                                    include_aliases=False))
 
     if rel.comment is not None and rel.comment != "":
         release.set_disambiguation(rel.comment)
@@ -553,7 +588,7 @@ def convert_release_group_for_release(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(obj.type.name)
+        rg.set_type(calculate_type(obj.type, obj.secondary_types))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -907,6 +942,9 @@ def convert_recording(obj):
     if len(obj.tracks) > 0:
         recording.set_release_list(
             convert_release_list_for_recordings(obj.tracks))
+        for release in recording.release_list.release:
+            if release.artist_credit == recording.artist_credit:
+                release.set_artist_credit(None)
 
     if obj.video:
         recording.set_video("true")
@@ -1081,19 +1119,19 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(id=str(obj.id))
+    return models.primary_type(valueOf_=obj.name)
 
 
 def convert_release_status(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseStatus`
     """
-    return models.status(id=str(obj.id))
+    return models.status(valueOf_=obj.name)
 
 
 def convert_gender(obj):
-    return models.gender(valueOf_=str(obj.name.lower()))
+    return models.gender(valueOf_=obj.name.lower())
 
 
 def convert_format(obj):
-    return models.format(id=str(obj.id))
+    return models.format(valueOf_=obj.name)
