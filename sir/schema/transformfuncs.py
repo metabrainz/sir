@@ -1,5 +1,6 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import re
 from sir.wscompat.convert import partialdate_to_string
 
 
@@ -67,3 +68,11 @@ def boolean(values):
         return "t"
     else:
         return "f"
+
+
+def url_type(values):
+    types = set()
+    if len(values):
+        for value in values:
+            types.add(re.sub(r'l_(\w*)_url', r'\g<1>', value))
+    return types
