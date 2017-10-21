@@ -89,6 +89,21 @@ def calculate_type(primary_type, secondary_types):
     return _calculate_type_helper(primary_type, tuple(secondary_types))
 
 
+def convert_relation(obj, direction="backward", **kwargs):
+    relation = models.relation(direction=direction,
+                               type_id=obj.link.link_type.gid,
+                               type_=obj.link.link_type.name,
+                               **kwargs)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        (attribute_list.add_attribute(convert_attribute(a)) for a in
+         obj.link.attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
 def convert_iso_3166_1_code_list(obj):
     """
     :type obj: :class:`[mbdata.models.ISO31661]`
@@ -156,11 +171,9 @@ def convert_area_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkAreaArea`
     """
-    relation = models.relation(direction="backward",
-                               target=models.target(valueOf_=obj.area0.gid),
-                               type_=obj.link.link_type.name,
-                               type_id=obj.link.link_type.gid,
-                               area=convert_area_inner(obj.area0))
+    relation = convert_relation(obj,
+                                target=models.target(valueOf_=obj.area0.gid),
+                                area=convert_area_inner(obj.area0))
 
     return relation
 
@@ -169,18 +182,9 @@ def convert_event_area_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkAreaEvent`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
+    relation = convert_relation(obj)
     area = convert_area_simple(obj.area)
     relation.set_area(area)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
@@ -302,18 +306,9 @@ def convert_artist_relation(obj):
     :type obj: :class:`mbdata.models.LinkArtistWork` or
                :class:`mbdata.models.LinkArtistEvent`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
+    relation = convert_relation(obj)
     artist = convert_artist_simple(obj.artist, include_aliases=False)
     relation.set_artist(artist)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        attributes = [convert_attribute(a) for a in obj.link.attributes]
-        attribute_list.set_attribute(attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
@@ -341,18 +336,9 @@ def convert_recording_work_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkRecordingWork`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
+    relation = convert_relation(obj)
     recording = convert_recording_simple(obj.recording)
     relation.set_recording(recording)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        attributes = [convert_attribute(a) for a in obj.link.attributes]
-        attribute_list.set_attribute(attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
@@ -574,18 +560,9 @@ def convert_place_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkEventPlace`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
+    relation = convert_relation(obj)
     place = convert_place_simple(obj.place)
     relation.set_place(place)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
