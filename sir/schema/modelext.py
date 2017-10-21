@@ -124,7 +124,7 @@ class CustomWork(Work):
 
 
 class CustomURL(URL):
-    pass
+    artist_links = relationship("LinkArtistURL")
 
 
 class CustomLinkAttribute(LinkAttribute):
