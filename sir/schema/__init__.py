@@ -90,6 +90,7 @@ SearchArea = E(modelext.CustomArea, [
                 "area_links.area0.type.id",
                 "area_links.link.link_type.name",
                 "area_links.link.link_type.name",
+                "area_links.link.attributes.attribute_type.name"
                 "tags.count"
                 ]
 )
