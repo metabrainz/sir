@@ -12,7 +12,7 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "place_annotation": "place",
     "recording_annotation": "recording",
     "release_annotation": "release",
-    "release_group_annotation": "releasegroup",
+    "release_group_annotation": "release-group",
     "series_annotation": "series",
     "work_annotation": "work"
 }
