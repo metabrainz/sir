@@ -1151,8 +1151,8 @@ def convert_url(obj):
     :type obj: :class`mbdata_models.URL`
     """
     url = models.url(id=obj.gid, resource=obj.url)
-    # obj does not seem to have any links set, so we can't include any
-    # relation lists at this time
+    if obj.artist_links:
+        url.add_relation_list(convert_artist_relation_list(obj.artist_links))
     return url
 
 

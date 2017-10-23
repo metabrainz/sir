@@ -17,6 +17,21 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "work_annotation": "work"
 }
 
+URL_LINK_TABLE_TO_ENTITYTYPE = {
+    "l_area_url": "area",
+    "l_artist_url": "artist",
+    "l_event_url": "event",
+    "l_instrument_url": "instrument",
+    "l_label_url": "label",
+    "l_place_url": "place",
+    "l_recording_url": "recording",
+    "l_release_url": "release",
+    "l_release_group_url": "release-group",
+    "l_series_url": "series",
+    "l_url_work": "work",
+    "l_url_url": "url"
+}
+
 
 def ended_to_string(ended):
     """
@@ -67,3 +82,8 @@ def boolean(values):
         return "t"
     else:
         return "f"
+
+
+def url_type(values):
+    types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
+    return types

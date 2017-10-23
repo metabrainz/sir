@@ -503,13 +503,23 @@ SearchWork = E(modelext.CustomWork, [
 )
 
 
-SearchUrl = E(modelext.URL, [
-    # relationtype, targetid, targettype
+SearchUrl = E(modelext.CustomURL, [
     F("mbid", "gid"),
-    F("url", "url")
+    F("url", "url"),
+    F("relationtype", ["artist_links.link.link_type.name"]),
+    F("targetid", ["artist_links.artist.gid"]),
+    F("targettype", ["artist_links.__tablename__"],
+      transformfunc=tfs.url_type),
 ],
     1.5,
-    convert.convert_url
+    convert.convert_url,
+    extrapaths=["artist_links.artist.gid",
+                "artist_links.artist.name",
+                "artist_links.artist.comment",
+                "artist_links.artist.sort_name",
+                "artist_links.link.link_type.name",
+                "artist_links.link.link_type.gid",
+                "artist_links.link.attributes.attribute_type.name"]
 )
 
 
