@@ -89,6 +89,21 @@ def calculate_type(primary_type, secondary_types):
     return _calculate_type_helper(primary_type, tuple(secondary_types))
 
 
+def convert_relation(obj, direction="backward", **kwargs):
+    relation = models.relation(direction=direction,
+                               type_id=obj.link.link_type.gid,
+                               type_=obj.link.link_type.name,
+                               **kwargs)
+
+    if len(obj.link.attributes) > 0:
+        attribute_list = models.attribute_listType()
+        (attribute_list.add_attribute(convert_attribute(a)) for a in
+         obj.link.attributes)
+        relation.set_attribute_list(attribute_list)
+
+    return relation
+
+
 def convert_iso_3166_1_code_list(obj):
     """
     :type obj: :class:`[mbdata.models.ISO31661]`
@@ -133,6 +148,14 @@ def convert_area_inner(obj):
     return area
 
 
+def convert_area_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Area`
+    """
+    area = models.def_area_element_inner(id=obj.gid, name=obj.name)
+    return area
+
+
 @lru_cache()
 def convert_area_for_release_event(obj):
     """
@@ -148,12 +171,20 @@ def convert_area_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkAreaArea`
     """
-    relation = models.relation(direction="backward",
-                               target=models.target(valueOf_=obj.area0.gid),
-                               type_=obj.link.link_type.name,
-                               type_id=obj.link.link_type.gid,
-                               area=convert_area_inner(obj.area0))
+    relation = convert_relation(obj,
+                                target=models.target(valueOf_=obj.area0.gid),
+                                area=convert_area_inner(obj.area0))
 
+    return relation
+
+
+def convert_event_area_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkAreaEvent`
+    """
+    relation = convert_relation(obj)
+    area = convert_area_simple(obj.area)
+    relation.set_area(area)
     return relation
 
 
@@ -163,6 +194,15 @@ def convert_area_relation_list(obj):
     """
     relations = models.relation_list(target_type="area")
     [relations.add_relation(convert_area_relation(a)) for a in obj]
+    return relations
+
+
+def convert_event_area_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkAreaEvent]`
+    """
+    relations = models.relation_list(target_type="area")
+    [relations.add_relation(convert_event_area_relation(a)) for a in obj]
     return relations
 
 
@@ -261,31 +301,24 @@ def convert_artist_simple(obj, include_aliases=True):
     return artist
 
 
-def convert_artist_work_relation(obj):
+def convert_artist_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkArtistWork`
+    :type obj: :class:`mbdata.models.LinkArtistWork` or
+               :class:`mbdata.models.LinkArtistEvent`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
-    artist = convert_artist_simple(obj.artist)
+    relation = convert_relation(obj)
+    artist = convert_artist_simple(obj.artist, include_aliases=False)
     relation.set_artist(artist)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        attributes = [convert_attribute(a) for a in obj.link.attributes]
-        attribute_list.set_attribute(attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
-def convert_artist_work_relation_list(obj):
+def convert_artist_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkArtistWork]`
+    :type obj: :class:`[mbdata.models.LinkArtistWork]` or
+               :class:`[mbdata.models.LinkArtistEvent]`
     """
     relation_list = models.relation_list(target_type="artist")
-    [relation_list.add_relation(convert_artist_work_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_artist_relation(r)) for r in obj]
     return relation_list
 
 
@@ -303,18 +336,9 @@ def convert_recording_work_relation(obj):
     """
     :type obj: :class:`mbdata.models.LinkRecordingWork`
     """
-    relation = models.relation(direction="backward",
-                               type_=obj.link.link_type.name)
-
+    relation = convert_relation(obj)
     recording = convert_recording_simple(obj.recording)
     relation.set_recording(recording)
-
-    if len(obj.link.attributes) > 0:
-        attribute_list = models.attribute_listType()
-        attributes = [convert_attribute(a) for a in obj.link.attributes]
-        attribute_list.set_attribute(attributes)
-        relation.set_attribute_list(attribute_list)
-
     return relation
 
 
@@ -522,6 +546,33 @@ def convert_place(obj):
         place.set_type(obj.type.name)
 
     return place
+
+
+def convert_place_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Place`
+    """
+    place = models.place(id=obj.gid, name=obj.name)
+    return place
+
+
+def convert_place_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkEventPlace`
+    """
+    relation = convert_relation(obj)
+    place = convert_place_simple(obj.place)
+    relation.set_place(place)
+    return relation
+
+
+def convert_place_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkEventPlace]`
+    """
+    relation_list = models.relation_list(target_type="place")
+    [relation_list.add_relation(convert_place_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_release_event(obj):
@@ -862,6 +913,21 @@ def convert_event(obj):
     if obj.time is not None:
         event.set_time(datetime_to_string(obj.time))
 
+    if obj.area_links:
+        event.add_relation_list(convert_event_area_relation_list(obj.area_links))
+
+    if obj.artist_links:
+        event.add_relation_list(convert_artist_relation_list(obj.artist_links))
+
+    if obj.place_links:
+        event.add_relation_list(convert_place_relation_list(obj.place_links))
+
+    if obj.aliases:
+        event.set_alias_list(convert_alias_list(obj.aliases))
+
+    if obj.tags:
+        event.set_tag_list(convert_tag_list(obj.tags))
+
     return event
 
 
@@ -1099,7 +1165,7 @@ def convert_work(obj):
         work.set_alias_list(convert_alias_list(obj.aliases))
     if len(obj.artist_links) > 0:
         work.add_relation_list(
-            convert_artist_work_relation_list(obj.artist_links))
+            convert_artist_relation_list(obj.artist_links))
     if obj.comment:
         work.set_disambiguation(obj.comment)
     if obj.recording_links:
