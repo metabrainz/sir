@@ -1,6 +1,5 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import re
 from sir.wscompat.convert import partialdate_to_string
 
 
@@ -16,6 +15,21 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "release_group_annotation": "releasegroup",
     "series_annotation": "series",
     "work_annotation": "work"
+}
+
+URL_LINK_TABLE_TO_ENTITYTYPE = {
+    "l_area_url": "area",
+    "l_artist_url": "artist",
+    "l_event_url": "event",
+    "l_instrument_url": "instrument",
+    "l_label_url": "label",
+    "l_place_url": "place",
+    "l_recording_url": "recording",
+    "l_release_url": "release",
+    "l_release_group_url": "release-group",
+    "l_series_url": "series",
+    "l_url_work": "work",
+    "l_url_url": "url"
 }
 
 
@@ -71,8 +85,5 @@ def boolean(values):
 
 
 def url_type(values):
-    types = set()
-    if len(values):
-        for value in values:
-            types.add(re.sub(r'l_(\w*)_url', r'\g<1>', value))
+    types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
     return types
