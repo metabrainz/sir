@@ -495,10 +495,12 @@ SearchWork = E(modelext.CustomWork, [
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date",
                 "artist_links.link.link_type.name",
                 "artist_links.link.attributes.attribute_type.name",
                 "recording_links.link.link_type.name",
                 "recording_links.link.attributes.attribute_type.name",
+                "recording_links.recording.video",
                 "tags.count"]
 )
 
