@@ -499,6 +499,7 @@ SearchWork = E(modelext.CustomWork, [
                 "artist_links.link.attributes.attribute_type.name",
                 "recording_links.link.link_type.name",
                 "recording_links.link.attributes.attribute_type.name",
+                "recording_links.recording.video",
                 "tags.count"]
 )
 
