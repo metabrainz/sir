@@ -245,6 +245,24 @@ CREATE TRIGGER search_iso_3166_3_update AFTER UPDATE ON musicbrainz.iso_3166_3
 CREATE TRIGGER search_iso_3166_3_delete BEFORE DELETE ON musicbrainz.iso_3166_3
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_3_delete();
 
+CREATE TRIGGER search_area_tag_insert AFTER INSERT ON musicbrainz.area_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_area_tag_insert();
+
+CREATE TRIGGER search_area_tag_update AFTER UPDATE ON musicbrainz.area_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_area_tag_update();
+
+CREATE TRIGGER search_area_tag_delete BEFORE DELETE ON musicbrainz.area_tag
+    FOR EACH ROW EXECUTE PROCEDURE search_area_tag_delete();
+
+CREATE TRIGGER search_tag_insert AFTER INSERT ON musicbrainz.tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_insert();
+
+CREATE TRIGGER search_tag_update AFTER UPDATE ON musicbrainz.tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_update();
+
+CREATE TRIGGER search_tag_delete BEFORE DELETE ON musicbrainz.tag
+    FOR EACH ROW EXECUTE PROCEDURE search_tag_delete();
+
 CREATE TRIGGER search_area_type_insert AFTER INSERT ON musicbrainz.area_type
     FOR EACH ROW EXECUTE PROCEDURE search_area_type_insert();
 
@@ -298,15 +316,6 @@ CREATE TRIGGER search_artist_tag_update AFTER UPDATE ON musicbrainz.artist_tag
 
 CREATE TRIGGER search_artist_tag_delete BEFORE DELETE ON musicbrainz.artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_tag_delete();
-
-CREATE TRIGGER search_tag_insert AFTER INSERT ON musicbrainz.tag
-    FOR EACH ROW EXECUTE PROCEDURE search_tag_insert();
-
-CREATE TRIGGER search_tag_update AFTER UPDATE ON musicbrainz.tag
-    FOR EACH ROW EXECUTE PROCEDURE search_tag_update();
-
-CREATE TRIGGER search_tag_delete BEFORE DELETE ON musicbrainz.tag
-    FOR EACH ROW EXECUTE PROCEDURE search_tag_delete();
 
 CREATE TRIGGER search_artist_credit_name_insert AFTER INSERT ON musicbrainz.artist_credit_name
     FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_insert();
@@ -739,6 +748,15 @@ CREATE TRIGGER search_work_language_update AFTER UPDATE ON musicbrainz.work_lang
 
 CREATE TRIGGER search_work_language_delete BEFORE DELETE ON musicbrainz.work_language
     FOR EACH ROW EXECUTE PROCEDURE search_work_language_delete();
+
+CREATE TRIGGER search_l_recording_work_insert AFTER INSERT ON musicbrainz.l_recording_work
+    FOR EACH ROW EXECUTE PROCEDURE search_l_recording_work_insert();
+
+CREATE TRIGGER search_l_recording_work_update AFTER UPDATE ON musicbrainz.l_recording_work
+    FOR EACH ROW EXECUTE PROCEDURE search_l_recording_work_update();
+
+CREATE TRIGGER search_l_recording_work_delete BEFORE DELETE ON musicbrainz.l_recording_work
+    FOR EACH ROW EXECUTE PROCEDURE search_l_recording_work_delete();
 
 CREATE TRIGGER search_work_tag_insert AFTER INSERT ON musicbrainz.work_tag
     FOR EACH ROW EXECUTE PROCEDURE search_work_tag_insert();
