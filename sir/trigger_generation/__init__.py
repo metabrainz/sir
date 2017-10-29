@@ -51,7 +51,7 @@ def generate(trigger_filename, function_filename, broker_id):
                 function_file=functionfile,
                 model=table_info["model"],
                 is_direct=table_info["is_direct"],
-                has_gid=table_info['has_gid'],
+                has_gid=table_info.get('has_gid', False),
                 broker_id=broker_id,
             )
         write_footer(triggerfile)
@@ -87,7 +87,6 @@ def get_trigger_tables():
                     tables[table_name] = {
                         "model": model,
                         "is_direct": False,
-                        "has_gid": mapped_class.has_property('gid'),
                     }
 
     return tables
