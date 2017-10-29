@@ -713,6 +713,33 @@ CREATE TRIGGER search_url_update AFTER UPDATE ON musicbrainz.url
 CREATE TRIGGER search_url_delete BEFORE DELETE ON musicbrainz.url
     FOR EACH ROW EXECUTE PROCEDURE search_url_delete();
 
+CREATE TRIGGER search_l_artist_url_insert AFTER INSERT ON musicbrainz.l_artist_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_artist_url_insert();
+
+CREATE TRIGGER search_l_artist_url_update AFTER UPDATE ON musicbrainz.l_artist_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_artist_url_update();
+
+CREATE TRIGGER search_l_artist_url_delete BEFORE DELETE ON musicbrainz.l_artist_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_artist_url_delete();
+
+CREATE TRIGGER search_link_insert AFTER INSERT ON musicbrainz.link
+    FOR EACH ROW EXECUTE PROCEDURE search_link_insert();
+
+CREATE TRIGGER search_link_update AFTER UPDATE ON musicbrainz.link
+    FOR EACH ROW EXECUTE PROCEDURE search_link_update();
+
+CREATE TRIGGER search_link_delete BEFORE DELETE ON musicbrainz.link
+    FOR EACH ROW EXECUTE PROCEDURE search_link_delete();
+
+CREATE TRIGGER search_link_type_insert AFTER INSERT ON musicbrainz.link_type
+    FOR EACH ROW EXECUTE PROCEDURE search_link_type_insert();
+
+CREATE TRIGGER search_link_type_update AFTER UPDATE ON musicbrainz.link_type
+    FOR EACH ROW EXECUTE PROCEDURE search_link_type_update();
+
+CREATE TRIGGER search_link_type_delete BEFORE DELETE ON musicbrainz.link_type
+    FOR EACH ROW EXECUTE PROCEDURE search_link_type_delete();
+
 CREATE TRIGGER search_work_alias_insert AFTER INSERT ON musicbrainz.work_alias
     FOR EACH ROW EXECUTE PROCEDURE search_work_alias_insert();
 
