@@ -171,3 +171,17 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.reference_columns = ["gid"]
+
+
+class IDDeleteTriggerGenerator(DeleteTriggerGenerator):
+    """
+    This trigger generator produces DELETE statements that selects just `id`
+    row and ignores primary keys.
+
+    It should be used for entity tables themselves that don't have a `gid`.
+    """
+    routing_key = "delete"
+
+    def __init__(self, *args, **kwargs):
+        super(IDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
+        self.reference_columns = ["id"]
