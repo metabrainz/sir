@@ -107,9 +107,9 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
         if has_gid:
             delete_trigger_generator = sql_generator.GIDDeleteTriggerGenerator
         else:
-            delete_trigger_generator = sql_generator.IDDeleteTriggerGenerator
+            delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
-        delete_trigger_generator = sql_generator.DeleteTriggerGenerator
+        delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
 
     write_triggers_to_file(
         trigger_file=trigger_file,

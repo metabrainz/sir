@@ -148,7 +148,7 @@ class DeleteTriggerGenerator(TriggerGenerator):
     op = "delete"
     record_variable = "OLD"
     before_or_after = "BEFORE"
-    routing_key = "update"
+    routing_key = "delete"
 
     @property
     def selection(self):
@@ -166,22 +166,16 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
     It should be used for entity tables themselves (in "direct" triggers) for
     tables like "artist", "release_group", "recording", and the rest.
     """
-    routing_key = "delete"
 
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
         self.reference_columns = ["gid"]
 
 
-class IDDeleteTriggerGenerator(DeleteTriggerGenerator):
+class ReferencedDeleteTriggerGenerator(DeleteTriggerGenerator):
     """
-    This trigger generator produces DELETE statements that selects just `id`
-    row and ignores primary keys.
-
-    It should be used for entity tables themselves that don't have a `gid`.
+    A trigger generator for DELETE operations for tables which are referenced
+    in `SearchEntity` tables. Delete operations in such tables cause the main
+    `SearchEntity` tables to be updated.
     """
-    routing_key = "delete"
-
-    def __init__(self, *args, **kwargs):
-        super(IDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
-        self.reference_columns = ["id"]
+    routing_key = "update"
