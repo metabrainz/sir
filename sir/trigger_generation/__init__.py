@@ -51,6 +51,7 @@ def generate(trigger_filename, function_filename, broker_id):
                 function_file=functionfile,
                 model=table_info["model"],
                 is_direct=table_info["is_direct"],
+                has_gid=table_info.get('has_gid', False),
                 broker_id=broker_id,
             )
         write_footer(triggerfile)
@@ -69,11 +70,12 @@ def get_trigger_tables():
     tables = collections.OrderedDict()  # mapping of table names to their models and their "kind" (direct or not)
     for _, entity in SCHEMA.items():
         # Entity table itself
-        tables[class_mapper(entity.model).mapped_table.name] = {
+        mapped_class = class_mapper(entity.model)
+        tables[mapped_class.mapped_table.name] = {
             "model": entity.model,
             "is_direct": True,
+            "has_gid": mapped_class.has_property('gid'),
         }
-
         # Tables that contain the referenced column
         # TODO(roman): maybe come up with a better description above
         for path in unique_split_paths([path for field in entity.fields
@@ -90,7 +92,7 @@ def get_trigger_tables():
     return tables
 
 
-def write_triggers(trigger_file, function_file, model, is_direct, **generator_args):
+def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **generator_args):
     """
     :param str file trigger_file: File where triggers will be written.
     :param str file function_file: File where functions will be written.
@@ -102,9 +104,12 @@ def write_triggers(trigger_file, function_file, model, is_direct, **generator_ar
     table_name = mapper.mapped_table.name
 
     if is_direct:
-        delete_trigger_generator = sql_generator.GIDDeleteTriggerGenerator
+        if has_gid:
+            delete_trigger_generator = sql_generator.GIDDeleteTriggerGenerator
+        else:
+            delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
-        delete_trigger_generator = sql_generator.DeleteTriggerGenerator
+        delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
 
     write_triggers_to_file(
         trigger_file=trigger_file,

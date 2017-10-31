@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION search_annotation_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"annotation"')::text FROM keys
         ));
     RETURN OLD;
@@ -952,7 +952,7 @@ CREATE OR REPLACE FUNCTION search_tag_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"tag"')::text FROM keys
         ));
     RETURN OLD;
@@ -1282,7 +1282,7 @@ CREATE OR REPLACE FUNCTION search_release_raw_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_raw"')::text FROM keys
         ));
     RETURN OLD;
@@ -1348,7 +1348,7 @@ CREATE OR REPLACE FUNCTION search_editor_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"editor"')::text FROM keys
         ));
     RETURN OLD;
