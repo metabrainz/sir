@@ -238,6 +238,7 @@ def convert_alias(obj):
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
+        alias.set_type_id(obj.type.gid)
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date_year is not None:
