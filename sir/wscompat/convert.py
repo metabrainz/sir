@@ -67,18 +67,18 @@ def _calculate_type_helper(primary_type, secondary_types):
 
     if primary_type.name == 'Album':
         if secondary_types:
-            secondary_type_list = [obj.secondary_type.name
-                                   for obj in secondary_types]
+            secondary_type_list = dict([(obj.secondary_type.name, obj.secondary_type)
+                                   for obj in secondary_types])
             # The first type in the ordered secondary type list
             # is returned as the result
             for type_ in SECONDARY_TYPE_ORDER:
                 if type_ in secondary_type_list:
-                    return type_
+                    return secondary_type_list[type_]
     # If primary type is not 'Album' or
     # the secondary type list is empty or does not have
     # values from the predetermined secondary order list
     # return the primary type
-    return primary_type.name
+    return primary_type
 
 
 def calculate_type(primary_type, secondary_types):
@@ -643,7 +643,9 @@ def convert_release_group_for_release(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -663,7 +665,9 @@ def convert_release_group_simple(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -1102,7 +1106,9 @@ def convert_release_group(obj):
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(

@@ -32,7 +32,7 @@ class OldTypeCalculatorTest(unittest.TestCase):
 
     def do(self, primary_type, secondary_types, expected):
         output = calculate_type(primary_type, secondary_types)
-        self.assertEqual(output, expected)
+        self.assertEqual(output.name, expected)
 
     def _create_type_object(self, name):
         type_ = MagicMock()
