@@ -831,6 +831,7 @@ def convert_artist(obj):
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
+        artist.set_type_id(obj.type.gid)
 
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
