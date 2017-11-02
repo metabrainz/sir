@@ -141,6 +141,7 @@ def convert_area_inner(obj):
 
     if obj.type is not None:
         area.set_type(obj.type.name)
+        area.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -283,6 +284,7 @@ def convert_attribute(obj):
     """
     attribute = models.attributeType()
     attribute.set_valueOf_(obj.attribute_type.name)
+    attribute.set_type_id(obj.attribute_type.gid)
     return attribute
 
 
@@ -545,6 +547,7 @@ def convert_place(obj):
 
     if obj.type is not None:
         place.set_type(obj.type.name)
+        place.set_type_id(obj.type.gid)
 
     return place
 
@@ -712,6 +715,7 @@ def convert_secondary_type(obj):
     :type obj: :class:`mbdata.models.ReleaseGroupSecondaryTypeJoin`
     """
     secondary_type = models.secondary_type(valueOf_=obj.secondary_type.name)
+    secondary_type.set_id(obj.secondary_type.gid)
     return secondary_type
 
 
@@ -794,6 +798,7 @@ def convert_area(obj):
 
     if obj.type is not None:
         area.set_type(obj.type.name)
+        area.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -911,6 +916,7 @@ def convert_event(obj):
 
     if obj.type is not None:
         event.set_type(obj.type.name)
+        event.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     if lifespan.get_begin() is not None or lifespan.get_end() is not None:
@@ -951,6 +957,7 @@ def convert_instrument(obj):
 
     if obj.type is not None:
         instrument.set_type(obj.type.name)
+        instrument.set_type_id(obj.type.gid)
 
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
@@ -969,6 +976,7 @@ def convert_label(obj):
 
     if obj.type is not None:
         label.set_type(obj.type.name)
+        label.set_type_id(obj.type.gid)
 
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
@@ -1139,6 +1147,7 @@ def convert_series(obj):
 
     if obj.type:
         series.set_type(obj.type.name)
+        series.set_type_id(obj.type.gid)
 
     return series
 
@@ -1187,6 +1196,7 @@ def convert_work(obj):
             work.set_language('mul')
     if obj.type:
         work.set_type(obj.type.name)
+        work.set_type_id(obj.type.gid)
     if obj.iswcs:
         work.set_iswc_list(convert_iswc_list(obj.iswcs))
 
@@ -1197,7 +1207,7 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(valueOf_=obj.name)
+    return models.primary_type(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_release_status(obj):

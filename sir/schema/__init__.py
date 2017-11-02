@@ -80,7 +80,8 @@ SearchArea = E(modelext.CustomArea, [
 ],
     1.5,
     convert.convert_area,
-    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.sort_name", "aliases.type.gid",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "area_links.area0.name",
@@ -88,10 +89,12 @@ SearchArea = E(modelext.CustomArea, [
                 "area_links.area0.begin_date",
                 "area_links.area0.end_date",
                 "area_links.area0.type.id",
+                "area_links.area0.type.gid",
                 "area_links.link.link_type.name",
-                "area_links.link.link_type.name",
-                "area_links.link.attributes.attribute_type.name"
-                "tags.count"
+                "area_links.link.link_type.gid",
+                "area_links.link.attributes.attribute_type.name",
+                "area_links.link.attributes.attribute_type.gid",
+                "tags.count", "type.gid"
                 ]
 )
 
@@ -140,6 +143,7 @@ SearchEvent = E(modelext.CustomEvent, [
     convert.convert_event,
     extrapaths=["aliases.type.name",
                 "aliases.type.id",
+                "aliases.type.gid",
                 "aliases.sort_name",
                 "aliases.locale",
                 "aliases.primary_for_locale",
@@ -150,18 +154,21 @@ SearchEvent = E(modelext.CustomEvent, [
                 "area_links.link.link_type.name",
                 "area_links.link.link_type.gid",
                 "area_links.link.attributes.attribute_type.name",
+                "area_links.link.attributes.attribute_type.gid",
                 "artist_links.artist.gid",
                 "artist_links.artist.name",
                 "artist_links.artist.comment",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
+                "artist_links.link.attributes.attribute_type.gid",
                 "place_links.place.gid",
                 "place_links.place.name",
                 "place_links.link.link_type.name",
                 "place_links.link.link_type.gid",
                 "place_links.link.attributes.attribute_type.name",
-                "tags.count",
+                "place_links.link.attributes.attribute_type.gid",
+                "tags.count", "type.gid",
                 "time"]
 )
 
@@ -175,9 +182,10 @@ SearchInstrument = E(modelext.CustomInstrument, [
 ],
     1.5,
     convert.convert_instrument,
-    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.sort_name", "aliases.type.gid",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date", "tags.count"]
+                "aliases.begin_date", "aliases.end_date", "tags.count", "type.gid"]
 )
 
 
@@ -200,10 +208,12 @@ SearchLabel = E(modelext.CustomLabel, [
 ],
     1.5,
     convert.convert_label,
-    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area.gid", "area.type.name", "tags.count"
+                "area.gid", "area.type.name", "area.type.gid",
+                "tags.count", "type.gid"
                 ]
 )
 
@@ -224,10 +234,11 @@ SearchPlace = E(modelext.CustomPlace, [
 ],
     1.5,
     convert.convert_place,
-    extrapaths=["aliases.type.name", "aliases.type.id", "aliases.sort_name",
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area.gid"]
+                "area.gid", "type.gid"]
 )
 
 
@@ -274,6 +285,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "artist_credit.artists.artist.aliases.sort_name",
                 "artist_credit.artists.artist.aliases.type.id",
                 "artist_credit.artists.artist.aliases.type.name",
+                "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.comment",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.name",
@@ -301,6 +313,8 @@ SearchRecording = E(modelext.CustomRecording, [
                 "type.id",
                 "tracks.medium.release.artist_credit.artists.artist.aliases."
                 "type.name",
+                "tracks.medium.release.artist_credit.artists.artist.aliases."
+                "type.gid",
                 "tracks.medium.release.artist_credit.artists.artist.comment",
                 "tracks.medium.release.artist_credit.artists.artist.gid",
                 "tracks.medium.release.artist_credit.artists.artist.name",
@@ -318,6 +332,8 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.country_dates.date_year",
                 "tracks.medium.release.release_group.comment",
                 "tracks.medium.release.release_group.name",
+                "tracks.medium.release.release_group.type.gid",
+                "tracks.medium.release.release_group.secondary_types.secondary_type.gid",
                 "tracks.name"]
 )
 
@@ -364,6 +380,7 @@ SearchRelease = E(modelext.CustomRelease, [
                 "artist_credit.artists.artist.aliases.sort_name",
                 "artist_credit.artists.artist.aliases.type.id",
                 "artist_credit.artists.artist.aliases.type.name",
+                "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
                 "country_dates.country.area.gid",
@@ -376,6 +393,8 @@ SearchRelease = E(modelext.CustomRelease, [
                 "packaging.name",
                 "release_group.comment",
                 "release_group.name",
+                "release_group.type.gid",
+                "release_group.secondary_types.secondary_type.gid",
                 "language.iso_code_3",
                 "tags.count"]
 )
@@ -411,7 +430,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.artist.comment",
-                "tags.count"
+                "tags.count", "type.gid",
+                "secondary_types.secondary_type.gid"
                 ]
 )
 
@@ -442,10 +462,12 @@ SearchArtist = E(modelext.CustomArtist, [
     1.5,
     convert.convert_artist,
     extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.type.name", "aliases.type.id",
+                "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "begin_area.gid", "area.gid", "end_area.gid"]
+                "begin_area.gid", "area.gid", "end_area.gid",
+                "type.gid"]
 )
 
 
@@ -461,9 +483,10 @@ SearchSeries = E(modelext.CustomSeries, [
     1.5,
     convert.convert_series,
     extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id", "aliases.sort_name",
+                "aliases.type.name", "aliases.type.id",
+                "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date"]
+                "aliases.begin_date", "aliases.end_date", "type.gid"]
 )
 
 
@@ -493,15 +516,20 @@ SearchWork = E(modelext.CustomWork, [
     1.5,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.type.gid",
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "artist_links.link.link_type.name",
+                "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
+                "artist_links.link.attributes.attribute_type.gid",
                 "recording_links.link.link_type.name",
+                "recording_links.link.link_type.gid",
                 "recording_links.link.attributes.attribute_type.name",
+                "recording_links.link.attributes.attribute_type.gid",
                 "recording_links.recording.video",
-                "tags.count"]
+                "tags.count", "type.gid"]
 )
 
 
@@ -521,7 +549,9 @@ SearchUrl = E(modelext.CustomURL, [
                 "artist_links.artist.sort_name",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
-                "artist_links.link.attributes.attribute_type.name"]
+                "artist_links.link.attributes.attribute_type.name",
+                "artist_links.link.attributes.attribute_type.gid",
+                ]
 )
 
 
