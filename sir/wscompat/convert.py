@@ -67,18 +67,18 @@ def _calculate_type_helper(primary_type, secondary_types):
 
     if primary_type.name == 'Album':
         if secondary_types:
-            secondary_type_list = [obj.secondary_type.name
-                                   for obj in secondary_types]
+            secondary_type_list = dict((obj.secondary_type.name, obj.secondary_type)
+                                   for obj in secondary_types)
             # The first type in the ordered secondary type list
             # is returned as the result
             for type_ in SECONDARY_TYPE_ORDER:
                 if type_ in secondary_type_list:
-                    return type_
+                    return secondary_type_list[type_]
     # If primary type is not 'Album' or
     # the secondary type list is empty or does not have
     # values from the predetermined secondary order list
     # return the primary type
-    return primary_type.name
+    return primary_type
 
 
 def calculate_type(primary_type, secondary_types):
@@ -141,6 +141,7 @@ def convert_area_inner(obj):
 
     if obj.type is not None:
         area.set_type(obj.type.name)
+        area.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -238,6 +239,7 @@ def convert_alias(obj):
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
+        alias.set_type_id(obj.type.gid)
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date_year is not None:
@@ -282,6 +284,7 @@ def convert_attribute(obj):
     """
     attribute = models.attributeType()
     attribute.set_valueOf_(obj.attribute_type.name)
+    attribute.set_type_id(obj.attribute_type.gid)
     return attribute
 
 
@@ -544,6 +547,7 @@ def convert_place(obj):
 
     if obj.type is not None:
         place.set_type(obj.type.name)
+        place.set_type_id(obj.type.gid)
 
     return place
 
@@ -643,7 +647,9 @@ def convert_release_group_for_release(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -663,7 +669,9 @@ def convert_release_group_simple(obj):
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -707,6 +715,7 @@ def convert_secondary_type(obj):
     :type obj: :class:`mbdata.models.ReleaseGroupSecondaryTypeJoin`
     """
     secondary_type = models.secondary_type(valueOf_=obj.secondary_type.name)
+    secondary_type.set_id(obj.secondary_type.gid)
     return secondary_type
 
 
@@ -789,6 +798,7 @@ def convert_area(obj):
 
     if obj.type is not None:
         area.set_type(obj.type.name)
+        area.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -827,6 +837,7 @@ def convert_artist(obj):
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
+        artist.set_type_id(obj.type.gid)
 
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
@@ -905,6 +916,7 @@ def convert_event(obj):
 
     if obj.type is not None:
         event.set_type(obj.type.name)
+        event.set_type_id(obj.type.gid)
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     if lifespan.get_begin() is not None or lifespan.get_end() is not None:
@@ -945,6 +957,7 @@ def convert_instrument(obj):
 
     if obj.type is not None:
         instrument.set_type(obj.type.name)
+        instrument.set_type_id(obj.type.gid)
 
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
@@ -963,6 +976,7 @@ def convert_label(obj):
 
     if obj.type is not None:
         label.set_type(obj.type.name)
+        label.set_type_id(obj.type.gid)
 
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
@@ -1102,7 +1116,9 @@ def convert_release_group(obj):
         rg.set_disambiguation(obj.comment)
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        rg.set_type(calculate_type(obj.type, obj.secondary_types))
+        type_ = calculate_type(obj.type, obj.secondary_types)
+        rg.set_type(type_.name)
+        rg.set_type_id(type_.gid)
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -1131,6 +1147,7 @@ def convert_series(obj):
 
     if obj.type:
         series.set_type(obj.type.name)
+        series.set_type_id(obj.type.gid)
 
     return series
 
@@ -1179,6 +1196,7 @@ def convert_work(obj):
             work.set_language('mul')
     if obj.type:
         work.set_type(obj.type.name)
+        work.set_type_id(obj.type.gid)
     if obj.iswcs:
         work.set_iswc_list(convert_iswc_list(obj.iswcs))
 
@@ -1189,7 +1207,7 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(valueOf_=obj.name)
+    return models.primary_type(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_release_status(obj):
