@@ -67,8 +67,8 @@ def _calculate_type_helper(primary_type, secondary_types):
 
     if primary_type.name == 'Album':
         if secondary_types:
-            secondary_type_list = dict([(obj.secondary_type.name, obj.secondary_type)
-                                   for obj in secondary_types])
+            secondary_type_list = dict((obj.secondary_type.name, obj.secondary_type)
+                                   for obj in secondary_types)
             # The first type in the ordered secondary type list
             # is returned as the result
             for type_ in SECONDARY_TYPE_ORDER:
