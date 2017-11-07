@@ -25,7 +25,7 @@ class TriggerGenerator(object):
     # (`update`, `delete`, or `index`)
     routing_key = None
 
-    def __init__(self, table_name, pk_columns, broker_id=1):
+    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1):
         """
         :param str table_name: The table on which to generate the trigger.
         :param pk_columns: List of primary key column names for a table that
@@ -33,7 +33,7 @@ class TriggerGenerator(object):
         :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.table_name = table_name
-        self.reference_columns = pk_columns
+        self.reference_columns = list(set(pk_columns + fk_columns))
         self.reference_columns.sort()
         self.broker_id = broker_id
 
