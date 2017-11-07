@@ -765,7 +765,7 @@ CREATE OR REPLACE FUNCTION search_area_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(area, id, type) AS (SELECT NEW.area, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -776,7 +776,7 @@ CREATE OR REPLACE FUNCTION search_area_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(area, id, type) AS (SELECT NEW.area, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -787,7 +787,7 @@ CREATE OR REPLACE FUNCTION search_area_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(area, id, type) AS (SELECT OLD.area, OLD.id, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -798,7 +798,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_1_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_1"')::text FROM keys
         ));
     RETURN NEW;
@@ -809,7 +809,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_1_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_1"')::text FROM keys
         ));
     RETURN NEW;
@@ -820,7 +820,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_1_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT OLD.code)
+            WITH keys(area, code) AS (SELECT OLD.area, OLD.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_1"')::text FROM keys
         ));
     RETURN OLD;
@@ -831,7 +831,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_2_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_2"')::text FROM keys
         ));
     RETURN NEW;
@@ -842,7 +842,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_2_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_2"')::text FROM keys
         ));
     RETURN NEW;
@@ -853,7 +853,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_2_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT OLD.code)
+            WITH keys(area, code) AS (SELECT OLD.area, OLD.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_2"')::text FROM keys
         ));
     RETURN OLD;
@@ -864,7 +864,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_3_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_3"')::text FROM keys
         ));
     RETURN NEW;
@@ -875,7 +875,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_3_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT NEW.code)
+            WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_3"')::text FROM keys
         ));
     RETURN NEW;
@@ -886,7 +886,7 @@ CREATE OR REPLACE FUNCTION search_iso_3166_3_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(code) AS (SELECT OLD.code)
+            WITH keys(area, code) AS (SELECT OLD.area, OLD.code)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_3"')::text FROM keys
         ));
     RETURN OLD;
@@ -963,7 +963,7 @@ CREATE OR REPLACE FUNCTION search_area_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -974,7 +974,7 @@ CREATE OR REPLACE FUNCTION search_area_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -985,7 +985,7 @@ CREATE OR REPLACE FUNCTION search_area_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"area_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -996,7 +996,7 @@ CREATE OR REPLACE FUNCTION search_artist_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(artist, id, type) AS (SELECT NEW.artist, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1007,7 +1007,7 @@ CREATE OR REPLACE FUNCTION search_artist_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(artist, id, type) AS (SELECT NEW.artist, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1018,7 +1018,7 @@ CREATE OR REPLACE FUNCTION search_artist_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(artist, id, type) AS (SELECT OLD.artist, OLD.id, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -1029,7 +1029,7 @@ CREATE OR REPLACE FUNCTION search_gender_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"gender"')::text FROM keys
         ));
     RETURN NEW;
@@ -1040,7 +1040,7 @@ CREATE OR REPLACE FUNCTION search_gender_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"gender"')::text FROM keys
         ));
     RETURN NEW;
@@ -1051,7 +1051,7 @@ CREATE OR REPLACE FUNCTION search_gender_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"gender"')::text FROM keys
         ));
     RETURN OLD;
@@ -1161,7 +1161,7 @@ CREATE OR REPLACE FUNCTION search_artist_credit_name_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(artist_credit, position) AS (SELECT NEW.artist_credit, NEW.position)
+            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"')::text FROM keys
         ));
     RETURN NEW;
@@ -1172,7 +1172,7 @@ CREATE OR REPLACE FUNCTION search_artist_credit_name_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(artist_credit, position) AS (SELECT NEW.artist_credit, NEW.position)
+            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"')::text FROM keys
         ));
     RETURN NEW;
@@ -1183,7 +1183,7 @@ CREATE OR REPLACE FUNCTION search_artist_credit_name_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(artist_credit, position) AS (SELECT OLD.artist_credit, OLD.position)
+            WITH keys(artist, artist_credit, position) AS (SELECT OLD.artist, OLD.artist_credit, OLD.position)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"')::text FROM keys
         ));
     RETURN OLD;
@@ -1227,7 +1227,7 @@ CREATE OR REPLACE FUNCTION search_artist_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1238,7 +1238,7 @@ CREATE OR REPLACE FUNCTION search_artist_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1249,7 +1249,7 @@ CREATE OR REPLACE FUNCTION search_artist_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"artist_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -1293,7 +1293,7 @@ CREATE OR REPLACE FUNCTION search_cdtoc_raw_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, release) AS (SELECT NEW.id, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"cdtoc_raw"')::text FROM keys
         ));
     RETURN NEW;
@@ -1304,7 +1304,7 @@ CREATE OR REPLACE FUNCTION search_cdtoc_raw_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, release) AS (SELECT NEW.id, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"cdtoc_raw"')::text FROM keys
         ));
     RETURN NEW;
@@ -1315,7 +1315,7 @@ CREATE OR REPLACE FUNCTION search_cdtoc_raw_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, release) AS (SELECT OLD.id, OLD.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"cdtoc_raw"')::text FROM keys
         ));
     RETURN OLD;
@@ -1359,7 +1359,7 @@ CREATE OR REPLACE FUNCTION search_event_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(event, id, type) AS (SELECT NEW.event, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1370,7 +1370,7 @@ CREATE OR REPLACE FUNCTION search_event_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(event, id, type) AS (SELECT NEW.event, NEW.id, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1381,7 +1381,7 @@ CREATE OR REPLACE FUNCTION search_event_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(event, id, type) AS (SELECT OLD.event, OLD.id, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -1392,7 +1392,7 @@ CREATE OR REPLACE FUNCTION search_l_area_event_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_area_event"')::text FROM keys
         ));
     RETURN NEW;
@@ -1403,7 +1403,7 @@ CREATE OR REPLACE FUNCTION search_l_area_event_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_area_event"')::text FROM keys
         ));
     RETURN NEW;
@@ -1414,7 +1414,7 @@ CREATE OR REPLACE FUNCTION search_l_area_event_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_area_event"')::text FROM keys
         ));
     RETURN OLD;
@@ -1425,7 +1425,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_event_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_event"')::text FROM keys
         ));
     RETURN NEW;
@@ -1436,7 +1436,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_event_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_event"')::text FROM keys
         ));
     RETURN NEW;
@@ -1447,7 +1447,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_event_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_event"')::text FROM keys
         ));
     RETURN OLD;
@@ -1458,7 +1458,7 @@ CREATE OR REPLACE FUNCTION search_l_event_place_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_event_place"')::text FROM keys
         ));
     RETURN NEW;
@@ -1469,7 +1469,7 @@ CREATE OR REPLACE FUNCTION search_l_event_place_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_event_place"')::text FROM keys
         ));
     RETURN NEW;
@@ -1480,7 +1480,7 @@ CREATE OR REPLACE FUNCTION search_l_event_place_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_event_place"')::text FROM keys
         ));
     RETURN OLD;
@@ -1524,7 +1524,7 @@ CREATE OR REPLACE FUNCTION search_event_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1535,7 +1535,7 @@ CREATE OR REPLACE FUNCTION search_event_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1546,7 +1546,7 @@ CREATE OR REPLACE FUNCTION search_event_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"event_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -1557,7 +1557,7 @@ CREATE OR REPLACE FUNCTION search_instrument_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, instrument, type) AS (SELECT NEW.id, NEW.instrument, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1568,7 +1568,7 @@ CREATE OR REPLACE FUNCTION search_instrument_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, instrument, type) AS (SELECT NEW.id, NEW.instrument, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1579,7 +1579,7 @@ CREATE OR REPLACE FUNCTION search_instrument_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, instrument, type) AS (SELECT OLD.id, OLD.instrument, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -1623,7 +1623,7 @@ CREATE OR REPLACE FUNCTION search_instrument_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1634,7 +1634,7 @@ CREATE OR REPLACE FUNCTION search_instrument_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1645,7 +1645,7 @@ CREATE OR REPLACE FUNCTION search_instrument_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"instrument_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -1656,7 +1656,7 @@ CREATE OR REPLACE FUNCTION search_label_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, label, type) AS (SELECT NEW.id, NEW.label, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1667,7 +1667,7 @@ CREATE OR REPLACE FUNCTION search_label_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, label, type) AS (SELECT NEW.id, NEW.label, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1678,7 +1678,7 @@ CREATE OR REPLACE FUNCTION search_label_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, label, type) AS (SELECT OLD.id, OLD.label, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -1755,7 +1755,7 @@ CREATE OR REPLACE FUNCTION search_label_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1766,7 +1766,7 @@ CREATE OR REPLACE FUNCTION search_label_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1777,7 +1777,7 @@ CREATE OR REPLACE FUNCTION search_label_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"label_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -1788,7 +1788,7 @@ CREATE OR REPLACE FUNCTION search_place_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, place, type) AS (SELECT NEW.id, NEW.place, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1799,7 +1799,7 @@ CREATE OR REPLACE FUNCTION search_place_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, place, type) AS (SELECT NEW.id, NEW.place, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -1810,7 +1810,7 @@ CREATE OR REPLACE FUNCTION search_place_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, place, type) AS (SELECT OLD.id, OLD.place, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -1821,7 +1821,7 @@ CREATE OR REPLACE FUNCTION search_place_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1832,7 +1832,7 @@ CREATE OR REPLACE FUNCTION search_place_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -1843,7 +1843,7 @@ CREATE OR REPLACE FUNCTION search_place_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"place_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -1854,7 +1854,7 @@ CREATE OR REPLACE FUNCTION search_track_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(artist_credit, id, medium, recording) AS (SELECT NEW.artist_credit, NEW.id, NEW.medium, NEW.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"track"')::text FROM keys
         ));
     RETURN NEW;
@@ -1865,7 +1865,7 @@ CREATE OR REPLACE FUNCTION search_track_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(artist_credit, id, medium, recording) AS (SELECT NEW.artist_credit, NEW.id, NEW.medium, NEW.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"track"')::text FROM keys
         ));
     RETURN NEW;
@@ -1876,7 +1876,7 @@ CREATE OR REPLACE FUNCTION search_track_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(artist_credit, id, medium, recording) AS (SELECT OLD.artist_credit, OLD.id, OLD.medium, OLD.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"track"')::text FROM keys
         ));
     RETURN OLD;
@@ -1887,7 +1887,7 @@ CREATE OR REPLACE FUNCTION search_medium_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(format, id, release) AS (SELECT NEW.format, NEW.id, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium"')::text FROM keys
         ));
     RETURN NEW;
@@ -1898,7 +1898,7 @@ CREATE OR REPLACE FUNCTION search_medium_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(format, id, release) AS (SELECT NEW.format, NEW.id, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium"')::text FROM keys
         ));
     RETURN NEW;
@@ -1909,7 +1909,7 @@ CREATE OR REPLACE FUNCTION search_medium_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(format, id, release) AS (SELECT OLD.format, OLD.id, OLD.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium"')::text FROM keys
         ));
     RETURN OLD;
@@ -1986,7 +1986,7 @@ CREATE OR REPLACE FUNCTION search_medium_format_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_format"')::text FROM keys
         ));
     RETURN NEW;
@@ -1997,7 +1997,7 @@ CREATE OR REPLACE FUNCTION search_medium_format_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_format"')::text FROM keys
         ));
     RETURN NEW;
@@ -2008,7 +2008,7 @@ CREATE OR REPLACE FUNCTION search_medium_format_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_format"')::text FROM keys
         ));
     RETURN OLD;
@@ -2019,7 +2019,7 @@ CREATE OR REPLACE FUNCTION search_isrc_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, recording) AS (SELECT NEW.id, NEW.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"isrc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2030,7 +2030,7 @@ CREATE OR REPLACE FUNCTION search_isrc_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, recording) AS (SELECT NEW.id, NEW.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"isrc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2041,7 +2041,7 @@ CREATE OR REPLACE FUNCTION search_isrc_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, recording) AS (SELECT OLD.id, OLD.recording)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"isrc"')::text FROM keys
         ));
     RETURN OLD;
@@ -2052,7 +2052,7 @@ CREATE OR REPLACE FUNCTION search_release_group_primary_type_insert() RETURNS tr
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_primary_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2063,7 +2063,7 @@ CREATE OR REPLACE FUNCTION search_release_group_primary_type_update() RETURNS tr
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_primary_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2074,7 +2074,7 @@ CREATE OR REPLACE FUNCTION search_release_group_primary_type_delete() RETURNS tr
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_primary_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -2118,7 +2118,7 @@ CREATE OR REPLACE FUNCTION search_release_group_secondary_type_insert() RETURNS 
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_secondary_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2129,7 +2129,7 @@ CREATE OR REPLACE FUNCTION search_release_group_secondary_type_update() RETURNS 
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_secondary_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2140,7 +2140,7 @@ CREATE OR REPLACE FUNCTION search_release_group_secondary_type_delete() RETURNS 
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_group_secondary_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -2151,7 +2151,7 @@ CREATE OR REPLACE FUNCTION search_release_status_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_status"')::text FROM keys
         ));
     RETURN NEW;
@@ -2162,7 +2162,7 @@ CREATE OR REPLACE FUNCTION search_release_status_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_status"')::text FROM keys
         ));
     RETURN NEW;
@@ -2173,7 +2173,7 @@ CREATE OR REPLACE FUNCTION search_release_status_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_status"')::text FROM keys
         ));
     RETURN OLD;
@@ -2250,7 +2250,7 @@ CREATE OR REPLACE FUNCTION search_release_label_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, label, release) AS (SELECT NEW.id, NEW.label, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_label"')::text FROM keys
         ));
     RETURN NEW;
@@ -2261,7 +2261,7 @@ CREATE OR REPLACE FUNCTION search_release_label_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, label, release) AS (SELECT NEW.id, NEW.label, NEW.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_label"')::text FROM keys
         ));
     RETURN NEW;
@@ -2272,7 +2272,7 @@ CREATE OR REPLACE FUNCTION search_release_label_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, label, release) AS (SELECT OLD.id, OLD.label, OLD.release)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"release_label"')::text FROM keys
         ));
     RETURN OLD;
@@ -2283,7 +2283,7 @@ CREATE OR REPLACE FUNCTION search_medium_cdtoc_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(cdtoc, id, medium) AS (SELECT NEW.cdtoc, NEW.id, NEW.medium)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2294,7 +2294,7 @@ CREATE OR REPLACE FUNCTION search_medium_cdtoc_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(cdtoc, id, medium) AS (SELECT NEW.cdtoc, NEW.id, NEW.medium)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2305,7 +2305,7 @@ CREATE OR REPLACE FUNCTION search_medium_cdtoc_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(cdtoc, id, medium) AS (SELECT OLD.cdtoc, OLD.id, OLD.medium)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"')::text FROM keys
         ));
     RETURN OLD;
@@ -2448,7 +2448,7 @@ CREATE OR REPLACE FUNCTION search_series_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, series, type) AS (SELECT NEW.id, NEW.series, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -2459,7 +2459,7 @@ CREATE OR REPLACE FUNCTION search_series_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, series, type) AS (SELECT NEW.id, NEW.series, NEW.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -2470,7 +2470,7 @@ CREATE OR REPLACE FUNCTION search_series_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, series, type) AS (SELECT OLD.id, OLD.series, OLD.type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -2481,7 +2481,7 @@ CREATE OR REPLACE FUNCTION search_link_attribute_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent, root) AS (SELECT NEW.id, NEW.parent, NEW.root)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2492,7 +2492,7 @@ CREATE OR REPLACE FUNCTION search_link_attribute_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent, root) AS (SELECT NEW.id, NEW.parent, NEW.root)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2503,7 +2503,7 @@ CREATE OR REPLACE FUNCTION search_link_attribute_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent, root) AS (SELECT OLD.id, OLD.parent, OLD.root)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -2547,7 +2547,7 @@ CREATE OR REPLACE FUNCTION search_series_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2558,7 +2558,7 @@ CREATE OR REPLACE FUNCTION search_series_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2569,7 +2569,7 @@ CREATE OR REPLACE FUNCTION search_series_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"series_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -2613,7 +2613,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_url_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_url"')::text FROM keys
         ));
     RETURN NEW;
@@ -2624,7 +2624,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_url_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_url"')::text FROM keys
         ));
     RETURN NEW;
@@ -2635,7 +2635,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_url_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_url"')::text FROM keys
         ));
     RETURN OLD;
@@ -2646,7 +2646,7 @@ CREATE OR REPLACE FUNCTION search_link_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, link_type) AS (SELECT NEW.id, NEW.link_type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link"')::text FROM keys
         ));
     RETURN NEW;
@@ -2657,7 +2657,7 @@ CREATE OR REPLACE FUNCTION search_link_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, link_type) AS (SELECT NEW.id, NEW.link_type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link"')::text FROM keys
         ));
     RETURN NEW;
@@ -2668,7 +2668,7 @@ CREATE OR REPLACE FUNCTION search_link_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, link_type) AS (SELECT OLD.id, OLD.link_type)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link"')::text FROM keys
         ));
     RETURN OLD;
@@ -2679,7 +2679,7 @@ CREATE OR REPLACE FUNCTION search_link_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2690,7 +2690,7 @@ CREATE OR REPLACE FUNCTION search_link_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2701,7 +2701,7 @@ CREATE OR REPLACE FUNCTION search_link_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"link_type"')::text FROM keys
         ));
     RETURN OLD;
@@ -2712,7 +2712,7 @@ CREATE OR REPLACE FUNCTION search_work_alias_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, type, work) AS (SELECT NEW.id, NEW.type, NEW.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -2723,7 +2723,7 @@ CREATE OR REPLACE FUNCTION search_work_alias_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, type, work) AS (SELECT NEW.id, NEW.type, NEW.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_alias"')::text FROM keys
         ));
     RETURN NEW;
@@ -2734,7 +2734,7 @@ CREATE OR REPLACE FUNCTION search_work_alias_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, type, work) AS (SELECT OLD.id, OLD.type, OLD.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_alias"')::text FROM keys
         ));
     RETURN OLD;
@@ -2745,7 +2745,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_work_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_work"')::text FROM keys
         ));
     RETURN NEW;
@@ -2756,7 +2756,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_work_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_work"')::text FROM keys
         ));
     RETURN NEW;
@@ -2767,7 +2767,7 @@ CREATE OR REPLACE FUNCTION search_l_artist_work_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_work"')::text FROM keys
         ));
     RETURN OLD;
@@ -2778,7 +2778,7 @@ CREATE OR REPLACE FUNCTION search_iswc_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, work) AS (SELECT NEW.id, NEW.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iswc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2789,7 +2789,7 @@ CREATE OR REPLACE FUNCTION search_iswc_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, work) AS (SELECT NEW.id, NEW.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iswc"')::text FROM keys
         ));
     RETURN NEW;
@@ -2800,7 +2800,7 @@ CREATE OR REPLACE FUNCTION search_iswc_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, work) AS (SELECT OLD.id, OLD.work)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"iswc"')::text FROM keys
         ));
     RETURN OLD;
@@ -2844,7 +2844,7 @@ CREATE OR REPLACE FUNCTION search_l_recording_work_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_recording_work"')::text FROM keys
         ));
     RETURN NEW;
@@ -2855,7 +2855,7 @@ CREATE OR REPLACE FUNCTION search_l_recording_work_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_recording_work"')::text FROM keys
         ));
     RETURN NEW;
@@ -2866,7 +2866,7 @@ CREATE OR REPLACE FUNCTION search_l_recording_work_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"l_recording_work"')::text FROM keys
         ));
     RETURN OLD;
@@ -2910,7 +2910,7 @@ CREATE OR REPLACE FUNCTION search_work_type_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2921,7 +2921,7 @@ CREATE OR REPLACE FUNCTION search_work_type_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
+            WITH keys(id, parent) AS (SELECT NEW.id, NEW.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_type"')::text FROM keys
         ));
     RETURN NEW;
@@ -2932,7 +2932,7 @@ CREATE OR REPLACE FUNCTION search_work_type_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
+            WITH keys(id, parent) AS (SELECT OLD.id, OLD.parent)
             SELECT jsonb_set(to_jsonb(keys), '{_table}', '"work_type"')::text FROM keys
         ));
     RETURN OLD;
