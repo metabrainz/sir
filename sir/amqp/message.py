@@ -6,7 +6,7 @@
 This module contains functions and classes to parse and represent the content
 of an AMQP message.
 """
-from sir.trigger_generation.sql_generator import MSG_JSON_TABLE_NAME_KEY
+from sir.trigger_generation.sql_generator import MSG_JSON_TABLE_NAME_KEY, MSG_JSON_OPERATION_TYPE
 from enum import Enum
 from sir.schema import SCHEMA
 import ujson
@@ -24,7 +24,7 @@ class Message(object):
     A parsed message from AMQP.
     """
 
-    def __init__(self, message_type, table_name, columns):
+    def __init__(self, message_type, table_name, columns, operation):
         """
         Construct a new message object.
 
@@ -39,6 +39,7 @@ class Message(object):
         self.message_type = message_type
         self.table_name = table_name
         self.columns = columns
+        self.operation = operation
 
     @classmethod
     def from_amqp_message(cls, queue_name, amqp_message):
@@ -59,6 +60,7 @@ class Message(object):
         except StandardError as e:
             raise InvalidMessageContentException("Invalid message format (expected JSON): %s" % e)
         table_name = data.pop(MSG_JSON_TABLE_NAME_KEY, None)
+
         if not table_name:
             raise InvalidMessageContentException("Table name is missing")
 
@@ -68,7 +70,8 @@ class Message(object):
             # queue it will be a GID value.
             raise InvalidMessageContentException("Reference values are not specified")
 
-        return cls(message_type, table_name, columns=data)
+        operation = data.pop(MSG_JSON_OPERATION_TYPE, "")
+        return cls(message_type, table_name, data, operation)
 
 
 class InvalidMessageContentException(ValueError):
