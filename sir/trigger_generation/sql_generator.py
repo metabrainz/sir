@@ -99,7 +99,8 @@ class TriggerGenerator(object):
     def message(self):
         return """
             WITH keys({column_keys}) AS ({select})
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"'), '{{{operation_type}}}', '"{operation}"')::text FROM keys
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"'),
+                             '{{{operation_type}}}', '"{operation}"')::text FROM keys
         """.format(
                 table_name=self.table_name,
                 column_keys=", ".join(self.reference_columns),
