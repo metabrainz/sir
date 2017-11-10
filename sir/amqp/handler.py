@@ -4,7 +4,7 @@
 # License: MIT, see LICENSE for details
 from sir.amqp import message
 from sir import get_sentry, config
-from sir.schema import SCHEMA, generate_update_map
+from sir.schema import SCHEMA, generate_update_map, generate_model_map
 from sir.indexing import send_data_to_solr
 from sir.trigger_generation.paths import generate_selection
 from sir.util import (create_amqp_connection,
@@ -26,7 +26,7 @@ __all__ = ["callback_wrapper", "watch", "Handler"]
 logger = getLogger("sir")
 
 update_map = generate_update_map()
-
+model_map = generate_model_map()
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
 
@@ -132,53 +132,9 @@ class Handler(object):
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
-
-        for core_name, path in update_map[parsed_message.table_name]:
-            # Going through each core/entity that needs to be updated
-            # depending on which table we receive a message from.
-            entity = SCHEMA[core_name]
-            query = entity.query
-
-            with db_session_ctx(self.db_session) as session:
-
-                if path is None:
-                    # If `path` is `None` then we received a message for an entity itself
-                    ids = [parsed_message.columns["id"]]
-                else:
-                    # otherwise it's a different table...
-
-                    # FIXME(roman): Selection below needs to support different sets of PKs for
-                    # both entity tables and other ones. `generate_selection` function might be
-                    # incorrect since it returns just one PK column name. Maybe it doesn't even
-                    # need to return PKs since we have them in the message.
-                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                    select_sql, pk_col_name = generate_selection(entity.model, path)
-                    logger.debug("SQL: %s\nPK: %s" % (select_sql, pk_col_name))
-                    if select_sql is None:
-                        # See generate_selection function implementation for cases when `select_sql`
-                        # value might be None.
-                        logger.warning("SELECT is `None`")
-                        continue
-
-                    # Retrieving PK values of rows in the entity table that need to be updated
-                    if pk_col_name not in parsed_message.columns:
-                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
-                            "stack": True,
-                            "data": {
-                                "parsed_message": vars(parsed_message),
-                                "pk_col_name": pk_col_name,
-                                "select_sql": select_sql,
-                            },
-                        })
-                        continue
-                    result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
-                    ids = [row[0] for row in result.fetchall()]
-
-                # Retrieving actual data
-                condition = and_(entity.model.id.in_(ids))
-                query = query.filter(condition).with_session(session)
-                data = [entity.query_result_to_dict(obj) for obj in query.all()]
-                send_data_to_solr(self.cores[core_name], data)
+        self._index_by_pk(parsed_message)
+        if parsed_message.operation == 'delete':
+            self._index_by_fk(parsed_message)
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
@@ -205,6 +161,89 @@ class Handler(object):
             entity_type=parsed_message.table_name,
             id=parsed_message.columns["gid"]))
         self.cores[parsed_message.table_name].delete(parsed_message.columns["gid"])
+
+    def _index_by_pk(self, parsed_message):
+        for core_name, path in update_map[parsed_message.table_name]:
+            # Going through each core/entity that needs to be updated
+            # depending on which table we receive a message from.
+            entity = SCHEMA[core_name]
+            query = entity.query
+            with db_session_ctx(self.db_session) as session:
+
+                if path is None:
+                    # If `path` is `None` then we received a message for an entity itself
+                    ids = [parsed_message.columns["id"]]
+                else:
+                    # otherwise it's a different table...
+
+                    # FIXME(roman): Selection below needs to support different sets of PKs for
+                    # both entity tables and other ones. `generate_selection` function might be
+                    # incorrect since it returns just one PK column name. Maybe it doesn't even
+                    # need to return PKs since we have them in the message.
+                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                    select_sql, pk_col_name = generate_selection(entity.model, path)
+                    if select_sql is None:
+                        # See generate_selection function implementation for cases when `select_sql`
+                        # value might be None.
+                        logger.warning("SELECT is `None`")
+                        continue
+
+                    # Retrieving PK values of rows in the entity table that need to be updated
+                    if pk_col_name not in parsed_message.columns:
+                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
+                            "stack": True,
+                            "data": {
+                                "parsed_message": vars(parsed_message),
+                                "pk_col_name": pk_col_name,
+                                "select_sql": select_sql,
+                            },
+                        })
+                        continue
+                    result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
+                    ids = [row[0] for row in result.fetchall()]
+
+                # Retrieving actual data
+                condition = and_(entity.model.id.in_(ids))
+                query = query.filter(condition).with_session(session)
+                data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                send_data_to_solr(self.cores[core_name], data)
+
+    def _index_by_fk(self, parsed_message):
+        index_model = model_map[parsed_message.table_name]
+        foreign_keys = [fk.parent.name for fk in index_model.__table__.foreign_keys]
+        for foreign_key in foreign_keys:
+            model_name = getattr(index_model, foreign_key).prop.table.name
+            entities_to_index = [val[0] for val in update_map[parsed_message.table_name]]
+            filtered_update_map = filter(lambda x: x[0] in entities_to_index, update_map[model_name])
+            for core_name, path in filtered_update_map:
+                # Going through each core/entity that needs to be updated
+                # depending on original index model
+                entity = SCHEMA[core_name]
+                query = entity.query
+                if path is None:
+                    # If `path` is `None` then we received a message for an entity itself
+                    ids = [parsed_message.columns[foreign_key]]
+                else:
+                    with db_session_ctx(self.db_session) as session:
+
+                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                        select_sql, pk_col_name = generate_selection(entity.model, path)
+                        if select_sql is None:
+                            # See generate_selection function implementation for cases when `select_sql`
+                            # value might be None.
+                            logger.warning("SELECT is `None`")
+                            continue
+                        if pk_col_name != "id":
+                            continue
+
+                        result = session.execute(select_sql, {"ids": parsed_message.columns[foreign_key]})
+                        ids = [row[0] for row in result.fetchall()]
+
+                # Retrieving actual data
+                condition = and_(entity.model.id.in_(ids))
+                query = query.filter(condition).with_session(session)
+                data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                send_data_to_solr(self.cores[core_name], data)
 
 
 def _should_retry(exc):
