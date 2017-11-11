@@ -42,3 +42,9 @@ class PathsTestCase(unittest.TestCase):
             expected_sql="SELECT artist_credit_name.artist FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids)",
             expected_pk="artist_credit",
         )
+        validate_selection(
+            core_name="recording",
+            path="artist_credit",
+            expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (:ids)",
+            expected_pk="artist_credit",
+        )
