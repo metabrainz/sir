@@ -182,6 +182,7 @@ class Handler(object):
                     # need to return PKs since we have them in the message.
                     logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_sql, pk_col_name = generate_selection(entity.model, path)
+                    logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
                     if select_sql is None:
                         # See generate_selection function implementation for cases when `select_sql`
                         # value might be None.
@@ -228,6 +229,7 @@ class Handler(object):
 
                         logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                         select_sql, pk_col_name = generate_selection(entity.model, path)
+                        logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
                         if select_sql is None:
                             # See generate_selection function implementation for cases when `select_sql`
                             # value might be None.
