@@ -221,31 +221,31 @@ class Handler(object):
                 # depending on original index model
                 entity = SCHEMA[core_name]
                 query = entity.query
-                if path is None:
-                    # If `path` is `None` then we received a message for an entity itself
-                    ids = [parsed_message.columns[foreign_key]]
-                else:
-                    with db_session_ctx(self.db_session) as session:
+                with db_session_ctx(self.db_session) as session:
+                    if path is None:
+                        # If `path` is `None` then we received a message for an entity itself
+                        ids = [parsed_message.columns[foreign_key]]
+                    else:
 
-                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                        select_sql, pk_col_name = generate_selection(entity.model, path)
-                        logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
-                        if select_sql is None:
-                            # See generate_selection function implementation for cases when `select_sql`
-                            # value might be None.
-                            logger.warning("SELECT is `None`")
-                            continue
-                        if pk_col_name != "id":
-                            continue
+                            logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                            select_sql, pk_col_name = generate_selection(entity.model, path)
+                            logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
+                            if select_sql is None:
+                                # See generate_selection function implementation for cases when `select_sql`
+                                # value might be None.
+                                logger.warning("SELECT is `None`")
+                                continue
+                            if pk_col_name != "id":
+                                continue
 
-                        result = session.execute(select_sql, {"ids": parsed_message.columns[foreign_key]})
-                        ids = [row[0] for row in result.fetchall()]
+                            result = session.execute(select_sql, {"ids": parsed_message.columns[foreign_key]})
+                            ids = [row[0] for row in result.fetchall()]
 
-                # Retrieving actual data
-                condition = and_(entity.model.id.in_(ids))
-                query = query.filter(condition).with_session(session)
-                data = [entity.query_result_to_dict(obj) for obj in query.all()]
-                send_data_to_solr(self.cores[core_name], data)
+                    # Retrieving actual data
+                    condition = and_(entity.model.id.in_(ids))
+                    query = query.filter(condition).with_session(session)
+                    data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                    send_data_to_solr(self.cores[core_name], data)
 
 
 def _should_retry(exc):
