@@ -21,7 +21,7 @@ class PathsTestCase(unittest.TestCase):
         validate_selection(
             core_name="annotation",
             path="releases.release",
-            expected_sql="SELECT release_annotation.annotation FROM musicbrainz.release_annotation WHERE release_annotation.release IN (:ids)",
+            expected_sql="SELECT release_annotation.annotation FROM musicbrainz.release_annotation WHERE release_annotation.release IN (SELECT release_annotation.release FROM musicbrainz.release_annotation WHERE release_annotation.release IN (:ids))",
             expected_pk="id",
         )
         validate_selection(
@@ -46,5 +46,5 @@ class PathsTestCase(unittest.TestCase):
             core_name="recording",
             path="artist_credit",
             expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (:ids)",
-            expected_pk="artist_credit",
+            expected_pk="id",
         )
