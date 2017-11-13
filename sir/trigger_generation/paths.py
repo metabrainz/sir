@@ -237,3 +237,14 @@ def last_model_in_path(model, path):
             return None
 
     return current_model
+
+
+def second_last_model_in_path(model, path):
+    if path is None:
+        return (None, None)
+    current_model = model
+    new_path = ".".join(path.split(".")[:-1])
+    if new_path == "":
+        return (current_model, "")
+    else:
+        return (last_model_in_path(model, new_path), new_path)
