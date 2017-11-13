@@ -28,7 +28,6 @@ from sir.schema import queryext
 from sir.schema import modelext
 from sir.schema import transformfuncs as tfs
 from sir.schema.searchentities import SearchEntity as E, SearchField as F
-from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 from sir.wscompat import convert
 from collections import OrderedDict
 from mbdata import models
@@ -587,6 +586,8 @@ def generate_update_map():
 
     :rtype dict
     """
+    from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
+
     tables = defaultdict(set)
     for core_name, entity in SCHEMA.items():
         # Entity itself:
@@ -594,7 +595,7 @@ def generate_update_map():
         tables[class_mapper(entity.model).mapped_table.name].add((core_name, None))
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
-                                        for path in field.paths]):
+                                        for path in field.paths] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
                 tables[class_mapper(model).mapped_table.name].add((core_name, path))
@@ -607,6 +608,8 @@ def generate_model_map():
 
     :rtype dict
     """
+    from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
+
     tables = dict()
     for core_name, entity in SCHEMA.items():
         # Entity itself:
@@ -614,7 +617,7 @@ def generate_model_map():
         tables[class_mapper(entity.model).mapped_table.name] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
-                                        for path in field.paths]):
+                                        for path in field.paths] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
                 name = class_mapper(model).mapped_table.name
