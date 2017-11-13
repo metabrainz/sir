@@ -108,6 +108,7 @@ class HandlerTest(AmqpTestCase):
             application_headers={},
         )
         self.message.delivery_tag = self.delivery_tag
+        self.message.delivery_info = {"routing_key": self.routing_key}
         self.handler.delete_callback(self.message, "search.delete")
 
         self.handler.cores[self.entity_type].delete.assert_called_once_with(entity_gid)
