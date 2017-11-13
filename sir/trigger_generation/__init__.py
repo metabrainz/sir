@@ -110,7 +110,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
             delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
         delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
-        fk_columns = [fk.parent.name for fk in model.__table__.foreign_keys]
+        fk_columns = [r.key for r in mapper.relationships if r.direction.name == 'MANYTOONE']
     write_triggers_to_file(
         trigger_file=trigger_file,
         function_file=function_file,
