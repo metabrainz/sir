@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map, generate_model_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import generate_selection
+from sir.trigger_generation.paths import generate_selection, second_last_model_in_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -18,6 +18,7 @@ from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
+from sqlalchemy.orm import class_mapper
 from sys import exit
 from urllib2 import URLError
 
@@ -132,9 +133,10 @@ class Handler(object):
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
-        self._index_by_pk(parsed_message)
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
+        else:
+            self._index_by_pk(parsed_message)
 
     @callback_wrapper
     def delete_callback(self, parsed_message):
@@ -160,7 +162,8 @@ class Handler(object):
         logger.debug("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns["gid"]))
-        self.cores[parsed_message.table_name].delete(parsed_message.columns["gid"])
+        self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns["gid"])
+        self._index_by_fk(parsed_message)
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
@@ -211,41 +214,47 @@ class Handler(object):
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
-        foreign_keys = [fk.parent.name for fk in index_model.__table__.foreign_keys]
-        for foreign_key in foreign_keys:
-            model_name = getattr(index_model, foreign_key).prop.table.name
-            entities_to_index = [val[0] for val in update_map[parsed_message.table_name]]
-            filtered_update_map = filter(lambda x: x[0] in entities_to_index, update_map[model_name])
-            for core_name, path in filtered_update_map:
-                # Going through each core/entity that needs to be updated
-                # depending on original index model
-                entity = SCHEMA[core_name]
-                query = entity.query
+        relevant_rels = dict((r.mapper.class_, (r.key, list(r.remote_side)[0]))
+                             for r in class_mapper(index_model).mapper.relationships
+                             if r.direction.name == 'MANYTOONE')
+        for core_name, path in update_map[parsed_message.table_name]:
+            # Going through each core/entity that needs to be updated
+            # depending on original index model
+            entity = SCHEMA[core_name]
+            query = entity.query
+            related_model, new_path = second_last_model_in_path(entity.model, path)
+            if issubclass(related_model, tuple(relevant_rels.keys())):
                 with db_session_ctx(self.db_session) as session:
-                    if path is None:
+                    if new_path is None:
                         # If `path` is `None` then we received a message for an entity itself
-                        ids = [parsed_message.columns[foreign_key]]
+                        ids = [parsed_message.columns['id']]
                     else:
-
-                            logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                            select_sql, pk_col_name = generate_selection(entity.model, path)
-                            logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
-                            if select_sql is None:
+                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
+                        fk_name, remote_key = relevant_rels[related_model]
+                        fk_values = parsed_message.columns[fk_name]
+                        if new_path == "":
+                            try:
+                                filter_expression = remote_key.in_(parsed_message.columns[fk_name])
+                            except TypeError:
+                                filter_expression = remote_key.in_([fk_values])
+                            select_query = session.query(entity.model.id).filter(filter_expression)
+                            if select_query is None:
                                 # See generate_selection function implementation for cases when `select_sql`
                                 # value might be None.
                                 logger.warning("SELECT is `None`")
                                 continue
-                            if pk_col_name != "id":
-                                continue
-
-                            result = session.execute(select_sql, {"ids": parsed_message.columns[foreign_key]})
+                            ids = [row[0] for row in select_query.all()]
+                        else:
+                            select_query, _ = generate_selection(entity.model, new_path)
+                            result = session.execute(select_query, {"ids": parsed_message.columns[fk_name]})
                             ids = [row[0] for row in result.fetchall()]
+                        logger.debug("SQL: %s" % (select_query))
 
-                    # Retrieving actual data
-                    condition = and_(entity.model.id.in_(ids))
-                    query = query.filter(condition).with_session(session)
-                    data = [entity.query_result_to_dict(obj) for obj in query.all()]
-                    send_data_to_solr(self.cores[core_name], data)
+                # Retrieving actual data
+                condition = and_(entity.model.id.in_(ids))
+                query = query.filter(condition).with_session(session)
+                data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                send_data_to_solr(self.cores[core_name], data)
 
 
 def _should_retry(exc):
