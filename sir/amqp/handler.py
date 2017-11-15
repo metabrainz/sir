@@ -214,7 +214,7 @@ class Handler(object):
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
-        relevant_rels = dict((r.mapper.class_, (r.key, list(r.remote_side)[0]))
+        relevant_rels = dict((r.table.name, (r.key, list(r.remote_side)[0]))
                              for r in class_mapper(index_model).mapper.relationships
                              if r.direction.name == 'MANYTOONE')
         for core_name, path in update_map[parsed_message.table_name]:
@@ -223,14 +223,17 @@ class Handler(object):
             entity = SCHEMA[core_name]
             query = entity.query
             related_model, new_path = second_last_model_in_path(entity.model, path)
-            if issubclass(related_model, tuple(relevant_rels.keys())):
+            related_table_name = ""
+            if related_model:
+                related_table_name = class_mapper(related_model).mapped_table.name
+            if related_table_name in relevant_rels:
                 with db_session_ctx(self.db_session) as session:
                     if new_path is None:
                         # If `path` is `None` then we received a message for an entity itself
                         ids = [parsed_message.columns['id']]
                     else:
                         logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
-                        fk_name, remote_key = relevant_rels[related_model]
+                        fk_name, remote_key = relevant_rels[related_table_name]
                         fk_values = parsed_message.columns[fk_name]
                         if new_path == "":
                             try:
