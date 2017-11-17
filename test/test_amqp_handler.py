@@ -8,6 +8,8 @@ import unittest
 from amqp import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
 from sir.amqp import handler
+from sir.amqp.message import Message
+from sir.schema import SCHEMA
 
 
 # Some tests test exception handle which usually generates annoying "no handler
@@ -115,3 +117,27 @@ class HandlerTest(AmqpTestCase):
 
     def test_handler_checks_solr_version(self):
         handler.solr_version_check.assert_called_once_with(self.entity_type)
+
+    def test_index_by_fk(self):
+        columns = {'id': '1',
+                   'area': '2',
+                   'type': '3'}
+        parsed_message = Message(1, 'area_alias', columns, 'delete')
+        handler.SCHEMA = SCHEMA
+        self.handler = handler.Handler()
+        for entity_type, entity in SCHEMA.items():
+            self.handler.cores[entity_type] = mock.Mock()
+            entity.build_entity_query = mock.MagicMock()
+
+        self.handler._index_by_fk(parsed_message)
+        calls = self.handler.db_session().execute.call_args_list
+        self.assertEqual(len(calls), 5)
+        expected_queries = ["SELECT place.id FROM musicbrainz.place WHERE place.area IN (:ids)",
+         "SELECT label.id FROM musicbrainz.label WHERE label.area IN (:ids)",
+         "SELECT artist.id FROM musicbrainz.artist WHERE artist.end_area IN (:ids)",
+         "SELECT artist.id FROM musicbrainz.artist WHERE artist.area IN (:ids)",
+         "SELECT artist.id FROM musicbrainz.artist WHERE artist.begin_area IN (:ids)"]
+        actual_queries = [call[0][0] for call in calls]
+        self.assertEqual(expected_queries, actual_queries)
+        for call in calls:
+            self.assertEqual(call[0][1], {'ids': '2'})
