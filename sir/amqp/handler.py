@@ -4,7 +4,7 @@
 # License: MIT, see LICENSE for details
 from sir.amqp import message
 from sir import get_sentry, config
-from sir.schema import SCHEMA, generate_update_map, generate_model_map
+from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
 from sir.trigger_generation.paths import generate_selection, second_last_model_in_path
 from sir.util import (create_amqp_connection,
@@ -26,8 +26,8 @@ __all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
 
-update_map = generate_update_map()
-model_map = generate_model_map()
+update_map, model_map = generate_update_map()
+
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
 

@@ -580,47 +580,30 @@ def generate_update_map():
     """
     Generates mapping from tables to Solr cores (entities) that depend on
     these tables. In addition provides a path along which data of an
-    entity can be retrieved by performing a set of JOINs.
+    entity can be retrieved by performing a set of JOINs and a map of
+    table names to SQLAlchemy ORM models
 
     Uses paths to determine the dependency.
 
-    :rtype dict
+    :rtype (dict, dict)
     """
     from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 
-    tables = defaultdict(set)
+    paths = defaultdict(set)
+    models = {}
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
-        tables[class_mapper(entity.model).mapped_table.name].add((core_name, None))
-        # Related tables:
-        for path in unique_split_paths([path for field in entity.fields
-                                        for path in field.paths] + [path for path in entity.extrapaths or []]):
-            model = last_model_in_path(entity.model, path)
-            if model is not None:
-                tables[class_mapper(model).mapped_table.name].add((core_name, path))
-    return dict(tables)
-
-
-def generate_model_map():
-    """
-    Generates mapping from table names to SQLAlchemy ORM models.
-
-    :rtype dict
-    """
-    from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
-
-    tables = dict()
-    for core_name, entity in SCHEMA.items():
-        # Entity itself:
-        # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
-        tables[class_mapper(entity.model).mapped_table.name] = entity.model
+        mapped_table = class_mapper(entity.model).mapped_table.name
+        paths[mapped_table].add((core_name, None))
+        models[mapped_table] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
                                         for path in field.paths] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
                 name = class_mapper(model).mapped_table.name
-                if name not in tables:
-                    tables[name] = model
-    return dict(tables)
+                paths[name].add((core_name, path))
+                if name not in models:
+                    models[name] = model
+    return dict(paths), models
