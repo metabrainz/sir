@@ -153,13 +153,8 @@ def generate_selection(base_entity_model, path):
                 # FIXME(roman): What if PK consists of multiple rows?
                 pk = mapper.primary_key[0].name
                 last_pk_name = pk
-                if path_elem_n == path_length:
-                    # FIXME(michael): Why does ColumnPathPart take parameters
-                    # if it only renders ":ids"?
-                    new_path_part = ColumnPathPart("", "")
-                else:
-                    table_name = mapper.mapped_table.name
-                    new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
+                table_name = mapper.mapped_table.name
+                new_path_part = ManyToOnePathPart(table_name, pk, fk_name=column.key)
 
             elif prop.direction == ONETOMANY:
                 remote_side = list(prop.remote_side)[0]
@@ -242,3 +237,29 @@ def last_model_in_path(model, path):
             return None
 
     return current_model
+
+
+def second_last_model_in_path(model, path):
+    """
+    Walk ``path`` beginning at ``model`` and return the second last model
+    in the path.
+
+    We generate SQL queries with the second last model in path, to determine
+    rows that need to be updated when an entity is deleted. Since those rows
+    will be related to the deleted entity by a foreign key.
+
+    Example: If `area_alias` if deleted, `place` needs to be updated via the path
+    `area.aliases`. We can determine the ids of `place` table that need to be udpated,
+    by determining the `area` rows that were affected by the `area_alias` delete.
+
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param str path: The path itself.
+    """
+    if path is None:
+        return (None, None)
+    current_model = model
+    new_path = ".".join(path.split(".")[:-1])
+    if new_path == "":
+        return (current_model, "")
+    else:
+        return (last_model_in_path(model, new_path), new_path)

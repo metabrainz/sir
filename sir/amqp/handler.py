@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import generate_selection
+from sir.trigger_generation.paths import generate_selection, second_last_model_in_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -18,6 +18,7 @@ from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
 from sqlalchemy import and_
+from sqlalchemy.orm import class_mapper
 from sys import exit
 from urllib2 import URLError
 
@@ -25,7 +26,7 @@ __all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
 
-update_map = generate_update_map()
+update_map, model_map = generate_update_map()
 
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
@@ -132,13 +133,44 @@ class Handler(object):
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
+        if parsed_message.operation == 'delete':
+            self._index_by_fk(parsed_message)
+        else:
+            self._index_by_pk(parsed_message)
 
+    @callback_wrapper
+    def delete_callback(self, parsed_message):
+        """
+        Callback for processing `delete` messages.
+
+        Messages for deletion have the following format:
+
+            <table name>, <gid>
+
+        First value is a table name for an entity that has been deleted.
+        Second is GID of the row in that table. For example:
+
+            {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
+
+        This callback function is expected to receive messages only from
+        entity tables all of which have a `gid` column on them.
+
+        :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
+        """
+        if "gid" not in parsed_message.columns:
+            raise ValueError("`gid` column missing from delete message")
+        logger.debug("Deleting {entity_type}: {id}".format(
+            entity_type=parsed_message.table_name,
+            id=parsed_message.columns["gid"]))
+        self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns["gid"])
+        self._index_by_fk(parsed_message)
+
+    def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
             # Going through each core/entity that needs to be updated
             # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
             query = entity.query
-
             with db_session_ctx(self.db_session) as session:
 
                 if path is None:
@@ -153,7 +185,7 @@ class Handler(object):
                     # need to return PKs since we have them in the message.
                     logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_sql, pk_col_name = generate_selection(entity.model, path)
-                    logger.debug("SQL: %s\nPK: %s" % (select_sql, pk_col_name))
+                    logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
                     if select_sql is None:
                         # See generate_selection function implementation for cases when `select_sql`
                         # value might be None.
@@ -180,31 +212,66 @@ class Handler(object):
                 data = [entity.query_result_to_dict(obj) for obj in query.all()]
                 send_data_to_solr(self.cores[core_name], data)
 
-    @callback_wrapper
-    def delete_callback(self, parsed_message):
-        """
-        Callback for processing `delete` messages.
+    def _index_by_fk(self, parsed_message):
+        index_model = model_map[parsed_message.table_name]
+        # We need to construct this since we only need to update tables which
+        # have 'many to one' relationship with the table represented by `index_model`,
+        # since index_by_fk is only called when an entity is deleted and we need
+        # to update the related entities. For 'one to many' relationships, the related
+        # entity would have had an update trigger firing off to unlink the `index_entity`
+        # before `index_entity` itself is deleted, so we can ignore those.
+        relevant_rels = dict((r.table.name, (r.key, list(r.remote_side)[0]))
+                             for r in class_mapper(index_model).mapper.relationships
+                             if r.direction.name == 'MANYTOONE')
+        for core_name, path in update_map[parsed_message.table_name]:
+            # Going through each core/entity that needs to be updated
+            # depending on original index model
+            entity = SCHEMA[core_name]
+            query = entity.query
+            # We are finding the second last model in path, since the rows related to
+            # `index_model` are deleted and the sql query generated from that path
+            # returns no ids, because of the way select query is generated.
+            # We generate sql queries with the second last model in path, since that
+            # will be related to the `index_model` by a FK and we can thus determine
+            # the tables to be updated from the FK values emitted by the delete triggers
+            related_model, new_path = second_last_model_in_path(entity.model, path)
+            related_table_name = ""
+            if related_model:
+                related_table_name = class_mapper(related_model).mapped_table.name
+            if related_table_name in relevant_rels:
+                with db_session_ctx(self.db_session) as session:
+                    if new_path is None:
+                        # If `path` is `None` then we received a message for an entity itself
+                        ids = [parsed_message.columns['id']]
+                    else:
+                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
+                        fk_name, remote_key = relevant_rels[related_table_name]
+                        fk_values = parsed_message.columns[fk_name]
+                        # If `new_path` is blank, then the given table, was directly related to the
+                        # `index_model` by a FK.
+                        if new_path == "":
+                            try:
+                                filter_expression = remote_key.in_(parsed_message.columns[fk_name])
+                            except TypeError:
+                                filter_expression = remote_key.in_([fk_values])
+                            select_query = session.query(entity.model.id).filter(filter_expression)
+                            if select_query is None:
+                                # See generate_selection function implementation for cases when `select_sql`
+                                # value might be None.
+                                logger.warning("SELECT is `None`")
+                                continue
+                            ids = [row[0] for row in select_query.all()]
+                        else:
+                            select_query, _ = generate_selection(entity.model, new_path)
+                            result = session.execute(select_query, {"ids": parsed_message.columns[fk_name]})
+                            ids = [row[0] for row in result.fetchall()]
+                        logger.debug("SQL: %s" % (select_query))
 
-        Messages for deletion have the following format:
-
-            <table name>, <gid>
-
-        First value is a table name for an entity that has been deleted.
-        Second is GID of the row in that table. For example:
-
-            {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
-
-        This callback function is expected to receive messages only from
-        entity tables all of which have a `gid` column on them.
-
-        :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
-        """
-        if "gid" not in parsed_message.columns:
-            raise ValueError("`gid` column missing from delete message")
-        logger.debug("Deleting {entity_type}: {id}".format(
-            entity_type=parsed_message.table_name,
-            id=parsed_message.columns["gid"]))
-        self.cores[parsed_message.table_name].delete(parsed_message.columns["gid"])
+                # Retrieving actual data
+                condition = and_(entity.model.id.in_(ids))
+                query = query.filter(condition).with_session(session)
+                data = [entity.query_result_to_dict(obj) for obj in query.all()]
+                send_data_to_solr(self.cores[core_name], data)
 
 
 def _should_retry(exc):

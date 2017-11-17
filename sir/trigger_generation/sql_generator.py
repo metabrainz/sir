@@ -3,6 +3,7 @@
 import textwrap
 
 MSG_JSON_TABLE_NAME_KEY = "_table"
+MSG_JSON_OPERATION_TYPE = "_operation"
 
 
 class TriggerGenerator(object):
@@ -25,7 +26,7 @@ class TriggerGenerator(object):
     # (`update`, `delete`, or `index`)
     routing_key = None
 
-    def __init__(self, table_name, pk_columns, broker_id=1):
+    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1):
         """
         :param str table_name: The table on which to generate the trigger.
         :param pk_columns: List of primary key column names for a table that
@@ -33,7 +34,7 @@ class TriggerGenerator(object):
         :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.table_name = table_name
-        self.reference_columns = pk_columns
+        self.reference_columns = list(set(pk_columns + fk_columns))
         self.reference_columns.sort()
         self.broker_id = broker_id
 
@@ -98,12 +99,15 @@ class TriggerGenerator(object):
     def message(self):
         return """
             WITH keys({column_keys}) AS ({select})
-            SELECT jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"')::text FROM keys
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"'),
+                             '{{{operation_type}}}', '"{operation}"')::text FROM keys
         """.format(
                 table_name=self.table_name,
                 column_keys=", ".join(self.reference_columns),
                 select=self.selection,
                 table_name_key=MSG_JSON_TABLE_NAME_KEY,  # Assuming that no PK columns have the same name
+                operation_type=MSG_JSON_OPERATION_TYPE,
+                operation=self.op
             )
 
 

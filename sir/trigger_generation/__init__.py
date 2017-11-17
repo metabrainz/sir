@@ -102,7 +102,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
     # Mapper defines correlation of model class attributes to database table columns
     mapper = class_mapper(model)
     table_name = mapper.mapped_table.name
-
+    fk_columns = []
     if is_direct:
         if has_gid:
             delete_trigger_generator = sql_generator.GIDDeleteTriggerGenerator
@@ -110,7 +110,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
             delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
         delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
-
+        fk_columns = [r.key for r in mapper.relationships if r.direction.name == 'MANYTOONE']
     write_triggers_to_file(
         trigger_file=trigger_file,
         function_file=function_file,
@@ -121,6 +121,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
         ],
         table_name=table_name,
         pk_columns=[pk.name for pk in mapper.primary_key],
+        fk_columns=fk_columns,
         **generator_args
     )
 
