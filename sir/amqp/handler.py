@@ -214,6 +214,12 @@ class Handler(object):
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
+        # We need to construct this since we only need to update tables which
+        # have 'many to one' relationship with the table represented by `index_model`,
+        # since index_by_fk is only called when an entity is deleted and we need
+        # to update the related entities. For 'one to many' relationships, the related
+        # entity would have had an update trigger firing off to unlink the `index_entity`
+        # before `index_entity` itself is deleted, so we can ignore those.
         relevant_rels = dict((r.table.name, (r.key, list(r.remote_side)[0]))
                              for r in class_mapper(index_model).mapper.relationships
                              if r.direction.name == 'MANYTOONE')
@@ -222,6 +228,12 @@ class Handler(object):
             # depending on original index model
             entity = SCHEMA[core_name]
             query = entity.query
+            # We are finding the second last model in path, since the rows related to
+            # `index_model` are deleted and the sql query generated from that path
+            # returns no ids, because of the way select query is generated.
+            # We generate sql queries with the second last model in path, since that
+            # will be related to the `index_model` by a FK and we can thus determine
+            # the tables to be updated from the FK values emitted by the delete triggers
             related_model, new_path = second_last_model_in_path(entity.model, path)
             related_table_name = ""
             if related_model:
@@ -235,6 +247,8 @@ class Handler(object):
                         logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
                         fk_values = parsed_message.columns[fk_name]
+                        # If `new_path` is blank, then the given table, was directly related to the
+                        # `index_model` by a FK.
                         if new_path == "":
                             try:
                                 filter_expression = remote_key.in_(parsed_message.columns[fk_name])

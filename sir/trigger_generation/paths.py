@@ -240,6 +240,21 @@ def last_model_in_path(model, path):
 
 
 def second_last_model_in_path(model, path):
+    """
+    Walk ``path`` beginning at ``model`` and return the second last model
+    in the path.
+
+    We generate SQL queries with the second last model in path, to determine
+    rows that need to be updated when an entity is deleted. Since those rows
+    will be related to the deleted entity by a foreign key.
+
+    Example: If `area_alias` if deleted, `place` needs to be updated via the path
+    `area.aliases`. We can determine the ids of `place` table that need to be udpated,
+    by determining the `area` rows that were affected by the `area_alias` delete.
+
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param str path: The path itself.
+    """
     if path is None:
         return (None, None)
     current_model = model
