@@ -36,7 +36,7 @@ _RETRY_WAIT_SECS = 30
 
 # Tables which are core entities, but do not have a guid.
 # These will be deleted via their `id`.
-_ID_DELETE_TABLE_NAMES = ['annotation', 'tags', 'release_raw', 'editor']
+_ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
 
 def callback_wrapper(f):
