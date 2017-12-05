@@ -260,22 +260,20 @@ class Handler(object):
                         fk_values = parsed_message.columns[fk_name]
                         # If `new_path` is blank, then the given table, was directly related to the
                         # `index_model` by a FK.
+                        try:
+                            filter_expression = remote_key.in_(parsed_message.columns[fk_name])
+                        except TypeError:
+                            filter_expression = remote_key.in_([fk_values])
                         if new_path == "":
-                            try:
-                                filter_expression = remote_key.in_(parsed_message.columns[fk_name])
-                            except TypeError:
-                                filter_expression = remote_key.in_([fk_values])
                             select_query = session.query(entity.model.id).filter(filter_expression)
-                            if select_query is None:
-                                # See generate_selection function implementation for cases when `select_sql`
-                                # value might be None.
-                                logger.warning("SELECT is `None`")
-                                continue
-                            ids = [row[0] for row in select_query.all()]
                         else:
-                            select_query, _ = generate_selection(entity.model, new_path)
-                            result = session.execute(select_query, {"ids": parsed_message.columns[fk_name]})
-                            ids = [row[0] for row in result.fetchall()]
+                            select_query = session.query(entity.model.id).join(*new_path.split(".")).filter(filter_expression)
+                        if select_query is None:
+                            # See generate_selection function implementation for cases when `select_sql`
+                            # value might be None.
+                            logger.warning("SELECT is `None`")
+                            continue
+                        ids = [row[0] for row in select_query.all()]
                         logger.debug("SQL: %s" % (select_query))
 
                 # Retrieving actual data
