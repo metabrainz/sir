@@ -34,6 +34,10 @@ _DEFAULT_MB_RETRIES = 4
 #: The number of seconds between each connection attempt to the AMQP server.
 _RETRY_WAIT_SECS = 30
 
+# Tables which are core entities, but do not have a guid.
+# These will be deleted via their `id`.
+_ID_DELETE_TABLE_NAMES = ['annotation', 'tags', 'release_raw', 'editor']
+
 
 def callback_wrapper(f):
     """
@@ -153,16 +157,23 @@ class Handler(object):
             {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
 
         This callback function is expected to receive messages only from
-        entity tables all of which have a `gid` column on them.
+        entity tables all of which have a `gid` column on them except the ones
+        in `_ID_DELETE_TABLE_NAMES` which are deleted via their `id`.
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
+
+        column_name = "gid"
+
         if "gid" not in parsed_message.columns:
-            raise ValueError("`gid` column missing from delete message")
+            if "id" in parsed_message.columns and parsed_message.table_name in _ID_DELETE_TABLE_NAMES:
+                column_name = "id"
+            else:
+                raise ValueError("`gid` column missing from delete message")
         logger.debug("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
-            id=parsed_message.columns["gid"]))
-        self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns["gid"])
+            id=parsed_message.columns[column_name]))
+        self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
     def _index_by_pk(self, parsed_message):
