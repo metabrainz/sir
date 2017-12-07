@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import generate_selection, second_last_model_in_path, last_model_in_path
+from sir.trigger_generation.paths import second_last_model_in_path, last_model_in_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -246,20 +246,14 @@ class Handler(object):
                     else:
                         logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
-                        fk_values = parsed_message.columns[fk_name]
+                        filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
                         # `index_model` by a FK.
-                        try:
-                            filter_expression = remote_key.in_(parsed_message.columns[fk_name])
-                        except TypeError:
-                            filter_expression = remote_key.in_([fk_values])
                         if new_path == "":
                             select_query = session.query(entity.model.id).filter(filter_expression)
                         else:
                             select_query = session.query(entity.model.id).join(*new_path.split(".")).filter(filter_expression)
                         if select_query is None:
-                            # See generate_selection function implementation for cases when `select_sql`
-                            # value might be None.
                             logger.warning("SELECT is `None`")
                             continue
                         ids = [row[0] for row in select_query.all()]
