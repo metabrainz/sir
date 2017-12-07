@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import generate_selection, second_last_model_in_path
+from sir.trigger_generation.paths import generate_selection, second_last_model_in_path, last_model_in_path
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -189,33 +189,22 @@ class Handler(object):
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-
-                    # FIXME(roman): Selection below needs to support different sets of PKs for
-                    # both entity tables and other ones. `generate_selection` function might be
-                    # incorrect since it returns just one PK column name. Maybe it doesn't even
-                    # need to return PKs since we have them in the message.
                     logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                    select_sql, pk_col_name = generate_selection(entity.model, path)
-                    logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
-                    if select_sql is None:
-                        # See generate_selection function implementation for cases when `select_sql`
-                        # value might be None.
+                    last_model = class_mapper(last_model_in_path(entity.model, path))
+                    primary_keys = [(pk, pk.name) for pk in last_model.mapper.primary_key]
+                    filters = [pk.__eq__(parsed_message.columns[pk_name])
+                               for pk, pk_name in primary_keys if pk_name in parsed_message.columns]
+
+                    if not filters:
+                        continue
+                    else:
+                        select_query = session.query(entity.model.id).join(*path.split(".")).filter(*filters)
+                        logger.debug("SQL: %s" % select_query)
+                    if select_query is None:
                         logger.warning("SELECT is `None`")
                         continue
-
-                    # Retrieving PK values of rows in the entity table that need to be updated
-                    if pk_col_name not in parsed_message.columns:
-                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
-                            "stack": True,
-                            "data": {
-                                "parsed_message": vars(parsed_message),
-                                "pk_col_name": pk_col_name,
-                                "select_sql": select_sql,
-                            },
-                        })
-                        continue
-                    result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
-                    ids = [row[0] for row in result.fetchall()]
+                    else:
+                        ids = [row[0] for row in select_query.all()]
 
                 # Retrieving actual data
                 condition = and_(entity.model.id.in_(ids))
