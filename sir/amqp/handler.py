@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import second_last_model_in_path, last_model_in_path
+from sir.trigger_generation.paths import second_last_model_in_path, last_model_in_path, generate_query
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -198,13 +198,13 @@ class Handler(object):
                     if not filters:
                         continue
                     else:
-                        select_query = session.query(entity.model.id).join(*path.split(".")).filter(*filters)
+                        select_query = generate_query(entity.model, path, filters)
                         logger.debug("SQL: %s" % select_query)
                     if select_query is None:
                         logger.warning("SELECT is `None`")
                         continue
                     else:
-                        ids = [row[0] for row in select_query.all()]
+                        ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
                 condition = and_(entity.model.id.in_(ids))
@@ -249,14 +249,11 @@ class Handler(object):
                         filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
                         # `index_model` by a FK.
-                        if new_path == "":
-                            select_query = session.query(entity.model.id).filter(filter_expression)
-                        else:
-                            select_query = session.query(entity.model.id).join(*new_path.split(".")).filter(filter_expression)
+                        select_query = generate_query(entity.model, new_path, filter_expression)
                         if select_query is None:
                             logger.warning("SELECT is `None`")
                             continue
-                        ids = [row[0] for row in select_query.all()]
+                        ids = [row[0] for row in session.execute(select_query).fetchall()]
                         logger.debug("SQL: %s" % (select_query))
 
                 # Retrieving actual data

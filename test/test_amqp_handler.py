@@ -117,3 +117,40 @@ class HandlerTest(AmqpTestCase):
 
     def test_handler_checks_solr_version(self):
         handler.solr_version_check.assert_called_once_with(self.entity_type)
+
+    def test_index_by_fk(self):
+        columns = {'id': '1',
+                   'area': '2',
+                   'type': '3'}
+        parsed_message = Message(1, 'area_alias', columns, 'delete')
+        handler.SCHEMA = SCHEMA
+        self.handler = handler.Handler()
+        for entity_type, entity in SCHEMA.items():
+            self.handler.cores[entity_type] = mock.Mock()
+            entity.build_entity_query = mock.MagicMock()
+
+        self.handler._index_by_fk(parsed_message)
+        calls = self.handler.db_session().execute.call_args_list
+        self.assertEqual(len(calls), 6)
+        actual_queries = [str(call[0][0]) for call in calls]
+        expected_queries = [
+            'SELECT musicbrainz.place.id AS musicbrainz_place_id \n'
+            'FROM musicbrainz.place JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.place.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.label.id AS musicbrainz_label_id \n'
+            'FROM musicbrainz.label JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.label.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.end_area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.begin_area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.area.id AS musicbrainz_area_id \n'
+            'FROM musicbrainz.area \n'
+            'WHERE musicbrainz.area.id = :id_1']
+
+        self.assertEqual(expected_queries, actual_queries)
