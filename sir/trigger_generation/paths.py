@@ -1,5 +1,6 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
@@ -7,6 +8,14 @@ from sqlalchemy.orm.descriptor_props import CompositeProperty
 
 
 def generate_query(model, path, filters=None):
+    """
+    Generate a SELECT query to fetch `model` ids along the path with given
+    `filters` on the last model in `path`.
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param path:
+    :param [sqlalchemy.sql.expression.BinaryExpression] filters:
+    :rtype: A :ref:`sqlalchemy.orm.query.Query` object
+    """
     query = Query(model.id)
     if path:
         query = query.join(*path.split("."))
@@ -16,6 +25,29 @@ def generate_query(model, path, filters=None):
         else:
             query = query.filter(filters)
     return query
+
+
+def generate_filtered_query(model, path, emitted_keys):
+    """
+    Generate a query filtered on the primary key of the last model
+    in path.
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
+    :param path:
+    :param dict emitted_keys: A `dict` containing the key value
+                              pairs emitted from the trigger.
+    :rtype: A :ref:`sqlalchemy.orm.query.Query` object
+    """
+    last_model = class_mapper(last_model_in_path(model, path))
+    filters = []
+    if last_model:
+        primary_keys = [(pk, pk.name) for pk in last_model.mapper.primary_key]
+        filters = [pk.__eq__(emitted_keys[pk_name])
+                   for pk, pk_name in primary_keys if pk_name in emitted_keys]
+
+    if not filters:
+        return None
+    else:
+        return generate_query(model, path, filters)
 
 
 def unique_split_paths(paths):
