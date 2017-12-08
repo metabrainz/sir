@@ -110,7 +110,11 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
             delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
         delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
-        fk_columns = [r.key for r in mapper.relationships if r.direction.name == 'MANYTOONE']
+        # Since mbdata has some instrumented attributes
+        # in case the table does not have a given column, it causes problems with table updates
+        actual_columns = [r.key for r in mapper.tables[0].columns if r.foreign_keys]
+        fk_columns = [r.key for r in mapper.relationships
+                      if r.direction.name == 'MANYTOONE' and r.key in actual_columns]
     write_triggers_to_file(
         trigger_file=trigger_file,
         function_file=function_file,
