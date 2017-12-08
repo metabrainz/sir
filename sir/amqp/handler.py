@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import second_last_model_in_path, last_model_in_path, generate_query
+from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -190,20 +190,12 @@ class Handler(object):
                 else:
                     # otherwise it's a different table...
                     logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                    last_model = class_mapper(last_model_in_path(entity.model, path))
-                    primary_keys = [(pk, pk.name) for pk in last_model.mapper.primary_key]
-                    filters = [pk.__eq__(parsed_message.columns[pk_name])
-                               for pk, pk_name in primary_keys if pk_name in parsed_message.columns]
-
-                    if not filters:
-                        continue
-                    else:
-                        select_query = generate_query(entity.model, path, filters)
-                        logger.debug("SQL: %s" % select_query)
+                    select_query = generate_filtered_query(entity.model, path, parsed_message.columns)
                     if select_query is None:
                         logger.warning("SELECT is `None`")
                         continue
                     else:
+                        logger.debug("SQL: %s" % select_query)
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
