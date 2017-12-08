@@ -2418,7 +2418,7 @@ CREATE OR REPLACE FUNCTION search_release_meta_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id, release) AS (SELECT NEW.id, NEW.release)
+            WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_meta"'),
                              '{_operation}', '"insert"')::text FROM keys
         ));
@@ -2430,7 +2430,7 @@ CREATE OR REPLACE FUNCTION search_release_meta_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id, release) AS (SELECT NEW.id, NEW.release)
+            WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_meta"'),
                              '{_operation}', '"update"')::text FROM keys
         ));
@@ -2442,7 +2442,7 @@ CREATE OR REPLACE FUNCTION search_release_meta_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id, release) AS (SELECT OLD.id, OLD.release)
+            WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_meta"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
