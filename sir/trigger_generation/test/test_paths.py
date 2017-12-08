@@ -1,5 +1,5 @@
 import unittest
-from sir.trigger_generation import paths
+from sir.trigger_generation.paths import generate_filtered_query
 from sir.schema import SCHEMA
 
 
@@ -7,44 +7,42 @@ class PathsTestCase(unittest.TestCase):
 
     def test_generate_selection(self):
 
-        def validate_selection(core_name, path, expected_sql, expected_pk):
-            select_sql, last_pk_name = paths.generate_selection(SCHEMA[core_name].model, path)
+        def validate_selection(core_name, path, expected_sql, emitted_keys):
+            select_sql = str(generate_filtered_query(SCHEMA[core_name].model, path, emitted_keys))
             self.assertEqual(select_sql, expected_sql)
-            self.assertEqual(last_pk_name, expected_pk)
-
         validate_selection(
             core_name="release-group",
             path="releases",
-            expected_sql="SELECT release.release_group FROM musicbrainz.release WHERE release.id IN (:ids)",
-            expected_pk="id",
+            emitted_keys={'id': 1,},
+            expected_sql='SELECT musicbrainz.release_group.id AS musicbrainz_release_group_id \nFROM musicbrainz.release_group JOIN musicbrainz.release ON musicbrainz.release_group.id = musicbrainz.release.release_group \nWHERE musicbrainz.release.id = :id_1',
         )
         validate_selection(
             core_name="annotation",
             path="releases.release",
-            expected_sql="SELECT release_annotation.annotation FROM musicbrainz.release_annotation WHERE release_annotation.release IN (SELECT release_annotation.release FROM musicbrainz.release_annotation WHERE release_annotation.release IN (:ids))",
-            expected_pk="id",
+            emitted_keys={'id': 1},
+            expected_sql='SELECT musicbrainz.annotation.id AS musicbrainz_annotation_id \nFROM musicbrainz.annotation JOIN musicbrainz.release_annotation ON musicbrainz.annotation.id = musicbrainz.release_annotation.annotation JOIN musicbrainz.release ON musicbrainz.release.id = musicbrainz.release_annotation.release \nWHERE musicbrainz.release.id = :id_1',
         )
         validate_selection(
             core_name="release-group",
             path="artist_credit.artists",
-            expected_sql="SELECT release_group.id FROM musicbrainz.release_group WHERE release_group.artist_credit IN (SELECT artist_credit_name.artist_credit FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids))",
-            expected_pk="artist_credit",
+            emitted_keys={'artist_credit': 1},
+            expected_sql='SELECT musicbrainz.release_group.id AS musicbrainz_release_group_id \nFROM musicbrainz.release_group JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.release_group.artist_credit JOIN musicbrainz.artist_credit_name ON musicbrainz.artist_credit.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_1',
         )
         validate_selection(
             core_name="recording",
             path="artist_credit.artists",
-            expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (SELECT artist_credit_name.artist_credit FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids))",
-            expected_pk="artist_credit",
+            emitted_keys={'artist_credit': 1},
+            expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.recording.artist_credit JOIN musicbrainz.artist_credit_name ON musicbrainz.artist_credit.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_1',
         )
         validate_selection(
             core_name="artist",
             path="artist_credit_names",
-            expected_sql="SELECT artist_credit_name.artist FROM musicbrainz.artist_credit_name WHERE artist_credit_name.artist_credit IN (:ids)",
-            expected_pk="artist_credit",
+            emitted_keys={'artist_credit': 1},
+            expected_sql='SELECT musicbrainz.artist.id AS musicbrainz_artist_id \nFROM musicbrainz.artist JOIN musicbrainz.artist_credit_name ON musicbrainz.artist.id = musicbrainz.artist_credit_name.artist \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_1',
         )
         validate_selection(
             core_name="recording",
             path="artist_credit",
-            expected_sql="SELECT recording.id FROM musicbrainz.recording WHERE recording.artist_credit IN (:ids)",
-            expected_pk="id",
+            emitted_keys={'id': 1},
+            expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.recording.artist_credit \nWHERE musicbrainz.artist_credit.id = :id_1',
         )

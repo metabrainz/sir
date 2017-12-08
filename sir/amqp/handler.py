@@ -6,7 +6,7 @@ from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import send_data_to_solr
-from sir.trigger_generation.paths import generate_selection, second_last_model_in_path
+from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
@@ -189,33 +189,14 @@ class Handler(object):
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-
-                    # FIXME(roman): Selection below needs to support different sets of PKs for
-                    # both entity tables and other ones. `generate_selection` function might be
-                    # incorrect since it returns just one PK column name. Maybe it doesn't even
-                    # need to return PKs since we have them in the message.
                     logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
-                    select_sql, pk_col_name = generate_selection(entity.model, path)
-                    logger.debug("SQL: %s PK: %s" % (select_sql, pk_col_name))
-                    if select_sql is None:
-                        # See generate_selection function implementation for cases when `select_sql`
-                        # value might be None.
+                    select_query = generate_filtered_query(entity.model, path, parsed_message.columns)
+                    if select_query is None:
                         logger.warning("SELECT is `None`")
                         continue
-
-                    # Retrieving PK values of rows in the entity table that need to be updated
-                    if pk_col_name not in parsed_message.columns:
-                        logger.error("Unsupported path. PK is not `%s`." % pk_col_name, extra={
-                            "stack": True,
-                            "data": {
-                                "parsed_message": vars(parsed_message),
-                                "pk_col_name": pk_col_name,
-                                "select_sql": select_sql,
-                            },
-                        })
-                        continue
-                    result = session.execute(select_sql, {"ids": parsed_message.columns[pk_col_name]})
-                    ids = [row[0] for row in result.fetchall()]
+                    else:
+                        logger.debug("SQL: %s" % select_query)
+                        ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
                 condition = and_(entity.model.id.in_(ids))
@@ -257,25 +238,14 @@ class Handler(object):
                     else:
                         logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
-                        fk_values = parsed_message.columns[fk_name]
+                        filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
                         # `index_model` by a FK.
-                        if new_path == "":
-                            try:
-                                filter_expression = remote_key.in_(parsed_message.columns[fk_name])
-                            except TypeError:
-                                filter_expression = remote_key.in_([fk_values])
-                            select_query = session.query(entity.model.id).filter(filter_expression)
-                            if select_query is None:
-                                # See generate_selection function implementation for cases when `select_sql`
-                                # value might be None.
-                                logger.warning("SELECT is `None`")
-                                continue
-                            ids = [row[0] for row in select_query.all()]
-                        else:
-                            select_query, _ = generate_selection(entity.model, new_path)
-                            result = session.execute(select_query, {"ids": parsed_message.columns[fk_name]})
-                            ids = [row[0] for row in result.fetchall()]
+                        select_query = generate_query(entity.model, new_path, filter_expression)
+                        if select_query is None:
+                            logger.warning("SELECT is `None`")
+                            continue
+                        ids = [row[0] for row in session.execute(select_query).fetchall()]
                         logger.debug("SQL: %s" % (select_query))
 
                 # Retrieving actual data

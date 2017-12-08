@@ -131,13 +131,26 @@ class HandlerTest(AmqpTestCase):
 
         self.handler._index_by_fk(parsed_message)
         calls = self.handler.db_session().execute.call_args_list
-        self.assertEqual(len(calls), 5)
-        expected_queries = ["SELECT place.id FROM musicbrainz.place WHERE place.area IN (:ids)",
-         "SELECT label.id FROM musicbrainz.label WHERE label.area IN (:ids)",
-         "SELECT artist.id FROM musicbrainz.artist WHERE artist.end_area IN (:ids)",
-         "SELECT artist.id FROM musicbrainz.artist WHERE artist.area IN (:ids)",
-         "SELECT artist.id FROM musicbrainz.artist WHERE artist.begin_area IN (:ids)"]
-        actual_queries = [call[0][0] for call in calls]
+        self.assertEqual(len(calls), 6)
+        actual_queries = [str(call[0][0]) for call in calls]
+        expected_queries = [
+            'SELECT musicbrainz.place.id AS musicbrainz_place_id \n'
+            'FROM musicbrainz.place JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.place.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.label.id AS musicbrainz_label_id \n'
+            'FROM musicbrainz.label JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.label.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.end_area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
+            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.begin_area \n'
+            'WHERE musicbrainz.area.id = :id_1',
+            'SELECT musicbrainz.area.id AS musicbrainz_area_id \n'
+            'FROM musicbrainz.area \n'
+            'WHERE musicbrainz.area.id = :id_1']
+
         self.assertEqual(expected_queries, actual_queries)
-        for call in calls:
-            self.assertEqual(call[0][1], {'ids': '2'})
