@@ -2,6 +2,8 @@
 
 # Docker configuration
 /docker
+!/docker/prod/consul-template.conf
+!/docker/prod/indexer/indexer.service
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
