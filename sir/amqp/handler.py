@@ -112,7 +112,7 @@ class Handler(object):
         # Limit upto which sir should index entity updates
         try:
             self.index_limit = config.CFG.getint("rabbitmq", "index_limit")
-        except NoOptionError:
+        except (NoOptionError, AttributeError):
             self.index_limit = 0
         logger.info("Index limit is set to %s", self.index_limit)
 
