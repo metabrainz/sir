@@ -18,7 +18,15 @@ def generate_query(model, path, filters=None):
     """
     query = Query(model.id)
     if path:
-        query = query.join(*path.split("."))
+        # The below is a fix in case the same table is joined
+        # multiple times. In that case, we alias everything except
+        # the last path and then filter on the last path.
+        path_list = path.split(".")
+        last_path = path_list[-1]
+        path_list = path_list[:-1]
+        if path_list:
+            query = query.join(*path_list, aliased=True)
+        query = query.join(last_path, from_joinpoint=True)
     if filters is not None:
         if isinstance(filters, list):
             query = query.filter(*filters)
