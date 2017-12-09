@@ -136,7 +136,8 @@ class Handler(object):
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
-        logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
+        logger.info("Processing `index` message from table: %s" % parsed_message.table_name)
+        logger.info("Message columns %s" % parsed_message.columns)
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
         else:
@@ -170,7 +171,7 @@ class Handler(object):
                 column_name = "id"
             else:
                 raise ValueError("`gid` column missing from delete message")
-        logger.debug("Deleting {entity_type}: {id}".format(
+        logger.info("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns[column_name]))
         self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns[column_name])
@@ -189,7 +190,7 @@ class Handler(object):
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                    logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_query = generate_filtered_query(entity.model, path, parsed_message.columns)
                     if select_query is None:
                         logger.warning("SELECT is `None`")
@@ -236,7 +237,7 @@ class Handler(object):
                         # If `path` is `None` then we received a message for an entity itself
                         ids = [parsed_message.columns['id']]
                     else:
-                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
+                        logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
                         filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
