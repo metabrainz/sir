@@ -21,6 +21,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import class_mapper
 from sys import exit
 from urllib2 import URLError
+from ConfigParser import NoOptionError
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -39,7 +40,10 @@ _RETRY_WAIT_SECS = 30
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
 # Limit upto which sir should index entity updates
-_INDEX_LIMIT = config.CFG.getint("rabbitmq", "index_limit")
+try:
+    _INDEX_LIMIT = config.CFG.getint("rabbitmq", "index_limit")
+except NoOptionError:
+    _INDEX_LIMIT = 0
 
 
 def callback_wrapper(f):
@@ -184,7 +188,7 @@ class Handler(object):
     def _index_data(self, core_name, id_list, message):
         # Only index data if it is less than the specified index limit.
         # Useful in cases like "Various Artist" updates
-        if len(id_list) > _INDEX_LIMIT:
+        if _INDEX_LIMIT and len(id_list) > _INDEX_LIMIT:
             logger.info("Too many ids retrieved for message %s. Not updating index.", message)
             return
         entity = SCHEMA[core_name]
