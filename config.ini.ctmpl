@@ -39,6 +39,7 @@ user = {{template "KEY" "rabbitmq/user"}}
 password = {{template "KEY" "rabbitmq/password"}}
 vhost = {{template "KEY" "rabbitmq/vhost"}}
 prefetch_count = {{template "KEY" "rabbitmq/prefetch_count"}}
+index_limit = {{template "KEY" "rabbitmq/index_limit"}}
 {{end}}
 {{end}}
 

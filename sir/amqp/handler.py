@@ -38,6 +38,9 @@ _RETRY_WAIT_SECS = 30
 # These will be deleted via their `id`.
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
+# Limit upto which sir should index entity updates
+_INDEX_LIMIT = config.CFG.getint("rabbitmq", "index_limit")
+
 
 def callback_wrapper(f):
     """
@@ -138,6 +141,7 @@ class Handler(object):
         """
         logger.info("Processing `index` message from table: %s" % parsed_message.table_name)
         logger.info("Message columns %s" % parsed_message.columns)
+
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
         else:
@@ -177,12 +181,24 @@ class Handler(object):
         self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
+    def _index_data(self, core_name, id_list, message):
+        # Only index data if it is less than the specified index limit.
+        # Useful in cases like "Various Artist" updates
+        if len(id_list) > _INDEX_LIMIT:
+            logger.info("Too many ids retrieved for message %s. Not updating index.", message)
+            return
+        entity = SCHEMA[core_name]
+        with db_session_ctx(self.db_session) as session:
+            condition = and_(entity.model.id.in_(id_list))
+            query = entity.query.filter(condition).with_session(session)
+            data = [entity.query_result_to_dict(obj) for obj in query.all()]
+            send_data_to_solr(self.cores[core_name], data)
+
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
             # Going through each core/entity that needs to be updated
             # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
-            query = entity.query
             with db_session_ctx(self.db_session) as session:
 
                 if path is None:
@@ -200,10 +216,7 @@ class Handler(object):
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
-                condition = and_(entity.model.id.in_(ids))
-                query = query.filter(condition).with_session(session)
-                data = [entity.query_result_to_dict(obj) for obj in query.all()]
-                send_data_to_solr(self.cores[core_name], data)
+                self._index_data(core_name, ids, parsed_message.columns)
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
@@ -220,7 +233,6 @@ class Handler(object):
             # Going through each core/entity that needs to be updated
             # depending on original index model
             entity = SCHEMA[core_name]
-            query = entity.query
             # We are finding the second last model in path, since the rows related to
             # `index_model` are deleted and the sql query generated from that path
             # returns no ids, because of the way select query is generated.
@@ -249,11 +261,8 @@ class Handler(object):
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
                         logger.debug("SQL: %s" % (select_query))
 
-                # Retrieving actual data
-                condition = and_(entity.model.id.in_(ids))
-                query = query.filter(condition).with_session(session)
-                data = [entity.query_result_to_dict(obj) for obj in query.all()]
-                send_data_to_solr(self.cores[core_name], data)
+                    # Retrieving actual data
+                    self._index_data(core_name, ids, parsed_message.columns)
 
 
 def _should_retry(exc):
