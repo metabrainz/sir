@@ -20,19 +20,19 @@ class PathsTestCase(unittest.TestCase):
             core_name="annotation",
             path="releases.release",
             emitted_keys={'id': 1},
-            expected_sql='SELECT musicbrainz.annotation.id AS musicbrainz_annotation_id \nFROM musicbrainz.annotation JOIN musicbrainz.release_annotation ON musicbrainz.annotation.id = musicbrainz.release_annotation.annotation JOIN musicbrainz.release ON musicbrainz.release.id = musicbrainz.release_annotation.release \nWHERE musicbrainz.release.id = :id_1',
+            expected_sql='SELECT musicbrainz.annotation.id AS musicbrainz_annotation_id \nFROM musicbrainz.annotation JOIN musicbrainz.release_annotation AS release_annotation_1 ON musicbrainz.annotation.id = release_annotation_1.annotation JOIN musicbrainz.release ON musicbrainz.release.id = release_annotation_1.release \nWHERE musicbrainz.release.id = :id_1',
         )
         validate_selection(
             core_name="release-group",
             path="artist_credit.artists",
             emitted_keys={'artist_credit': 1},
-            expected_sql='SELECT musicbrainz.release_group.id AS musicbrainz_release_group_id \nFROM musicbrainz.release_group JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.release_group.artist_credit JOIN musicbrainz.artist_credit_name ON musicbrainz.artist_credit.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_1',
+            expected_sql='SELECT musicbrainz.release_group.id AS musicbrainz_release_group_id \nFROM musicbrainz.release_group JOIN musicbrainz.artist_credit AS artist_credit_1 ON artist_credit_1.id = musicbrainz.release_group.artist_credit JOIN musicbrainz.artist_credit_name ON artist_credit_1.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_2',
         )
         validate_selection(
             core_name="recording",
             path="artist_credit.artists",
             emitted_keys={'artist_credit': 1},
-            expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.recording.artist_credit JOIN musicbrainz.artist_credit_name ON musicbrainz.artist_credit.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_1',
+            expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.artist_credit AS artist_credit_1 ON artist_credit_1.id = musicbrainz.recording.artist_credit JOIN musicbrainz.artist_credit_name ON artist_credit_1.id = musicbrainz.artist_credit_name.artist_credit \nWHERE musicbrainz.artist_credit_name.artist_credit = :artist_credit_2',
         )
         validate_selection(
             core_name="artist",
@@ -45,4 +45,10 @@ class PathsTestCase(unittest.TestCase):
             path="artist_credit",
             emitted_keys={'id': 1},
             expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.artist_credit ON musicbrainz.artist_credit.id = musicbrainz.recording.artist_credit \nWHERE musicbrainz.artist_credit.id = :id_1',
+        )
+        validate_selection(
+            core_name="recording",
+            path="tracks.medium.release.mediums",
+            emitted_keys={'id': 1},
+            expected_sql='SELECT musicbrainz.recording.id AS musicbrainz_recording_id \nFROM musicbrainz.recording JOIN musicbrainz.track AS track_1 ON musicbrainz.recording.id = track_1.recording JOIN musicbrainz.medium AS medium_1 ON medium_1.id = track_1.medium JOIN musicbrainz.release AS release_1 ON release_1.id = medium_1.release JOIN musicbrainz.medium ON release_1.id = musicbrainz.medium.release \nWHERE musicbrainz.medium.id = :id_1',
         )
