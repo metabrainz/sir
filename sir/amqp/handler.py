@@ -39,12 +39,6 @@ _RETRY_WAIT_SECS = 30
 # These will be deleted via their `id`.
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
-# Limit upto which sir should index entity updates
-try:
-    _INDEX_LIMIT = config.CFG.getint("rabbitmq", "index_limit")
-except NoOptionError:
-    _INDEX_LIMIT = 0
-
 
 def callback_wrapper(f):
     """
@@ -114,6 +108,13 @@ class Handler(object):
         for core_name in SCHEMA.keys():
             self.cores[core_name] = solr_connection(core_name)
             solr_version_check(core_name)
+
+        # Limit upto which sir should index entity updates
+        try:
+            self.index_limit = config.CFG.getint("rabbitmq", "index_limit")
+        except NoOptionError:
+            self.index_limit = 0
+        logger.info("Index limit is set to %s", self.index_limit)
 
         self.db_session = db_session()
 
@@ -188,10 +189,11 @@ class Handler(object):
     def _index_data(self, core_name, id_list, message):
         # Only index data if it is less than the specified index limit.
         # Useful in cases like "Various Artist" updates
-        if _INDEX_LIMIT and len(id_list) > _INDEX_LIMIT:
+        if self.index_limit and len(id_list) > self.index_limit:
             logger.info("Too many ids retrieved for message %s. Not updating index.", message)
             return
         entity = SCHEMA[core_name]
+        logger.info("Indexing %s new rows for entity %s", len(id_list), core_name)
         with db_session_ctx(self.db_session) as session:
             condition = and_(entity.model.id.in_(id_list))
             query = entity.query.filter(condition).with_session(session)
