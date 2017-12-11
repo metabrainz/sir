@@ -33,6 +33,8 @@ from collections import OrderedDict
 from mbdata import models
 from collections import defaultdict
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.orm.descriptor_props import CompositeProperty
 
 
 SearchAnnotation = E(modelext.CustomAnnotation, [
@@ -587,3 +589,33 @@ def generate_update_map():
                 if name not in models:
                     models[name] = model
     return dict(paths), models
+
+
+def generate_column_map():
+    """
+    Generates map of columns that are actually indexed.
+    It goes through each of the paths of all the indexed entities,
+    and figures out what columns of a particular table appear on the update path.
+
+    :rtype dict
+    """
+    from sir.trigger_generation.paths import second_last_model_in_path
+
+    column_map = defaultdict(set)
+    for core_name, entity in SCHEMA.items():
+        paths = [path for field in entity.fields
+                 for path in field.paths]
+        paths += [path for path in entity.extrapaths or []]
+        for path in paths:
+            model, _ = second_last_model_in_path(entity.model, path)
+            prop_name = path.split(".")[-1]
+            try:
+                prop = getattr(model, prop_name).prop
+                # We only care about columns, not relations
+                if isinstance(prop, (ColumnProperty, CompositeProperty)):
+                    column_map[model.__table__.name].add(prop_name)
+            # This happens in case of annotation and url paths
+            # which have path to figure out the table name via transform funcs
+            except AttributeError:
+                pass
+    return dict(column_map)
