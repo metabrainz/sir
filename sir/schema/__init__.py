@@ -33,7 +33,7 @@ from collections import OrderedDict
 from mbdata import models
 from collections import defaultdict
 from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 
 
@@ -561,18 +561,20 @@ SCHEMA = OrderedDict(sorted({
 def generate_update_map():
     """
     Generates mapping from tables to Solr cores (entities) that depend on
-    these tables. In addition provides a path along which data of an
-    entity can be retrieved by performing a set of JOINs and a map of
-    table names to SQLAlchemy ORM models
+    these tables and the columns of those tables. In addition provides a
+    path along which data of an entity can be retrieved by performing a set
+    of JOINs and a map of table names to SQLAlchemy ORM models
 
     Uses paths to determine the dependency.
 
-    :rtype (dict, dict)
+    :rtype (dict, dict, dict)
     """
-    from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
+    from sir.trigger_generation.paths import (unique_split_paths, last_model_in_path,
+                                             second_last_model_in_path)
 
     paths = defaultdict(set)
     models = {}
+    column_map = defaultdict(set)
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
@@ -588,25 +590,8 @@ def generate_update_map():
                 paths[name].add((core_name, path))
                 if name not in models:
                     models[name] = model
-    return dict(paths), models
 
-
-def generate_column_map():
-    """
-    Generates map of columns that are actually indexed.
-    It goes through each of the paths of all the indexed entities,
-    and figures out what columns of a particular table appear on the update path.
-
-    :rtype dict
-    """
-    from sir.trigger_generation.paths import second_last_model_in_path
-
-    column_map = defaultdict(set)
-    for core_name, entity in SCHEMA.items():
-        paths = [path for field in entity.fields
-                 for path in field.paths]
-        paths += [path for path in entity.extrapaths or []]
-        for path in paths:
+            # For generating column map
             model, _ = second_last_model_in_path(entity.model, path)
             prop_name = path.split(".")[-1]
             try:
@@ -617,8 +602,11 @@ def generate_column_map():
                     # than 1 columns involved
                     column_names = [col.name for col in prop.columns]
                     column_map[model.__table__.name].update(column_names)
+                elif isinstance(prop, RelationshipProperty):
+                    if prop.direction.name == 'MANYTOONE':
+                        column_map[model.__table__.name].add(prop.key)
             # This happens in case of annotation and url paths
             # which have path to figure out the table name via transform funcs
             except AttributeError:
                 pass
-    return dict(column_map)
+    return dict(paths), dict(column_map), models

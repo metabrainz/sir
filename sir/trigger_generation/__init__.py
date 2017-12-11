@@ -1,12 +1,12 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from sir.schema import SCHEMA, generate_column_map
+from sir.schema import SCHEMA, generate_update_map
 from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 from sir.trigger_generation import sql_generator
 from sqlalchemy.orm import class_mapper
 import collections
 
-column_map = generate_column_map()
+column_map = generate_update_map()[1]
 
 
 def generate_func(args):
