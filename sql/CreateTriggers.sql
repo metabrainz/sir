@@ -14,7 +14,7 @@ CREATE TRIGGER search_annotation_delete BEFORE DELETE ON musicbrainz.annotation
 CREATE TRIGGER search_area_annotation_insert AFTER INSERT ON musicbrainz.area_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_area_annotation_insert();
 
-CREATE TRIGGER search_area_annotation_update AFTER UPDATE ON musicbrainz.area_annotation
+CREATE TRIGGER search_area_annotation_update AFTER UPDATE OF annotation, area ON musicbrainz.area_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_area_annotation_update();
 
 CREATE TRIGGER search_area_annotation_delete BEFORE DELETE ON musicbrainz.area_annotation
@@ -23,7 +23,7 @@ CREATE TRIGGER search_area_annotation_delete BEFORE DELETE ON musicbrainz.area_a
 CREATE TRIGGER search_area_insert AFTER INSERT ON musicbrainz.area
     FOR EACH ROW EXECUTE PROCEDURE search_area_insert();
 
-CREATE TRIGGER search_area_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, name ON musicbrainz.area
+CREATE TRIGGER search_area_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, name, type ON musicbrainz.area
     FOR EACH ROW EXECUTE PROCEDURE search_area_update();
 
 CREATE TRIGGER search_area_delete BEFORE DELETE ON musicbrainz.area
@@ -32,7 +32,7 @@ CREATE TRIGGER search_area_delete BEFORE DELETE ON musicbrainz.area
 CREATE TRIGGER search_artist_annotation_insert AFTER INSERT ON musicbrainz.artist_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_artist_annotation_insert();
 
-CREATE TRIGGER search_artist_annotation_update AFTER UPDATE ON musicbrainz.artist_annotation
+CREATE TRIGGER search_artist_annotation_update AFTER UPDATE OF annotation, artist ON musicbrainz.artist_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_artist_annotation_update();
 
 CREATE TRIGGER search_artist_annotation_delete BEFORE DELETE ON musicbrainz.artist_annotation
@@ -41,7 +41,7 @@ CREATE TRIGGER search_artist_annotation_delete BEFORE DELETE ON musicbrainz.arti
 CREATE TRIGGER search_artist_insert AFTER INSERT ON musicbrainz.artist
     FOR EACH ROW EXECUTE PROCEDURE search_artist_insert();
 
-CREATE TRIGGER search_artist_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, name, sort_name ON musicbrainz.artist
+CREATE TRIGGER search_artist_update AFTER UPDATE OF area, begin_area, begin_date_day, begin_date_month, begin_date_year, comment, end_area, end_date_day, end_date_month, end_date_year, ended, gender, gid, name, sort_name, type ON musicbrainz.artist
     FOR EACH ROW EXECUTE PROCEDURE search_artist_update();
 
 CREATE TRIGGER search_artist_delete BEFORE DELETE ON musicbrainz.artist
@@ -50,7 +50,7 @@ CREATE TRIGGER search_artist_delete BEFORE DELETE ON musicbrainz.artist
 CREATE TRIGGER search_event_annotation_insert AFTER INSERT ON musicbrainz.event_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_event_annotation_insert();
 
-CREATE TRIGGER search_event_annotation_update AFTER UPDATE ON musicbrainz.event_annotation
+CREATE TRIGGER search_event_annotation_update AFTER UPDATE OF annotation, event ON musicbrainz.event_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_event_annotation_update();
 
 CREATE TRIGGER search_event_annotation_delete BEFORE DELETE ON musicbrainz.event_annotation
@@ -59,7 +59,7 @@ CREATE TRIGGER search_event_annotation_delete BEFORE DELETE ON musicbrainz.event
 CREATE TRIGGER search_event_insert AFTER INSERT ON musicbrainz.event
     FOR EACH ROW EXECUTE PROCEDURE search_event_insert();
 
-CREATE TRIGGER search_event_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, name, time ON musicbrainz.event
+CREATE TRIGGER search_event_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, name, time, type ON musicbrainz.event
     FOR EACH ROW EXECUTE PROCEDURE search_event_update();
 
 CREATE TRIGGER search_event_delete BEFORE DELETE ON musicbrainz.event
@@ -68,7 +68,7 @@ CREATE TRIGGER search_event_delete BEFORE DELETE ON musicbrainz.event
 CREATE TRIGGER search_instrument_annotation_insert AFTER INSERT ON musicbrainz.instrument_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_annotation_insert();
 
-CREATE TRIGGER search_instrument_annotation_update AFTER UPDATE ON musicbrainz.instrument_annotation
+CREATE TRIGGER search_instrument_annotation_update AFTER UPDATE OF annotation, instrument ON musicbrainz.instrument_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_annotation_update();
 
 CREATE TRIGGER search_instrument_annotation_delete BEFORE DELETE ON musicbrainz.instrument_annotation
@@ -77,7 +77,7 @@ CREATE TRIGGER search_instrument_annotation_delete BEFORE DELETE ON musicbrainz.
 CREATE TRIGGER search_instrument_insert AFTER INSERT ON musicbrainz.instrument
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_insert();
 
-CREATE TRIGGER search_instrument_update AFTER UPDATE OF comment, description, gid, name ON musicbrainz.instrument
+CREATE TRIGGER search_instrument_update AFTER UPDATE OF comment, description, gid, name, type ON musicbrainz.instrument
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_update();
 
 CREATE TRIGGER search_instrument_delete BEFORE DELETE ON musicbrainz.instrument
@@ -86,7 +86,7 @@ CREATE TRIGGER search_instrument_delete BEFORE DELETE ON musicbrainz.instrument
 CREATE TRIGGER search_label_annotation_insert AFTER INSERT ON musicbrainz.label_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_label_annotation_insert();
 
-CREATE TRIGGER search_label_annotation_update AFTER UPDATE ON musicbrainz.label_annotation
+CREATE TRIGGER search_label_annotation_update AFTER UPDATE OF annotation, label ON musicbrainz.label_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_label_annotation_update();
 
 CREATE TRIGGER search_label_annotation_delete BEFORE DELETE ON musicbrainz.label_annotation
@@ -95,7 +95,7 @@ CREATE TRIGGER search_label_annotation_delete BEFORE DELETE ON musicbrainz.label
 CREATE TRIGGER search_label_insert AFTER INSERT ON musicbrainz.label
     FOR EACH ROW EXECUTE PROCEDURE search_label_insert();
 
-CREATE TRIGGER search_label_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, label_code, name ON musicbrainz.label
+CREATE TRIGGER search_label_update AFTER UPDATE OF area, begin_date_day, begin_date_month, begin_date_year, comment, end_date_day, end_date_month, end_date_year, ended, gid, label_code, name, type ON musicbrainz.label
     FOR EACH ROW EXECUTE PROCEDURE search_label_update();
 
 CREATE TRIGGER search_label_delete BEFORE DELETE ON musicbrainz.label
@@ -104,7 +104,7 @@ CREATE TRIGGER search_label_delete BEFORE DELETE ON musicbrainz.label
 CREATE TRIGGER search_place_annotation_insert AFTER INSERT ON musicbrainz.place_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_place_annotation_insert();
 
-CREATE TRIGGER search_place_annotation_update AFTER UPDATE ON musicbrainz.place_annotation
+CREATE TRIGGER search_place_annotation_update AFTER UPDATE OF annotation, place ON musicbrainz.place_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_place_annotation_update();
 
 CREATE TRIGGER search_place_annotation_delete BEFORE DELETE ON musicbrainz.place_annotation
@@ -113,7 +113,7 @@ CREATE TRIGGER search_place_annotation_delete BEFORE DELETE ON musicbrainz.place
 CREATE TRIGGER search_place_insert AFTER INSERT ON musicbrainz.place
     FOR EACH ROW EXECUTE PROCEDURE search_place_insert();
 
-CREATE TRIGGER search_place_update AFTER UPDATE OF address, begin_date_day, begin_date_month, begin_date_year, comment, coordinates, end_date_day, end_date_month, end_date_year, ended, gid, name ON musicbrainz.place
+CREATE TRIGGER search_place_update AFTER UPDATE OF address, area, begin_date_day, begin_date_month, begin_date_year, comment, coordinates, end_date_day, end_date_month, end_date_year, ended, gid, name, type ON musicbrainz.place
     FOR EACH ROW EXECUTE PROCEDURE search_place_update();
 
 CREATE TRIGGER search_place_delete BEFORE DELETE ON musicbrainz.place
@@ -122,7 +122,7 @@ CREATE TRIGGER search_place_delete BEFORE DELETE ON musicbrainz.place
 CREATE TRIGGER search_recording_annotation_insert AFTER INSERT ON musicbrainz.recording_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_recording_annotation_insert();
 
-CREATE TRIGGER search_recording_annotation_update AFTER UPDATE ON musicbrainz.recording_annotation
+CREATE TRIGGER search_recording_annotation_update AFTER UPDATE OF annotation, recording ON musicbrainz.recording_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_recording_annotation_update();
 
 CREATE TRIGGER search_recording_annotation_delete BEFORE DELETE ON musicbrainz.recording_annotation
@@ -131,7 +131,7 @@ CREATE TRIGGER search_recording_annotation_delete BEFORE DELETE ON musicbrainz.r
 CREATE TRIGGER search_recording_insert AFTER INSERT ON musicbrainz.recording
     FOR EACH ROW EXECUTE PROCEDURE search_recording_insert();
 
-CREATE TRIGGER search_recording_update AFTER UPDATE OF comment, gid, length, name, video ON musicbrainz.recording
+CREATE TRIGGER search_recording_update AFTER UPDATE OF artist_credit, comment, gid, length, name, video ON musicbrainz.recording
     FOR EACH ROW EXECUTE PROCEDURE search_recording_update();
 
 CREATE TRIGGER search_recording_delete BEFORE DELETE ON musicbrainz.recording
@@ -140,7 +140,7 @@ CREATE TRIGGER search_recording_delete BEFORE DELETE ON musicbrainz.recording
 CREATE TRIGGER search_release_annotation_insert AFTER INSERT ON musicbrainz.release_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_release_annotation_insert();
 
-CREATE TRIGGER search_release_annotation_update AFTER UPDATE ON musicbrainz.release_annotation
+CREATE TRIGGER search_release_annotation_update AFTER UPDATE OF annotation, release ON musicbrainz.release_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_release_annotation_update();
 
 CREATE TRIGGER search_release_annotation_delete BEFORE DELETE ON musicbrainz.release_annotation
@@ -149,7 +149,7 @@ CREATE TRIGGER search_release_annotation_delete BEFORE DELETE ON musicbrainz.rel
 CREATE TRIGGER search_release_insert AFTER INSERT ON musicbrainz.release
     FOR EACH ROW EXECUTE PROCEDURE search_release_insert();
 
-CREATE TRIGGER search_release_update AFTER UPDATE OF barcode, comment, gid, name, quality ON musicbrainz.release
+CREATE TRIGGER search_release_update AFTER UPDATE OF artist_credit, barcode, comment, gid, language, name, packaging, quality, release_group, script, status ON musicbrainz.release
     FOR EACH ROW EXECUTE PROCEDURE search_release_update();
 
 CREATE TRIGGER search_release_delete BEFORE DELETE ON musicbrainz.release
@@ -158,7 +158,7 @@ CREATE TRIGGER search_release_delete BEFORE DELETE ON musicbrainz.release
 CREATE TRIGGER search_release_group_annotation_insert AFTER INSERT ON musicbrainz.release_group_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_annotation_insert();
 
-CREATE TRIGGER search_release_group_annotation_update AFTER UPDATE ON musicbrainz.release_group_annotation
+CREATE TRIGGER search_release_group_annotation_update AFTER UPDATE OF annotation, release_group ON musicbrainz.release_group_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_annotation_update();
 
 CREATE TRIGGER search_release_group_annotation_delete BEFORE DELETE ON musicbrainz.release_group_annotation
@@ -167,7 +167,7 @@ CREATE TRIGGER search_release_group_annotation_delete BEFORE DELETE ON musicbrai
 CREATE TRIGGER search_release_group_insert AFTER INSERT ON musicbrainz.release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_insert();
 
-CREATE TRIGGER search_release_group_update AFTER UPDATE OF comment, gid, name ON musicbrainz.release_group
+CREATE TRIGGER search_release_group_update AFTER UPDATE OF artist_credit, comment, gid, name, type ON musicbrainz.release_group
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_update();
 
 CREATE TRIGGER search_release_group_delete BEFORE DELETE ON musicbrainz.release_group
@@ -176,7 +176,7 @@ CREATE TRIGGER search_release_group_delete BEFORE DELETE ON musicbrainz.release_
 CREATE TRIGGER search_series_annotation_insert AFTER INSERT ON musicbrainz.series_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_series_annotation_insert();
 
-CREATE TRIGGER search_series_annotation_update AFTER UPDATE ON musicbrainz.series_annotation
+CREATE TRIGGER search_series_annotation_update AFTER UPDATE OF annotation, series ON musicbrainz.series_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_series_annotation_update();
 
 CREATE TRIGGER search_series_annotation_delete BEFORE DELETE ON musicbrainz.series_annotation
@@ -185,7 +185,7 @@ CREATE TRIGGER search_series_annotation_delete BEFORE DELETE ON musicbrainz.seri
 CREATE TRIGGER search_series_insert AFTER INSERT ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_insert();
 
-CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name ON musicbrainz.series
+CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, link_attribute_type, name, type ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_update();
 
 CREATE TRIGGER search_series_delete BEFORE DELETE ON musicbrainz.series
@@ -194,7 +194,7 @@ CREATE TRIGGER search_series_delete BEFORE DELETE ON musicbrainz.series
 CREATE TRIGGER search_work_annotation_insert AFTER INSERT ON musicbrainz.work_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_work_annotation_insert();
 
-CREATE TRIGGER search_work_annotation_update AFTER UPDATE ON musicbrainz.work_annotation
+CREATE TRIGGER search_work_annotation_update AFTER UPDATE OF annotation, work ON musicbrainz.work_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_work_annotation_update();
 
 CREATE TRIGGER search_work_annotation_delete BEFORE DELETE ON musicbrainz.work_annotation
@@ -203,7 +203,7 @@ CREATE TRIGGER search_work_annotation_delete BEFORE DELETE ON musicbrainz.work_a
 CREATE TRIGGER search_work_insert AFTER INSERT ON musicbrainz.work
     FOR EACH ROW EXECUTE PROCEDURE search_work_insert();
 
-CREATE TRIGGER search_work_update AFTER UPDATE OF comment, gid, name ON musicbrainz.work
+CREATE TRIGGER search_work_update AFTER UPDATE OF comment, gid, name, type ON musicbrainz.work
     FOR EACH ROW EXECUTE PROCEDURE search_work_update();
 
 CREATE TRIGGER search_work_delete BEFORE DELETE ON musicbrainz.work
@@ -212,7 +212,7 @@ CREATE TRIGGER search_work_delete BEFORE DELETE ON musicbrainz.work
 CREATE TRIGGER search_area_alias_insert AFTER INSERT ON musicbrainz.area_alias
     FOR EACH ROW EXECUTE PROCEDURE search_area_alias_insert();
 
-CREATE TRIGGER search_area_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.area_alias
+CREATE TRIGGER search_area_alias_update AFTER UPDATE OF area, begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name, type ON musicbrainz.area_alias
     FOR EACH ROW EXECUTE PROCEDURE search_area_alias_update();
 
 CREATE TRIGGER search_area_alias_delete BEFORE DELETE ON musicbrainz.area_alias
@@ -221,7 +221,7 @@ CREATE TRIGGER search_area_alias_delete BEFORE DELETE ON musicbrainz.area_alias
 CREATE TRIGGER search_iso_3166_1_insert AFTER INSERT ON musicbrainz.iso_3166_1
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_1_insert();
 
-CREATE TRIGGER search_iso_3166_1_update AFTER UPDATE OF code ON musicbrainz.iso_3166_1
+CREATE TRIGGER search_iso_3166_1_update AFTER UPDATE OF area, code ON musicbrainz.iso_3166_1
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_1_update();
 
 CREATE TRIGGER search_iso_3166_1_delete BEFORE DELETE ON musicbrainz.iso_3166_1
@@ -230,7 +230,7 @@ CREATE TRIGGER search_iso_3166_1_delete BEFORE DELETE ON musicbrainz.iso_3166_1
 CREATE TRIGGER search_iso_3166_2_insert AFTER INSERT ON musicbrainz.iso_3166_2
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_2_insert();
 
-CREATE TRIGGER search_iso_3166_2_update AFTER UPDATE OF code ON musicbrainz.iso_3166_2
+CREATE TRIGGER search_iso_3166_2_update AFTER UPDATE OF area, code ON musicbrainz.iso_3166_2
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_2_update();
 
 CREATE TRIGGER search_iso_3166_2_delete BEFORE DELETE ON musicbrainz.iso_3166_2
@@ -239,7 +239,7 @@ CREATE TRIGGER search_iso_3166_2_delete BEFORE DELETE ON musicbrainz.iso_3166_2
 CREATE TRIGGER search_iso_3166_3_insert AFTER INSERT ON musicbrainz.iso_3166_3
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_3_insert();
 
-CREATE TRIGGER search_iso_3166_3_update AFTER UPDATE OF code ON musicbrainz.iso_3166_3
+CREATE TRIGGER search_iso_3166_3_update AFTER UPDATE OF area, code ON musicbrainz.iso_3166_3
     FOR EACH ROW EXECUTE PROCEDURE search_iso_3166_3_update();
 
 CREATE TRIGGER search_iso_3166_3_delete BEFORE DELETE ON musicbrainz.iso_3166_3
@@ -248,7 +248,7 @@ CREATE TRIGGER search_iso_3166_3_delete BEFORE DELETE ON musicbrainz.iso_3166_3
 CREATE TRIGGER search_area_tag_insert AFTER INSERT ON musicbrainz.area_tag
     FOR EACH ROW EXECUTE PROCEDURE search_area_tag_insert();
 
-CREATE TRIGGER search_area_tag_update AFTER UPDATE OF count ON musicbrainz.area_tag
+CREATE TRIGGER search_area_tag_update AFTER UPDATE OF area, count, tag ON musicbrainz.area_tag
     FOR EACH ROW EXECUTE PROCEDURE search_area_tag_update();
 
 CREATE TRIGGER search_area_tag_delete BEFORE DELETE ON musicbrainz.area_tag
@@ -275,7 +275,7 @@ CREATE TRIGGER search_area_type_delete BEFORE DELETE ON musicbrainz.area_type
 CREATE TRIGGER search_artist_alias_insert AFTER INSERT ON musicbrainz.artist_alias
     FOR EACH ROW EXECUTE PROCEDURE search_artist_alias_insert();
 
-CREATE TRIGGER search_artist_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.artist_alias
+CREATE TRIGGER search_artist_alias_update AFTER UPDATE OF artist, begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name, type ON musicbrainz.artist_alias
     FOR EACH ROW EXECUTE PROCEDURE search_artist_alias_update();
 
 CREATE TRIGGER search_artist_alias_delete BEFORE DELETE ON musicbrainz.artist_alias
@@ -293,7 +293,7 @@ CREATE TRIGGER search_gender_delete BEFORE DELETE ON musicbrainz.gender
 CREATE TRIGGER search_artist_ipi_insert AFTER INSERT ON musicbrainz.artist_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_artist_ipi_insert();
 
-CREATE TRIGGER search_artist_ipi_update AFTER UPDATE OF ipi ON musicbrainz.artist_ipi
+CREATE TRIGGER search_artist_ipi_update AFTER UPDATE OF artist, ipi ON musicbrainz.artist_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_artist_ipi_update();
 
 CREATE TRIGGER search_artist_ipi_delete BEFORE DELETE ON musicbrainz.artist_ipi
@@ -302,7 +302,7 @@ CREATE TRIGGER search_artist_ipi_delete BEFORE DELETE ON musicbrainz.artist_ipi
 CREATE TRIGGER search_artist_isni_insert AFTER INSERT ON musicbrainz.artist_isni
     FOR EACH ROW EXECUTE PROCEDURE search_artist_isni_insert();
 
-CREATE TRIGGER search_artist_isni_update AFTER UPDATE OF isni ON musicbrainz.artist_isni
+CREATE TRIGGER search_artist_isni_update AFTER UPDATE OF artist, isni ON musicbrainz.artist_isni
     FOR EACH ROW EXECUTE PROCEDURE search_artist_isni_update();
 
 CREATE TRIGGER search_artist_isni_delete BEFORE DELETE ON musicbrainz.artist_isni
@@ -311,7 +311,7 @@ CREATE TRIGGER search_artist_isni_delete BEFORE DELETE ON musicbrainz.artist_isn
 CREATE TRIGGER search_artist_tag_insert AFTER INSERT ON musicbrainz.artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_tag_insert();
 
-CREATE TRIGGER search_artist_tag_update AFTER UPDATE OF count ON musicbrainz.artist_tag
+CREATE TRIGGER search_artist_tag_update AFTER UPDATE OF artist, count, tag ON musicbrainz.artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_tag_update();
 
 CREATE TRIGGER search_artist_tag_delete BEFORE DELETE ON musicbrainz.artist_tag
@@ -320,7 +320,7 @@ CREATE TRIGGER search_artist_tag_delete BEFORE DELETE ON musicbrainz.artist_tag
 CREATE TRIGGER search_artist_credit_name_insert AFTER INSERT ON musicbrainz.artist_credit_name
     FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_insert();
 
-CREATE TRIGGER search_artist_credit_name_update AFTER UPDATE OF join_phrase, name ON musicbrainz.artist_credit_name
+CREATE TRIGGER search_artist_credit_name_update AFTER UPDATE OF artist, artist_credit, join_phrase, name ON musicbrainz.artist_credit_name
     FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_update();
 
 CREATE TRIGGER search_artist_credit_name_delete BEFORE DELETE ON musicbrainz.artist_credit_name
@@ -356,7 +356,7 @@ CREATE TRIGGER search_release_raw_delete BEFORE DELETE ON musicbrainz.release_ra
 CREATE TRIGGER search_cdtoc_raw_insert AFTER INSERT ON musicbrainz.cdtoc_raw
     FOR EACH ROW EXECUTE PROCEDURE search_cdtoc_raw_insert();
 
-CREATE TRIGGER search_cdtoc_raw_update AFTER UPDATE OF discid, track_count ON musicbrainz.cdtoc_raw
+CREATE TRIGGER search_cdtoc_raw_update AFTER UPDATE OF discid, release, track_count ON musicbrainz.cdtoc_raw
     FOR EACH ROW EXECUTE PROCEDURE search_cdtoc_raw_update();
 
 CREATE TRIGGER search_cdtoc_raw_delete BEFORE DELETE ON musicbrainz.cdtoc_raw
@@ -374,7 +374,7 @@ CREATE TRIGGER search_editor_delete BEFORE DELETE ON musicbrainz.editor
 CREATE TRIGGER search_event_alias_insert AFTER INSERT ON musicbrainz.event_alias
     FOR EACH ROW EXECUTE PROCEDURE search_event_alias_insert();
 
-CREATE TRIGGER search_event_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.event_alias
+CREATE TRIGGER search_event_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, event, locale, name, primary_for_locale, sort_name, type ON musicbrainz.event_alias
     FOR EACH ROW EXECUTE PROCEDURE search_event_alias_update();
 
 CREATE TRIGGER search_event_alias_delete BEFORE DELETE ON musicbrainz.event_alias
@@ -383,7 +383,7 @@ CREATE TRIGGER search_event_alias_delete BEFORE DELETE ON musicbrainz.event_alia
 CREATE TRIGGER search_l_area_event_insert AFTER INSERT ON musicbrainz.l_area_event
     FOR EACH ROW EXECUTE PROCEDURE search_l_area_event_insert();
 
-CREATE TRIGGER search_l_area_event_update AFTER UPDATE ON musicbrainz.l_area_event
+CREATE TRIGGER search_l_area_event_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_area_event
     FOR EACH ROW EXECUTE PROCEDURE search_l_area_event_update();
 
 CREATE TRIGGER search_l_area_event_delete BEFORE DELETE ON musicbrainz.l_area_event
@@ -392,7 +392,7 @@ CREATE TRIGGER search_l_area_event_delete BEFORE DELETE ON musicbrainz.l_area_ev
 CREATE TRIGGER search_l_artist_event_insert AFTER INSERT ON musicbrainz.l_artist_event
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_event_insert();
 
-CREATE TRIGGER search_l_artist_event_update AFTER UPDATE ON musicbrainz.l_artist_event
+CREATE TRIGGER search_l_artist_event_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_artist_event
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_event_update();
 
 CREATE TRIGGER search_l_artist_event_delete BEFORE DELETE ON musicbrainz.l_artist_event
@@ -401,7 +401,7 @@ CREATE TRIGGER search_l_artist_event_delete BEFORE DELETE ON musicbrainz.l_artis
 CREATE TRIGGER search_l_event_place_insert AFTER INSERT ON musicbrainz.l_event_place
     FOR EACH ROW EXECUTE PROCEDURE search_l_event_place_insert();
 
-CREATE TRIGGER search_l_event_place_update AFTER UPDATE ON musicbrainz.l_event_place
+CREATE TRIGGER search_l_event_place_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_event_place
     FOR EACH ROW EXECUTE PROCEDURE search_l_event_place_update();
 
 CREATE TRIGGER search_l_event_place_delete BEFORE DELETE ON musicbrainz.l_event_place
@@ -410,7 +410,7 @@ CREATE TRIGGER search_l_event_place_delete BEFORE DELETE ON musicbrainz.l_event_
 CREATE TRIGGER search_event_tag_insert AFTER INSERT ON musicbrainz.event_tag
     FOR EACH ROW EXECUTE PROCEDURE search_event_tag_insert();
 
-CREATE TRIGGER search_event_tag_update AFTER UPDATE OF count ON musicbrainz.event_tag
+CREATE TRIGGER search_event_tag_update AFTER UPDATE OF count, event, tag ON musicbrainz.event_tag
     FOR EACH ROW EXECUTE PROCEDURE search_event_tag_update();
 
 CREATE TRIGGER search_event_tag_delete BEFORE DELETE ON musicbrainz.event_tag
@@ -428,7 +428,7 @@ CREATE TRIGGER search_event_type_delete BEFORE DELETE ON musicbrainz.event_type
 CREATE TRIGGER search_instrument_alias_insert AFTER INSERT ON musicbrainz.instrument_alias
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_alias_insert();
 
-CREATE TRIGGER search_instrument_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.instrument_alias
+CREATE TRIGGER search_instrument_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, instrument, locale, name, primary_for_locale, sort_name, type ON musicbrainz.instrument_alias
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_alias_update();
 
 CREATE TRIGGER search_instrument_alias_delete BEFORE DELETE ON musicbrainz.instrument_alias
@@ -437,7 +437,7 @@ CREATE TRIGGER search_instrument_alias_delete BEFORE DELETE ON musicbrainz.instr
 CREATE TRIGGER search_instrument_tag_insert AFTER INSERT ON musicbrainz.instrument_tag
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_tag_insert();
 
-CREATE TRIGGER search_instrument_tag_update AFTER UPDATE OF count ON musicbrainz.instrument_tag
+CREATE TRIGGER search_instrument_tag_update AFTER UPDATE OF count, instrument, tag ON musicbrainz.instrument_tag
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_tag_update();
 
 CREATE TRIGGER search_instrument_tag_delete BEFORE DELETE ON musicbrainz.instrument_tag
@@ -455,7 +455,7 @@ CREATE TRIGGER search_instrument_type_delete BEFORE DELETE ON musicbrainz.instru
 CREATE TRIGGER search_label_alias_insert AFTER INSERT ON musicbrainz.label_alias
     FOR EACH ROW EXECUTE PROCEDURE search_label_alias_insert();
 
-CREATE TRIGGER search_label_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.label_alias
+CREATE TRIGGER search_label_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, label, locale, name, primary_for_locale, sort_name, type ON musicbrainz.label_alias
     FOR EACH ROW EXECUTE PROCEDURE search_label_alias_update();
 
 CREATE TRIGGER search_label_alias_delete BEFORE DELETE ON musicbrainz.label_alias
@@ -464,7 +464,7 @@ CREATE TRIGGER search_label_alias_delete BEFORE DELETE ON musicbrainz.label_alia
 CREATE TRIGGER search_label_ipi_insert AFTER INSERT ON musicbrainz.label_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_label_ipi_insert();
 
-CREATE TRIGGER search_label_ipi_update AFTER UPDATE OF ipi ON musicbrainz.label_ipi
+CREATE TRIGGER search_label_ipi_update AFTER UPDATE OF ipi, label ON musicbrainz.label_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_label_ipi_update();
 
 CREATE TRIGGER search_label_ipi_delete BEFORE DELETE ON musicbrainz.label_ipi
@@ -473,7 +473,7 @@ CREATE TRIGGER search_label_ipi_delete BEFORE DELETE ON musicbrainz.label_ipi
 CREATE TRIGGER search_label_tag_insert AFTER INSERT ON musicbrainz.label_tag
     FOR EACH ROW EXECUTE PROCEDURE search_label_tag_insert();
 
-CREATE TRIGGER search_label_tag_update AFTER UPDATE OF count ON musicbrainz.label_tag
+CREATE TRIGGER search_label_tag_update AFTER UPDATE OF count, label, tag ON musicbrainz.label_tag
     FOR EACH ROW EXECUTE PROCEDURE search_label_tag_update();
 
 CREATE TRIGGER search_label_tag_delete BEFORE DELETE ON musicbrainz.label_tag
@@ -491,7 +491,7 @@ CREATE TRIGGER search_label_type_delete BEFORE DELETE ON musicbrainz.label_type
 CREATE TRIGGER search_place_alias_insert AFTER INSERT ON musicbrainz.place_alias
     FOR EACH ROW EXECUTE PROCEDURE search_place_alias_insert();
 
-CREATE TRIGGER search_place_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.place_alias
+CREATE TRIGGER search_place_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, place, primary_for_locale, sort_name, type ON musicbrainz.place_alias
     FOR EACH ROW EXECUTE PROCEDURE search_place_alias_update();
 
 CREATE TRIGGER search_place_alias_delete BEFORE DELETE ON musicbrainz.place_alias
@@ -509,7 +509,7 @@ CREATE TRIGGER search_place_type_delete BEFORE DELETE ON musicbrainz.place_type
 CREATE TRIGGER search_track_insert AFTER INSERT ON musicbrainz.track
     FOR EACH ROW EXECUTE PROCEDURE search_track_insert();
 
-CREATE TRIGGER search_track_update AFTER UPDATE OF gid, length, name, number, position ON musicbrainz.track
+CREATE TRIGGER search_track_update AFTER UPDATE OF artist_credit, gid, length, medium, name, number, position, recording ON musicbrainz.track
     FOR EACH ROW EXECUTE PROCEDURE search_track_update();
 
 CREATE TRIGGER search_track_delete BEFORE DELETE ON musicbrainz.track
@@ -518,7 +518,7 @@ CREATE TRIGGER search_track_delete BEFORE DELETE ON musicbrainz.track
 CREATE TRIGGER search_medium_insert AFTER INSERT ON musicbrainz.medium
     FOR EACH ROW EXECUTE PROCEDURE search_medium_insert();
 
-CREATE TRIGGER search_medium_update AFTER UPDATE OF id, position, track_count ON musicbrainz.medium
+CREATE TRIGGER search_medium_update AFTER UPDATE OF format, id, position, release, track_count ON musicbrainz.medium
     FOR EACH ROW EXECUTE PROCEDURE search_medium_update();
 
 CREATE TRIGGER search_medium_delete BEFORE DELETE ON musicbrainz.medium
@@ -527,7 +527,7 @@ CREATE TRIGGER search_medium_delete BEFORE DELETE ON musicbrainz.medium
 CREATE TRIGGER search_release_country_insert AFTER INSERT ON musicbrainz.release_country
     FOR EACH ROW EXECUTE PROCEDURE search_release_country_insert();
 
-CREATE TRIGGER search_release_country_update AFTER UPDATE OF date_day, date_month, date_year ON musicbrainz.release_country
+CREATE TRIGGER search_release_country_update AFTER UPDATE OF country, date_day, date_month, date_year, release ON musicbrainz.release_country
     FOR EACH ROW EXECUTE PROCEDURE search_release_country_update();
 
 CREATE TRIGGER search_release_country_delete BEFORE DELETE ON musicbrainz.release_country
@@ -536,7 +536,7 @@ CREATE TRIGGER search_release_country_delete BEFORE DELETE ON musicbrainz.releas
 CREATE TRIGGER search_country_area_insert AFTER INSERT ON musicbrainz.country_area
     FOR EACH ROW EXECUTE PROCEDURE search_country_area_insert();
 
-CREATE TRIGGER search_country_area_update AFTER UPDATE ON musicbrainz.country_area
+CREATE TRIGGER search_country_area_update AFTER UPDATE OF area ON musicbrainz.country_area
     FOR EACH ROW EXECUTE PROCEDURE search_country_area_update();
 
 CREATE TRIGGER search_country_area_delete BEFORE DELETE ON musicbrainz.country_area
@@ -554,7 +554,7 @@ CREATE TRIGGER search_medium_format_delete BEFORE DELETE ON musicbrainz.medium_f
 CREATE TRIGGER search_isrc_insert AFTER INSERT ON musicbrainz.isrc
     FOR EACH ROW EXECUTE PROCEDURE search_isrc_insert();
 
-CREATE TRIGGER search_isrc_update AFTER UPDATE OF isrc ON musicbrainz.isrc
+CREATE TRIGGER search_isrc_update AFTER UPDATE OF isrc, recording ON musicbrainz.isrc
     FOR EACH ROW EXECUTE PROCEDURE search_isrc_update();
 
 CREATE TRIGGER search_isrc_delete BEFORE DELETE ON musicbrainz.isrc
@@ -572,7 +572,7 @@ CREATE TRIGGER search_release_group_primary_type_delete BEFORE DELETE ON musicbr
 CREATE TRIGGER search_release_group_secondary_type_join_insert AFTER INSERT ON musicbrainz.release_group_secondary_type_join
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_secondary_type_join_insert();
 
-CREATE TRIGGER search_release_group_secondary_type_join_update AFTER UPDATE ON musicbrainz.release_group_secondary_type_join
+CREATE TRIGGER search_release_group_secondary_type_join_update AFTER UPDATE OF release_group, secondary_type ON musicbrainz.release_group_secondary_type_join
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_secondary_type_join_update();
 
 CREATE TRIGGER search_release_group_secondary_type_join_delete BEFORE DELETE ON musicbrainz.release_group_secondary_type_join
@@ -599,7 +599,7 @@ CREATE TRIGGER search_release_status_delete BEFORE DELETE ON musicbrainz.release
 CREATE TRIGGER search_recording_tag_insert AFTER INSERT ON musicbrainz.recording_tag
     FOR EACH ROW EXECUTE PROCEDURE search_recording_tag_insert();
 
-CREATE TRIGGER search_recording_tag_update AFTER UPDATE OF count ON musicbrainz.recording_tag
+CREATE TRIGGER search_recording_tag_update AFTER UPDATE OF count, recording, tag ON musicbrainz.recording_tag
     FOR EACH ROW EXECUTE PROCEDURE search_recording_tag_update();
 
 CREATE TRIGGER search_recording_tag_delete BEFORE DELETE ON musicbrainz.recording_tag
@@ -617,7 +617,7 @@ CREATE TRIGGER search_release_meta_delete BEFORE DELETE ON musicbrainz.release_m
 CREATE TRIGGER search_release_label_insert AFTER INSERT ON musicbrainz.release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_label_insert();
 
-CREATE TRIGGER search_release_label_update AFTER UPDATE OF catalog_number ON musicbrainz.release_label
+CREATE TRIGGER search_release_label_update AFTER UPDATE OF catalog_number, label, release ON musicbrainz.release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_label_update();
 
 CREATE TRIGGER search_release_label_delete BEFORE DELETE ON musicbrainz.release_label
@@ -626,7 +626,7 @@ CREATE TRIGGER search_release_label_delete BEFORE DELETE ON musicbrainz.release_
 CREATE TRIGGER search_medium_cdtoc_insert AFTER INSERT ON musicbrainz.medium_cdtoc
     FOR EACH ROW EXECUTE PROCEDURE search_medium_cdtoc_insert();
 
-CREATE TRIGGER search_medium_cdtoc_update AFTER UPDATE OF id ON musicbrainz.medium_cdtoc
+CREATE TRIGGER search_medium_cdtoc_update AFTER UPDATE OF cdtoc, id, medium ON musicbrainz.medium_cdtoc
     FOR EACH ROW EXECUTE PROCEDURE search_medium_cdtoc_update();
 
 CREATE TRIGGER search_medium_cdtoc_delete BEFORE DELETE ON musicbrainz.medium_cdtoc
@@ -653,7 +653,7 @@ CREATE TRIGGER search_script_delete BEFORE DELETE ON musicbrainz.script
 CREATE TRIGGER search_release_tag_insert AFTER INSERT ON musicbrainz.release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_tag_insert();
 
-CREATE TRIGGER search_release_tag_update AFTER UPDATE OF count ON musicbrainz.release_tag
+CREATE TRIGGER search_release_tag_update AFTER UPDATE OF count, release, tag ON musicbrainz.release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_tag_update();
 
 CREATE TRIGGER search_release_tag_delete BEFORE DELETE ON musicbrainz.release_tag
@@ -662,7 +662,7 @@ CREATE TRIGGER search_release_tag_delete BEFORE DELETE ON musicbrainz.release_ta
 CREATE TRIGGER search_release_group_tag_insert AFTER INSERT ON musicbrainz.release_group_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_tag_insert();
 
-CREATE TRIGGER search_release_group_tag_update AFTER UPDATE OF count ON musicbrainz.release_group_tag
+CREATE TRIGGER search_release_group_tag_update AFTER UPDATE OF count, release_group, tag ON musicbrainz.release_group_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_tag_update();
 
 CREATE TRIGGER search_release_group_tag_delete BEFORE DELETE ON musicbrainz.release_group_tag
@@ -671,7 +671,7 @@ CREATE TRIGGER search_release_group_tag_delete BEFORE DELETE ON musicbrainz.rele
 CREATE TRIGGER search_series_alias_insert AFTER INSERT ON musicbrainz.series_alias
     FOR EACH ROW EXECUTE PROCEDURE search_series_alias_insert();
 
-CREATE TRIGGER search_series_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.series_alias
+CREATE TRIGGER search_series_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, series, sort_name, type ON musicbrainz.series_alias
     FOR EACH ROW EXECUTE PROCEDURE search_series_alias_update();
 
 CREATE TRIGGER search_series_alias_delete BEFORE DELETE ON musicbrainz.series_alias
@@ -689,7 +689,7 @@ CREATE TRIGGER search_link_attribute_type_delete BEFORE DELETE ON musicbrainz.li
 CREATE TRIGGER search_series_tag_insert AFTER INSERT ON musicbrainz.series_tag
     FOR EACH ROW EXECUTE PROCEDURE search_series_tag_insert();
 
-CREATE TRIGGER search_series_tag_update AFTER UPDATE OF count ON musicbrainz.series_tag
+CREATE TRIGGER search_series_tag_update AFTER UPDATE OF count, series, tag ON musicbrainz.series_tag
     FOR EACH ROW EXECUTE PROCEDURE search_series_tag_update();
 
 CREATE TRIGGER search_series_tag_delete BEFORE DELETE ON musicbrainz.series_tag
@@ -716,7 +716,7 @@ CREATE TRIGGER search_url_delete BEFORE DELETE ON musicbrainz.url
 CREATE TRIGGER search_l_artist_url_insert AFTER INSERT ON musicbrainz.l_artist_url
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_url_insert();
 
-CREATE TRIGGER search_l_artist_url_update AFTER UPDATE ON musicbrainz.l_artist_url
+CREATE TRIGGER search_l_artist_url_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_artist_url
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_url_update();
 
 CREATE TRIGGER search_l_artist_url_delete BEFORE DELETE ON musicbrainz.l_artist_url
@@ -725,7 +725,7 @@ CREATE TRIGGER search_l_artist_url_delete BEFORE DELETE ON musicbrainz.l_artist_
 CREATE TRIGGER search_link_insert AFTER INSERT ON musicbrainz.link
     FOR EACH ROW EXECUTE PROCEDURE search_link_insert();
 
-CREATE TRIGGER search_link_update AFTER UPDATE ON musicbrainz.link
+CREATE TRIGGER search_link_update AFTER UPDATE OF link_type ON musicbrainz.link
     FOR EACH ROW EXECUTE PROCEDURE search_link_update();
 
 CREATE TRIGGER search_link_delete BEFORE DELETE ON musicbrainz.link
@@ -743,7 +743,7 @@ CREATE TRIGGER search_link_type_delete BEFORE DELETE ON musicbrainz.link_type
 CREATE TRIGGER search_work_alias_insert AFTER INSERT ON musicbrainz.work_alias
     FOR EACH ROW EXECUTE PROCEDURE search_work_alias_insert();
 
-CREATE TRIGGER search_work_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name ON musicbrainz.work_alias
+CREATE TRIGGER search_work_alias_update AFTER UPDATE OF begin_date_day, begin_date_month, begin_date_year, end_date_day, end_date_month, end_date_year, locale, name, primary_for_locale, sort_name, type, work ON musicbrainz.work_alias
     FOR EACH ROW EXECUTE PROCEDURE search_work_alias_update();
 
 CREATE TRIGGER search_work_alias_delete BEFORE DELETE ON musicbrainz.work_alias
@@ -752,7 +752,7 @@ CREATE TRIGGER search_work_alias_delete BEFORE DELETE ON musicbrainz.work_alias
 CREATE TRIGGER search_l_artist_work_insert AFTER INSERT ON musicbrainz.l_artist_work
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_work_insert();
 
-CREATE TRIGGER search_l_artist_work_update AFTER UPDATE ON musicbrainz.l_artist_work
+CREATE TRIGGER search_l_artist_work_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_artist_work
     FOR EACH ROW EXECUTE PROCEDURE search_l_artist_work_update();
 
 CREATE TRIGGER search_l_artist_work_delete BEFORE DELETE ON musicbrainz.l_artist_work
@@ -761,7 +761,7 @@ CREATE TRIGGER search_l_artist_work_delete BEFORE DELETE ON musicbrainz.l_artist
 CREATE TRIGGER search_iswc_insert AFTER INSERT ON musicbrainz.iswc
     FOR EACH ROW EXECUTE PROCEDURE search_iswc_insert();
 
-CREATE TRIGGER search_iswc_update AFTER UPDATE OF iswc ON musicbrainz.iswc
+CREATE TRIGGER search_iswc_update AFTER UPDATE OF iswc, work ON musicbrainz.iswc
     FOR EACH ROW EXECUTE PROCEDURE search_iswc_update();
 
 CREATE TRIGGER search_iswc_delete BEFORE DELETE ON musicbrainz.iswc
@@ -770,7 +770,7 @@ CREATE TRIGGER search_iswc_delete BEFORE DELETE ON musicbrainz.iswc
 CREATE TRIGGER search_work_language_insert AFTER INSERT ON musicbrainz.work_language
     FOR EACH ROW EXECUTE PROCEDURE search_work_language_insert();
 
-CREATE TRIGGER search_work_language_update AFTER UPDATE ON musicbrainz.work_language
+CREATE TRIGGER search_work_language_update AFTER UPDATE OF language, work ON musicbrainz.work_language
     FOR EACH ROW EXECUTE PROCEDURE search_work_language_update();
 
 CREATE TRIGGER search_work_language_delete BEFORE DELETE ON musicbrainz.work_language
@@ -779,7 +779,7 @@ CREATE TRIGGER search_work_language_delete BEFORE DELETE ON musicbrainz.work_lan
 CREATE TRIGGER search_l_recording_work_insert AFTER INSERT ON musicbrainz.l_recording_work
     FOR EACH ROW EXECUTE PROCEDURE search_l_recording_work_insert();
 
-CREATE TRIGGER search_l_recording_work_update AFTER UPDATE ON musicbrainz.l_recording_work
+CREATE TRIGGER search_l_recording_work_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_recording_work
     FOR EACH ROW EXECUTE PROCEDURE search_l_recording_work_update();
 
 CREATE TRIGGER search_l_recording_work_delete BEFORE DELETE ON musicbrainz.l_recording_work
@@ -788,7 +788,7 @@ CREATE TRIGGER search_l_recording_work_delete BEFORE DELETE ON musicbrainz.l_rec
 CREATE TRIGGER search_work_tag_insert AFTER INSERT ON musicbrainz.work_tag
     FOR EACH ROW EXECUTE PROCEDURE search_work_tag_insert();
 
-CREATE TRIGGER search_work_tag_update AFTER UPDATE OF count ON musicbrainz.work_tag
+CREATE TRIGGER search_work_tag_update AFTER UPDATE OF count, tag, work ON musicbrainz.work_tag
     FOR EACH ROW EXECUTE PROCEDURE search_work_tag_update();
 
 CREATE TRIGGER search_work_tag_delete BEFORE DELETE ON musicbrainz.work_tag
