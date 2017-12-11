@@ -613,7 +613,10 @@ def generate_column_map():
                 prop = getattr(model, prop_name).prop
                 # We only care about columns, not relations
                 if isinstance(prop, (ColumnProperty, CompositeProperty)):
-                    column_map[model.__table__.name].add(prop_name)
+                    # In case of Composite properties, there might be more
+                    # than 1 columns involved
+                    column_names = [col.name for col in prop.columns]
+                    column_map[model.__table__.name].update(column_names)
             # This happens in case of annotation and url paths
             # which have path to figure out the table name via transform funcs
             except AttributeError:
