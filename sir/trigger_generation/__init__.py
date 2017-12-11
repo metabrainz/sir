@@ -1,10 +1,12 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from sir.schema import SCHEMA
+from sir.schema import SCHEMA, generate_column_map
 from sir.trigger_generation.paths import unique_split_paths, last_model_in_path
 from sir.trigger_generation import sql_generator
 from sqlalchemy.orm import class_mapper
 import collections
+
+column_map = generate_column_map()
 
 
 def generate_func(args):
@@ -115,6 +117,9 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
         actual_columns = [r.key for r in mapper.tables[0].columns if r.foreign_keys]
         fk_columns = [r.key for r in mapper.relationships
                       if r.direction.name == 'MANYTOONE' and r.key in actual_columns]
+    update_columns = None
+    if table_name in column_map:
+        update_columns = column_map[table_name]
     write_triggers_to_file(
         trigger_file=trigger_file,
         function_file=function_file,
@@ -126,6 +131,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
         table_name=table_name,
         pk_columns=[pk.name for pk in mapper.primary_key],
         fk_columns=fk_columns,
+        update_columns=update_columns,
         **generator_args
     )
 
