@@ -156,7 +156,7 @@ class UpdateTriggerGenerator(TriggerGenerator):
         """
         operation = 'UPDATE'
         if self.update_columns:
-            operation = "UPDATE OF %s" % ", ".join(self.update_columns)
+            operation = "UPDATE OF %s" % ", ".join(sorted(self.update_columns))
 
         return textwrap.dedent("""\
             CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {schema}.{table_name}
