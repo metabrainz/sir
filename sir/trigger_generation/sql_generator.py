@@ -35,6 +35,7 @@ class TriggerGenerator(object):
         """
         self.table_name = table_name
         self.reference_columns = list(set(pk_columns + fk_columns))
+        self.fk_columns = fk_columns
         self.reference_columns.sort()
         self.broker_id = broker_id
 
@@ -155,8 +156,11 @@ class UpdateTriggerGenerator(TriggerGenerator):
         :rtype: str
         """
         operation = 'UPDATE'
+        # Consider FK columns in update triggers to make sure triggers are fired
+        # in case any FK of related tables are changed
         if self.update_columns:
-            operation = "UPDATE OF %s" % ", ".join(sorted(self.update_columns))
+            all_columns = set(self.fk_columns + list(self.update_columns))
+            operation = "UPDATE OF %s" % ", ".join(sorted(all_columns))
 
         return textwrap.dedent("""\
             CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {schema}.{table_name}
