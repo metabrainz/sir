@@ -1262,78 +1262,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION search_artist_credit_name_insert() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
-                             '{_operation}', '"insert"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_artist_credit_name_update() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
-                             '{_operation}', '"update"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_artist_credit_name_delete() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(artist, artist_credit, position) AS (SELECT OLD.artist, OLD.artist_credit, OLD.position)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
-                             '{_operation}', '"delete"')::text FROM keys
-        ));
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_artist_credit_insert() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
-                             '{_operation}', '"insert"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_artist_credit_update() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
-                             '{_operation}', '"update"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_artist_credit_delete() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
-                             '{_operation}', '"delete"')::text FROM keys
-        ));
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION search_artist_type_insert() RETURNS trigger
     AS $$
 BEGIN
@@ -2012,6 +1940,78 @@ BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
             WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place_type"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT OLD.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_name_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_name_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_artist_credit_name_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(artist, artist_credit, position) AS (SELECT OLD.artist, OLD.artist_credit, OLD.position)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
     RETURN OLD;

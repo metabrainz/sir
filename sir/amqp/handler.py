@@ -27,7 +27,7 @@ __all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
 
-update_map, model_map = generate_update_map()
+update_map, column_map, model_map = generate_update_map()
 
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4

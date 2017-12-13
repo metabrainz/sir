@@ -26,7 +26,7 @@ class TriggerGenerator(object):
     # (`update`, `delete`, or `index`)
     routing_key = None
 
-    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1):
+    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1, **kwargs):
         """
         :param str table_name: The table on which to generate the trigger.
         :param pk_columns: List of primary key column names for a table that
@@ -35,6 +35,7 @@ class TriggerGenerator(object):
         """
         self.table_name = table_name
         self.reference_columns = list(set(pk_columns + fk_columns))
+        self.fk_columns = fk_columns
         self.reference_columns.sort()
         self.broker_id = broker_id
 
@@ -137,11 +138,39 @@ class UpdateTriggerGenerator(TriggerGenerator):
     before_or_after = "AFTER"
     routing_key = "update"
 
+    def __init__(self, **gen_args):
+        super(UpdateTriggerGenerator, self).__init__(**gen_args)
+        self.update_columns = gen_args.get("update_columns", None)
+
     @property
     def selection(self):
         return "SELECT {columns}".format(
             columns=", ".join(["{rec}.{col}".format(col=c, rec=self.record_variable)
                                for c in self.reference_columns]),
+        )
+
+    def trigger(self):
+        """
+        The ``CREATE TRIGGER`` statement for this trigger.
+
+        :rtype: str
+        """
+        operation = 'UPDATE'
+        # Consider FK columns in update triggers to make sure triggers are fired
+        # in case any FK of related tables are changed
+        if self.update_columns:
+            all_columns = set(self.fk_columns + list(self.update_columns))
+            operation = "UPDATE OF %s" % ", ".join(sorted(all_columns))
+
+        return textwrap.dedent("""\
+            CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {schema}.{table_name}
+                FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
+        """).format(
+            trigger_name=self.trigger_name,
+            schema="musicbrainz",
+            table_name=self.table_name,
+            op=operation,
+            before_or_after=self.before_or_after.upper(),
         )
 
 
