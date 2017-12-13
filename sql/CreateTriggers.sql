@@ -317,24 +317,6 @@ CREATE TRIGGER search_artist_tag_update AFTER UPDATE OF artist, count, tag ON mu
 CREATE TRIGGER search_artist_tag_delete BEFORE DELETE ON musicbrainz.artist_tag
     FOR EACH ROW EXECUTE PROCEDURE search_artist_tag_delete();
 
-CREATE TRIGGER search_artist_credit_name_insert AFTER INSERT ON musicbrainz.artist_credit_name
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_insert();
-
-CREATE TRIGGER search_artist_credit_name_update AFTER UPDATE OF artist, artist_credit, join_phrase, name ON musicbrainz.artist_credit_name
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_update();
-
-CREATE TRIGGER search_artist_credit_name_delete BEFORE DELETE ON musicbrainz.artist_credit_name
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_delete();
-
-CREATE TRIGGER search_artist_credit_insert AFTER INSERT ON musicbrainz.artist_credit
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_insert();
-
-CREATE TRIGGER search_artist_credit_update AFTER UPDATE OF name, ref_count ON musicbrainz.artist_credit
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_update();
-
-CREATE TRIGGER search_artist_credit_delete BEFORE DELETE ON musicbrainz.artist_credit
-    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_delete();
-
 CREATE TRIGGER search_artist_type_insert AFTER INSERT ON musicbrainz.artist_type
     FOR EACH ROW EXECUTE PROCEDURE search_artist_type_insert();
 
@@ -505,6 +487,24 @@ CREATE TRIGGER search_place_type_update AFTER UPDATE OF gid, name ON musicbrainz
 
 CREATE TRIGGER search_place_type_delete BEFORE DELETE ON musicbrainz.place_type
     FOR EACH ROW EXECUTE PROCEDURE search_place_type_delete();
+
+CREATE TRIGGER search_artist_credit_insert AFTER INSERT ON musicbrainz.artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_insert();
+
+CREATE TRIGGER search_artist_credit_update AFTER UPDATE OF name ON musicbrainz.artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_update();
+
+CREATE TRIGGER search_artist_credit_delete BEFORE DELETE ON musicbrainz.artist_credit
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_delete();
+
+CREATE TRIGGER search_artist_credit_name_insert AFTER INSERT ON musicbrainz.artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_insert();
+
+CREATE TRIGGER search_artist_credit_name_update AFTER UPDATE OF artist, artist_credit, join_phrase, name ON musicbrainz.artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_update();
+
+CREATE TRIGGER search_artist_credit_name_delete BEFORE DELETE ON musicbrainz.artist_credit_name
+    FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_name_delete();
 
 CREATE TRIGGER search_track_insert AFTER INSERT ON musicbrainz.track
     FOR EACH ROW EXECUTE PROCEDURE search_track_insert();
