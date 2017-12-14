@@ -5,7 +5,7 @@
 from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
-from sir.indexing import send_data_to_solr
+from sir.indexing import multiprocess_live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
@@ -187,18 +187,8 @@ class Handler(object):
         self._index_by_fk(parsed_message)
 
     def _index_data(self, core_name, id_list, message):
-        # Only index data if it is less than the specified index limit.
-        # Useful in cases like "Various Artist" updates
-        if self.index_limit and len(id_list) > self.index_limit:
-            logger.info("Too many ids retrieved for message %s. Not updating index.", message)
-            return
-        entity = SCHEMA[core_name]
         logger.info("Indexing %s new rows for entity %s", len(id_list), core_name)
-        with db_session_ctx(self.db_session) as session:
-            condition = and_(entity.model.id.in_(id_list))
-            query = entity.query.filter(condition).with_session(session)
-            data = [entity.query_result_to_dict(obj) for obj in query.all()]
-            send_data_to_solr(self.cores[core_name], data)
+        multiprocess_live_index(core_name, id_list)
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
