@@ -13,7 +13,8 @@ from sqlalchemy import and_
 from traceback import format_exc
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
-           "_multiprocessed_import", "_index_entity_process_wrapper"]
+           "_multiprocessed_import", "_index_entity_process_wrapper", "multiprocess_index",
+           "live_index_entity"]
 
 
 logger = getLogger("sir")
@@ -106,7 +107,7 @@ def _multiprocessed_import(entities):
     pool.join()
 
 
-def _index_entity_process_wrapper(args):
+def _index_entity_process_wrapper(args, live=False):
     """
     Calls :func:`sir.indexing.index_entity` with ``args`` unpacked.
     If a :exc:`KeyboardInterrupt` happens while this functions runs, the
@@ -119,6 +120,8 @@ def _index_entity_process_wrapper(args):
     :rtype: None or an Exception
     """
     try:
+        if live:
+            return live_index_entity(*args)
         return index_entity(*args)
     except Exception:
         logger.exception(format_exc())
@@ -209,3 +212,77 @@ def send_data_to_solr(solr_connection, data):
             raise
     else:
         logger.debug("Sent data to Solr")
+
+
+def multiprocess_live_index(entity, id_list):
+    """
+     Reindex all documents from``id_list`` in multiple processes via the
+    :mod:`multiprocessing` module.
+
+    :param entity:
+    :type id_list: [str]
+    """
+    query_batch_size = config.CFG.getint("sir", "query_batch_size")
+    max_processes = config.CFG.getint("sir", "import_threads")
+    solr_batch_size = config.CFG.getint("solr", "batch_size")
+
+    # Only allow one task per child to prevent the process consuming too much
+    # memory
+    pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
+    index_function_args = []
+    manager = multiprocessing.Manager()
+    entity_data_queue = manager.Queue()
+    db_uri = config.CFG.get("database", "uri")
+    solr_connection = util.solr_connection(entity)
+    process_function = partial(queue_to_solr,
+                               entity_data_queue,
+                               solr_batch_size,
+                               solr_connection)
+
+    solr_process = multiprocessing.Process(name="solr",
+                                           target=process_function)
+    solr_process.start()
+    logger.info("The queue workers PID is %i", solr_process.pid)
+    _live_index_wrapper = partial(_index_entity_process_wrapper, live=True)
+    for ids in range(0, len(id_list), query_batch_size):
+        index_function_args.append((entity, db_uri, id_list[ids:ids+query_batch_size],
+                                   entity_data_queue))
+
+    try:
+        results = pool.imap(_live_index_wrapper,
+                            index_function_args)
+        for r in results:
+            pass
+    except Exception as exc:
+        raise exc
+    except KeyboardInterrupt as exc:
+        logger.exception(exc)
+    else:
+        logger.info("Importing %s successful!", entity)
+    entity_data_queue.put(STOP)
+    solr_process.join()
+    pool.terminate()
+    pool.join()
+
+
+def live_index_entity(entity_name, db_uri, ids, data_queue):
+    """
+    Retrieve rows for a single entity type identified by ``entity_name``,
+    convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
+    put the dicts into ``queue``.
+
+    :param str entity_name:
+    :param str db_uri:
+    :param ids:
+    :param Queue.Queue data_queue:
+    """
+    search_entity = SCHEMA[entity_name]
+    model = search_entity.model
+    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
+    condition = and_(search_entity.model.id.in_(ids))
+    row_converter = search_entity.query_result_to_dict
+
+    with util.db_session_ctx(util.db_session()) as session:
+        query = search_entity.query.filter(condition).with_session(session)
+        [data_queue.put(row_converter(row)) for row in query]
+        logger.info("Retrieved all %s records in %s", model, ids)
