@@ -30,7 +30,11 @@ class AmqpTestCase(unittest.TestCase):
         )
 
         self.message.delivery_info = {"routing_key": self.routing_key}
-
+        handler.Lock = mock.MagicMock()
+        handler.ReusableTimer = mock.MagicMock()
+        handler.solr_connection = mock.Mock()
+        handler.solr_version_check = mock.Mock()
+        handler.live_index = mock.MagicMock()
         self.delivery_tag = object()
         self.message.delivery_tag = self.delivery_tag
 
@@ -46,7 +50,11 @@ class CallbackWrapperTest(AmqpTestCase):
             pass
 
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.MagicMock(), self.message, "search.index")
+        _handler = handler.Handler()
+        f(_handler, self.message, "search.index")
+
+        # Process messages to ack
+        _handler.process_messages()
         self.message.channel.basic_ack.assert_called_once_with(self.delivery_tag)
 
     def test_reject_on_exception(self):
@@ -90,9 +98,6 @@ class HandlerTest(AmqpTestCase):
 
     def setUp(self):
         super(HandlerTest, self).setUp()
-        handler.solr_connection = mock.Mock()
-        handler.solr_version_check = mock.Mock()
-
         handler.SCHEMA = {self.entity_type: None}
 
         solr_version_check_patcher = mock.patch("sir.amqp.handler.solr_version_check")
