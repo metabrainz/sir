@@ -146,8 +146,13 @@ class ReusableTimer(object):
         self._timer = None
 
     def start(self, delay=None):
+        """
+        Used to start a new timer with given delay.
+
+        :param int delay:
+        """
         if self._timer:
-            raise Exception('Timer already exists. Use reset instead.')
+            raise Exception('Timer already exists. Use restart instead.')
 
         if not delay:
             delay = self.delay
@@ -156,13 +161,23 @@ class ReusableTimer(object):
         self._timer.start()
 
     def cancel(self):
+        """
+        Used to cancel an already running timer.
+        """
         if self._timer:
             self._timer.cancel()
             self._timer = None
         else:
             raise Exception('Cannot cancel timer. No timer started.')
 
-    def reset(self, delay=None):
+    def restart(self, delay=None):
+        """
+        Used to restart the timer and schedule a call after ``delay``
+        seconds. It will cancel any existing scheduled calls. If there
+        are no existing timers scheduled it just starts a new timer.
+
+        :param int delay:
+        """
         if self._timer:
             self._timer.cancel()
         if not delay:
