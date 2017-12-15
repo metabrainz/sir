@@ -48,7 +48,7 @@ def reindex(args):
     _multiprocessed_import(entities)
 
 
-def live_index(entity, id_list):
+def live_index(entities):
     """
      Reindex all documents from``id_list`` in multiple processes via the
     :mod:`multiprocessing` module.
@@ -56,7 +56,11 @@ def live_index(entity, id_list):
     :param entity:
     :type id_list: [str]
     """
-    return _multiprocessed_import([entity], live=True, id_list=id_list)
+    # Convert set to list so we can iterate over ids in batches
+    for entity in entities:
+        entities[entity] = list(entities[entity])
+    logger.info(entities)
+    return _multiprocessed_import(entities.keys(), live=True, id_list=entities)
 
 
 def _multiprocessed_import(entities, live=False, id_list=None):
@@ -83,6 +87,7 @@ def _multiprocessed_import(entities, live=False, id_list=None):
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entities:
         index_function_args = []
+        entity_id_list = id_list.get(e, None)
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
@@ -98,10 +103,12 @@ def _multiprocessed_import(entities, live=False, id_list=None):
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
         indexer = partial(_index_entity_process_wrapper, live=live)
-        if live and id_list:
-            for ids in range(0, len(id_list), query_batch_size):
-                index_function_args.append((e, db_uri, id_list[ids:ids+query_batch_size],
-                                           entity_data_queue))
+        if live:
+            if entity_id_list:
+                for i in range(0, len(id_list), query_batch_size):
+                    index_function_args.append((e, db_uri,
+                                                entity_id_list[i:i + query_batch_size],
+                                                entity_data_queue))
         else:
             with util.db_session_ctx(db_session) as session:
                 for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
@@ -193,7 +200,6 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
     condition = and_(search_entity.model.id.in_(ids))
     row_converter = search_entity.query_result_to_dict
-
     with util.db_session_ctx(util.db_session()) as session:
         query = search_entity.query.filter(condition).with_session(session)
         [data_queue.put(row_converter(row)) for row in query]
