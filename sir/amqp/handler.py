@@ -89,11 +89,8 @@ def callback_wrapper(f):
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
-            try:
-                self.queue_lock.acquire()
+            with self.queue_lock:
                 self.pending_messages.append(msg)
-            finally:
-                self.queue_lock.release()
             if len(self.pending_messages) >= self.batch_size:
                 self.process_messages()
         except Exception as exc:
@@ -118,14 +115,14 @@ class Handler(object):
 
         # Used to define the batch size of the pending messages list
         try:
-            self.batch_size = config.CFG.getint("rabbitmq", "live_index_batch_size")
+            self.batch_size = config.CFG.getint("sir", "live_index_batch_size")
         except (NoOptionError, AttributeError):
             self.batch_size = 1
         # Defines how long the handler should wait before processing messages.
         # Used to trigger the process_message callback to prevent starvation
         # in pending_messages in case it doesn't fill up to batch_size
         try:
-            self.process_delay = config.CFG.getint("rabbitmq", "process_delay")
+            self.process_delay = config.CFG.getint("sir", "process_delay")
         except (NoOptionError, AttributeError):
             self.process_delay = 120
 
@@ -206,28 +203,23 @@ class Handler(object):
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
-        try:
-            self.queue_lock.acquire()
-            live_index(self.pending_entities)
-        except Exception as exc:
-            for msg in self.pending_messages:
-                logger.error(exc, extra={"data": {"message": vars(msg)}})
-                requeue_message(msg, exc)
-        else:
-            for msg in self.pending_messages:
-                msg.channel.basic_ack(msg.delivery_tag)
-            self.pending_messages = []
-            self.pending_entities.clear()
-        finally:
-            self.queue_lock.release()
+        with self.queue_lock:
+            try:
+                live_index(self.pending_entities)
+            except Exception as exc:
+                for msg in self.pending_messages:
+                    logger.error(exc, extra={"data": {"message": vars(msg)}})
+                    requeue_message(msg, exc)
+            else:
+                for msg in self.pending_messages:
+                    msg.channel.basic_ack(msg.delivery_tag)
+                self.pending_messages = []
+                self.pending_entities.clear()
 
     def _index_data(self, core_name, id_list):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
-        try:
-            self.queue_lock.acquire()
+        with self.queue_lock:
             self.pending_entities[core_name].update(set(id_list))
-        finally:
-            self.queue_lock.release()
         # Reset the timer for the callback to process_messages
         self.process_timer.reset()
 
