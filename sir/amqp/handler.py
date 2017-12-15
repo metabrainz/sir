@@ -5,7 +5,7 @@
 from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
-from sir.indexing import multiprocess_live_index
+from sir.indexing import live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
@@ -17,7 +17,6 @@ from functools import partial, wraps
 from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
-from sqlalchemy import and_
 from sqlalchemy.orm import class_mapper
 from sys import exit
 from urllib2 import URLError
@@ -188,7 +187,7 @@ class Handler(object):
 
     def _index_data(self, core_name, id_list, message):
         logger.info("Indexing %s new rows for entity %s", len(id_list), core_name)
-        multiprocess_live_index(core_name, id_list)
+        live_index(core_name, id_list)
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
