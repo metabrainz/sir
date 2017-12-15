@@ -56,10 +56,7 @@ def live_index(entities):
     :param entity:
     :type id_list: [str]
     """
-    # Convert set to list so we can iterate over ids in batches
-    for entity in entities:
-        entities[entity] = list(entities[entity])
-    logger.info(entities)
+    logger.debug(entities)
     return _multiprocessed_import(entities.keys(), live=True, id_list=entities)
 
 
@@ -87,7 +84,7 @@ def _multiprocessed_import(entities, live=False, id_list=None):
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entities:
         index_function_args = []
-        entity_id_list = id_list.get(e, None)
+        entity_id_list = list(id_list.get(e, set()))
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
@@ -105,7 +102,7 @@ def _multiprocessed_import(entities, live=False, id_list=None):
         indexer = partial(_index_entity_process_wrapper, live=live)
         if live:
             if entity_id_list:
-                for i in range(0, len(id_list), query_batch_size):
+                for i in range(0, len(entity_id_list), query_batch_size):
                     index_function_args.append((e, db_uri,
                                                 entity_id_list[i:i + query_batch_size],
                                                 entity_data_queue))

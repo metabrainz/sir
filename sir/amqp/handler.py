@@ -11,7 +11,8 @@ from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
                       solr_connection,
-                      solr_version_check)
+                      solr_version_check,
+                      ReusableTimer)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -22,6 +23,7 @@ from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
+from multiprocessing import Lock
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -87,15 +89,17 @@ def callback_wrapper(f):
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
-            self.pending_messages.append(msg)
+            try:
+                self.queue_lock.acquire()
+                self.pending_messages.append(msg)
+            finally:
+                self.queue_lock.release()
             if len(self.pending_messages) >= self.batch_size:
                 self.process_messages()
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
             requeue_message(msg, exc)
-        else:
-            msg.channel.basic_ack(msg.delivery_tag)
 
     return wrapper
 
@@ -112,15 +116,27 @@ class Handler(object):
             self.cores[core_name] = solr_connection(core_name)
             solr_version_check(core_name)
 
-        # Limit upto which sir should index entity updates
+        # Used to define the batch size of the pending messages list
         try:
             self.batch_size = config.CFG.getint("rabbitmq", "live_index_batch_size")
         except (NoOptionError, AttributeError):
             self.batch_size = 1
+        # Defines how long the handler should wait before processing messages.
+        # Used to trigger the process_message callback to prevent starvation
+        # in pending_messages in case it doesn't fill up to batch_size
+        try:
+            self.process_delay = config.CFG.getint("rabbitmq", "process_delay")
+        except (NoOptionError, AttributeError):
+            self.process_delay = 120
+
         logger.info("Batch size is set to %s", self.batch_size)
+        logger.info("Process delay is set to %s seconds", self.process_delay)
+
         self.db_session = db_session()
         self.pending_messages = []
         self.pending_entities = defaultdict(set)
+        self.process_timer = ReusableTimer(self.process_delay, self.process_messages)
+        self.queue_lock = Lock()
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -191,18 +207,29 @@ class Handler(object):
 
     def process_messages(self):
         try:
+            self.queue_lock.acquire()
             live_index(self.pending_entities)
         except Exception as exc:
             for msg in self.pending_messages:
                 logger.error(exc, extra={"data": {"message": vars(msg)}})
                 requeue_message(msg, exc)
         else:
+            for msg in self.pending_messages:
+                msg.channel.basic_ack(msg.delivery_tag)
             self.pending_messages = []
             self.pending_entities.clear()
+        finally:
+            self.queue_lock.release()
 
     def _index_data(self, core_name, id_list):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
-        self.pending_entities[core_name].update(set(id_list))
+        try:
+            self.queue_lock.acquire()
+            self.pending_entities[core_name].update(set(id_list))
+        finally:
+            self.queue_lock.release()
+        # Reset the timer for the callback to process_messages
+        self.process_timer.reset()
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
