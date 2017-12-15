@@ -13,7 +13,7 @@ from sqlalchemy import and_
 from traceback import format_exc
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
-           "_multiprocessed_import", "_index_entity_process_wrapper", "multiprocess_index",
+           "_multiprocessed_import", "_index_entity_process_wrapper", "live_index",
            "live_index_entity"]
 
 
@@ -46,6 +46,17 @@ def reindex(args):
         return
 
     _multiprocessed_import(entities)
+
+
+def live_index(entity, id_list):
+    """
+     Reindex all documents from``id_list`` in multiple processes via the
+    :mod:`multiprocessing` module.
+
+    :param entity:
+    :type id_list: [str]
+    """
+    return _multiprocessed_import([entity], live=True, id_list=id_list)
 
 
 def _multiprocessed_import(entities, live=False, id_list=None):
@@ -166,6 +177,29 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         logger.info("Retrieved all %s records in %s", model, bounds)
 
 
+def live_index_entity(entity_name, db_uri, ids, data_queue):
+    """
+    Retrieve rows for a single entity type identified by ``entity_name``,
+    convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
+    put the dicts into ``queue``.
+
+    :param str entity_name:
+    :param str db_uri:
+    :param ids:
+    :param Queue.Queue data_queue:
+    """
+    search_entity = SCHEMA[entity_name]
+    model = search_entity.model
+    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
+    condition = and_(search_entity.model.id.in_(ids))
+    row_converter = search_entity.query_result_to_dict
+
+    with util.db_session_ctx(util.db_session()) as session:
+        query = search_entity.query.filter(condition).with_session(session)
+        [data_queue.put(row_converter(row)) for row in query]
+        logger.info("Retrieved %s records in %s", len(ids), model)
+
+
 def queue_to_solr(queue, batch_size, solr_connection):
     """
     Read :class:`dict` objects from ``queue`` and send them to the Solr server
@@ -218,37 +252,3 @@ def send_data_to_solr(solr_connection, data):
             raise
     else:
         logger.debug("Sent data to Solr")
-
-
-def live_index(entity, id_list):
-    """
-     Reindex all documents from``id_list`` in multiple processes via the
-    :mod:`multiprocessing` module.
-
-    :param entity:
-    :type id_list: [str]
-    """
-    _multiprocessed_import([entity], live=True, id_list=id_list)
-
-
-def live_index_entity(entity_name, db_uri, ids, data_queue):
-    """
-    Retrieve rows for a single entity type identified by ``entity_name``,
-    convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
-    put the dicts into ``queue``.
-
-    :param str entity_name:
-    :param str db_uri:
-    :param ids:
-    :param Queue.Queue data_queue:
-    """
-    search_entity = SCHEMA[entity_name]
-    model = search_entity.model
-    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
-    condition = and_(search_entity.model.id.in_(ids))
-    row_converter = search_entity.query_result_to_dict
-
-    with util.db_session_ctx(util.db_session()) as session:
-        query = search_entity.query.filter(condition).with_session(session)
-        [data_queue.put(row_converter(row)) for row in query]
-        logger.info("Retrieved %s records in %s", len(ids), model)
