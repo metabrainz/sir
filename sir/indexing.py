@@ -48,7 +48,7 @@ def reindex(args):
     _multiprocessed_import(entities)
 
 
-def _multiprocessed_import(entities):
+def _multiprocessed_import(entities, live=False, id_list=None):
     """
     Does the real work to import all ``entities`` in multiple processes via the
     :mod:`multiprocessing` module.
@@ -86,14 +86,20 @@ def _multiprocessed_import(entities):
                                                target=process_function)
         solr_process.start()
         logger.info("The queue workers PID is %i", solr_process.pid)
-        with util.db_session_ctx(db_session) as session:
-            for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
-                                               query_batch_size, importlimit):
-                args = (e, db_uri, bounds, entity_data_queue)
-                index_function_args.append(args)
+        indexer = partial(_index_entity_process_wrapper, live=live)
+        if live and id_list:
+            for ids in range(0, len(id_list), query_batch_size):
+                index_function_args.append((e, db_uri, id_list[ids:ids+query_batch_size],
+                                           entity_data_queue))
+        else:
+            with util.db_session_ctx(db_session) as session:
+                for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
+                                                   query_batch_size, importlimit):
+                    args = (e, db_uri, bounds, entity_data_queue)
+                    index_function_args.append(args)
 
         try:
-            results = pool.imap(_index_entity_process_wrapper,
+            results = pool.imap(indexer,
                                 index_function_args)
             for r in results:
                 pass
@@ -214,7 +220,7 @@ def send_data_to_solr(solr_connection, data):
         logger.debug("Sent data to Solr")
 
 
-def multiprocess_live_index(entity, id_list):
+def live_index(entity, id_list):
     """
      Reindex all documents from``id_list`` in multiple processes via the
     :mod:`multiprocessing` module.
@@ -222,47 +228,7 @@ def multiprocess_live_index(entity, id_list):
     :param entity:
     :type id_list: [str]
     """
-    query_batch_size = config.CFG.getint("sir", "query_batch_size")
-    max_processes = config.CFG.getint("sir", "import_threads")
-    solr_batch_size = config.CFG.getint("solr", "batch_size")
-
-    # Only allow one task per child to prevent the process consuming too much
-    # memory
-    pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
-    index_function_args = []
-    manager = multiprocessing.Manager()
-    entity_data_queue = manager.Queue()
-    db_uri = config.CFG.get("database", "uri")
-    solr_connection = util.solr_connection(entity)
-    process_function = partial(queue_to_solr,
-                               entity_data_queue,
-                               solr_batch_size,
-                               solr_connection)
-
-    solr_process = multiprocessing.Process(name="solr",
-                                           target=process_function)
-    solr_process.start()
-    logger.info("The queue workers PID is %i", solr_process.pid)
-    _live_index_wrapper = partial(_index_entity_process_wrapper, live=True)
-    for ids in range(0, len(id_list), query_batch_size):
-        index_function_args.append((entity, db_uri, id_list[ids:ids+query_batch_size],
-                                   entity_data_queue))
-
-    try:
-        results = pool.imap(_live_index_wrapper,
-                            index_function_args)
-        for r in results:
-            pass
-    except Exception as exc:
-        raise exc
-    except KeyboardInterrupt as exc:
-        logger.exception(exc)
-    else:
-        logger.info("Importing %s successful!", entity)
-    entity_data_queue.put(STOP)
-    solr_process.join()
-    pool.terminate()
-    pool.join()
+    _multiprocessed_import([entity], live=True, id_list=id_list)
 
 
 def live_index_entity(entity_name, db_uri, ids, data_queue):
@@ -285,4 +251,4 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     with util.db_session_ctx(util.db_session()) as session:
         query = search_entity.query.filter(condition).with_session(session)
         [data_queue.put(row_converter(row)) for row in query]
-        logger.info("Retrieved all %s records in %s", model, ids)
+        logger.info("Retrieved %s records in %s", len(ids), model)
