@@ -221,7 +221,7 @@ class Handler(object):
         with self.queue_lock:
             self.pending_entities[core_name].update(set(id_list))
         # Reset the timer for the callback to process_messages
-        self.process_timer.reset()
+        self.process_timer.restart()
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
