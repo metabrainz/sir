@@ -214,8 +214,11 @@ def _query_database(entity_name, db_uri, condition, data_queue):
     row_converter = search_entity.query_result_to_dict
     with util.db_session_ctx(util.db_session()) as session:
         query = search_entity.query.filter(condition).with_session(session)
-        [data_queue.put(row_converter(row)) for row in query]
-        logger.info("Retrieved %s records in %s", len(query), model)
+        total_records = 0
+        for row in query:
+            data_queue.put(row_converter(row))
+            total_records += 1
+        logger.info("Retrieved %s records in %s", total_records, model)
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
