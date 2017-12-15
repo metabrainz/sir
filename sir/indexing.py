@@ -50,23 +50,30 @@ def reindex(args):
 
 def live_index(entities):
     """
-     Reindex all documents from``id_list`` in multiple processes via the
-    :mod:`multiprocessing` module.
-
-    :param entity:
-    :type id_list: [str]
-    """
-    logger.debug(entities)
-    return _multiprocessed_import(entities.keys(), live=True, id_list=entities)
-
-
-def _multiprocessed_import(entities, live=False, id_list=None):
-    """
-    Does the real work to import all ``entities`` in multiple processes via the
+     Reindex all documents in``entities`` in multiple processes via the
     :mod:`multiprocessing` module.
 
     :param entities:
-    :type entities: [str]
+    :type entities: dict(set(int))
+    """
+    logger.debug(entities)
+    return _multiprocessed_import(entities.keys(), live=True, entities=entities)
+
+
+def _multiprocessed_import(entity_names, live=False, entities=None):
+    """
+    Does the real work to import all entities with ``entity_name`` in multiple
+    processes via the :mod:`multiprocessing` module.
+
+    When ``live`` is True, it means, we are live indexing documents with ids in the
+    ``entities`` dict, otherwise it reindexes the entire table for entities in
+    ``entity_names``.
+
+    :param entity_names:
+    :type entity_names: [str]
+    :param bool live:
+    :param entities:
+    :type entities: dict(set(int))
     """
     query_batch_size = config.CFG.getint("sir", "query_batch_size")
     try:
@@ -82,9 +89,9 @@ def _multiprocessed_import(entities, live=False, id_list=None):
     # Only allow one task per child to prevent the process consuming too much
     # memory
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
-    for e in entities:
+    for e in entity_names:
         index_function_args = []
-        entity_id_list = list(id_list.get(e, set()))
+        entity_id_list = list(entities.get(e, set()))
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
@@ -138,6 +145,8 @@ def _index_entity_process_wrapper(args, live=False):
     http://jessenoller.com/2009/01/08/multiprocessingpool-and-keyboardinterrupt/
     for reasons why.
 
+    :param bool live:
+
     :rtype: None or an Exception
     """
     try:
@@ -163,22 +172,14 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     :type bounds: (int, int)
     :param Queue.Queue data_queue:
     """
-    search_entity = SCHEMA[entity_name]
-    model = search_entity.model
+    model = SCHEMA[entity_name].model
     logger.info("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    row_converter = search_entity.query_result_to_dict
-
-    with util.db_session_ctx(util.db_session()) as session:
-        query = search_entity.query.\
-            filter(condition).\
-            with_session(session)
-        [data_queue.put(row_converter(row)) for row in query]
-        logger.info("Retrieved all %s records in %s", model, bounds)
+    _query_database(entity_name, db_uri, condition, data_queue)
 
 
 def live_index_entity(entity_name, db_uri, ids, data_queue):
@@ -192,15 +193,29 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     :param ids:
     :param Queue.Queue data_queue:
     """
+    condition = and_(SCHEMA[entity_name].model.id.in_(ids))
+    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
+    _query_database(entity_name, db_uri, condition, data_queue)
+
+
+def _query_database(entity_name, db_uri, condition, data_queue):
+    """
+    Retrieve rows for a single entity type identified by ``entity_name``,
+    convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
+    put the dicts into ``queue``.
+
+    :param str entity_name:
+    :param str db_uri:
+    :param condition:
+    :param Queue.Queue data_queue:
+    """
     search_entity = SCHEMA[entity_name]
     model = search_entity.model
-    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
-    condition = and_(search_entity.model.id.in_(ids))
     row_converter = search_entity.query_result_to_dict
     with util.db_session_ctx(util.db_session()) as session:
         query = search_entity.query.filter(condition).with_session(session)
         [data_queue.put(row_converter(row)) for row in query]
-        logger.info("Retrieved %s records in %s", len(ids), model)
+        logger.info("Retrieved %s records in %s", len(query), model)
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
