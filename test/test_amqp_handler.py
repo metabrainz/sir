@@ -46,7 +46,7 @@ class CallbackWrapperTest(AmqpTestCase):
             pass
 
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.Mock(), self.message, "search.index")
+        f(mock.MagicMock(), self.message, "search.index")
         self.message.channel.basic_ack.assert_called_once_with(self.delivery_tag)
 
     def test_reject_on_exception(self):
@@ -54,7 +54,7 @@ class CallbackWrapperTest(AmqpTestCase):
             raise ValueError()
 
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.Mock(), self.message, "search.index")
+        f(mock.MagicMock(), self.message, "search.index")
         self.message.channel.basic_reject.assert_called_once_with(
             self.delivery_tag,
             requeue=False)
@@ -73,7 +73,7 @@ class CallbackWrapperTest(AmqpTestCase):
 
         self.message.application_headers["mb-retries"] = 0
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.Mock(), self.message, "search.index")
+        f(mock.MagicMock(), self.message, "search.index")
         self.message.channel.basic_reject.assert_called_once_with(
             self.delivery_tag,
             requeue=False)
