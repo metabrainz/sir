@@ -1,6 +1,7 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import multiprocessing
+import signal
 
 
 from . import config, querying, util, get_sentry
@@ -125,8 +126,14 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                 index_function_args)
             for r in results:
                 pass
-        except (KeyboardInterrupt, Exception) as exc:
+        except Exception as exc:
             logger.exception(exc)
+        except KeyboardInterrupt:
+            logger.info('Caught a KeyboardInterrupt, terminating all processes')
+            solr_process.terminate()
+            solr_process.join()
+            pool.terminate()
+            pool.join()
         else:
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
@@ -138,17 +145,18 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
 def _index_entity_process_wrapper(args, live=False):
     """
     Calls :func:`sir.indexing.index_entity` with ``args`` unpacked.
-    If a :exc:`KeyboardInterrupt` happens while this functions runs, the
-    exception will be **returned**, **not** (re-)raised.
+    In case of a KeyboardInterrupt, we ignore SIGINT in the child process
+    and instead let the parent process catch the KeyboardInterrupt and
+    gracefully terminate the pool.
 
-    See
-    http://jessenoller.com/2009/01/08/multiprocessingpool-and-keyboardinterrupt/
-    for reasons why.
+    See https://noswap.com/blog/python-multiprocessing-keyboardinterrupt
+    for more information
 
     :param bool live:
 
     :rtype: None or an Exception
     """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     try:
         if live:
             return live_index_entity(*args)
@@ -156,8 +164,8 @@ def _index_entity_process_wrapper(args, live=False):
     except Exception:
         logger.exception(format_exc())
         raise
-    except KeyboardInterrupt as exc:
-        return exc
+    except KeyboardInterrupt:
+        raise
 
 
 def index_entity(entity_name, db_uri, bounds, data_queue):
