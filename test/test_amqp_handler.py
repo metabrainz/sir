@@ -129,7 +129,6 @@ class HandlerTest(AmqpTestCase):
                    'type': '3'}
         parsed_message = Message(1, 'area_alias', columns, 'delete')
         handler.SCHEMA = SCHEMA
-        handler.live_index = mock.MagicMock()
         self.handler = handler.Handler()
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
