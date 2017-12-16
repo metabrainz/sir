@@ -92,7 +92,8 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entity_names:
         index_function_args = []
-        entity_id_list = list(entities.get(e, set()))
+        # `entities` will be None when reindexing the entire DB
+        entity_id_list = list(entities.get(e, set())) if entities else None
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
         db_uri = config.CFG.get("database", "uri")
