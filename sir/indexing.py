@@ -58,7 +58,7 @@ def live_index(entities):
     :type entities: dict(set(int))
     """
     logger.debug(entities)
-    return _multiprocessed_import(entities.keys(), live=True, entities=entities)
+    _multiprocessed_import(entities.keys(), live=True, entities=entities)
 
 
 def _multiprocessed_import(entity_names, live=False, entities=None):
@@ -135,6 +135,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             solr_process.join()
             pool.terminate()
             pool.join()
+            return
         else:
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
