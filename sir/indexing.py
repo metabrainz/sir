@@ -179,7 +179,7 @@ def _index_entity_process_wrapper(args, live=False):
         # IOError and EOFError due to the process trying to communicate via a broken pipe.
         logger.debug(exc)
         logger.warning('Queue closed unexpectedly. Terminating DB queries.')
-        raise SystemExit
+        raise
     except Exception:
         logger.exception(format_exc())
         raise
@@ -256,7 +256,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
         # IOError and EOFError due to the process trying to communicate via a broken pipe.
         logger.debug(exc)
         logger.warning('Queue closed unexpectedly. Terminating Solr import.')
-        raise SystemExit
+        raise
 
 
 def _queue_to_solr(queue, batch_size, solr_connection):
