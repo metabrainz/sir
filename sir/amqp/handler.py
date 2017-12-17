@@ -212,6 +212,8 @@ class Handler(object):
                 for msg in self.pending_messages:
                     requeue_message(msg, exc)
                 if isinstance(exc, SystemExit):
+                    # This happens when a SIGTERM is handled and closes the child processes
+                    # We are raising this again to quit retrying the _watch_impl function.
                     raise
             else:
                 for msg in self.pending_messages:

@@ -60,7 +60,11 @@ def live_index(entities):
     logger.debug(entities)
     try:
         _multiprocessed_import(entities.keys(), live=True, entities=entities)
-    except (IOError, EOFError, SystemExit, KeyboardInterrupt):
+    except (IOError, EOFError, SystemExit, KeyboardInterrupt) as exc:
+        # The IOErrors and EOFErrors are due to processes trying to
+        # communicate via broken pipes after being terminated from the
+        # parent process.
+        logger.debug(exc)
         raise SystemExit
 
 
@@ -169,8 +173,13 @@ def _index_entity_process_wrapper(args, live=False):
         if live:
             return live_index_entity(*args)
         return index_entity(*args)
-    except (KeyboardInterrupt, SystemExit, IOError, EOFError):
-        raise
+    except (KeyboardInterrupt, SystemExit, IOError, EOFError) as exc:
+        # When terminating the processes from the signal_handler in ``sir.amqp,handler``
+        # it happens at times that the ``data_queue`` is terminated. This causes
+        # IOError and EOFError due to the process trying to communicate via a broken pipe.
+        logger.debug(exc)
+        logger.warning('Queue closed unexpectedly. Terminating DB queries.')
+        raise SystemExit
     except Exception:
         logger.exception(format_exc())
         raise
@@ -241,7 +250,11 @@ def queue_to_solr(queue, batch_size, solr_connection):
     try:
         logger.info('Sending data to Solr')
         _queue_to_solr(queue, batch_size, solr_connection)
-    except (IOError, EOFError, SystemExit, KeyboardInterrupt):
+    except (IOError, EOFError, SystemExit, KeyboardInterrupt) as exc:
+        # When terminating the processes from the signal_handler in ``sir.amqp,handler``
+        # it happens at times that the ``data_queue`` is terminated. This causes
+        # IOError and EOFError due to the process trying to communicate via a broken pipe.
+        logger.debug(exc)
         logger.warning('Queue closed unexpectedly. Terminating Solr import.')
         raise SystemExit
 
