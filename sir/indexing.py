@@ -127,15 +127,16 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                 index_function_args)
             for r in results:
                 pass
-        except Exception as exc:
-            logger.exception(exc)
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, SystemExit):
             logger.info('Caught a KeyboardInterrupt, terminating all processes')
             solr_process.terminate()
             solr_process.join()
             pool.terminate()
             pool.join()
-            return
+            # Raising the exit signal all the way to parent process
+            raise
+        except Exception as exc:
+            logger.exception(exc)
         else:
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
@@ -159,6 +160,8 @@ def _index_entity_process_wrapper(args, live=False):
     :rtype: None or an Exception
     """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+
     try:
         if live:
             return live_index_entity(*args)
@@ -166,7 +169,7 @@ def _index_entity_process_wrapper(args, live=False):
     except Exception:
         logger.exception(format_exc())
         raise
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         raise
 
 
