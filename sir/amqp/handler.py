@@ -23,7 +23,8 @@ from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
-from multiprocessing import Lock
+from multiprocessing import Lock, active_children
+import signal
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -297,6 +298,8 @@ class Handler(object):
 def _should_retry(exc):
     logger.debug("Retrying...")
     logger.exception(exc)
+    if isinstance(exc, (SystemExit, KeyboardInterrupt)):
+        return False
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
         logger.info("Retrying in %i seconds", _RETRY_WAIT_SECS)
         return True
@@ -327,6 +330,26 @@ def _watch_impl():
         handler = Handler()
         add_handler("search.index", handler.index_callback)
         add_handler("search.delete", handler.delete_callback)
+
+        def signal_handler(signum, frame):
+            try:
+                handler.process_timer.cancel()
+            except Exception:
+                # In case the timer is not active it throws an exception
+                # Simply ignore it.
+                pass
+            try:
+                for msg in handler.pending_messages:
+                    requeue_message(msg, "")
+            except Exception as exc:
+                logger.error(exc)
+            children = active_children()
+            for child in children:
+                child.terminate()
+                child.join()
+            exit(0)
+
+        signal.signal(signal.SIGTERM, signal_handler)
 
         while True:
             logger.debug("Waiting for a message")
