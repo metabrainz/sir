@@ -48,7 +48,7 @@ def requeue_message(msg, exc):
         # TODO(roman): Document when this might happen
         logger.warning("Message doesn't have \"application_headers\" attribute",
                        extra={"msg": msg, "attributes": msg.__dict__})
-        return
+        msg.application_headers = {}
     retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
     routing_key = msg.delivery_info["routing_key"]
     if retries_remaining:
