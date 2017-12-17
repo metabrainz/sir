@@ -127,14 +127,14 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                 index_function_args)
             for r in results:
                 pass
-        except (KeyboardInterrupt, SystemExit):
-            logger.info('Caught a KeyboardInterrupt, terminating all processes')
+        except (KeyboardInterrupt, SystemExit, IOError, EOFError):
+            logger.info('Terminating all child processes.')
             solr_process.terminate()
             solr_process.join()
             pool.terminate()
             pool.join()
             # Raising the exit signal all the way to parent process
-            raise
+            raise SystemExit
         except Exception as exc:
             logger.exception(exc)
         else:
@@ -166,10 +166,10 @@ def _index_entity_process_wrapper(args, live=False):
         if live:
             return live_index_entity(*args)
         return index_entity(*args)
+    except (KeyboardInterrupt, SystemExit, IOError, EOFError):
+        raise
     except Exception:
         logger.exception(format_exc())
-        raise
-    except (KeyboardInterrupt, SystemExit):
         raise
 
 
@@ -235,6 +235,14 @@ def _query_database(entity_name, db_uri, condition, data_queue):
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
+    try:
+        logger.info('Sending data to Solr')
+        _queue_to_solr(queue, batch_size, solr_connection)
+    except (IOError, EOFError):
+        logger.warning('Queue closed unexpectedly. Terminating Solr import.')
+
+
+def _queue_to_solr(queue, batch_size, solr_connection):
     """
     Read :class:`dict` objects from ``queue`` and send them to the Solr server
     behind ``solr_connection`` in batches of ``batch_size``.

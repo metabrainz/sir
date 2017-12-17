@@ -46,8 +46,7 @@ _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 def requeue_message(msg, exc):
     if not hasattr(msg, "application_headers"):
         # TODO(roman): Document when this might happen
-        logger.warning("Message doesn't have \"application_headers\" attribute",
-                       extra={"msg": msg, "attributes": msg.__dict__})
+        logger.debug("Message doesn't have \"application_headers\" attribute: %s", vars(msg))
         msg.application_headers = {}
     retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
     routing_key = msg.delivery_info["routing_key"]
@@ -208,8 +207,9 @@ class Handler(object):
             try:
                 live_index(self.pending_entities)
             except Exception as exc:
+                logger.error("Error encountered while processing messages: %s", exc)
+                logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
-                    logger.error(exc, extra={"data": {"message": vars(msg)}})
                     requeue_message(msg, exc)
             else:
                 for msg in self.pending_messages:
@@ -296,10 +296,11 @@ class Handler(object):
 
 
 def _should_retry(exc):
-    logger.debug("Retrying...")
-    logger.exception(exc)
     if isinstance(exc, (SystemExit, KeyboardInterrupt)):
+        logger.info('Terminating SIR.')
         return False
+    logger.info("Retrying...")
+    logger.exception(exc)
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
         logger.info("Retrying in %i seconds", _RETRY_WAIT_SECS)
         return True
