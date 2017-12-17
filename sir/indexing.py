@@ -58,7 +58,10 @@ def live_index(entities):
     :type entities: dict(set(int))
     """
     logger.debug(entities)
-    _multiprocessed_import(entities.keys(), live=True, entities=entities)
+    try:
+        _multiprocessed_import(entities.keys(), live=True, entities=entities)
+    except (IOError, EOFError, SystemExit, KeyboardInterrupt):
+        raise SystemExit
 
 
 def _multiprocessed_import(entity_names, live=False, entities=None):
@@ -238,8 +241,9 @@ def queue_to_solr(queue, batch_size, solr_connection):
     try:
         logger.info('Sending data to Solr')
         _queue_to_solr(queue, batch_size, solr_connection)
-    except (IOError, EOFError):
+    except (IOError, EOFError, SystemExit, KeyboardInterrupt):
         logger.warning('Queue closed unexpectedly. Terminating Solr import.')
+        raise SystemExit
 
 
 def _queue_to_solr(queue, batch_size, solr_connection):

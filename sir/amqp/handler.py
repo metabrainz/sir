@@ -211,6 +211,8 @@ class Handler(object):
                 logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
                     requeue_message(msg, exc)
+                if isinstance(exc, SystemExit):
+                    raise
             else:
                 for msg in self.pending_messages:
                     msg.channel.basic_ack(msg.delivery_tag)
@@ -339,11 +341,6 @@ def _watch_impl():
                 # In case the timer is not active it throws an exception
                 # Simply ignore it.
                 pass
-            try:
-                for msg in handler.pending_messages:
-                    requeue_message(msg, "")
-            except Exception as exc:
-                logger.error(exc)
             children = active_children()
             for child in children:
                 child.terminate()
