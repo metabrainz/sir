@@ -185,7 +185,7 @@ CREATE TRIGGER search_series_annotation_delete BEFORE DELETE ON musicbrainz.seri
 CREATE TRIGGER search_series_insert AFTER INSERT ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_insert();
 
-CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, link_attribute_type, name, type ON musicbrainz.series
+CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name, type ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_update();
 
 CREATE TRIGGER search_series_delete BEFORE DELETE ON musicbrainz.series
