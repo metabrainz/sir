@@ -594,17 +594,19 @@ def generate_update_map():
             # For generating column map
             model, _ = second_last_model_in_path(entity.model, path)
             prop_name = path.split(".")[-1]
+            actual_columns = [col.name for col in class_mapper(model).columns]
             try:
                 prop = getattr(model, prop_name).prop
                 # We only care about columns, not relations
                 if isinstance(prop, (ColumnProperty, CompositeProperty)):
                     # In case of Composite properties, there might be more
                     # than 1 columns involved
-                    column_names = [col.name for col in prop.columns]
+                    column_names = [col.name for col in prop.columns if col.name in actual_columns]
                     column_map[model.__table__.name].update(column_names)
                 elif isinstance(prop, RelationshipProperty):
                     if prop.direction.name == 'MANYTOONE':
-                        column_map[model.__table__.name].add(prop.key)
+                        if prop.key in actual_columns:
+                            column_map[model.__table__.name].add(prop.key)
             # This happens in case of annotation and url paths
             # which have path to figure out the table name via transform funcs
             except AttributeError:
