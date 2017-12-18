@@ -1,8 +1,6 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
 import multiprocessing
-import signal
-
 
 from . import config, querying, util, get_sentry
 from .schema import SCHEMA

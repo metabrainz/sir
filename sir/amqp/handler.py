@@ -2,10 +2,12 @@
 # coding: utf-8
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import signal
+import sir.indexing as indexing
+
 from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
-import sir.indexing as indexing
 from sir.indexing import live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
@@ -25,8 +27,6 @@ from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
 from multiprocessing import Lock, active_children
-import signal
-import os
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -214,9 +214,9 @@ class Handler(object):
                 for msg in self.pending_messages:
                     requeue_message(msg, exc)
             else:
-                # In case the PROCSS FLAG is False, we know that the main process was
-                # terminated. Thus we should not acknowledge them. They will get requeued
-                # automatically is they are not acknowledged and the connection gets closed.
+                # In case PROCESS_FLAG is False, we know that the main process was
+                # terminated. Thus we should not acknowledge any messages. They will get requeued
+                # automatically if they are not acknowledged and the connection gets closed.
                 if indexing.PROCESS_FLAG:
                     logger.info('Processed %s messages', len(self.pending_messages))
                     for msg in self.pending_messages:
@@ -229,7 +229,8 @@ class Handler(object):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
         with self.queue_lock:
             self.pending_entities[core_name].update(set(id_list))
-        # Reset the timer for the callback to process_messages
+
+        # Reset the timer for the callback to `process_messages`.
         self.process_timer.restart()
 
     def _index_by_pk(self, parsed_message):
@@ -304,6 +305,7 @@ class Handler(object):
 
 
 def _should_retry(exc):
+    # This makes sure we do not retry in case of a SIGTERM or SIGINT
     if isinstance(exc, (SystemExit, KeyboardInterrupt)):
         logger.info('Terminating SIR.')
         return False
@@ -340,10 +342,9 @@ def _watch_impl():
         add_handler("search.index", handler.index_callback)
         add_handler("search.delete", handler.delete_callback)
 
-        def signal_handler(signum, frame, pid=os.getpid()):
-            # Setting the process flag to false to prevent any
-            # processes/threads blocked on handler.queue_lock to
-            # terminated without processing entities
+        def signal_handler(signum, frame):
+            # Setting flag to false to prevent any processes/threads blocked on
+            # handler.queue_lock from starting `handler.process_messages` again.
             indexing.PROCESS_FLAG = False
 
             # Cancelling any scheduled calls
