@@ -2,26 +2,31 @@
 # coding: utf-8
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import signal
+import sir.indexing as indexing
+
 from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
-from sir.indexing import send_data_to_solr
+from sir.indexing import live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
                       solr_connection,
-                      solr_version_check)
+                      solr_version_check,
+                      ReusableTimer)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
 from retrying import retry
 from socket import error as socket_error
-from sqlalchemy import and_
 from sqlalchemy.orm import class_mapper
 from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
+from collections import defaultdict
+from multiprocessing import Lock, active_children
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -38,6 +43,21 @@ _RETRY_WAIT_SECS = 30
 # Tables which are core entities, but do not have a guid.
 # These will be deleted via their `id`.
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
+
+
+def requeue_message(msg, exc):
+    if not hasattr(msg, "application_headers"):
+        # TODO(roman): Document when this might happen
+        logger.debug("Message doesn't have \"application_headers\" attribute: %s", vars(msg))
+        msg.application_headers = {}
+    retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
+    routing_key = msg.delivery_info["routing_key"]
+    if retries_remaining:
+        msg.application_headers["mb-retries"] = retries_remaining - 1
+        msg.application_headers["mb-exception"] = str(exc)
+        msg.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
+    else:
+        msg.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
 
 
 def callback_wrapper(f):
@@ -71,28 +91,14 @@ def callback_wrapper(f):
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
-
+            with self.queue_lock:
+                self.pending_messages.append(msg)
+            if len(self.pending_messages) >= self.batch_size:
+                self.process_messages()
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
-
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
-
-            if not hasattr(msg, "application_headers"):
-                # TODO(roman): Document when this might happen
-                logger.warning("Message doesn't have \"application_headers\" attribute",
-                               extra={"msg": msg, "attributes": msg.__dict__})
-                return
-            retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
-            routing_key = msg.delivery_info["routing_key"]
-            if retries_remaining:
-                msg.application_headers["mb-retries"] = retries_remaining - 1
-                msg.application_headers["mb-exception"] = str(exc)
-                msg.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
-            else:
-                msg.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
-
-        else:
-            msg.channel.basic_ack(msg.delivery_tag)
+            requeue_message(msg, exc)
 
     return wrapper
 
@@ -109,14 +115,27 @@ class Handler(object):
             self.cores[core_name] = solr_connection(core_name)
             solr_version_check(core_name)
 
-        # Limit upto which sir should index entity updates
+        # Used to define the batch size of the pending messages list
         try:
-            self.index_limit = config.CFG.getint("rabbitmq", "index_limit")
+            self.batch_size = config.CFG.getint("sir", "live_index_batch_size")
         except (NoOptionError, AttributeError):
-            self.index_limit = 0
-        logger.info("Index limit is set to %s", self.index_limit)
+            self.batch_size = 1
+        # Defines how long the handler should wait before processing messages.
+        # Used to trigger the process_message callback to prevent starvation
+        # in pending_messages in case it doesn't fill up to batch_size
+        try:
+            self.process_delay = config.CFG.getint("sir", "process_delay")
+        except (NoOptionError, AttributeError):
+            self.process_delay = 120
+
+        logger.info("Batch size is set to %s", self.batch_size)
+        logger.info("Process delay is set to %s seconds", self.process_delay)
 
         self.db_session = db_session()
+        self.pending_messages = []
+        self.pending_entities = defaultdict(set)
+        self.process_timer = ReusableTimer(self.process_delay, self.process_messages)
+        self.queue_lock = Lock()
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -146,7 +165,6 @@ class Handler(object):
         """
         logger.info("Processing `index` message from table: %s" % parsed_message.table_name)
         logger.info("Message columns %s" % parsed_message.columns)
-
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
         else:
@@ -186,19 +204,34 @@ class Handler(object):
         self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
-    def _index_data(self, core_name, id_list, message):
-        # Only index data if it is less than the specified index limit.
-        # Useful in cases like "Various Artist" updates
-        if self.index_limit and len(id_list) > self.index_limit:
-            logger.info("Too many ids retrieved for message %s. Not updating index.", message)
-            return
-        entity = SCHEMA[core_name]
-        logger.info("Indexing %s new rows for entity %s", len(id_list), core_name)
-        with db_session_ctx(self.db_session) as session:
-            condition = and_(entity.model.id.in_(id_list))
-            query = entity.query.filter(condition).with_session(session)
-            data = [entity.query_result_to_dict(obj) for obj in query.all()]
-            send_data_to_solr(self.cores[core_name], data)
+    def process_messages(self):
+        with self.queue_lock:
+            try:
+                live_index(self.pending_entities)
+            except Exception as exc:
+                logger.error("Error encountered while processing messages: %s", exc)
+                logger.info("Requeuing %s pending messages.", len(self.pending_messages))
+                for msg in self.pending_messages:
+                    requeue_message(msg, exc)
+            else:
+                # In case PROCESS_FLAG is False, we know that the main process was
+                # terminated. Thus we should not acknowledge any messages. They will get requeued
+                # automatically if they are not acknowledged and the connection gets closed.
+                if indexing.PROCESS_FLAG:
+                    logger.info('Processed %s messages', len(self.pending_messages))
+                    for msg in self.pending_messages:
+                        msg.channel.basic_ack(msg.delivery_tag)
+                    logger.info('Clearing all pending messages')
+                    self.pending_messages = []
+                    self.pending_entities.clear()
+
+    def _index_data(self, core_name, id_list):
+        logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
+        with self.queue_lock:
+            self.pending_entities[core_name].update(set(id_list))
+
+        # Reset the timer for the callback to `process_messages`.
+        self.process_timer.restart()
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
@@ -222,7 +255,7 @@ class Handler(object):
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
-                self._index_data(core_name, ids, parsed_message.columns)
+                self._index_data(core_name, ids)
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
@@ -268,11 +301,15 @@ class Handler(object):
                         logger.debug("SQL: %s" % (select_query))
 
                     # Retrieving actual data
-                    self._index_data(core_name, ids, parsed_message.columns)
+                    self._index_data(core_name, ids)
 
 
 def _should_retry(exc):
-    logger.debug("Retrying...")
+    # This makes sure we do not retry in case of a SIGTERM or SIGINT
+    if isinstance(exc, (SystemExit, KeyboardInterrupt)):
+        logger.info('Terminating SIR.')
+        return False
+    logger.info("Retrying...")
     logger.exception(exc)
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
         logger.info("Retrying in %i seconds", _RETRY_WAIT_SECS)
@@ -304,6 +341,34 @@ def _watch_impl():
         handler = Handler()
         add_handler("search.index", handler.index_callback)
         add_handler("search.delete", handler.delete_callback)
+
+        def signal_handler(signum, frame):
+            # Setting flag to false to prevent any processes/threads blocked on
+            # handler.queue_lock from starting `handler.process_messages` again.
+            indexing.PROCESS_FLAG = False
+
+            # Cancelling any scheduled calls
+            try:
+                handler.process_timer.cancel()
+            except Exception:
+                # In case the timer is not active it throws an exception
+                # Simply ignore it.
+                pass
+
+            # If SIGTERM is received by the parent, make sure all its children
+            # are killed before calling exit on the parent.
+            children = active_children()
+            for child in children:
+                try:
+                    child.terminate()
+                    child.join()
+                except Exception:
+                    pass
+            # Finally exit
+            exit(1)
+
+        signal.signal(signal.SIGTERM, signal_handler)
+        signal.signal(signal.SIGINT, signal_handler)
 
         while True:
             logger.debug("Waiting for a message")
