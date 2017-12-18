@@ -158,6 +158,8 @@ class ReusableTimer(object):
             delay = self.delay
 
         self._timer = Timer(delay, self.callback)
+        # Starting the call in daemon mode so that it exits when the parent
+        # exits and isn't orphaned
         self._timer.daemon = True
         self._timer.start()
 
