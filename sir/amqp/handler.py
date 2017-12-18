@@ -5,6 +5,7 @@
 from sir.amqp import message
 from sir import get_sentry, config
 from sir.schema import SCHEMA, generate_update_map
+import sir.indexing as indexing
 from sir.indexing import live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
@@ -25,6 +26,7 @@ from ConfigParser import NoOptionError
 from collections import defaultdict
 from multiprocessing import Lock, active_children
 import signal
+import os
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -211,15 +213,17 @@ class Handler(object):
                 logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
                     requeue_message(msg, exc)
-                if isinstance(exc, SystemExit):
-                    # This happens when a SIGTERM is handled and closes the child processes
-                    # We are raising this again to quit retrying the _watch_impl function.
-                    raise
             else:
-                for msg in self.pending_messages:
-                    msg.channel.basic_ack(msg.delivery_tag)
-                self.pending_messages = []
-                self.pending_entities.clear()
+                # In case the PROCSS FLAG is False, we know that the main process was
+                # terminated. Thus we should not acknowledge them. They will get requeued
+                # automatically is they are not acknowledged and the connection gets closed.
+                if indexing.PROCESS_FLAG:
+                    logger.info('Processed %s messages', len(self.pending_messages))
+                    for msg in self.pending_messages:
+                        msg.channel.basic_ack(msg.delivery_tag)
+                    logger.info('Clearing all pending messages')
+                    self.pending_messages = []
+                    self.pending_entities.clear()
 
     def _index_data(self, core_name, id_list):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
@@ -336,20 +340,34 @@ def _watch_impl():
         add_handler("search.index", handler.index_callback)
         add_handler("search.delete", handler.delete_callback)
 
-        def signal_handler(signum, frame):
+        def signal_handler(signum, frame, pid=os.getpid()):
+            # Setting the process flag to false to prevent any
+            # processes/threads blocked on handler.queue_lock to
+            # terminated without processing entities
+            indexing.PROCESS_FLAG = False
+
+            # Cancelling any scheduled calls
             try:
                 handler.process_timer.cancel()
             except Exception:
                 # In case the timer is not active it throws an exception
                 # Simply ignore it.
                 pass
+
+            # If SIGTERM is received by the parent, make sure all its children
+            # are killed before calling exit on the parent.
             children = active_children()
             for child in children:
-                child.terminate()
-                child.join()
-            exit(0)
+                try:
+                    child.terminate()
+                    child.join()
+                except Exception:
+                    pass
+            # Finally exit
+            exit(1)
 
         signal.signal(signal.SIGTERM, signal_handler)
+        signal.signal(signal.SIGINT, signal_handler)
 
         while True:
             logger.debug("Waiting for a message")

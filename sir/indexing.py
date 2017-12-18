@@ -11,7 +11,6 @@ from functools import partial
 from logging import getLogger
 from solr import SolrException
 from sqlalchemy import and_
-from traceback import format_exc
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
            "_multiprocessed_import", "_index_entity_process_wrapper", "live_index",
@@ -20,7 +19,7 @@ __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
 
 logger = getLogger("sir")
 
-
+PROCESS_FLAG = True
 STOP = None
 
 
@@ -58,14 +57,13 @@ def live_index(entities):
     :type entities: dict(set(int))
     """
     logger.debug(entities)
-    try:
-        _multiprocessed_import(entities.keys(), live=True, entities=entities)
-    except (IOError, EOFError, SystemExit, KeyboardInterrupt) as exc:
-        # The IOErrors and EOFErrors are due to processes trying to
-        # communicate via broken pipes after being terminated from the
-        # parent process.
-        logger.debug(exc)
-        raise SystemExit
+
+    # Checking for PROCESS_FLAG before proceeding in case the parent process
+    # was terminated and this flag was turned off in the parent signal handler.
+    if not PROCESS_FLAG:
+        logger.info('Process Flag is off, terminating.')
+        return
+    _multiprocessed_import(entities.keys(), live=True, entities=entities)
 
 
 def _multiprocessed_import(entity_names, live=False, entities=None):
@@ -134,14 +132,6 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                 index_function_args)
             for r in results:
                 pass
-        except (KeyboardInterrupt, SystemExit, IOError, EOFError):
-            logger.info('Terminating all child processes.')
-            solr_process.terminate()
-            solr_process.join()
-            pool.terminate()
-            pool.join()
-            # Raising the exit signal all the way to parent process
-            raise SystemExit
         except Exception as exc:
             logger.exception(exc)
         else:
@@ -155,33 +145,16 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
 def _index_entity_process_wrapper(args, live=False):
     """
     Calls :func:`sir.indexing.index_entity` with ``args`` unpacked.
-    In case of a KeyboardInterrupt, we ignore SIGINT in the child process
-    and instead let the parent process catch the KeyboardInterrupt and
-    gracefully terminate the pool.
-
-    See https://noswap.com/blog/python-multiprocessing-keyboardinterrupt
-    for more information
 
     :param bool live:
 
     :rtype: None or an Exception
     """
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-    signal.signal(signal.SIGTERM, signal.SIG_IGN)
-
     try:
         if live:
             return live_index_entity(*args)
         return index_entity(*args)
-    except (KeyboardInterrupt, SystemExit, IOError, EOFError) as exc:
-        # When terminating the processes from the signal_handler in ``sir.amqp,handler``
-        # it happens at times that the ``data_queue`` is terminated. This causes
-        # IOError and EOFError due to the process trying to communicate via a broken pipe.
-        logger.debug(exc)
-        logger.warning('Queue closed unexpectedly. Terminating DB queries.')
-        raise
     except Exception:
-        logger.exception(format_exc())
         raise
 
 
@@ -247,19 +220,6 @@ def _query_database(entity_name, db_uri, condition, data_queue):
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
-    try:
-        logger.info('Sending data to Solr')
-        _queue_to_solr(queue, batch_size, solr_connection)
-    except (IOError, EOFError, SystemExit, KeyboardInterrupt) as exc:
-        # When terminating the processes from the signal_handler in ``sir.amqp,handler``
-        # it happens at times that the ``data_queue`` is terminated. This causes
-        # IOError and EOFError due to the process trying to communicate via a broken pipe.
-        logger.debug(exc)
-        logger.warning('Queue closed unexpectedly. Terminating Solr import.')
-        raise
-
-
-def _queue_to_solr(queue, batch_size, solr_connection):
     """
     Read :class:`dict` objects from ``queue`` and send them to the Solr server
     behind ``solr_connection`` in batches of ``batch_size``.
