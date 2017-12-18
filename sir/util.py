@@ -158,6 +158,7 @@ class ReusableTimer(object):
             delay = self.delay
 
         self._timer = Timer(delay, self.callback)
+        self._timer.daemon = True
         self._timer.start()
 
     def cancel(self):
@@ -183,4 +184,5 @@ class ReusableTimer(object):
         if not delay:
             delay = self.delay
         self._timer = Timer(delay, self.callback)
+        self._timer.daemon = True
         self._timer.start()
