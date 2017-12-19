@@ -20,6 +20,10 @@ from threading import Timer
 logger = logging.getLogger("sir")
 
 
+class SIR_EXIT(Exception):
+    pass
+
+
 class VersionMismatchException(Exception):
     def __init__(self, core, expected, actual):
         self.core = core
