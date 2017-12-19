@@ -4,6 +4,7 @@
 # License: MIT, see LICENSE for details
 import signal
 import sir.indexing as indexing
+import time
 
 from sir.amqp import message
 from sir import get_sentry, config
@@ -14,8 +15,7 @@ from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
                       solr_connection,
-                      solr_version_check,
-                      ReusableTimer)
+                      solr_version_check)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -45,7 +45,9 @@ _RETRY_WAIT_SECS = 30
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
 
-def requeue_message(msg, exc):
+def requeue_message(self, msg, exc):
+    if not self.connection.connected:
+        self.connect_to_rabbitmq()
     if not hasattr(msg, "application_headers"):
         # TODO(roman): Document when this might happen
         logger.debug("Message doesn't have \"application_headers\" attribute: %s", vars(msg))
@@ -55,9 +57,13 @@ def requeue_message(msg, exc):
     if retries_remaining:
         msg.application_headers["mb-retries"] = retries_remaining - 1
         msg.application_headers["mb-exception"] = str(exc)
-        msg.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
+        self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
     else:
-        msg.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+        self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+
+# def msg_ack(handler, *args, **kwargs):
+#     if not handler.connection.conncted:
+#         handler.connect_to_rabbitmq()
 
 
 def callback_wrapper(f):
@@ -92,13 +98,19 @@ def callback_wrapper(f):
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
             with self.queue_lock:
+                logger.info('Lock acknowledged')
                 self.pending_messages.append(msg)
+            logger.info('logger released')
             if len(self.pending_messages) >= self.batch_size:
                 self.process_messages()
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
             msg.channel.basic_reject(msg.delivery_tag, requeue=False)
             requeue_message(msg, exc)
+        else:
+            if not self.connection.connected:
+                self.connect_to_rabbitmq()
+            self.channel.basic_ack(msg.delivery_tag)
 
     return wrapper
 
@@ -134,8 +146,11 @@ class Handler(object):
         self.db_session = db_session()
         self.pending_messages = []
         self.pending_entities = defaultdict(set)
-        self.process_timer = ReusableTimer(self.process_delay, self.process_messages)
         self.queue_lock = Lock()
+        self.processing = False
+        self.channel = None
+        self.connection = None
+        self.last_message = time.time()
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -204,34 +219,68 @@ class Handler(object):
         self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
+    def connect_to_rabbitmq(self):
+
+        def add_handler(queue, f, channel):
+            logger.debug("Adding a callback to %s", queue)
+            handler = partial(f, queue=queue)
+            channel.basic_consume(queue, callback=handler)
+        try:
+            if self.channel is not None:
+                self.channel.close()
+            if self.connection is not None:
+                self.connection.close()
+        except Exception as exc:
+            logger.warning('lol %s', exc)
+            pass
+
+        conn = create_amqp_connection()
+        logger.debug("Heartbeat value: %s" % conn.heartbeat)
+        ch = conn.channel()
+        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
+        # we are currently using (https://www.rabbitmq.com/specification.html).
+        # Limits are requires because consumer connection might time out when receive buffer
+        # is full (http://stackoverflow.com/q/35438843/272770).
+        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
+        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
+
+        add_handler("search.index", self.index_callback, ch)
+        add_handler("search.delete", self.delete_callback, ch)
+        self.connection = conn
+        self.channel = ch
+
     def process_messages(self):
         with self.queue_lock:
+            logger.info('Lock acquired')
             try:
-                live_index(self.pending_entities)
+                self.processing = True
+                time.sleep(5)
+                raise Exception('1')
+                # live_index(self.pending_entities)
             except Exception as exc:
                 logger.error("Error encountered while processing messages: %s", exc)
                 logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
-                    requeue_message(msg, exc)
+                    requeue_message(self, msg, exc)
+                self.pending_messages = []
+                self.pending_entities.clear()
             else:
                 # In case PROCESS_FLAG is False, we know that the main process was
                 # terminated. Thus we should not acknowledge any messages. They will get requeued
                 # automatically if they are not acknowledged and the connection gets closed.
                 if indexing.PROCESS_FLAG:
                     logger.info('Processed %s messages', len(self.pending_messages))
-                    for msg in self.pending_messages:
-                        msg.channel.basic_ack(msg.delivery_tag)
-                    logger.info('Clearing all pending messages')
                     self.pending_messages = []
                     self.pending_entities.clear()
+            finally:
+                self.processing = False
+        logger.info('Lock released')
 
     def _index_data(self, core_name, id_list):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
         with self.queue_lock:
+            self.last_message = time.time()
             self.pending_entities[core_name].update(set(id_list))
-
-        # Reset the timer for the callback to `process_messages`.
-        self.process_timer.restart()
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
@@ -321,58 +370,38 @@ def _should_retry(exc):
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
 def _watch_impl():
 
-    def add_handler(queue, f):
-        logger.info("Adding a callback to %s", queue)
-        handler = partial(f, queue=queue)
-        ch.basic_consume(queue, callback=handler)
+    handler = Handler()
+
+    def signal_handler(signum, frame):
+        # Setting flag to false to prevent any processes/threads blocked on
+        # handler.queue_lock from starting `handler.process_messages` again.
+        indexing.PROCESS_FLAG = False
+        # If SIGTERM is received by the parent, make sure all its children
+        # are killed before calling exit on the parent.
+        children = active_children()
+        for child in children:
+            try:
+                child.terminate()
+                child.join()
+            except Exception:
+                pass
+        # Finally exit
+        exit(1)
+
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
-        conn = create_amqp_connection()
+        handler.connect_to_rabbitmq()
         logger.info("Connection to RabbitMQ established")
-        logger.debug("Heartbeat value: %s" % conn.heartbeat)
-        ch = conn.channel()
-        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
-        # we are currently using (https://www.rabbitmq.com/specification.html).
-        # Limits are requires because consumer connection might time out when receive buffer
-        # is full (http://stackoverflow.com/q/35438843/272770).
-        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
-        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
-
-        handler = Handler()
-        add_handler("search.index", handler.index_callback)
-        add_handler("search.delete", handler.delete_callback)
-
-        def signal_handler(signum, frame):
-            # Setting flag to false to prevent any processes/threads blocked on
-            # handler.queue_lock from starting `handler.process_messages` again.
-            indexing.PROCESS_FLAG = False
-
-            # Cancelling any scheduled calls
+        logger.debug("Waiting for a message")
+        while indexing.PROCESS_FLAG:
             try:
-                handler.process_timer.cancel()
+                handler.connection.drain_events(2)
             except Exception:
-                # In case the timer is not active it throws an exception
-                # Simply ignore it.
-                pass
-
-            # If SIGTERM is received by the parent, make sure all its children
-            # are killed before calling exit on the parent.
-            children = active_children()
-            for child in children:
-                try:
-                    child.terminate()
-                    child.join()
-                except Exception:
-                    pass
-            # Finally exit
-            exit(1)
-
-        signal.signal(signal.SIGTERM, signal_handler)
-        signal.signal(signal.SIGINT, signal_handler)
-
-        while True:
-            logger.debug("Waiting for a message")
-            conn.drain_events()
+                if not handler.processing and (time.time() - handler.last_message > handler.process_delay):
+                    handler.process_messages()
+                handler.connect_to_rabbitmq()
     except Exception:
         get_sentry().captureException()
         raise
