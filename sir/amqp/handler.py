@@ -416,11 +416,9 @@ def _watch_impl():
                         break
                 except Exception:
                     pass
-            exit(0)
-        else:
-            # In child processes raise an exit request which will be caught later
-            # so that all the processes are terminated properly.
-            raise SystemExit
+        # Raise an exit request for parent and child which will be caught later for a Poolworker
+        # in `_multiprocessed_import` so that all the worker processes are terminated properly.
+        raise SystemExit
 
     signal.signal(signal.SIGTERM, signal_handler)
     # signal.signal(signal.SIGINT, signal_handler)
@@ -433,9 +431,10 @@ def _watch_impl():
             try:
                 handler.connection.drain_events(timeout)
             except Exception:
-                if not handler.processing and (time.time() - handler.last_message > handler.process_delay):
-                    handler.process_messages()
-                handler.connect_to_rabbitmq()
+                if indexing.PROCESS_FLAG:
+                    if not handler.processing and (time.time() - handler.last_message > handler.process_delay):
+                        handler.process_messages()
+                    handler.connect_to_rabbitmq()
     except Exception:
         get_sentry().captureException()
         raise
