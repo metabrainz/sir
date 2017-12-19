@@ -1,6 +1,6 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
@@ -16,7 +16,7 @@ def generate_query(model, path, filters=None):
     :param [sqlalchemy.sql.expression.BinaryExpression] filters:
     :rtype: A :ref:`sqlalchemy.orm.query.Query` object
     """
-    query = Query(model.id)
+    query = (Query(aliased(model).id))
     if path:
         # The below is a fix in case the same table is joined
         # multiple times. In that case, we alias everything except
