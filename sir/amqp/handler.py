@@ -27,7 +27,8 @@ from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
-from multiprocessing import Lock, active_children
+from threading import Lock
+from multiprocessing import active_children
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -266,14 +267,24 @@ class Handler(object):
 
     def process_messages(self):
         with self.queue_lock:
+            if not self.pending_messages:
+                return
             try:
                 self.processing = True
                 live_index(self.pending_entities)
+            except SystemExit:
+                logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
+                for msg in self.pending_messages:
+                    self.requeue_message(msg, Exception('SIR terminated while processing.'))
+                logger.info('%s messages requeued.', len(self.pending_messages))
+                self.pending_messages = []
+                self.pending_entities.clear()
             except Exception as exc:
                 logger.error("Error encountered while processing messages: %s", exc)
                 logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
                     self.requeue_message(msg, exc)
+                logger.info('%s messages requeued.', len(self.pending_messages))
                 self.pending_messages = []
                 self.pending_entities.clear()
             else:
@@ -380,31 +391,34 @@ def _watch_impl():
     handler = Handler()
 
     def signal_handler(signum, frame, pid=os.getpid()):
-        # Setting flag to false to prevent any processes/threads blocked on
-        # handler.queue_lock from starting `handler.process_messages` again.
-        indexing.PROCESS_FLAG = False
-        # If SIGTERM is received by the parent, make sure all its children
-        # are killed before calling exit on the parent.
-        children = active_children()
-        for child in children:
-            try:
-                child.terminate()
-                child.join()
-            except Exception:
-                pass
-        # In case PROCESS_FLAG is False, we know that the main process was
-        # terminated.
+        # Only run the following in case it is the parent process
         if os.getpid() == pid:
-            with handler.queue_lock():
-                for msg in handler.pending_messages:
-                    handler.requeue_message(msg, Exception('SIR Terminated.'))
-
-        # Finally exit
-
-        exit(1)
+            # Setting flag to false to prevent any processes/threads blocked on
+            # handler.queue_lock from starting `handler.process_messages` again.
+            indexing.PROCESS_FLAG = False
+            # If SIGTERM is received by the parent, make sure all its children
+            # are killed before calling exit on the parent.
+            children = active_children()
+            for child in children:
+                try:
+                    # Killing any alive pool worker will terminate the processing properly.
+                    if 'PoolWorker' in child.name and child.is_alive():
+                        # Sending it a termination request will raise SystemExit
+                        # which will be caught and handled, terminating all the other active
+                        # processes properly
+                        child.terminate()
+                        child.join()
+                        break
+                except Exception:
+                    pass
+            exit(0)
+        else:
+            # In child processes raise an exit request which will be caught later
+            # so that all the processes are terminated properly.
+            raise SystemExit
 
     signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
+    # signal.signal(signal.SIGINT, signal_handler)
 
     try:
         handler.connect_to_rabbitmq()
