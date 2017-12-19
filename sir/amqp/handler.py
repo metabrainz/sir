@@ -32,7 +32,7 @@ __all__ = ["callback_wrapper", "watch", "Handler"]
 
 logger = getLogger("sir")
 
-update_map, column_map, model_map = generate_update_map()
+update_map, column_map, model_map, core_map = generate_update_map()
 
 #: The number of times we'll try to process a message.
 _DEFAULT_MB_RETRIES = 4
@@ -201,7 +201,7 @@ class Handler(object):
         logger.info("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns[column_name]))
-        self.cores[parsed_message.table_name.replace("_", "-")].delete(parsed_message.columns[column_name])
+        self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
