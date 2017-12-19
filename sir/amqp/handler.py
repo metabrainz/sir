@@ -16,7 +16,8 @@ from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,
                       solr_connection,
-                      solr_version_check)
+                      solr_version_check,
+                      SIR_EXIT)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -272,7 +273,7 @@ class Handler(object):
             try:
                 self.processing = True
                 live_index(self.pending_entities)
-            except SystemExit:
+            except SIR_EXIT:
                 logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
                 for msg in self.pending_messages:
                     self.requeue_message(msg, Exception('SIR terminated while processing.'))
@@ -395,33 +396,12 @@ def _watch_impl():
         timeout = 30
     logger.info('AMQP timeout is set to %d seconds', timeout)
 
-    def signal_handler(signum, frame, pid=os.getpid()):
-        # Only run the following in case it is the parent process
-        if os.getpid() == pid:
-            # Setting flag to false to prevent any processes/threads blocked on
-            # handler.queue_lock from starting `handler.process_messages` again.
-            indexing.PROCESS_FLAG = False
-            # If SIGTERM is received by the parent, make sure all its children
-            # are killed before calling exit on the parent.
-            children = active_children()
-            for child in children:
-                try:
-                    # Killing any alive pool worker will terminate the processing properly.
-                    if 'PoolWorker' in child.name and child.is_alive():
-                        # Sending it a termination request will raise SystemExit
-                        # which will be caught and handled, terminating all the other active
-                        # processes properly
-                        child.terminate()
-                        child.join()
-                        break
-                except Exception:
-                    pass
-        # Raise an exit request for parent and child which will be caught later for a Poolworker
-        # in `_multiprocessed_import` so that all the worker processes are terminated properly.
-        raise SystemExit
+    def signal_handler(signum, frame):
+        # Simply set the `PROCESS_FLAG` to false to
+        # stop processing any and all queries
+        indexing.PROCESS_FLAG = False
 
     signal.signal(signal.SIGTERM, signal_handler)
-    # signal.signal(signal.SIGINT, signal_handler)
 
     try:
         handler.connect_to_rabbitmq()

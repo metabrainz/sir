@@ -9,6 +9,7 @@ from functools import partial
 from logging import getLogger
 from solr import SolrException
 from sqlalchemy import and_
+from .util import SIR_EXIT
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
            "_multiprocessed_import", "_index_entity_process_wrapper", "live_index",
@@ -129,10 +130,11 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             results = pool.imap(indexer,
                                 index_function_args)
             for r in results:
-                pass
-        except SystemExit:
+                if not PROCESS_FLAG:
+                    raise SIR_EXIT
+        except SIR_EXIT:
             logger.info('Killing all worker processes.')
-            solr_process.terminate()
+            entity_data_queue.put(STOP)
             solr_process.join()
             pool.terminate()
             pool.join()
@@ -196,6 +198,8 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     :param ids:
     :param Queue.Queue data_queue:
     """
+    if not PROCESS_FLAG:
+        return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
     logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
     _query_database(entity_name, db_uri, condition, data_queue)
@@ -219,6 +223,8 @@ def _query_database(entity_name, db_uri, condition, data_queue):
         query = search_entity.query.filter(condition).with_session(session)
         total_records = 0
         for row in query:
+            if not PROCESS_FLAG:
+                return
             data_queue.put(row_converter(row))
             total_records += 1
         logger.info("Retrieved %s records in %s", total_records, model)
@@ -235,6 +241,8 @@ def queue_to_solr(queue, batch_size, solr_connection):
     """
     data = []
     for item in iter(queue.get, None):
+        if not PROCESS_FLAG:
+            return
         data.append(item)
         if len(data) >= batch_size:
             try:
@@ -249,6 +257,8 @@ def queue_to_solr(queue, batch_size, solr_connection):
                 logger.debug("Sent data to Solr")
             data = []
 
+    if not PROCESS_FLAG:
+        return
     logger.info("%s: Sending remaining data & stopping", solr_connection)
     solr_connection.add_many(data)
     logger.info("Committing changes to Solr")
