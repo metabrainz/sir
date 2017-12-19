@@ -130,6 +130,13 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                 index_function_args)
             for r in results:
                 pass
+        except SystemExit:
+            logger.info('Killing all worker processes.')
+            solr_process.terminate()
+            solr_process.join()
+            pool.terminate()
+            pool.join()
+            raise
         except Exception as exc:
             logger.exception(exc)
         else:
