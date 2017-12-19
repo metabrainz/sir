@@ -52,3 +52,9 @@ class PathsTestCase(unittest.TestCase):
             emitted_keys={'id': 1},
             expected_sql='SELECT recording_1.id AS recording_1_id \nFROM musicbrainz.recording AS recording_1 JOIN musicbrainz.track AS track_1 ON recording_1.id = track_1.recording JOIN musicbrainz.medium AS medium_1 ON medium_1.id = track_1.medium JOIN musicbrainz.release AS release_1 ON release_1.id = medium_1.release JOIN musicbrainz.medium ON release_1.id = musicbrainz.medium.release \nWHERE musicbrainz.medium.id = :id_1',
         )
+        validate_selection(
+            core_name="area",
+            path="area_links.area0",
+            emitted_keys={'id': 1},
+            expected_sql='SELECT area_1.id AS area_1_id \nFROM musicbrainz.area AS area_1 JOIN musicbrainz.l_area_area AS l_area_area_1 ON area_1.id = l_area_area_1.entity1 JOIN musicbrainz.area ON musicbrainz.area.id = l_area_area_1.entity0 \nWHERE musicbrainz.area.id = :id_1',
+        )
