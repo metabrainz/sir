@@ -10,6 +10,7 @@ from logging import getLogger
 from solr import SolrException
 from sqlalchemy import and_
 from .util import SIR_EXIT
+from ctypes import c_bool
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
            "_multiprocessed_import", "_index_entity_process_wrapper", "live_index",
@@ -18,7 +19,7 @@ __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
 
 logger = getLogger("sir")
 
-PROCESS_FLAG = True
+PROCESS_FLAG = multiprocessing.Value(c_bool, True)
 STOP = None
 
 
