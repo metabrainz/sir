@@ -52,9 +52,10 @@ def action_wrapper(f):
     def wrapper(self, msg, *args, **kwargs):
         self.connect_to_rabbitmq()
         try:
+            logger.debug('Performing %s on %s', f.__name__, vars(msg))
             return f(self, msg, *args, **kwargs)
         except Exception:
-            logger.error('Unable to perform action %s on message %s', f.__name__, vars(msg))
+            logger.debug('Unable to perform action %s on message %s', f.__name__, vars(msg))
 
     return wrapper
 
@@ -92,13 +93,15 @@ def callback_wrapper(f):
             f(self=self, parsed_message=parsed_message)
             with self.queue_lock:
                 self.pending_messages.append(msg)
-            if len(self.pending_messages) >= self.batch_size:
-                self.process_messages()
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
+            self.reject_message(msg)
             self.requeue_message(msg, exc)
         else:
             self.ack_message(msg)
+
+        if len(self.pending_messages) >= self.batch_size:
+            self.process_messages()
 
     return wrapper
 
@@ -147,7 +150,7 @@ class Handler(object):
             handler = partial(f, queue=queue)
             channel.basic_consume(queue, callback=handler)
 
-        if self.connection.connected and (not reconnect):
+        if self.connection and self.connection.connected and (not reconnect):
             return
 
         try:
@@ -175,10 +178,8 @@ class Handler(object):
 
     @action_wrapper
     def requeue_message(self, msg, exc):
-        self.reject_message(msg)
         if not hasattr(msg, "application_headers"):
             msg.properties['application_headers'] = {}
-
         retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
         routing_key = msg.delivery_info["routing_key"]
         if retries_remaining:
