@@ -8,7 +8,6 @@ of an AMQP message.
 """
 from sir.trigger_generation.sql_generator import MSG_JSON_TABLE_NAME_KEY, MSG_JSON_OPERATION_TYPE
 from enum import Enum
-from sir.schema import SCHEMA
 import ujson
 
 MESSAGE_TYPES = Enum("MESSAGE_TYPES", "delete index")
