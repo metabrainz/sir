@@ -4,6 +4,7 @@
 # License: MIT, see LICENSE for details
 import signal
 import sir.indexing as indexing
+import os
 import time
 
 from sir.amqp import message
@@ -45,25 +46,17 @@ _RETRY_WAIT_SECS = 30
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
 
-def requeue_message(self, msg, exc):
-    if not self.connection.connected:
-        self.connect_to_rabbitmq()
-    if not hasattr(msg, "application_headers"):
-        # TODO(roman): Document when this might happen
-        logger.debug("Message doesn't have \"application_headers\" attribute: %s", vars(msg))
-        msg.application_headers = {}
-    retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
-    routing_key = msg.delivery_info["routing_key"]
-    if retries_remaining:
-        msg.application_headers["mb-retries"] = retries_remaining - 1
-        msg.application_headers["mb-exception"] = str(exc)
-        self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
-    else:
-        self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+def action_wrapper(f):
 
-# def msg_ack(handler, *args, **kwargs):
-#     if not handler.connection.conncted:
-#         handler.connect_to_rabbitmq()
+    @wraps(f)
+    def wrapper(self, msg, *args, **kwargs):
+        self.connect_to_rabbitmq()
+        try:
+            return f(self, msg, *args, **kwargs)
+        except Exception:
+            logger.error('Unable to perform action %s on message %s', f.__name__, vars(msg))
+
+    return wrapper
 
 
 def callback_wrapper(f):
@@ -98,19 +91,14 @@ def callback_wrapper(f):
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
             with self.queue_lock:
-                logger.info('Lock acknowledged')
                 self.pending_messages.append(msg)
-            logger.info('logger released')
             if len(self.pending_messages) >= self.batch_size:
                 self.process_messages()
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
-            msg.channel.basic_reject(msg.delivery_tag, requeue=False)
-            requeue_message(msg, exc)
+            self.requeue_message(msg, exc)
         else:
-            if not self.connection.connected:
-                self.connect_to_rabbitmq()
-            self.channel.basic_ack(msg.delivery_tag)
+            self.ack_message(msg)
 
     return wrapper
 
@@ -151,6 +139,62 @@ class Handler(object):
         self.channel = None
         self.connection = None
         self.last_message = time.time()
+
+    def connect_to_rabbitmq(self, reconnect=False):
+
+        def add_handler(queue, f, channel):
+            logger.debug("Adding a callback to %s", queue)
+            handler = partial(f, queue=queue)
+            channel.basic_consume(queue, callback=handler)
+
+        if self.connection.connected and (not reconnect):
+            return
+
+        try:
+            if self.channel is not None:
+                self.channel.close()
+            if self.connection is not None:
+                self.connection.close()
+        except Exception:
+            pass
+
+        conn = create_amqp_connection()
+        logger.debug("Heartbeat value: %s" % conn.heartbeat)
+        ch = conn.channel()
+        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
+        # we are currently using (https://www.rabbitmq.com/specification.html).
+        # Limits are requires because consumer connection might time out when receive buffer
+        # is full (http://stackoverflow.com/q/35438843/272770).
+        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
+        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
+
+        add_handler("search.index", self.index_callback, ch)
+        add_handler("search.delete", self.delete_callback, ch)
+        self.connection = conn
+        self.channel = ch
+
+    @action_wrapper
+    def requeue_message(self, msg, exc):
+        self.reject_message(msg)
+        if not hasattr(msg, "application_headers"):
+            msg.properties['application_headers'] = {}
+
+        retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
+        routing_key = msg.delivery_info["routing_key"]
+        if retries_remaining:
+            msg.application_headers["mb-retries"] = retries_remaining - 1
+            msg.application_headers["mb-exception"] = str(exc)
+            self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
+        else:
+            self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+
+    @action_wrapper
+    def ack_message(self, msg):
+        self.channel.basic_ack(msg.delivery_tag)
+
+    @action_wrapper
+    def reject_message(self, msg, requeue=False):
+        self.channel.basic_reject(msg.delivery_tag, requeue=requeue)
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -219,62 +263,24 @@ class Handler(object):
         self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
-    def connect_to_rabbitmq(self):
-
-        def add_handler(queue, f, channel):
-            logger.debug("Adding a callback to %s", queue)
-            handler = partial(f, queue=queue)
-            channel.basic_consume(queue, callback=handler)
-        try:
-            if self.channel is not None:
-                self.channel.close()
-            if self.connection is not None:
-                self.connection.close()
-        except Exception as exc:
-            logger.warning('lol %s', exc)
-            pass
-
-        conn = create_amqp_connection()
-        logger.debug("Heartbeat value: %s" % conn.heartbeat)
-        ch = conn.channel()
-        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
-        # we are currently using (https://www.rabbitmq.com/specification.html).
-        # Limits are requires because consumer connection might time out when receive buffer
-        # is full (http://stackoverflow.com/q/35438843/272770).
-        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
-        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
-
-        add_handler("search.index", self.index_callback, ch)
-        add_handler("search.delete", self.delete_callback, ch)
-        self.connection = conn
-        self.channel = ch
-
     def process_messages(self):
         with self.queue_lock:
-            logger.info('Lock acquired')
             try:
                 self.processing = True
-                time.sleep(5)
-                raise Exception('1')
-                # live_index(self.pending_entities)
+                live_index(self.pending_entities)
             except Exception as exc:
                 logger.error("Error encountered while processing messages: %s", exc)
                 logger.info("Requeuing %s pending messages.", len(self.pending_messages))
                 for msg in self.pending_messages:
-                    requeue_message(self, msg, exc)
+                    self.requeue_message(msg, exc)
                 self.pending_messages = []
                 self.pending_entities.clear()
             else:
-                # In case PROCESS_FLAG is False, we know that the main process was
-                # terminated. Thus we should not acknowledge any messages. They will get requeued
-                # automatically if they are not acknowledged and the connection gets closed.
-                if indexing.PROCESS_FLAG:
-                    logger.info('Processed %s messages', len(self.pending_messages))
-                    self.pending_messages = []
-                    self.pending_entities.clear()
+                logger.info('Processed %s messages', len(self.pending_messages))
+                self.pending_messages = []
+                self.pending_entities.clear()
             finally:
                 self.processing = False
-        logger.info('Lock released')
 
     def _index_data(self, core_name, id_list):
         logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
@@ -372,7 +378,7 @@ def _watch_impl():
 
     handler = Handler()
 
-    def signal_handler(signum, frame):
+    def signal_handler(signum, frame, pid=os.getpid()):
         # Setting flag to false to prevent any processes/threads blocked on
         # handler.queue_lock from starting `handler.process_messages` again.
         indexing.PROCESS_FLAG = False
@@ -385,7 +391,15 @@ def _watch_impl():
                 child.join()
             except Exception:
                 pass
+        # In case PROCESS_FLAG is False, we know that the main process was
+        # terminated.
+        if os.getpid() == pid:
+            with handler.queue_lock():
+                for msg in handler.pending_messages:
+                    handler.requeue_message(msg, Exception('SIR Terminated.'))
+
         # Finally exit
+
         exit(1)
 
     signal.signal(signal.SIGTERM, signal_handler)
