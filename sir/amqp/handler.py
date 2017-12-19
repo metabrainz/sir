@@ -389,6 +389,11 @@ def _should_retry(exc):
 def _watch_impl():
 
     handler = Handler()
+    try:
+        timeout = config.CFG.getint("rabbitmq", "timeout")
+    except (NoOptionError, AttributeError):
+        timeout = 30
+    logger.info('AMQP timeout is set to %d seconds', timeout)
 
     def signal_handler(signum, frame, pid=os.getpid()):
         # Only run the following in case it is the parent process
@@ -426,7 +431,7 @@ def _watch_impl():
         logger.debug("Waiting for a message")
         while indexing.PROCESS_FLAG:
             try:
-                handler.connection.drain_events(2)
+                handler.connection.drain_events(timeout)
             except Exception:
                 if not handler.processing and (time.time() - handler.last_message > handler.process_delay):
                     handler.process_messages()
