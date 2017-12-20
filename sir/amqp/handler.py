@@ -4,7 +4,6 @@
 # License: MIT, see LICENSE for details
 import signal
 import sir.indexing as indexing
-import os
 import time
 
 from sir.amqp import message
@@ -29,7 +28,8 @@ from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
 from threading import Lock
-from multiprocessing import active_children
+from traceback import format_exc
+
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -46,6 +46,16 @@ _RETRY_WAIT_SECS = 30
 # Tables which are core entities, but do not have a guid.
 # These will be deleted via their `id`.
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
+
+
+class INDEX_LIMIT_EXCEEDED(Exception):
+
+    def __init__(self, core_name, total_ids, extra_data=None):
+        exception_message = 'Index limit exceeded.'
+        exception_message += ' Entity: {}, Total Rows: {}, Extra Data: {}'.format(core_name,
+                                                                                  total_ids,
+                                                                                  str(extra_data))
+        Exception.__init__(self, exception_message)
 
 
 def action_wrapper(f):
@@ -95,6 +105,10 @@ def callback_wrapper(f):
             f(self=self, parsed_message=parsed_message)
             with self.queue_lock:
                 self.pending_messages.append(msg)
+        except INDEX_LIMIT_EXCEEDED as exc:
+            logger.warning(exc)
+            self.reject_message(msg)
+            self.requeue_message(msg, exc, fail=True)
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
             self.reject_message(msg)
@@ -133,8 +147,14 @@ class Handler(object):
         except (NoOptionError, AttributeError):
             self.process_delay = 120
 
+        try:
+            self.index_limit = config.CFG.getint("sir", "index_limit")
+        except (NoOptionError, AttributeError):
+            self.index_limit = 40000
+
         logger.info("Batch size is set to %s", self.batch_size)
         logger.info("Process delay is set to %s seconds", self.process_delay)
+        logger.info("Index limit is set to %s rows", self.index_limit)
 
         self.db_session = db_session()
         self.pending_messages = []
@@ -179,14 +199,14 @@ class Handler(object):
         self.channel = ch
 
     @action_wrapper
-    def requeue_message(self, msg, exc):
+    def requeue_message(self, msg, exc, fail=False):
         if not hasattr(msg, "application_headers"):
             msg.properties['application_headers'] = {}
         retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
         routing_key = msg.delivery_info["routing_key"]
-        if retries_remaining:
+        msg.application_headers["mb-exception"] = format_exc(exc)
+        if retries_remaining and not fail:
             msg.application_headers["mb-retries"] = retries_remaining - 1
-            msg.application_headers["mb-exception"] = str(exc)
             self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
         else:
             self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
@@ -295,8 +315,11 @@ class Handler(object):
             finally:
                 self.processing = False
 
-    def _index_data(self, core_name, id_list):
-        logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
+    def _index_data(self, core_name, id_list, extra_data=None):
+        total_ids = len(id_list)
+        if total_ids > self.index_limit:
+            raise INDEX_LIMIT_EXCEEDED(core_name, total_ids, extra_data)
+        logger.info("Queueing %s new rows for entity %s", total_ids, core_name)
         with self.queue_lock:
             self.last_message = time.time()
             self.pending_entities[core_name].update(set(id_list))
@@ -307,7 +330,7 @@ class Handler(object):
             # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
             with db_session_ctx(self.db_session) as session:
-
+                select_query = None
                 if path is None:
                     # If `path` is `None` then we received a message for an entity itself
                     ids = [parsed_message.columns["id"]]
@@ -323,7 +346,11 @@ class Handler(object):
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
-                self._index_data(core_name, ids)
+                extra_data = {'table_name': parsed_message.table_name,
+                              'path': path,
+                              'select_query': str(select_query),
+                              }
+                self._index_data(core_name, ids, extra_data)
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
@@ -352,6 +379,7 @@ class Handler(object):
                 related_table_name = class_mapper(related_model).mapped_table.name
             if related_table_name in relevant_rels:
                 with db_session_ctx(self.db_session) as session:
+                    select_query = None
                     if new_path is None:
                         # If `path` is `None` then we received a message for an entity itself
                         ids = [parsed_message.columns['id']]
@@ -369,7 +397,13 @@ class Handler(object):
                         logger.debug("SQL: %s" % (select_query))
 
                     # Retrieving actual data
-                    self._index_data(core_name, ids)
+                    extra_data = {'table_name': parsed_message.table_name,
+                                  'path': path,
+                                  'related_table_name': related_table_name,
+                                  'new_path': new_path,
+                                  'select_query': str(select_query),
+                                  }
+                    self._index_data(core_name, ids, extra_data)
 
 
 def _should_retry(exc):
