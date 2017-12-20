@@ -16,8 +16,9 @@ def generate_query(model, path, filters=None):
     :param [sqlalchemy.sql.expression.BinaryExpression] filters:
     :rtype: A :ref:`sqlalchemy.orm.query.Query` object
     """
-    query = (Query(aliased(model).id))
+    query = Query(model.id)
     if path:
+        query = (Query(aliased(model).id))
         # The below is a fix in case the same table is joined
         # multiple times. In that case, we alias everything except
         # the last path and then filter on the last path.

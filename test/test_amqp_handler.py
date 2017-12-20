@@ -20,6 +20,7 @@ basicConfig(level=CRITICAL)
 class AmqpTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.maxDiff = None
         self.entity_type = "artist"
         self.id_string = "42"
         self.routing_key = "rk"
@@ -153,8 +154,8 @@ class HandlerTest(AmqpTestCase):
             'SELECT artist_1.id AS artist_1_id \n'
             'FROM musicbrainz.artist AS artist_1 JOIN musicbrainz.area ON musicbrainz.area.id = artist_1.begin_area \n'
             'WHERE musicbrainz.area.id = :id_1',
-            'SELECT area_1.id AS area_1_id \n'
-            'FROM musicbrainz.area AS area_1, musicbrainz.area \n'
+            'SELECT musicbrainz.area.id AS musicbrainz_area_id \n'
+            'FROM musicbrainz.area \n'
             'WHERE musicbrainz.area.id = :id_1']
 
         self.assertEqual(expected_queries, actual_queries)
