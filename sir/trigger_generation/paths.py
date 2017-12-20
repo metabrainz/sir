@@ -1,6 +1,6 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
@@ -18,6 +18,7 @@ def generate_query(model, path, filters=None):
     """
     query = Query(model.id)
     if path:
+        query = (Query(aliased(model).id))
         # The below is a fix in case the same table is joined
         # multiple times. In that case, we alias everything except
         # the last path and then filter on the last path.

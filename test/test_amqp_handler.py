@@ -20,6 +20,7 @@ basicConfig(level=CRITICAL)
 class AmqpTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.maxDiff = None
         self.entity_type = "artist"
         self.id_string = "42"
         self.routing_key = "rk"
@@ -138,20 +139,20 @@ class HandlerTest(AmqpTestCase):
         self.assertEqual(len(calls), 6)
         actual_queries = [str(call[0][0]) for call in calls]
         expected_queries = [
-            'SELECT musicbrainz.place.id AS musicbrainz_place_id \n'
-            'FROM musicbrainz.place JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.place.area \n'
+            'SELECT place_1.id AS place_1_id \n'
+            'FROM musicbrainz.place AS place_1 JOIN musicbrainz.area ON musicbrainz.area.id = place_1.area \n'
             'WHERE musicbrainz.area.id = :id_1',
-            'SELECT musicbrainz.label.id AS musicbrainz_label_id \n'
-            'FROM musicbrainz.label JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.label.area \n'
+            'SELECT label_1.id AS label_1_id \n'
+            'FROM musicbrainz.label AS label_1 JOIN musicbrainz.area ON musicbrainz.area.id = label_1.area \n'
             'WHERE musicbrainz.area.id = :id_1',
-            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
-            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.end_area \n'
+            'SELECT artist_1.id AS artist_1_id \n'
+            'FROM musicbrainz.artist AS artist_1 JOIN musicbrainz.area ON musicbrainz.area.id = artist_1.end_area \n'
             'WHERE musicbrainz.area.id = :id_1',
-            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
-            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.area \n'
+            'SELECT artist_1.id AS artist_1_id \n'
+            'FROM musicbrainz.artist AS artist_1 JOIN musicbrainz.area ON musicbrainz.area.id = artist_1.area \n'
             'WHERE musicbrainz.area.id = :id_1',
-            'SELECT musicbrainz.artist.id AS musicbrainz_artist_id \n'
-            'FROM musicbrainz.artist JOIN musicbrainz.area ON musicbrainz.area.id = musicbrainz.artist.begin_area \n'
+            'SELECT artist_1.id AS artist_1_id \n'
+            'FROM musicbrainz.artist AS artist_1 JOIN musicbrainz.area ON musicbrainz.area.id = artist_1.begin_area \n'
             'WHERE musicbrainz.area.id = :id_1',
             'SELECT musicbrainz.area.id AS musicbrainz_area_id \n'
             'FROM musicbrainz.area \n'
