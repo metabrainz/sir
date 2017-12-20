@@ -9,6 +9,7 @@ query_batch_size = {{template "KEY" "query_batch_size"}}
 wscompat = {{template "KEY" "wscompat"}}
 process_delay = {{template "KEY" "process_delay"}}
 live_index_batch_size = {{template "KEY" "live_index_batch_size"}}
+index_limit = {{template "KEY" "index_limit"}}
 
 [database]
 {{with $pg_primary_service_name := or (env "PG_SERVICE_PRIMARY") "pgbouncer-master"}}
