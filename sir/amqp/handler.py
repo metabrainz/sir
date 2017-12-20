@@ -116,9 +116,6 @@ def callback_wrapper(f):
         else:
             self.ack_message(msg)
 
-        if len(self.pending_messages) >= self.batch_size:
-            self.process_messages()
-
     return wrapper
 
 
@@ -445,10 +442,14 @@ def _watch_impl():
             try:
                 handler.connection.drain_events(timeout)
             except Exception:
+                # Exception is caused when drain_events encounters a timeout
                 if indexing.PROCESS_FLAG:
-                    if not handler.processing and (time.time() - handler.last_message > handler.process_delay):
+                    if (not handler.processing
+                        and ((time.time() - handler.last_message) > handler.process_delay
+                             or len(handler.pending_messages) > handler.batch_size)):
                         handler.process_messages()
-                    handler.connect_to_rabbitmq()
+                    # Always reconnect on a timeout
+                    handler.connect_to_rabbitmq(reconnect=True)
     except Exception:
         get_sentry().captureException()
         raise
