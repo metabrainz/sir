@@ -2,6 +2,7 @@
 # coding: utf-8
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import errno
 import signal
 import sir.indexing as indexing
 import time
@@ -393,10 +394,6 @@ class Handler(object):
 
 
 def _should_retry(exc):
-    # This makes sure we do not retry in case of a SIGTERM or SIGINT
-    if isinstance(exc, (SystemExit, KeyboardInterrupt)):
-        logger.info('Terminating SIR.')
-        return False
     logger.info("Retrying...")
     logger.exception(exc)
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
@@ -431,17 +428,21 @@ def _watch_impl():
         while indexing.PROCESS_FLAG.value:
             try:
                 handler.connection.drain_events(timeout)
-            except Exception:
-                # Exception is caused when drain_events encounters a timeout
-                if indexing.PROCESS_FLAG.value:
-                    if ((time.time() - handler.last_message) > handler.process_delay
-                         or len(handler.pending_messages) > handler.batch_size):
-                        handler.process_messages()
-                    # Always reconnect on a timeout
-                    handler.connect_to_rabbitmq(reconnect=True)
+            except socket_error:
+                # In case of a timeout, simply continue
+                pass
+            except Exception as exc:
+                # Ignore system call interruption in case of SIGTERM or SIGINT
+                if exc.errno != errno.EINTR:
+                    logger.error(format_exc(exc))
+            if indexing.PROCESS_FLAG.value:
+                if ((time.time() - handler.last_message) >= handler.process_delay
+                    or len(handler.pending_messages) >= handler.batch_size):
+                    handler.process_messages()
     except Exception:
         get_sentry().captureException()
         raise
+    logger.info('Terminating SIR')
 
 
 def watch(args):
