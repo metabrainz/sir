@@ -103,8 +103,7 @@ def callback_wrapper(f):
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
-            with self.queue_lock:
-                self.pending_messages.append(msg)
+            self.pending_messages.append(msg)
         except INDEX_LIMIT_EXCEEDED as exc:
             logger.warning(exc)
             self.reject_message(msg)
@@ -156,7 +155,6 @@ class Handler(object):
         self.db_session = db_session()
         self.pending_messages = []
         self.pending_entities = defaultdict(set)
-        self.queue_lock = Lock()
         self.processing = False
         self.channel = None
         self.connection = None
@@ -284,42 +282,40 @@ class Handler(object):
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
-        with self.queue_lock:
-            if not self.pending_messages:
-                return
-            try:
-                self.processing = True
-                live_index(self.pending_entities)
-            except SIR_EXIT:
-                logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
-                for msg in self.pending_messages:
-                    self.requeue_message(msg, Exception('SIR terminated while processing.'))
-                logger.info('%s messages requeued.', len(self.pending_messages))
-                self.pending_messages = []
-                self.pending_entities.clear()
-            except Exception as exc:
-                logger.error("Error encountered while processing messages: %s", exc)
-                logger.info("Requeuing %s pending messages.", len(self.pending_messages))
-                for msg in self.pending_messages:
-                    self.requeue_message(msg, exc)
-                logger.info('%s messages requeued.', len(self.pending_messages))
-                self.pending_messages = []
-                self.pending_entities.clear()
-            else:
-                logger.info('Processed %s messages', len(self.pending_messages))
-                self.pending_messages = []
-                self.pending_entities.clear()
-            finally:
-                self.processing = False
+        if not self.pending_messages:
+            return
+        try:
+            self.processing = True
+            live_index(self.pending_entities)
+        except SIR_EXIT:
+            logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
+            for msg in self.pending_messages:
+                self.requeue_message(msg, Exception('SIR terminated while processing.'))
+            logger.info('%s messages requeued.', len(self.pending_messages))
+            self.pending_messages = []
+            self.pending_entities.clear()
+        except Exception as exc:
+            logger.error("Error encountered while processing messages: %s", exc)
+            logger.info("Requeuing %s pending messages.", len(self.pending_messages))
+            for msg in self.pending_messages:
+                self.requeue_message(msg, exc)
+            logger.info('%s messages requeued.', len(self.pending_messages))
+            self.pending_messages = []
+            self.pending_entities.clear()
+        else:
+            logger.info('Processed %s messages', len(self.pending_messages))
+            self.pending_messages = []
+            self.pending_entities.clear()
+        finally:
+            self.processing = False
 
     def _index_data(self, core_name, id_list, extra_data=None):
         total_ids = len(id_list)
         if total_ids > self.index_limit:
             raise INDEX_LIMIT_EXCEEDED(core_name, total_ids, extra_data)
         logger.info("Queueing %s new rows for entity %s", total_ids, core_name)
-        with self.queue_lock:
-            self.last_message = time.time()
-            self.pending_entities[core_name].update(set(id_list))
+        self.last_message = time.time()
+        self.pending_entities[core_name].update(set(id_list))
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
