@@ -286,6 +286,13 @@ class Handler(object):
             return
         try:
             live_index(self.pending_entities)
+            if not indexing.PROCESS_FLAG.value:
+                # It might happen that the DB pool workers have
+                # all processed the queries and exited, while Solr process
+                # is still sending data to Solr. In this case no SIR_EXIT is
+                # raised by live_index. Thus we need to raise it to requeue the
+                # messages properly.
+                raise SIR_EXIT
         except SIR_EXIT:
             logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
             for msg in self.pending_messages:
