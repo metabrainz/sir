@@ -575,10 +575,12 @@ def generate_update_map():
     paths = defaultdict(set)
     models = {}
     column_map = defaultdict(set)
+    core_map = {}
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
         mapped_table = class_mapper(entity.model).mapped_table.name
+        core_map[mapped_table] = core_name
         paths[mapped_table].add((core_name, None))
         models[mapped_table] = entity.model
         # Related tables:
@@ -611,4 +613,4 @@ def generate_update_map():
             # which have path to figure out the table name via transform funcs
             except AttributeError:
                 pass
-    return dict(paths), dict(column_map), models
+    return dict(paths), dict(column_map), models, core_map
