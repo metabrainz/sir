@@ -290,18 +290,15 @@ class Handler(object):
             for msg in self.pending_messages:
                 self.requeue_message(msg, Exception('SIR terminated while processing.'))
             logger.info('%s messages requeued.', len(self.pending_messages))
-            self.pending_messages = []
-            self.pending_entities.clear()
         except Exception as exc:
             logger.error("Error encountered while processing messages: %s", exc)
             logger.info("Requeuing %s pending messages.", len(self.pending_messages))
             for msg in self.pending_messages:
                 self.requeue_message(msg, exc)
             logger.info('%s messages requeued.', len(self.pending_messages))
-            self.pending_messages = []
-            self.pending_entities.clear()
         else:
-            logger.info('Processed %s messages', len(self.pending_messages))
+            logger.info('Successfully processed %s messages', len(self.pending_messages))
+        finally:
             self.pending_messages = []
             self.pending_entities.clear()
 
