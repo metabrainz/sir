@@ -159,7 +159,6 @@ def _index_entity_process_wrapper(args, live=False):
 
     :rtype: None or an Exception
     """
-    signal.signal(signal.SIGTERM, signal.SIG_DFL)
     try:
         if live:
             return live_index_entity(*args)
@@ -242,7 +241,6 @@ def queue_to_solr(queue, batch_size, solr_connection):
     :param int batch_size:
     :param solr.Solr solr_connection:
     """
-    signal.signal(signal.SIGTERM, signal.SIG_DFL)
     data = []
     for item in iter(queue.get, None):
         if not PROCESS_FLAG.value:

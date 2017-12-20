@@ -422,6 +422,7 @@ def _watch_impl():
         indexing.PROCESS_FLAG.value = False
 
     signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
         handler.connect_to_rabbitmq()
