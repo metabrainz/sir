@@ -27,7 +27,6 @@ from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
-from threading import Lock
 from traceback import format_exc
 
 
@@ -285,7 +284,6 @@ class Handler(object):
         if not self.pending_messages:
             return
         try:
-            self.processing = True
             live_index(self.pending_entities)
         except SIR_EXIT:
             logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
@@ -306,8 +304,6 @@ class Handler(object):
             logger.info('Processed %s messages', len(self.pending_messages))
             self.pending_messages = []
             self.pending_entities.clear()
-        finally:
-            self.processing = False
 
     def _index_data(self, core_name, id_list, extra_data=None):
         total_ids = len(id_list)
@@ -440,9 +436,8 @@ def _watch_impl():
             except Exception:
                 # Exception is caused when drain_events encounters a timeout
                 if indexing.PROCESS_FLAG.value:
-                    if (not handler.processing
-                        and ((time.time() - handler.last_message) > handler.process_delay
-                             or len(handler.pending_messages) > handler.batch_size)):
+                    if ((time.time() - handler.last_message) > handler.process_delay
+                         or len(handler.pending_messages) > handler.batch_size):
                         handler.process_messages()
                     # Always reconnect on a timeout
                     handler.connect_to_rabbitmq(reconnect=True)
