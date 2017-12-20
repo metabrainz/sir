@@ -426,7 +426,7 @@ def _watch_impl():
     def signal_handler(signum, frame):
         # Simply set the `PROCESS_FLAG` to false to
         # stop processing any and all queries
-        indexing.PROCESS_FLAG = False
+        indexing.PROCESS_FLAG.value = False
 
     signal.signal(signal.SIGTERM, signal_handler)
 
@@ -434,12 +434,12 @@ def _watch_impl():
         handler.connect_to_rabbitmq()
         logger.info("Connection to RabbitMQ established")
         logger.debug("Waiting for a message")
-        while indexing.PROCESS_FLAG:
+        while indexing.PROCESS_FLAG.value:
             try:
                 handler.connection.drain_events(timeout)
             except Exception:
                 # Exception is caused when drain_events encounters a timeout
-                if indexing.PROCESS_FLAG:
+                if indexing.PROCESS_FLAG.value:
                     if (not handler.processing
                         and ((time.time() - handler.last_message) > handler.process_delay
                              or len(handler.pending_messages) > handler.batch_size)):

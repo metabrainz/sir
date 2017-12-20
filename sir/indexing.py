@@ -61,7 +61,7 @@ def live_index(entities):
 
     # Checking for PROCESS_FLAG before proceeding in case the parent process
     # was terminated and this flag was turned off in the parent signal handler.
-    if not PROCESS_FLAG:
+    if not PROCESS_FLAG.value:
         logger.info('Process Flag is off, terminating.')
         return
     _multiprocessed_import(entities.keys(), live=True, entities=entities)
@@ -132,7 +132,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             results = pool.imap(indexer,
                                 index_function_args)
             for r in results:
-                if not PROCESS_FLAG:
+                if not PROCESS_FLAG.value:
                     raise SIR_EXIT
         except SIR_EXIT:
             logger.info('Killing all worker processes.')
@@ -201,7 +201,7 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     :param ids:
     :param Queue.Queue data_queue:
     """
-    if not PROCESS_FLAG:
+    if not PROCESS_FLAG.value:
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
     logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
@@ -226,7 +226,7 @@ def _query_database(entity_name, db_uri, condition, data_queue):
         query = search_entity.query.filter(condition).with_session(session)
         total_records = 0
         for row in query:
-            if not PROCESS_FLAG:
+            if not PROCESS_FLAG.value:
                 return
             data_queue.put(row_converter(row))
             total_records += 1
@@ -245,7 +245,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
     data = []
     for item in iter(queue.get, None):
-        if not PROCESS_FLAG:
+        if not PROCESS_FLAG.value:
             return
         data.append(item)
         if len(data) >= batch_size:
@@ -261,7 +261,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
                 logger.debug("Sent data to Solr")
             data = []
 
-    if not PROCESS_FLAG:
+    if not PROCESS_FLAG.value:
         return
     logger.info("%s: Sending remaining data & stopping", solr_connection)
     solr_connection.add_many(data)
