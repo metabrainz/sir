@@ -46,35 +46,39 @@ class AmqpTestCase(unittest.TestCase):
 
 class CallbackWrapperTest(AmqpTestCase):
 
+    def setUp(self):
+        super(CallbackWrapperTest, self).setUp()
+        self.handler = handler.Handler()
+        self.channel = self.handler.channel = mock.MagicMock()
+        self.handler.connection = mock.MagicMock()
+
     def test_ack(self):
         def wrapped_f(*args, **kwargs):
             pass
 
         f = handler.callback_wrapper(wrapped_f)
-        _handler = handler.Handler()
-        f(_handler, self.message, "search.index")
+        f(self.handler, self.message, "search.index")
 
-        # Process messages to ack
-        _handler.process_messages()
-        self.message.channel.basic_ack.assert_called_once_with(self.delivery_tag)
+        self.channel.basic_ack.assert_called_once_with(self.delivery_tag)
 
     def test_reject_on_exception(self):
         def wrapped_f(*args, **kwargs):
             raise ValueError()
 
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.MagicMock(), self.message, "search.index")
-        self.message.channel.basic_reject.assert_called_once_with(
+
+        f(self.handler, self.message, "search.index")
+        self.channel.basic_reject.assert_called_once_with(
             self.delivery_tag,
             requeue=False)
-        self.message.channel.basic_publish.assert_called_once_with(
+        self.channel.basic_publish.assert_called_once_with(
             self.message,
             exchange="search.retry",
             routing_key=self.routing_key)
         self.assertEqual(
             self.message.application_headers["mb-retries"],
             handler._DEFAULT_MB_RETRIES - 1)
-        self.assertFalse(self.message.channel.basic_ack.called)
+        self.assertFalse(self.channel.basic_ack.called)
 
     def test_search_failed_on_mb_retries_zero(self):
         def wrapped_f(*args, **kwargs):
@@ -82,11 +86,11 @@ class CallbackWrapperTest(AmqpTestCase):
 
         self.message.application_headers["mb-retries"] = 0
         f = handler.callback_wrapper(wrapped_f)
-        f(mock.MagicMock(), self.message, "search.index")
-        self.message.channel.basic_reject.assert_called_once_with(
+        f(self.handler, self.message, "search.index")
+        self.channel.basic_reject.assert_called_once_with(
             self.delivery_tag,
             requeue=False)
-        self.message.channel.basic_publish.assert_called_once_with(
+        self.channel.basic_publish.assert_called_once_with(
             self.message,
             exchange="search.failed",
             routing_key=self.routing_key)
@@ -106,13 +110,15 @@ class HandlerTest(AmqpTestCase):
         solr_version_check_patcher.start()
 
         self.handler = handler.Handler()
+        self.channel = self.handler.channel = mock.MagicMock()
+        self.handler.connection = mock.MagicMock()
+
         self.handler.cores[self.entity_type] = mock.Mock()
 
     def test_delete_callback(self):
         entity_gid = u"90d7709d-feba-47e6-a2d1-8770da3c3d9c"
         self.message = Amqp_Message(
             body='{"_table": "%s", "gid": "%s"}' % (self.entity_type, entity_gid),
-            channel=mock.Mock(),
             application_headers={},
         )
         self.message.delivery_tag = self.delivery_tag

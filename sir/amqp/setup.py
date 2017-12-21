@@ -40,6 +40,7 @@ def setup_rabbitmq(args):
 
     delq, _, _ = qdecl("search.delete")
     indq, _, _ = qdecl("search.index")
+    larq, _, _ = qdecl("search.large")
     retrq, _, _ = qdecl("search.retry", arguments={
                         "x-message-ttl":
                         4 * 60 * 60 * 1000,
@@ -52,6 +53,7 @@ def setup_rabbitmq(args):
     channel.queue_bind(delq, "search", "delete")
     channel.queue_bind(indq, "search", "index")
     channel.queue_bind(indq, "search", "update")
+    channel.queue_bind(larq, "search", "large")
     channel.queue_bind(retrq, "search.retry")
     channel.queue_bind(failq, "search.failed")
 
