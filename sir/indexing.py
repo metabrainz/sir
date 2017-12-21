@@ -1,6 +1,7 @@
 # Copyright (c) 2014, 2015, 2017 Lukas Lalinsky, Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 import multiprocessing
+import signal
 
 from . import config, querying, util, get_sentry
 from .schema import SCHEMA
@@ -143,6 +144,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         except SIR_EXIT:
             logger.info('Killing all worker processes.')
             entity_data_queue.put(STOP)
+            solr_process.terminate()
             solr_process.join()
             pool.terminate()
             pool.join()
@@ -165,6 +167,11 @@ def _index_entity_process_wrapper(args, live=False):
 
     :rtype: None or an Exception
     """
+
+    # Restoring the default SIGTERM handler so the pool can actually terminate
+    # its workers
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
     try:
         if live:
             return live_index_entity(*args)
@@ -247,6 +254,11 @@ def queue_to_solr(queue, batch_size, solr_connection):
     :param int batch_size:
     :param solr.Solr solr_connection:
     """
+
+    # Restoring the default SIGTERM handler so the Solr process can actually
+    # be terminated on calling terminate.
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
     data = []
     for item in iter(queue.get, None):
         if not PROCESS_FLAG.value:
