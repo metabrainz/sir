@@ -14,7 +14,6 @@ from functools import partial
 from json import loads
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from threading import Timer
 
 
 logger = logging.getLogger("sir")
@@ -136,59 +135,3 @@ def create_amqp_connection():
         password=cget("password"),
         virtual_host=cget("vhost"),
     )
-
-
-class ReusableTimer(object):
-    """
-    A class that provides reusable timers.
-    Used for scheduling callback after a certain delay.
-    """
-
-    def __init__(self, delay, callback):
-        self.delay = delay
-        self.callback = callback
-        self._timer = None
-
-    def start(self, delay=None):
-        """
-        Used to start a new timer with given delay.
-
-        :param int delay:
-        """
-        if self._timer:
-            raise Exception('Timer already exists. Use restart instead.')
-
-        if not delay:
-            delay = self.delay
-
-        self._timer = Timer(delay, self.callback)
-        # Starting the call in daemon mode so that it exits when the parent
-        # exits and isn't orphaned
-        self._timer.daemon = True
-        self._timer.start()
-
-    def cancel(self):
-        """
-        Used to cancel an already running timer.
-        """
-        if self._timer:
-            self._timer.cancel()
-            self._timer = None
-        else:
-            raise Exception('Cannot cancel timer. No timer started.')
-
-    def restart(self, delay=None):
-        """
-        Used to restart the timer and schedule a call after ``delay``
-        seconds. It will cancel any existing scheduled calls. If there
-        are no existing timers scheduled it just starts a new timer.
-
-        :param int delay:
-        """
-        if self._timer:
-            self._timer.cancel()
-        if not delay:
-            delay = self.delay
-        self._timer = Timer(delay, self.callback)
-        self._timer.daemon = True
-        self._timer.start()

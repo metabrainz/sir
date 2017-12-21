@@ -1,4 +1,4 @@
-# Copyright (c) Wieland Hoffmann
+# Copyright (c) 2015, 2017 Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
@@ -16,8 +16,12 @@ def generate_query(model, path, filters=None):
     :param [sqlalchemy.sql.expression.BinaryExpression] filters:
     :rtype: A :ref:`sqlalchemy.orm.query.Query` object
     """
+
+    # We start with the query selecting the ids of the models we want to return.
     query = Query(model.id)
     if path:
+        # In case path is not blank, we need to alias the model id while joining
+        # to prevent referencing the same table again.
         query = (Query(aliased(model).id))
         # The below is a fix in case the same table is joined
         # multiple times. In that case, we alias everything except
@@ -27,6 +31,8 @@ def generate_query(model, path, filters=None):
         path_list = path_list[:-1]
         if path_list:
             query = query.join(*path_list, aliased=True)
+        # The last path is purposfully left out from being aliased to make it easier
+        # to contrunct filter conditions.
         query = query.join(last_path, from_joinpoint=True)
     if filters is not None:
         if isinstance(filters, list):
@@ -41,7 +47,7 @@ def generate_filtered_query(model, path, emitted_keys):
     Generate a query filtered on the primary key of the last model
     in path.
     :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
-    :param path:
+    :param str path:
     :param dict emitted_keys: A `dict` containing the key value
                               pairs emitted from the trigger.
     :rtype: A :ref:`sqlalchemy.orm.query.Query` object
