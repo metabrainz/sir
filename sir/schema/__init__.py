@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015, 2016 Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2016, 2017 Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 
 """
@@ -97,6 +97,40 @@ SearchArea = E(modelext.CustomArea, [
                 "area_links.link.attributes.attribute_type.gid",
                 "tags.count", "type.gid"
                 ]
+)
+
+
+SearchArtist = E(modelext.CustomArtist, [
+    F("mbid", "gid"),
+    F("artist", "name"),
+    F("sortname", "sort_name"),
+    F("alias", "aliases.name"),
+
+    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("ended", "ended", transformfunc=tfs.ended_to_string),
+
+    F("area", ["area.name", "area.aliases.name"]),
+    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+    F("country", "area.iso_3166_1_codes.code"),
+    F("endarea", ["end_area.name", "end_area.aliases.name"]),
+
+    F("comment", "comment"),
+    F("gender", "gender.name"),
+    F("ipi", "ipis.ipi"),
+    F("isni", "isnis.isni"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
+],
+    1.5,
+    convert.convert_artist,
+    extrapaths=["tags.count",
+                "aliases.type.name", "aliases.type.id",
+                "aliases.type.gid", "aliases.sort_name",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date",
+                "begin_area.gid", "area.gid", "end_area.gid",
+                "type.gid"]
 )
 
 
@@ -418,39 +452,6 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 ]
 )
 
-SearchArtist = E(modelext.CustomArtist, [
-    F("mbid", "gid"),
-    F("artist", "name"),
-    F("sortname", "sort_name"),
-    F("alias", "aliases.name"),
-
-    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
-    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("ended", "ended", transformfunc=tfs.ended_to_string),
-
-    F("area", ["area.name", "area.aliases.name"]),
-    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
-    F("country", "area.iso_3166_1_codes.code"),
-    F("endarea", ["end_area.name", "end_area.aliases.name"]),
-
-    F("comment", "comment"),
-    F("gender", "gender.name"),
-    F("ipi", "ipis.ipi"),
-    F("isni", "isnis.isni"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_artist,
-    extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "begin_area.gid", "area.gid", "end_area.gid",
-                "type.gid"]
-)
-
 
 SearchSeries = E(modelext.CustomSeries, [
     F("mbid", "gid"),
@@ -563,19 +564,24 @@ def generate_update_map():
     Generates mapping from tables to Solr cores (entities) that depend on
     these tables and the columns of those tables. In addition provides a
     path along which data of an entity can be retrieved by performing a set
-    of JOINs and a map of table names to SQLAlchemy ORM models
+    of JOINs and a map of table names to SQLAlchemy ORM models and other useful
+    mappings.
 
     Uses paths to determine the dependency.
 
-    :rtype (dict, dict, dict)
+    :rtype (dict, dict, dict, dict)
     """
     from sir.trigger_generation.paths import (unique_split_paths, last_model_in_path,
                                              second_last_model_in_path)
 
     paths = defaultdict(set)
-    models = {}
     column_map = defaultdict(set)
+
+    # Used to map table names to mbdata.models for indexing.
+    models = {}
+    # Used to map table names to core names while handling entity deletion.
     core_map = {}
+
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.

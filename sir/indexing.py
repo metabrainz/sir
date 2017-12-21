@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2017 Lukas Lalinsky, Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 import multiprocessing
 
@@ -11,7 +11,6 @@ from solr import SolrException
 from sqlalchemy import and_
 from .util import SIR_EXIT
 from ctypes import c_bool
-import signal
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
            "_multiprocessed_import", "_index_entity_process_wrapper", "live_index",
@@ -33,6 +32,13 @@ def reindex(args):
     :param args: A dictionary with a key named ``entities``.
     :type args: dict
     """
+
+    # Checking for PROCESS_FLAG before proceeding in case the parent process
+    # was terminated and this flag was turned off in the parent signal handler.
+    if not PROCESS_FLAG.value:
+        logger.info('Process Flag is off, terminating.')
+        return
+
     entities = args["entity_type"]
     known_entities = SCHEMA.keys()
     if entities is None:
@@ -197,7 +203,7 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
 
     :param str entity_name:
     :param str db_uri:
-    :param ids:
+    :param [int] ids:
     :param Queue.Queue data_queue:
     """
     if not PROCESS_FLAG.value:
@@ -215,7 +221,7 @@ def _query_database(entity_name, db_uri, condition, data_queue):
 
     :param str entity_name:
     :param str db_uri:
-    :param condition:
+    :param sqlalchemy.sql.expression.BinaryExpression condition:
     :param Queue.Queue data_queue:
     """
     search_entity = SCHEMA[entity_name]

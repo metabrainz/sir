@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2014, 2015 Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2017 Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 import errno
 import signal
@@ -59,15 +59,29 @@ class INDEX_LIMIT_EXCEEDED(Exception):
 
 
 def action_wrapper(f):
+    """
+    Common wrapper for a message action functions like `ack`, `reject` and `requeue`
+    that provides exception handling and makes sure that the AMQP connection is
+    connected before any interaction with the RabbitMQ.
+    The following wrapper function is returned:
 
+    .. py:function:: wrapper(self, msg, *args, **kwargs)
+
+        :param sir.amqp.handler.Handler self: Handler object that is processing a message.
+        :param amqp.basic_message.Message msg: Message itself.
+
+        Calls ``f`` with ``self`` and an instance of :class:`~sir.amqp.message.Message`.
+        If an exception gets raised by ``f``, it will be caught and logged.
+    """
     @wraps(f)
     def wrapper(self, msg, *args, **kwargs):
         self.connect_to_rabbitmq()
         try:
             logger.debug('Performing %s on %s', f.__name__, vars(msg))
             return f(self, msg, *args, **kwargs)
-        except Exception:
-            logger.debug('Unable to perform action %s on message %s', f.__name__, vars(msg))
+        except Exception as exc:
+            logger.error('Unable to perform action %s on message %s. Exception encountered: %s',
+                         f.__name__, vars(msg), format_exc(exc))
 
     return wrapper
 
@@ -142,7 +156,8 @@ class Handler(object):
             self.process_delay = config.CFG.getint("sir", "process_delay")
         except (NoOptionError, AttributeError):
             self.process_delay = 120
-
+        # Used to limit the number of queried rows from PGSQL. Anything above this limit
+        # raises a INDEX_LIMIT_EXCEEDED error
         try:
             self.index_limit = config.CFG.getint("sir", "index_limit")
         except (NoOptionError, AttributeError):
@@ -170,13 +185,11 @@ class Handler(object):
         if self.connection and self.connection.connected and (not reconnect):
             return
 
-        try:
+        if reconnect:
             if self.channel is not None:
                 self.channel.close()
             if self.connection is not None:
                 self.connection.close()
-        except Exception:
-            pass
 
         conn = create_amqp_connection()
         logger.debug("Heartbeat value: %s" % conn.heartbeat)
@@ -221,7 +234,7 @@ class Handler(object):
 
         Messages for indexing have the following format:
 
-            <table name>, PKs{<PK row name>, <PK value>}
+            <table name>, keys{<column name>, <value>}
 
         First value is a table name, followed by primary key values for that
         table. These are then used to lookup values that need to be updated.
@@ -254,10 +267,10 @@ class Handler(object):
 
         Messages for deletion have the following format:
 
-            <table name>, <gid>
+            <table name>, <id or gid>
 
         First value is a table name for an entity that has been deleted.
-        Second is GID of the row in that table. For example:
+        Second is GID or ID of the row in that table. For example:
 
             {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
 
@@ -439,7 +452,7 @@ def _watch_impl():
                 # In case of a timeout, simply continue
                 pass
             except Exception as exc:
-                # Ignore system call interruption in case of SIGTERM or SIGINT
+                # Do not log system call interruption in case of SIGTERM or SIGINT
                 if exc.errno != errno.EINTR:
                     logger.error(format_exc(exc))
             if indexing.PROCESS_FLAG.value:
