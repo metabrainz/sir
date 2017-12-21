@@ -122,7 +122,7 @@ def callback_wrapper(f):
         except INDEX_LIMIT_EXCEEDED as exc:
             logger.warning(exc)
             self.reject_message(msg)
-            self.requeue_message(msg, exc, fail=True)
+            self.requeue_message(msg, exc, large=True)
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
             self.reject_message(msg)
@@ -208,15 +208,19 @@ class Handler(object):
         self.channel = ch
 
     @action_wrapper
-    def requeue_message(self, msg, exc, fail=False):
+    def requeue_message(self, msg, exc, large=False):
         if not hasattr(msg, "application_headers"):
             msg.properties['application_headers'] = {}
         retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
         routing_key = msg.delivery_info["routing_key"]
         msg.application_headers["mb-exception"] = format_exc(exc)
-        if retries_remaining and not fail:
-            msg.application_headers["mb-retries"] = retries_remaining - 1
-            self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
+        if retries_remaining:
+            if large and retries_remaining == _DEFAULT_MB_RETRIES:
+                msg.application_headers["mb-retries"] = retries_remaining - 1
+                self.channel.basic_publish(msg, exchange="search", routing_key='large')
+            else:
+                msg.application_headers["mb-retries"] = retries_remaining - 1
+                self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
         else:
             self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
 
@@ -459,7 +463,7 @@ def _watch_impl():
                 pass
             except Exception as exc:
                 # Do not log system call interruption in case of SIGTERM or SIGINT
-                if exc.errno != errno.EINTR:
+                if getattr(exc, 'errno', None) != errno.EINTR:
                     logger.error(format_exc(exc))
             if indexing.PROCESS_FLAG.value:
                 if ((time.time() - handler.last_message) >= handler.process_delay
