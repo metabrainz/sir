@@ -299,6 +299,7 @@ class Handler(object):
         if not self.pending_messages:
             return
         try:
+            self.last_message = time.time()
             live_index(self.pending_entities)
             if not indexing.PROCESS_FLAG.value:
                 # It might happen that the DB pool workers have
@@ -329,7 +330,6 @@ class Handler(object):
         if total_ids > self.index_limit:
             raise INDEX_LIMIT_EXCEEDED(core_name, total_ids, extra_data)
         logger.info("Queueing %s new rows for entity %s", total_ids, core_name)
-        self.last_message = time.time()
         self.pending_entities[core_name].update(set(id_list))
 
     def _index_by_pk(self, parsed_message):
