@@ -155,7 +155,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             logger.info("Importing %s successful!", e)
         entity_data_queue.put(STOP)
         solr_process.join()
-    pool.terminate()
+    pool.close()
     pool.join()
 
 
