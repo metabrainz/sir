@@ -3,6 +3,7 @@
 # Copyright (c) 2014, 2015, 2017 Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
 import errno
+import os
 import signal
 import sir.indexing as indexing
 import time
@@ -433,10 +434,15 @@ def _watch_impl():
         timeout = 30
     logger.info('AMQP timeout is set to %d seconds', timeout)
 
-    def signal_handler(signum, frame):
-        # Simply set the `PROCESS_FLAG` to false to
-        # stop processing any and all queries
-        indexing.PROCESS_FLAG.value = False
+    def signal_handler(signum, frame, pid=os.getpid()):
+
+        # Doing this makes sure that only the main process is changing the PROCESS_FLAG.
+        # Otherwise, SIR would set the PROCESS_FLAG to False, even when a PoolWorker is
+        # terminated.
+        if pid == os.getpid():
+            # Simply set the `PROCESS_FLAG` to false to stop processing any and
+            # all queries.
+            indexing.PROCESS_FLAG.value = False
 
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
