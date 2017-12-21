@@ -468,6 +468,16 @@ def _watch_impl():
     except Exception:
         get_sentry().captureException()
         raise
+
+    # There might be some pending messages left in case we quit SIR while it's
+    # sitting idle on drain_events.
+    if handler.pending_messages:
+        logger.info("Requeuing %s pending messages.", len(handler.pending_messages))
+        for msg in handler.pending_messages:
+            handler.requeue_message(msg, Exception('SIR terminated without processing this message.'))
+        handler.pending_messages = []
+        handler.pending_entities.clear()
+
     logger.info('Terminating SIR')
 
 
