@@ -102,7 +102,7 @@ CREATE OR REPLACE FUNCTION search_area_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, type, gid) AS (SELECT OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -174,7 +174,7 @@ CREATE OR REPLACE FUNCTION search_artist_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(area, begin_area, end_area, gender, id, type, gid) AS (SELECT OLD.area, OLD.begin_area, OLD.end_area, OLD.gender, OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -246,7 +246,7 @@ CREATE OR REPLACE FUNCTION search_event_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, type, gid) AS (SELECT OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -318,7 +318,7 @@ CREATE OR REPLACE FUNCTION search_instrument_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, type, gid) AS (SELECT OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -390,7 +390,7 @@ CREATE OR REPLACE FUNCTION search_label_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(area, id, type, gid) AS (SELECT OLD.area, OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -462,7 +462,7 @@ CREATE OR REPLACE FUNCTION search_place_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(area, id, type, gid) AS (SELECT OLD.area, OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -534,7 +534,7 @@ CREATE OR REPLACE FUNCTION search_recording_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(artist_credit, id, gid) AS (SELECT OLD.artist_credit, OLD.id, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -606,7 +606,7 @@ CREATE OR REPLACE FUNCTION search_release_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(artist_credit, id, language, packaging, release_group, script, status, gid) AS (SELECT OLD.artist_credit, OLD.id, OLD.language, OLD.packaging, OLD.release_group, OLD.script, OLD.status, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -678,7 +678,7 @@ CREATE OR REPLACE FUNCTION search_release_group_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(artist_credit, id, type, gid) AS (SELECT OLD.artist_credit, OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -750,7 +750,7 @@ CREATE OR REPLACE FUNCTION search_series_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, ordering_attribute, ordering_type, type, gid) AS (SELECT OLD.id, OLD.ordering_attribute, OLD.ordering_type, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -822,7 +822,7 @@ CREATE OR REPLACE FUNCTION search_work_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, type, gid) AS (SELECT OLD.id, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -2838,7 +2838,7 @@ CREATE OR REPLACE FUNCTION search_url_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(gid) AS (SELECT OLD.gid)
+            WITH keys(id, gid) AS (SELECT OLD.id, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"url"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
