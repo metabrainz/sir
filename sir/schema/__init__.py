@@ -606,6 +606,9 @@ def generate_update_map():
                     column_map[model.__table__.name].update(column_names)
                 elif isinstance(prop, RelationshipProperty):
                     if prop.direction.name == 'MANYTOONE':
+                        # We are assuming MB-DB uses only non-composite FKs.
+                        # In case this changes in the future, `test.DBTest.test_non_composite_fk`
+                        # will fail.
                         column_map[model.__table__.name].add(list(prop.local_columns)[0].name)
             # This happens in case of annotation and url paths
             # which have path to figure out the table name via transform funcs
