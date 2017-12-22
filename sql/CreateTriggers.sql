@@ -5,7 +5,7 @@ BEGIN;
 CREATE TRIGGER search_annotation_insert AFTER INSERT ON musicbrainz.annotation
     FOR EACH ROW EXECUTE PROCEDURE search_annotation_insert();
 
-CREATE TRIGGER search_annotation_update AFTER UPDATE OF id, text ON musicbrainz.annotation
+CREATE TRIGGER search_annotation_update AFTER UPDATE OF editor, id, text ON musicbrainz.annotation
     FOR EACH ROW EXECUTE PROCEDURE search_annotation_update();
 
 CREATE TRIGGER search_annotation_delete BEFORE DELETE ON musicbrainz.annotation
@@ -185,7 +185,7 @@ CREATE TRIGGER search_series_annotation_delete BEFORE DELETE ON musicbrainz.seri
 CREATE TRIGGER search_series_insert AFTER INSERT ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_insert();
 
-CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name, type ON musicbrainz.series
+CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name, ordering_attribute, ordering_type, type ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_update();
 
 CREATE TRIGGER search_series_delete BEFORE DELETE ON musicbrainz.series
@@ -347,7 +347,7 @@ CREATE TRIGGER search_cdtoc_raw_delete BEFORE DELETE ON musicbrainz.cdtoc_raw
 CREATE TRIGGER search_editor_insert AFTER INSERT ON musicbrainz.editor
     FOR EACH ROW EXECUTE PROCEDURE search_editor_insert();
 
-CREATE TRIGGER search_editor_update AFTER UPDATE OF bio, id, name ON musicbrainz.editor
+CREATE TRIGGER search_editor_update AFTER UPDATE OF area, bio, gender, id, name ON musicbrainz.editor
     FOR EACH ROW EXECUTE PROCEDURE search_editor_update();
 
 CREATE TRIGGER search_editor_delete BEFORE DELETE ON musicbrainz.editor
@@ -608,7 +608,7 @@ CREATE TRIGGER search_recording_tag_delete BEFORE DELETE ON musicbrainz.recordin
 CREATE TRIGGER search_release_meta_insert AFTER INSERT ON musicbrainz.release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_meta_insert();
 
-CREATE TRIGGER search_release_meta_update AFTER UPDATE OF amazon_asin ON musicbrainz.release_meta
+CREATE TRIGGER search_release_meta_update AFTER UPDATE OF amazon_asin, id ON musicbrainz.release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_meta_update();
 
 CREATE TRIGGER search_release_meta_delete BEFORE DELETE ON musicbrainz.release_meta
