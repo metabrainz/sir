@@ -120,7 +120,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         solr_process = multiprocessing.Process(name="solr",
                                                target=process_function)
         solr_process.start()
-        logger.info("The queue workers PID is %i", solr_process.pid)
+        logger.debug("The queue workers PID is %i", solr_process.pid)
         indexer = partial(_index_entity_process_wrapper, live=live)
         if live:
             if entity_id_list:
@@ -152,7 +152,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         except Exception as exc:
             logger.exception(exc)
         else:
-            logger.info("Importing %s successful!", e)
+            logger.debug("Importing %s successful!", e)
         entity_data_queue.put(STOP)
         solr_process.join()
     pool.close()
@@ -193,7 +193,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     :param Queue.Queue data_queue:
     """
     model = SCHEMA[entity_name].model
-    logger.info("Indexing %s %s", model, bounds)
+    logger.debug("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
@@ -216,7 +216,7 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
     if not PROCESS_FLAG.value:
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
-    logger.info("Indexing %s new rows for entity %s", len(ids), entity_name)
+    logger.debug("Indexing %s new rows for entity %s", len(ids), entity_name)
     _query_database(entity_name, db_uri, condition, data_queue)
 
 
@@ -242,7 +242,7 @@ def _query_database(entity_name, db_uri, condition, data_queue):
                 return
             data_queue.put(row_converter(row))
             total_records += 1
-        logger.info("Retrieved %s records in %s", total_records, model)
+        logger.debug("Retrieved %s records in %s", total_records, model)
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
@@ -279,9 +279,9 @@ def queue_to_solr(queue, batch_size, solr_connection):
 
     if not PROCESS_FLAG.value:
         return
-    logger.info("%s: Sending remaining data & stopping", solr_connection)
+    logger.debug("%s: Sending remaining data & stopping", solr_connection)
     solr_connection.add_many(data)
-    logger.info("Committing changes to Solr")
+    logger.debug("Committing changes to Solr")
     solr_connection.commit()
 
 

@@ -113,7 +113,7 @@ def callback_wrapper(f):
     @wraps(f)
     def wrapper(self, msg, queue):
         try:
-            logger.debug("Received message from queue %s: %s" % (queue, msg.body))
+            logger.info("Received message from queue %s: %s" % (queue, msg.body))
             parsed_message = message.Message.from_amqp_message(queue, msg)
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
@@ -254,8 +254,8 @@ class Handler(object):
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
-        logger.info("Processing `index` message from table: %s" % parsed_message.table_name)
-        logger.info("Message columns %s" % parsed_message.columns)
+        logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
+        logger.debug("Message columns %s" % parsed_message.columns)
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
         else:
@@ -289,7 +289,7 @@ class Handler(object):
                 column_name = "id"
             else:
                 raise ValueError("`gid` column missing from delete message")
-        logger.info("Deleting {entity_type}: {id}".format(
+        logger.debug("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns[column_name]))
         self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
@@ -329,7 +329,7 @@ class Handler(object):
         total_ids = len(id_list)
         if total_ids > self.index_limit:
             raise INDEX_LIMIT_EXCEEDED(core_name, total_ids, extra_data)
-        logger.info("Queueing %s new rows for entity %s", total_ids, core_name)
+        logger.debug("Queueing %s new rows for entity %s", total_ids, core_name)
         self.pending_entities[core_name].update(set(id_list))
 
     def _index_by_pk(self, parsed_message):
@@ -344,7 +344,7 @@ class Handler(object):
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-                    logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_query = generate_filtered_query(entity.model, path, parsed_message.columns)
                     if select_query is None:
                         logger.warning("SELECT is `None`")
@@ -392,7 +392,7 @@ class Handler(object):
                         # If `path` is `None` then we received a message for an entity itself
                         ids = [parsed_message.columns['id']]
                     else:
-                        logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
+                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
                         filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
