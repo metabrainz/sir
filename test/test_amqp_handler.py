@@ -124,7 +124,7 @@ class HandlerTest(AmqpTestCase):
     def test_handler_checks_solr_version(self):
         handler.solr_version_check.assert_called_once_with(self.entity_type)
 
-    def test_index_by_fk(self):
+    def test_index_by_fk_1(self):
         columns = {'id': '1',
                    'area': '2',
                    'type': '3'}
@@ -158,4 +158,41 @@ class HandlerTest(AmqpTestCase):
             'FROM musicbrainz.area \n'
             'WHERE musicbrainz.area.id = :id_1']
 
+        self.assertEqual(expected_queries, actual_queries)
+
+    def test_index_by_fk_2(self):
+        columns = {'id': '1'}
+        parsed_message = Message(1, 'release_meta', columns, 'delete')
+        handler.SCHEMA = SCHEMA
+        self.handler = handler.Handler()
+        for entity_type, entity in SCHEMA.items():
+            self.handler.cores[entity_type] = mock.Mock()
+            entity.build_entity_query = mock.MagicMock()
+        self.handler._index_by_fk(parsed_message)
+        calls = self.handler.db_session().execute.call_args_list
+        self.assertEqual(len(calls), 1)
+        actual_queries = [str(call[0][0]) for call in calls]
+        expected_queries = [
+            'SELECT musicbrainz.release.id AS musicbrainz_release_id \n'
+            'FROM musicbrainz.release \n'
+            'WHERE musicbrainz.release.id = :id_1']
+
+        self.assertEqual(expected_queries, actual_queries)
+
+    def test_index_by_fk_3(self):
+        columns = {'release_group': 1}
+        parsed_message = Message(1, 'release', columns, 'delete')
+        handler.SCHEMA = SCHEMA
+        self.handler = handler.Handler()
+        for entity_type, entity in SCHEMA.items():
+            self.handler.cores[entity_type] = mock.Mock()
+            entity.build_entity_query = mock.MagicMock()
+        self.handler._index_by_fk(parsed_message)
+        calls = self.handler.db_session().execute.call_args_list
+        self.assertEqual(len(calls), 1)
+        actual_queries = [str(call[0][0]) for call in calls]
+        expected_queries = [
+            'SELECT musicbrainz.release_group.id AS musicbrainz_release_group_id \n'
+            'FROM musicbrainz.release_group \n'
+            'WHERE musicbrainz.release_group.id = :id_1']
         self.assertEqual(expected_queries, actual_queries)

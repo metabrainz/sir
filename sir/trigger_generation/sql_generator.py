@@ -202,7 +202,7 @@ class GIDDeleteTriggerGenerator(DeleteTriggerGenerator):
 
     def __init__(self, *args, **kwargs):
         super(GIDDeleteTriggerGenerator, self).__init__(*args, **kwargs)
-        self.reference_columns = ["gid"]
+        self.reference_columns += ["gid"]
 
 
 class ReferencedDeleteTriggerGenerator(DeleteTriggerGenerator):

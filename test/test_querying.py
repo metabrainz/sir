@@ -4,8 +4,11 @@ import unittest
 
 from test import helpers, models
 from collections import defaultdict
+from sqlalchemy.orm.properties import RelationshipProperty
 from sir.querying import iterate_path_values
 from sir.schema.searchentities import defer_everything_but, merge_paths
+from sir.schema import generate_update_map, SCHEMA
+from sir.trigger_generation.paths import second_last_model_in_path
 
 
 class DeferEverythingButTest(unittest.TestCase):
@@ -105,6 +108,24 @@ class MergePathsTest(unittest.TestCase):
                                 )
         }
         self.assertEqual(dict(merge_paths(paths)), expected)
+
+
+class DBTest(unittest.TestCase):
+    def test_non_composite_fk(self):
+        paths, _, models, _ = generate_update_map()
+        for table_paths in paths.values():
+            for core_name, path in table_paths:
+                model, _ = second_last_model_in_path(SCHEMA[core_name].model, path)
+                if path:
+                    prop_name = path.split(".")[-1]
+                    try:
+                        prop = getattr(model, prop_name).prop
+                    except AttributeError:
+                        pass
+                    else:
+                        if isinstance(prop, RelationshipProperty):
+                            if prop.direction.name == 'MANYTOONE':
+                                self.assertEqual(len(prop.local_columns), 1)
 
 
 def load_tests(loader, tests, ignore):

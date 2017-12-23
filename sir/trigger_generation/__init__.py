@@ -104,7 +104,8 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
     # Mapper defines correlation of model class attributes to database table columns
     mapper = class_mapper(model)
     table_name = mapper.mapped_table.name
-    fk_columns = []
+    fk_columns = [list(r.local_columns)[0].name for r in mapper.relationships
+                  if r.direction.name == 'MANYTOONE']
     if is_direct:
         if has_gid:
             delete_trigger_generator = sql_generator.GIDDeleteTriggerGenerator
@@ -112,11 +113,6 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
             delete_trigger_generator = sql_generator.DeleteTriggerGenerator
     else:
         delete_trigger_generator = sql_generator.ReferencedDeleteTriggerGenerator
-        # Since mbdata has some instrumented attributes
-        # in case the table does not have a given column, it causes problems with table updates
-        actual_columns = [r.key for r in mapper.tables[0].columns if r.foreign_keys]
-        fk_columns = [r.key for r in mapper.relationships
-                      if r.direction.name == 'MANYTOONE' and r.key in actual_columns]
     update_columns = None
     if table_name in column_map:
         update_columns = column_map[table_name]
