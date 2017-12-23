@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2014, 2015 Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2017 Wieland Hoffmann, Sambhav Kothari
 # License: MIT, see LICENSE for details
+import errno
+import os
 import signal
 import sir.indexing as indexing
+import time
 
 from sir.amqp import message
 from sir import get_sentry, config
@@ -15,7 +18,7 @@ from sir.util import (create_amqp_connection,
                       db_session_ctx,
                       solr_connection,
                       solr_version_check,
-                      ReusableTimer)
+                      SIR_EXIT)
 from amqp.exceptions import AMQPError
 from functools import partial, wraps
 from logging import getLogger
@@ -26,7 +29,8 @@ from sys import exit
 from urllib2 import URLError
 from ConfigParser import NoOptionError
 from collections import defaultdict
-from multiprocessing import Lock, active_children
+from traceback import format_exc
+
 
 __all__ = ["callback_wrapper", "watch", "Handler"]
 
@@ -45,19 +49,42 @@ _RETRY_WAIT_SECS = 30
 _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 
 
-def requeue_message(msg, exc):
-    if not hasattr(msg, "application_headers"):
-        # TODO(roman): Document when this might happen
-        logger.debug("Message doesn't have \"application_headers\" attribute: %s", vars(msg))
-        msg.application_headers = {}
-    retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
-    routing_key = msg.delivery_info["routing_key"]
-    if retries_remaining:
-        msg.application_headers["mb-retries"] = retries_remaining - 1
-        msg.application_headers["mb-exception"] = str(exc)
-        msg.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
-    else:
-        msg.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+class INDEX_LIMIT_EXCEEDED(Exception):
+
+    def __init__(self, core_name, total_ids, extra_data=None):
+        exception_message = 'Index limit exceeded.'
+        exception_message += ' Entity: {}, Total Rows: {}, Extra Data: {}'.format(core_name,
+                                                                                  total_ids,
+                                                                                  str(extra_data))
+        Exception.__init__(self, exception_message)
+
+
+def action_wrapper(f):
+    """
+    Common wrapper for a message action functions like `ack`, `reject` and `requeue`
+    that provides exception handling and makes sure that the AMQP connection is
+    connected before any interaction with the RabbitMQ.
+    The following wrapper function is returned:
+
+    .. py:function:: wrapper(self, msg, *args, **kwargs)
+
+        :param sir.amqp.handler.Handler self: Handler object that is processing a message.
+        :param amqp.basic_message.Message msg: Message itself.
+
+        Calls ``f`` with ``self`` and an instance of :class:`~sir.amqp.message.Message`.
+        If an exception gets raised by ``f``, it will be caught and logged.
+    """
+    @wraps(f)
+    def wrapper(self, msg, *args, **kwargs):
+        self.connect_to_rabbitmq()
+        try:
+            logger.debug('Performing %s on %s', f.__name__, vars(msg))
+            return f(self, msg, *args, **kwargs)
+        except Exception as exc:
+            logger.error('Unable to perform action %s on message %s. Exception encountered: %s',
+                         f.__name__, vars(msg), format_exc(exc))
+
+    return wrapper
 
 
 def callback_wrapper(f):
@@ -86,19 +113,22 @@ def callback_wrapper(f):
     @wraps(f)
     def wrapper(self, msg, queue):
         try:
-            logger.debug("Received message from queue %s: %s" % (queue, msg.body))
+            logger.info("Received message from queue %s: %s" % (queue, msg.body))
             parsed_message = message.Message.from_amqp_message(queue, msg)
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
             f(self=self, parsed_message=parsed_message)
-            with self.queue_lock:
-                self.pending_messages.append(msg)
-            if len(self.pending_messages) >= self.batch_size:
-                self.process_messages()
+            self.pending_messages.append(msg)
+        except INDEX_LIMIT_EXCEEDED as exc:
+            logger.warning(exc)
+            self.reject_message(msg)
+            self.requeue_message(msg, exc, fail=True)
         except Exception as exc:
             logger.error(exc, extra={"data": {"message": vars(msg)}})
-            msg.channel.basic_reject(msg.delivery_tag, requeue=False)
-            requeue_message(msg, exc)
+            self.reject_message(msg)
+            self.requeue_message(msg, exc)
+        else:
+            self.ack_message(msg)
 
     return wrapper
 
@@ -127,15 +157,76 @@ class Handler(object):
             self.process_delay = config.CFG.getint("sir", "process_delay")
         except (NoOptionError, AttributeError):
             self.process_delay = 120
+        # Used to limit the number of queried rows from PGSQL. Anything above this limit
+        # raises a INDEX_LIMIT_EXCEEDED error
+        try:
+            self.index_limit = config.CFG.getint("sir", "index_limit")
+        except (NoOptionError, AttributeError):
+            self.index_limit = 40000
 
         logger.info("Batch size is set to %s", self.batch_size)
         logger.info("Process delay is set to %s seconds", self.process_delay)
+        logger.info("Index limit is set to %s rows", self.index_limit)
 
         self.db_session = db_session()
         self.pending_messages = []
         self.pending_entities = defaultdict(set)
-        self.process_timer = ReusableTimer(self.process_delay, self.process_messages)
-        self.queue_lock = Lock()
+        self.processing = False
+        self.channel = None
+        self.connection = None
+        self.last_message = time.time()
+
+    def connect_to_rabbitmq(self, reconnect=False):
+
+        def add_handler(queue, f, channel):
+            logger.debug("Adding a callback to %s", queue)
+            handler = partial(f, queue=queue)
+            channel.basic_consume(queue, callback=handler)
+
+        if self.connection and self.connection.connected and (not reconnect):
+            return
+
+        if reconnect:
+            if self.channel is not None:
+                self.channel.close()
+            if self.connection is not None:
+                self.connection.close()
+
+        conn = create_amqp_connection()
+        logger.debug("Heartbeat value: %s" % conn.heartbeat)
+        ch = conn.channel()
+        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
+        # we are currently using (https://www.rabbitmq.com/specification.html).
+        # Limits are requires because consumer connection might time out when receive buffer
+        # is full (http://stackoverflow.com/q/35438843/272770).
+        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
+        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
+
+        add_handler("search.index", self.index_callback, ch)
+        add_handler("search.delete", self.delete_callback, ch)
+        self.connection = conn
+        self.channel = ch
+
+    @action_wrapper
+    def requeue_message(self, msg, exc, fail=False):
+        if not hasattr(msg, "application_headers"):
+            msg.properties['application_headers'] = {}
+        retries_remaining = msg.application_headers.get("mb-retries", _DEFAULT_MB_RETRIES)
+        routing_key = msg.delivery_info["routing_key"]
+        msg.application_headers["mb-exception"] = format_exc(exc)
+        if retries_remaining and not fail:
+            msg.application_headers["mb-retries"] = retries_remaining - 1
+            self.channel.basic_publish(msg, exchange="search.retry", routing_key=routing_key)
+        else:
+            self.channel.basic_publish(msg, exchange="search.failed", routing_key=routing_key)
+
+    @action_wrapper
+    def ack_message(self, msg):
+        self.channel.basic_ack(msg.delivery_tag)
+
+    @action_wrapper
+    def reject_message(self, msg, requeue=False):
+        self.channel.basic_reject(msg.delivery_tag, requeue=requeue)
 
     @callback_wrapper
     def index_callback(self, parsed_message):
@@ -144,7 +235,7 @@ class Handler(object):
 
         Messages for indexing have the following format:
 
-            <table name>, PKs{<PK row name>, <PK value>}
+            <table name>, keys{<column name>, <value>}
 
         First value is a table name, followed by primary key values for that
         table. These are then used to lookup values that need to be updated.
@@ -163,8 +254,8 @@ class Handler(object):
 
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
-        logger.info("Processing `index` message from table: %s" % parsed_message.table_name)
-        logger.info("Message columns %s" % parsed_message.columns)
+        logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
+        logger.debug("Message columns %s" % parsed_message.columns)
         if parsed_message.operation == 'delete':
             self._index_by_fk(parsed_message)
         else:
@@ -177,10 +268,10 @@ class Handler(object):
 
         Messages for deletion have the following format:
 
-            <table name>, <gid>
+            <table name>, <id or gid>
 
         First value is a table name for an entity that has been deleted.
-        Second is GID of the row in that table. For example:
+        Second is GID or ID of the row in that table. For example:
 
             {"_table": "release", "gid": "90d7709d-feba-47e6-a2d1-8770da3c3d9c"}
 
@@ -198,40 +289,48 @@ class Handler(object):
                 column_name = "id"
             else:
                 raise ValueError("`gid` column missing from delete message")
-        logger.info("Deleting {entity_type}: {id}".format(
+        logger.debug("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns[column_name]))
         self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
-        with self.queue_lock:
-            try:
-                live_index(self.pending_entities)
-            except Exception as exc:
-                logger.error("Error encountered while processing messages: %s", exc)
-                logger.info("Requeuing %s pending messages.", len(self.pending_messages))
-                for msg in self.pending_messages:
-                    requeue_message(msg, exc)
-            else:
-                # In case PROCESS_FLAG is False, we know that the main process was
-                # terminated. Thus we should not acknowledge any messages. They will get requeued
-                # automatically if they are not acknowledged and the connection gets closed.
-                if indexing.PROCESS_FLAG:
-                    logger.info('Processed %s messages', len(self.pending_messages))
-                    for msg in self.pending_messages:
-                        msg.channel.basic_ack(msg.delivery_tag)
-                    logger.info('Clearing all pending messages')
-                    self.pending_messages = []
-                    self.pending_entities.clear()
+        if not self.pending_messages:
+            return
+        try:
+            self.last_message = time.time()
+            live_index(self.pending_entities)
+            if not indexing.PROCESS_FLAG.value:
+                # It might happen that the DB pool workers have
+                # all processed the queries and exited, while Solr process
+                # is still sending data to Solr. In this case no SIR_EXIT is
+                # raised by live_index. Thus we need to raise it to requeue the
+                # messages properly.
+                raise SIR_EXIT
+        except SIR_EXIT:
+            logger.info('Processing terminated midway. Please wait, requeuing pending messages...')
+            for msg in self.pending_messages:
+                self.requeue_message(msg, Exception('SIR terminated while processing.'))
+            logger.info('%s messages requeued.', len(self.pending_messages))
+        except Exception as exc:
+            logger.error("Error encountered while processing messages: %s", exc)
+            logger.info("Requeuing %s pending messages.", len(self.pending_messages))
+            for msg in self.pending_messages:
+                self.requeue_message(msg, exc)
+            logger.info('%s messages requeued.', len(self.pending_messages))
+        else:
+            logger.info('Successfully processed %s messages', len(self.pending_messages))
+        finally:
+            self.pending_messages = []
+            self.pending_entities.clear()
 
-    def _index_data(self, core_name, id_list):
-        logger.info("Queueing %s new rows for entity %s", len(id_list), core_name)
-        with self.queue_lock:
-            self.pending_entities[core_name].update(set(id_list))
-
-        # Reset the timer for the callback to `process_messages`.
-        self.process_timer.restart()
+    def _index_data(self, core_name, id_list, extra_data=None):
+        total_ids = len(id_list)
+        if total_ids > self.index_limit:
+            raise INDEX_LIMIT_EXCEEDED(core_name, total_ids, extra_data)
+        logger.debug("Queueing %s new rows for entity %s", total_ids, core_name)
+        self.pending_entities[core_name].update(set(id_list))
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
@@ -239,13 +338,13 @@ class Handler(object):
             # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
             with db_session_ctx(self.db_session) as session:
-
+                select_query = None
                 if path is None:
                     # If `path` is `None` then we received a message for an entity itself
                     ids = [parsed_message.columns["id"]]
                 else:
                     # otherwise it's a different table...
-                    logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
+                    logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, path))
                     select_query = generate_filtered_query(entity.model, path, parsed_message.columns)
                     if select_query is None:
                         logger.warning("SELECT is `None`")
@@ -255,7 +354,11 @@ class Handler(object):
                         ids = [row[0] for row in session.execute(select_query).fetchall()]
 
                 # Retrieving actual data
-                self._index_data(core_name, ids)
+                extra_data = {'table_name': parsed_message.table_name,
+                              'path': path,
+                              'select_query': str(select_query),
+                              }
+                self._index_data(core_name, ids, extra_data)
 
     def _index_by_fk(self, parsed_message):
         index_model = model_map[parsed_message.table_name]
@@ -284,11 +387,12 @@ class Handler(object):
                 related_table_name = class_mapper(related_model).mapped_table.name
             if related_table_name in relevant_rels:
                 with db_session_ctx(self.db_session) as session:
+                    select_query = None
                     if new_path is None:
                         # If `path` is `None` then we received a message for an entity itself
                         ids = [parsed_message.columns['id']]
                     else:
-                        logger.info("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
+                        logger.debug("Generating SELECT statement for %s with path '%s'" % (entity.model, new_path))
                         fk_name, remote_key = relevant_rels[related_table_name]
                         filter_expression = remote_key.__eq__(parsed_message.columns[fk_name])
                         # If `new_path` is blank, then the given table, was directly related to the
@@ -301,14 +405,16 @@ class Handler(object):
                         logger.debug("SQL: %s" % (select_query))
 
                     # Retrieving actual data
-                    self._index_data(core_name, ids)
+                    extra_data = {'table_name': parsed_message.table_name,
+                                  'path': path,
+                                  'related_table_name': related_table_name,
+                                  'new_path': new_path,
+                                  'select_query': str(select_query),
+                                  }
+                    self._index_data(core_name, ids, extra_data)
 
 
 def _should_retry(exc):
-    # This makes sure we do not retry in case of a SIGTERM or SIGINT
-    if isinstance(exc, (SystemExit, KeyboardInterrupt)):
-        logger.info('Terminating SIR.')
-        return False
     logger.info("Retrying...")
     logger.exception(exc)
     if isinstance(exc, AMQPError) or isinstance(exc, socket_error):
@@ -321,61 +427,58 @@ def _should_retry(exc):
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
 def _watch_impl():
 
-    def add_handler(queue, f):
-        logger.info("Adding a callback to %s", queue)
-        handler = partial(f, queue=queue)
-        ch.basic_consume(queue, callback=handler)
+    handler = Handler()
+    try:
+        timeout = config.CFG.getint("rabbitmq", "timeout")
+    except (NoOptionError, AttributeError):
+        timeout = 30
+    logger.info('AMQP timeout is set to %d seconds', timeout)
+
+    def signal_handler(signum, frame, pid=os.getpid()):
+
+        # Doing this makes sure that only the main process is changing the PROCESS_FLAG.
+        # Otherwise, SIR would set the PROCESS_FLAG to False, even when a PoolWorker is
+        # terminated.
+        if pid == os.getpid():
+            # Simply set the `PROCESS_FLAG` to false to stop processing any and
+            # all queries.
+            indexing.PROCESS_FLAG.value = False
+
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     try:
-        conn = create_amqp_connection()
+        handler.connect_to_rabbitmq()
         logger.info("Connection to RabbitMQ established")
-        logger.debug("Heartbeat value: %s" % conn.heartbeat)
-        ch = conn.channel()
-        # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
-        # we are currently using (https://www.rabbitmq.com/specification.html).
-        # Limits are requires because consumer connection might time out when receive buffer
-        # is full (http://stackoverflow.com/q/35438843/272770).
-        prefetch_count = config.CFG.getint("rabbitmq", "prefetch_count")
-        ch.basic_qos(prefetch_size=0, prefetch_count=prefetch_count, a_global=True)
-
-        handler = Handler()
-        add_handler("search.index", handler.index_callback)
-        add_handler("search.delete", handler.delete_callback)
-
-        def signal_handler(signum, frame):
-            # Setting flag to false to prevent any processes/threads blocked on
-            # handler.queue_lock from starting `handler.process_messages` again.
-            indexing.PROCESS_FLAG = False
-
-            # Cancelling any scheduled calls
+        logger.debug("Waiting for a message")
+        while indexing.PROCESS_FLAG.value:
             try:
-                handler.process_timer.cancel()
-            except Exception:
-                # In case the timer is not active it throws an exception
-                # Simply ignore it.
+                handler.connection.drain_events(timeout)
+            except socket_error:
+                # In case of a timeout, simply continue
                 pass
-
-            # If SIGTERM is received by the parent, make sure all its children
-            # are killed before calling exit on the parent.
-            children = active_children()
-            for child in children:
-                try:
-                    child.terminate()
-                    child.join()
-                except Exception:
-                    pass
-            # Finally exit
-            exit(1)
-
-        signal.signal(signal.SIGTERM, signal_handler)
-        signal.signal(signal.SIGINT, signal_handler)
-
-        while True:
-            logger.debug("Waiting for a message")
-            conn.drain_events()
+            except Exception as exc:
+                # Do not log system call interruption in case of SIGTERM or SIGINT
+                if exc.errno != errno.EINTR:
+                    logger.error(format_exc(exc))
+            if indexing.PROCESS_FLAG.value:
+                if ((time.time() - handler.last_message) >= handler.process_delay
+                    or len(handler.pending_messages) >= handler.batch_size):
+                    handler.process_messages()
     except Exception:
         get_sentry().captureException()
         raise
+
+    # There might be some pending messages left in case we quit SIR while it's
+    # sitting idle on drain_events.
+    if handler.pending_messages:
+        logger.info("Requeuing %s pending messages.", len(handler.pending_messages))
+        for msg in handler.pending_messages:
+            handler.requeue_message(msg, Exception('SIR terminated without processing this message.'))
+        handler.pending_messages = []
+        handler.pending_entities.clear()
+
+    logger.info('Terminating SIR')
 
 
 def watch(args):
