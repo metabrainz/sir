@@ -255,6 +255,8 @@ class SearchEntity(object):
             if isinstance(tempvals, set) and len(tempvals) == 1:
                 tempvals = tempvals.pop()
             if tempvals is not None and tempvals:
+                if isinstance(tempvals, set):
+                    tempvals = list(tempvals)
                 data[fieldname] = tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is

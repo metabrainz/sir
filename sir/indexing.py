@@ -2,13 +2,14 @@
 # License: MIT, see LICENSE for details
 import multiprocessing
 import signal
+import os
 
 from . import config, querying, util, get_sentry
 from .schema import SCHEMA
 from ConfigParser import NoOptionError
 from functools import partial
 from logging import getLogger
-from solr import SolrException
+from pysolr import SolrError
 from sqlalchemy import and_
 from .util import SIR_EXIT
 from ctypes import c_bool
@@ -193,7 +194,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     :param Queue.Queue data_queue:
     """
     model = SCHEMA[entity_name].model
-    logger.debug("Indexing %s %s", model, bounds)
+    logger.info("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
@@ -265,23 +266,14 @@ def queue_to_solr(queue, batch_size, solr_connection):
             return
         data.append(item)
         if len(data) >= batch_size:
-            try:
-                send_data_to_solr(solr_connection, data)
-            except SolrException as exc:
-                get_sentry().captureException()
-                if exc.httpcode == 400:
-                    pass
-                else:
-                    break
-            else:
-                logger.debug("Sent data to Solr")
+            send_data_to_solr(solr_connection, data)
             data = []
 
     if not PROCESS_FLAG.value:
         return
     logger.debug("%s: Sending remaining data & stopping", solr_connection)
-    solr_connection.add_many(data)
-    logger.debug("Committing changes to Solr")
+    send_data_to_solr(solr_connection, data)
+    logger.info("Committing changes to Solr")
     solr_connection.commit()
 
 
@@ -294,15 +286,12 @@ def send_data_to_solr(solr_connection, data):
     :raises: :class:`solr:solr.SolrException`
     """
     try:
-        solr_connection.add_many(data)
+        # PySolr defaults to committing after every addition. This is slow.
+        # Let Solr autocommit according to its conf. and commit manually once
+        # all documents are sent.
+        solr_connection.add(data, commit=False)
         logger.debug("Done sending data to Solr")
-    except SolrException as exc:
+    except SolrError:
         get_sentry().captureException(extra={"data": data})
-        if exc.httpcode == 400:
-            logger.warning("Received a Bad Request response from Solr, " +
-                           "continuing anyway")
-        else:
-            logger.error(exc)
-            raise
     else:
         logger.debug("Sent data to Solr")
