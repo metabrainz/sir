@@ -299,7 +299,6 @@ class Handler(object):
         if not self.pending_messages:
             return
         try:
-            self.last_message = time.time()
             live_index(self.pending_entities)
             if not indexing.PROCESS_FLAG.value:
                 # It might happen that the DB pool workers have
@@ -324,6 +323,7 @@ class Handler(object):
         finally:
             self.pending_messages = []
             self.pending_entities.clear()
+            self.last_message = time.time()
 
     def _index_data(self, core_name, id_list, extra_data=None):
         total_ids = len(id_list)
