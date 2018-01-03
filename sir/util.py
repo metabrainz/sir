@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import amqp
 import logging
-import solr
+import pysolr
 import urllib2
 
 from . import config
@@ -86,7 +86,7 @@ def solr_connection(core):
     urllib2.urlopen(ping_uri)
 
     logger.debug("Connection to the Solr core at %s", core_uri)
-    return solr.Solr(core_uri)
+    return pysolr.Solr(core_uri)
 
 
 def solr_version_check(core):
