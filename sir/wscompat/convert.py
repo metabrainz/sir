@@ -1130,6 +1130,19 @@ def convert_release_group(obj):
     return rg
 
 
+def convert_release_relation(obj):
+    relation = convert_relation(obj)
+    release = models.release(id=obj.release.gid, title=obj.release.name)
+    relation.set_release(release)
+    return relation
+
+
+def convert_release_relation_list(obj):
+    relation_list = models.relation_list(target_type="release")
+    [relation_list.add_relation(convert_release_relation(r)) for r in obj]
+    return relation_list
+
+
 def convert_series(obj):
     """
     :param obj: :class:`mbdata.models.Series
@@ -1170,6 +1183,8 @@ def convert_url(obj):
     url = models.url(id=obj.gid, resource=obj.url)
     if obj.artist_links:
         url.add_relation_list(convert_artist_relation_list(obj.artist_links))
+    if obj.release_links:
+        url.add_relation_list(convert_release_relation_list(obj.release_links))
     return url
 
 
