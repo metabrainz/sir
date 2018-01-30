@@ -518,9 +518,12 @@ SearchWork = E(modelext.CustomWork, [
 SearchUrl = E(modelext.CustomURL, [
     F("mbid", "gid"),
     F("url", "url"),
-    F("relationtype", ["artist_links.link.link_type.name"]),
-    F("targetid", ["artist_links.artist.gid"]),
-    F("targettype", ["artist_links.__tablename__"],
+    F("relationtype", ["artist_links.link.link_type.name",
+                       "release_links.link.link_type.name"]),
+    F("targetid", ["artist_links.artist.gid",
+                   "release_links.release.gid"]),
+    F("targettype", ["artist_links.__tablename__",
+                     "release_links.__tablename__" ],
       transformfunc=tfs.url_type),
 ],
     1.5,
@@ -533,6 +536,12 @@ SearchUrl = E(modelext.CustomURL, [
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
                 "artist_links.link.attributes.attribute_type.gid",
+                "release_links.release.gid",
+                "release_links.release.name",
+                "release_links.link.link_type.name",
+                "release_links.link.link_type.gid",
+                "release_links.link.attributes.attribute_type.name",
+                "release_links.link.attributes.attribute_type.gid",
                 ]
 )
 
