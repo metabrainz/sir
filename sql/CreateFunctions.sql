@@ -2954,6 +2954,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_l_release_url_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_release_url"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_l_release_url_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_release_url"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_l_release_url_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(entity0, entity1, id, link) AS (SELECT OLD.entity0, OLD.entity1, OLD.id, OLD.link)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_release_url"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_work_alias_insert() RETURNS trigger
     AS $$
 BEGIN

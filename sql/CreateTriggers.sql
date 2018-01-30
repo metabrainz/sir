@@ -740,6 +740,15 @@ CREATE TRIGGER search_link_type_update AFTER UPDATE OF gid, name ON musicbrainz.
 CREATE TRIGGER search_link_type_delete BEFORE DELETE ON musicbrainz.link_type
     FOR EACH ROW EXECUTE PROCEDURE search_link_type_delete();
 
+CREATE TRIGGER search_l_release_url_insert AFTER INSERT ON musicbrainz.l_release_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_release_url_insert();
+
+CREATE TRIGGER search_l_release_url_update AFTER UPDATE OF entity0, entity1, link ON musicbrainz.l_release_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_release_url_update();
+
+CREATE TRIGGER search_l_release_url_delete BEFORE DELETE ON musicbrainz.l_release_url
+    FOR EACH ROW EXECUTE PROCEDURE search_l_release_url_delete();
+
 CREATE TRIGGER search_work_alias_insert AFTER INSERT ON musicbrainz.work_alias
     FOR EACH ROW EXECUTE PROCEDURE search_work_alias_insert();
 
