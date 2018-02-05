@@ -538,6 +538,7 @@ SearchUrl = E(modelext.CustomURL, [
                 "artist_links.link.attributes.attribute_type.gid",
                 "release_links.release.gid",
                 "release_links.release.name",
+                "release_links.release.comment",
                 "release_links.link.link_type.name",
                 "release_links.link.link_type.gid",
                 "release_links.link.attributes.attribute_type.name",

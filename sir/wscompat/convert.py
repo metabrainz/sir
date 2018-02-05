@@ -1133,6 +1133,8 @@ def convert_release_group(obj):
 def convert_release_relation(obj):
     relation = convert_relation(obj)
     release = models.release(id=obj.release.gid, title=obj.release.name)
+    if obj.comment:
+        release.set_disambiguation(obj.comment)
     relation.set_release(release)
     return relation
 
