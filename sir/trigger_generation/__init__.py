@@ -81,7 +81,7 @@ def get_trigger_tables():
         # Tables that contain the referenced column
         # TODO(roman): maybe come up with a better description above
         for path in unique_split_paths([path for field in entity.fields
-                                             for path in field.paths]):
+                                             for path in field.paths if field.trigger]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
                 table_name = class_mapper(model).mapped_table.name
