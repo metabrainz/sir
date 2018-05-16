@@ -104,7 +104,7 @@ class SearchField(object):
         3. `gid` column from the `Area` class (model)
     """
 
-    def __init__(self, name, paths, transformfunc=None):
+    def __init__(self, name, paths, transformfunc=None, trigger=True):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -119,6 +119,7 @@ class SearchField(object):
             paths = [paths]
         self.paths = paths
         self.transformfunc = transformfunc
+        self.trigger = trigger
 
 
 class SearchEntity(object):

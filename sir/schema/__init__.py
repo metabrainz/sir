@@ -114,7 +114,8 @@ SearchArtist = E(modelext.CustomArtist, [
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
     F("endarea", ["end_area.name", "end_area.aliases.name"]),
-
+    F("ref_count", "artist_credit_names.artist_credit.ref_count",
+                    transformfunc=sum, trigger=False),
     F("comment", "comment"),
     F("gender", "gender.name"),
     F("ipi", "ipis.ipi"),
@@ -601,7 +602,7 @@ def generate_update_map():
         models[mapped_table] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
-                                        for path in field.paths] + [path for path in entity.extrapaths or []]):
+                                        for path in field.paths if field.trigger] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
                 name = class_mapper(model).mapped_table.name
