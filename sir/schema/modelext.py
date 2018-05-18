@@ -35,7 +35,8 @@ class CustomArea(Area):
     area_links = relationship("LinkAreaArea",
                               primaryjoin="Area.id == LinkAreaArea.entity1_id")
     tags = relationship("AreaTag")
-
+    places = relationship("Place")
+    labels = relationship("Label")
 
 class CustomArtist(Artist):
     area = relationship('CustomArea', foreign_keys=[Artist.area_id])

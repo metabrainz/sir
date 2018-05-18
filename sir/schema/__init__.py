@@ -76,6 +76,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
     F("sortname", "aliases.sort_name"),
+    F("ref_count", ["labels.id", "places.id"] , transformfunc=len),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
