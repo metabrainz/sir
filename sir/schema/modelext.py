@@ -71,7 +71,7 @@ class CustomLabel(Label):
     aliases = relationship("LabelAlias")
     area = relationship("CustomArea", foreign_keys=[Label.area_id])
     tags = relationship("LabelTag")
-
+    releases = relationship("ReleaseLabel")
 
 class CustomMediumCDToc(MediumCDTOC):
     medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id],
