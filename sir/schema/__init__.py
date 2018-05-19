@@ -239,7 +239,7 @@ SearchLabel = E(modelext.CustomLabel, [
 
     F("code", "label_code"),
     F("comment", "comment"),
-    F("releases", "releases.id", transformfunc=len, trigger=False),
+    F("release_count", "release_count", transformfunc=tfs.integer_sum, trigger=False),
     F("sortname", "aliases.sort_name"),
     F("ipi", "ipis.ipi"),
     F("tag", "tags.tag.name"),
