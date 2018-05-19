@@ -214,6 +214,7 @@ SearchInstrument = E(modelext.CustomInstrument, [
     F("comment", "comment"),
     F("description", "description"),
     F("mbid", "gid"),
+    F("instrument", "name"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
