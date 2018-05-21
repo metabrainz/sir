@@ -33,6 +33,10 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
 }
 
 
+def integer_sum(values):
+    return int(sum(values))
+
+
 def ended_to_string(ended):
     """
     :param ended:

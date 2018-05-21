@@ -8,8 +8,8 @@ from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
                            MediumCDTOC, Place, Recording, Release, ReleaseGroup,
                            ReleaseRaw, ReleaseTag, Series, Work, URL)
-from sqlalchemy import exc as sa_exc
-from sqlalchemy.orm import relationship
+from sqlalchemy import exc as sa_exc, func, select
+from sqlalchemy.orm import relationship, column_property
 from warnings import simplefilter
 
 # Ignore SQLAlchemy's warnings that we're overriding some attributes
@@ -35,8 +35,9 @@ class CustomArea(Area):
     area_links = relationship("LinkAreaArea",
                               primaryjoin="Area.id == LinkAreaArea.entity1_id")
     tags = relationship("AreaTag")
-    places = relationship("Place")
-    labels = relationship("Label")
+    place_count = column_property(select([func.count(Place.id)]).where(Place.area_id == Area.id))
+    label_count = column_property(select([func.count(Label.id)]).where(Label.area_id == Area.id))
+    artist_count = column_property(select([func.count(Artist.id)]).where(Artist.area_id == Area.id))
 
 class CustomArtist(Artist):
     area = relationship('CustomArea', foreign_keys=[Artist.area_id])
