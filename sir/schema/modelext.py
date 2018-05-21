@@ -7,7 +7,7 @@ that are used in SIR.
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
                            MediumCDTOC, Place, Recording, Release, ReleaseGroup,
-                           ReleaseRaw, ReleaseTag, Series, Work, URL)
+                           ReleaseLabel, ReleaseRaw, ReleaseTag, Series, Work, URL)
 from sqlalchemy import exc as sa_exc, func, select
 from sqlalchemy.orm import relationship, column_property
 from warnings import simplefilter
@@ -71,7 +71,7 @@ class CustomLabel(Label):
     aliases = relationship("LabelAlias")
     area = relationship("CustomArea", foreign_keys=[Label.area_id])
     tags = relationship("LabelTag")
-
+    release_count = column_property(select([func.count(ReleaseLabel.id)]).where(ReleaseLabel.label_id == Label.id))
 
 class CustomMediumCDToc(MediumCDTOC):
     medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id],
