@@ -6,8 +6,9 @@ that are used in SIR.
 """
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
-                           MediumCDTOC, Place, Recording, Release, ReleaseGroup,
-                           ReleaseLabel, ReleaseRaw, ReleaseTag, Series, Work, URL)
+                           LinkRecordingWork, MediumCDTOC, Place, Recording, Release,
+                           ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
+                           Work, URL)
 from sqlalchemy import exc as sa_exc, func, select
 from sqlalchemy.orm import relationship, column_property
 from warnings import simplefilter
@@ -123,6 +124,8 @@ class CustomWork(Work):
     tags = relationship("WorkTag")
     languages = relationship("WorkLanguage")
     recording_links = relationship("LinkRecordingWork")
+    recording_count = column_property(select([func.count(LinkRecordingWork.id)]).where(LinkRecordingWork.work_id == Work.id))
+
 
 
 class CustomURL(URL):
