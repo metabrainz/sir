@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2017 Wieland Hoffmann, Sambhav Kothari
+# Copyright (c) 2015, 2017 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
