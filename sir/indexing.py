@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015, 2017 Lukas Lalinsky, Wieland Hoffmann, Sambhav Kothari
+# Copyright (c) 2014, 2015, 2017 Lukas Lalinsky, Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import multiprocessing
 import signal

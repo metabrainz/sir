@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2014, 2015, 2017 Wieland Hoffmann, Sambhav Kothari
+# Copyright (c) 2014, 2015, 2017 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import errno
 import os

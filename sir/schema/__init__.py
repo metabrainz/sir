@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015, 2016, 2017 Wieland Hoffmann, Sambhav Kothari
+# Copyright (c) 2014, 2015, 2016, 2017 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 
 """
