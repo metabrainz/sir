@@ -495,7 +495,7 @@ SearchWork = E(modelext.CustomWork, [
     F("iswc", "iswcs.iswc"),
     F("lang", "languages.language.iso_code_3"),
     F("recording", "recording_links.recording.name"),
-    F("recording_count", "recording_count", transformfunc=int, trigger=False),
+    F("recording_count", "recording_count", transformfunc=tfs.integer_sum, trigger=False),
     F("rid", "recording_links.recording.gid"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
