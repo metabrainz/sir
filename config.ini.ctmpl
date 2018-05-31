@@ -1,5 +1,5 @@
 {{- define "KEY" -}}
-    {{ key (printf "docker-server-configs/SIR/config.json/%s" .) }}
+    {{ key (printf "docker-server-configs/SIR/%s.config.json/%s" (or (env "DEPLOY_ENV") "dev") .) }}
 {{- end -}}
 
 
