@@ -1,5 +1,5 @@
 {{- define "KEY" -}}
-    {{ key (printf "docker-server-configs/SIR/config.json/%s" .) }}
+    {{ key (printf "docker-server-configs/SIR/%s.config.json/%s" (or (env "DEPLOY_ENV") "beta") .) }}
 {{- end -}}
 
 
@@ -26,8 +26,11 @@ uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}
 {{- end}}
 {{- end}}
 
-{{if service "solr"}}
 [solr]
+{{if KEY "solr/uri"}}
+uri = http://{{template "KEY" "solr/uri"}}/solr
+batch_size = {{template "KEY" "solr/batch_size"}}
+{{else if service "solr"}}
 {{with index (service "solr") 0}}
 uri = http://{{.Address}}:{{.Port}}/solr
 batch_size = {{template "KEY" "solr/batch_size"}}
