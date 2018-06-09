@@ -97,6 +97,10 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         importlimit = 0
 
     max_processes = config.CFG.getint("sir", "import_threads")
+    try:
+        max_solr_processes = config.CFG.getint("sir", "solr_threads")
+    except NoOptionError:
+        max_solr_processes = max_processes
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
     db_session = util.db_session()
@@ -118,8 +122,8 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                    solr_batch_size,
                                    solr_connection)
         solr_processes = []
-        for i in range(max_processes):
-            p = multiprocessing.Process(target=process_function)
+        for i in range(max_solr_processes):
+            p = multiprocessing.Process(target=process_function, name="Solr-"+str(i))
             p.start()
             solr_processes.append(p)
         indexer = partial(_index_entity_process_wrapper, live=live)
@@ -147,6 +151,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             entity_data_queue.put(STOP)
             for p in solr_processes:
                 p.terminate()
+                p.join()
             pool.terminate()
             pool.join()
             raise
@@ -271,13 +276,12 @@ def queue_to_solr(queue, batch_size, solr_connection):
         if len(data) >= batch_size:
             send_data_to_solr(solr_connection, data)
             count += len(data)
-            logger.info("SOLR %d: Sent %d new documents. Total: %d", os.getpid(), len(data), count)
+            logger.debug("Sent %d new documents. Total: %d", len(data), count)
             data = []
 
-    if not PROCESS_FLAG.value:
-        queue.put(STOP)
-        return
     queue.put(STOP)
+    if not PROCESS_FLAG.value:
+        return
     logger.debug("%s: Sending remaining data & stopping", solr_connection)
     send_data_to_solr(solr_connection, data)
     logger.info("Committing changes to Solr")
