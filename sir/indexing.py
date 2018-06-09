@@ -262,6 +262,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     data = []
+    count = 0
     while True:
         item = queue.get()
         if not PROCESS_FLAG.value or item is STOP:
@@ -269,7 +270,8 @@ def queue_to_solr(queue, batch_size, solr_connection):
         data.append(item)
         if len(data) >= batch_size:
             send_data_to_solr(solr_connection, data)
-            logger.info("SOLR %d: Sent %d data", os.getpid(), len(data))
+            count += len(data)
+            logger.info("SOLR %d: Sent %d new documents. Total: %d", os.getpid(), len(data), count)
             data = []
 
     if not PROCESS_FLAG.value:
