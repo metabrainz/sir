@@ -97,6 +97,10 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         importlimit = 0
 
     max_processes = config.CFG.getint("sir", "import_threads")
+    try:
+        max_solr_processes = config.CFG.getint("sir", "solr_threads")
+    except NoOptionError:
+        max_solr_processes = max_processes
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
     db_session = util.db_session()
@@ -117,11 +121,11 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                    entity_data_queue,
                                    solr_batch_size,
                                    solr_connection)
-
-        solr_process = multiprocessing.Process(name="solr",
-                                               target=process_function)
-        solr_process.start()
-        logger.debug("The queue workers PID is %i", solr_process.pid)
+        solr_processes = []
+        for i in range(max_solr_processes):
+            p = multiprocessing.Process(target=process_function, name="Solr-"+str(i))
+            p.start()
+            solr_processes.append(p)
         indexer = partial(_index_entity_process_wrapper, live=live)
         if live:
             if entity_id_list:
@@ -145,8 +149,9 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         except SIR_EXIT:
             logger.info('Killing all worker processes.')
             entity_data_queue.put(STOP)
-            solr_process.terminate()
-            solr_process.join()
+            for p in solr_processes:
+                p.terminate()
+                p.join()
             pool.terminate()
             pool.join()
             raise
@@ -155,7 +160,8 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         else:
             logger.debug("Importing %s successful!", e)
         entity_data_queue.put(STOP)
-        solr_process.join()
+        for p in solr_processes:
+            p.join()
     pool.close()
     pool.join()
 
@@ -261,14 +267,19 @@ def queue_to_solr(queue, batch_size, solr_connection):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     data = []
-    for item in iter(queue.get, None):
-        if not PROCESS_FLAG.value:
-            return
+    count = 0
+    while True:
+        item = queue.get()
+        if not PROCESS_FLAG.value or item is STOP:
+            break
         data.append(item)
         if len(data) >= batch_size:
             send_data_to_solr(solr_connection, data)
+            count += len(data)
+            logger.debug("Sent %d new documents. Total: %d", len(data), count)
             data = []
 
+    queue.put(STOP)
     if not PROCESS_FLAG.value:
         return
     logger.debug("%s: Sending remaining data & stopping", solr_connection)
