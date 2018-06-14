@@ -6,7 +6,7 @@ that are used in SIR.
 """
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            Instrument, Label, LinkAttribute, LinkAttributeType,
-                           LinkRecordingWork, MediumCDTOC, Place, Recording, Release,
+                           LinkRecordingWork, Medium, MediumCDTOC, Place, Recording, Release,
                            ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
                            Work, URL)
 from sqlalchemy import exc as sa_exc, func, select
@@ -92,10 +92,12 @@ class CustomRecording(Recording):
 class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
+    release_count = column_property(select([func.count(Release.id)]).where(Release.release_group_id == ReleaseGroup.id))
 
 
 class CustomRelease(Release):
     asin = relationship("ReleaseMeta")
+    medium_count = column_property(select([func.count(Medium.id)]).where(Medium.release_id == Release.id))
 
 
 class CustomReleaseRaw(ReleaseRaw):

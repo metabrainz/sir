@@ -2486,42 +2486,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION search_medium_cdtoc_insert() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(cdtoc, id, medium) AS (SELECT NEW.cdtoc, NEW.id, NEW.medium)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"'),
-                             '{_operation}', '"insert"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_medium_cdtoc_update() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(cdtoc, id, medium) AS (SELECT NEW.cdtoc, NEW.id, NEW.medium)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"'),
-                             '{_operation}', '"update"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_medium_cdtoc_delete() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(cdtoc, id, medium) AS (SELECT OLD.cdtoc, OLD.id, OLD.medium)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"medium_cdtoc"'),
-                             '{_operation}', '"delete"')::text FROM keys
-        ));
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION search_language_insert() RETURNS trigger
     AS $$
 BEGIN
