@@ -518,7 +518,7 @@ CREATE TRIGGER search_track_delete BEFORE DELETE ON musicbrainz.track
 CREATE TRIGGER search_medium_insert AFTER INSERT ON musicbrainz.medium
     FOR EACH ROW EXECUTE PROCEDURE search_medium_insert();
 
-CREATE TRIGGER search_medium_update AFTER UPDATE OF format, id, position, release, track_count ON musicbrainz.medium
+CREATE TRIGGER search_medium_update AFTER UPDATE OF format, position, release, track_count ON musicbrainz.medium
     FOR EACH ROW EXECUTE PROCEDURE search_medium_update();
 
 CREATE TRIGGER search_medium_delete BEFORE DELETE ON musicbrainz.medium
@@ -622,15 +622,6 @@ CREATE TRIGGER search_release_label_update AFTER UPDATE OF catalog_number, label
 
 CREATE TRIGGER search_release_label_delete BEFORE DELETE ON musicbrainz.release_label
     FOR EACH ROW EXECUTE PROCEDURE search_release_label_delete();
-
-CREATE TRIGGER search_medium_cdtoc_insert AFTER INSERT ON musicbrainz.medium_cdtoc
-    FOR EACH ROW EXECUTE PROCEDURE search_medium_cdtoc_insert();
-
-CREATE TRIGGER search_medium_cdtoc_update AFTER UPDATE OF cdtoc, id, medium ON musicbrainz.medium_cdtoc
-    FOR EACH ROW EXECUTE PROCEDURE search_medium_cdtoc_update();
-
-CREATE TRIGGER search_medium_cdtoc_delete BEFORE DELETE ON musicbrainz.medium_cdtoc
-    FOR EACH ROW EXECUTE PROCEDURE search_medium_cdtoc_delete();
 
 CREATE TRIGGER search_language_insert AFTER INSERT ON musicbrainz.language
     FOR EACH ROW EXECUTE PROCEDURE search_language_insert();
