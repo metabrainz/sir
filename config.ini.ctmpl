@@ -27,9 +27,7 @@ uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}
 {{- end}}
 
 [solr]
-{{if service "solr"}}
-{{with index (service "solr") 0}}
-uri = http://{{.Address}}:{{.Port}}/solr
+uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
 {{end}}
 {{end}}
