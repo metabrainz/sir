@@ -29,8 +29,6 @@ uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}
 [solr]
 uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
-{{end}}
-{{end}}
 
 {{if service "rabbitmq"}}
 [rabbitmq]
