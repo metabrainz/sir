@@ -22,6 +22,7 @@ __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
 logger = getLogger("sir")
 
 PROCESS_FLAG = multiprocessing.Value(c_bool, True)
+FAILED = multiprocessing.Value(c_bool, False)
 STOP = None
 
 
@@ -73,6 +74,8 @@ def live_index(entities):
         logger.info('Process Flag is off, terminating.')
         return
     _multiprocessed_import(entities.keys(), live=True, entities=entities)
+    if FAILED.value:
+        raise Exception('Post to Solr failed. Requeueing all pending messages for retry.')
 
 
 def _multiprocessed_import(entity_names, live=False, entities=None):
@@ -304,5 +307,6 @@ def send_data_to_solr(solr_connection, data):
         logger.debug("Done sending data to Solr")
     except SolrError:
         get_sentry().captureException(extra={"data": data})
+        FAILED.value = True
     else:
         logger.debug("Sent data to Solr")
