@@ -33,6 +33,11 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
 }
 
 
+def null_value(values):
+    if "" in values:
+        return values.union(['none'])
+    return values
+
 def integer_sum(values):
     return int(sum(values))
 
