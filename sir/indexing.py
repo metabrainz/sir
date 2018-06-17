@@ -73,6 +73,8 @@ def live_index(entities):
     if not PROCESS_FLAG.value:
         logger.info('Process Flag is off, terminating.')
         return
+    # Reset failed before each import
+    FAILED.value = False
     _multiprocessed_import(entities.keys(), live=True, entities=entities)
     if FAILED.value:
         raise Exception('Post to Solr failed. Requeueing all pending messages for retry.')
