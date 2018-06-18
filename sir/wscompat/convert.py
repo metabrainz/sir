@@ -10,13 +10,6 @@ from mbrng import models
 
 fix()
 
-#: Constant for a missing barcode
-BARCODE_NONE = "none"
-
-#: Constant for unknown barcode values
-BARCODE_UNKOWN = "-"
-
-
 #: Time format string
 TIME_FORMAT = "%H:%M:%S"
 
@@ -884,7 +877,7 @@ def convert_cdstub(obj):
     tracklist.count = toc.track_count
     cdstub.set_track_list(tracklist)
 
-    if obj.barcode:
+    if obj.barcode is not None:
         cdstub.set_barcode(obj.barcode)
 
     if obj.comment:
@@ -1044,12 +1037,7 @@ def convert_release(obj):
                              artist_credit=convert_artist_credit(obj.artist_credit))  # noqa
 
     if obj.barcode is not None:
-        if obj.barcode != "":
-            release.set_barcode(obj.barcode)
-        else:
-            release.set_barcode(BARCODE_NONE)
-    else:
-        release.set_barcode(BARCODE_UNKOWN)
+        release.set_barcode(obj.barcode)
 
     if obj.comment:
         release.set_disambiguation(obj.comment)

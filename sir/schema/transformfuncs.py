@@ -33,6 +33,15 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
 }
 
 
+def fill_none(values):
+    # When a field is not applicable - for eg. when a release doesn't have a barcode
+    # as opposed to it being unknown it is known but it is `[none]`. `[none]` is stored
+    # in the DB as an empty string, so doing this allows us to search for releases with
+    # `[none]` type barcode via the syntax `barcode:none`
+    if "" in values:
+        return values.add('none')
+    return values
+
 def integer_sum(values):
     return int(sum(values))
 

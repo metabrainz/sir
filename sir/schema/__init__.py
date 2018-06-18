@@ -370,7 +370,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("country", "country_dates.country.area.iso_3166_1_codes.code"),
     F("date", "country_dates.date",
       transformfunc=tfs.index_partialdate_to_string),
-    F("barcode", "barcode"),
+    F("barcode", "barcode", transformfunc=tfs.fill_none),
     F("catno", "labels.catalog_number"),
     F("comment", "comment"),
     F("format", "mediums.format.name"),
