@@ -1946,6 +1946,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_recording_alias_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id, recording, type) AS (SELECT NEW.id, NEW.recording, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_alias"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_alias_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, recording, type) AS (SELECT NEW.id, NEW.recording, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_alias"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_alias_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, recording, type) AS (SELECT OLD.id, OLD.recording, OLD.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_alias"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_artist_credit_insert() RETURNS trigger
     AS $$
 BEGIN
@@ -2414,6 +2450,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_release_alias_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id, release, type) AS (SELECT NEW.id, NEW.release, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_alias"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_alias_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, release, type) AS (SELECT NEW.id, NEW.release, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_alias"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_alias_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, release, type) AS (SELECT OLD.id, OLD.release, OLD.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_alias"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_release_meta_insert() RETURNS trigger
     AS $$
 BEGIN
@@ -2588,6 +2660,42 @@ BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
             WITH keys(release, tag) AS (SELECT OLD.release, OLD.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_tag"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_alias_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id, release_group, type) AS (SELECT NEW.id, NEW.release_group, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_alias"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_alias_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, release_group, type) AS (SELECT NEW.id, NEW.release_group, NEW.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_alias"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_alias_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id, release_group, type) AS (SELECT OLD.id, OLD.release_group, OLD.type)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_alias"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
     RETURN OLD;
