@@ -169,7 +169,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("pid", "place_links.entity1.gid"),
     F("place", "place_links.entity1.name"),
     F("comment", "comment"),
-    F("name", "name"),
+    F("event", "name"),
     F("tag", "tags.tag.name"),
     F("type", "type.name"),
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
@@ -229,7 +229,7 @@ SearchInstrument = E(modelext.CustomInstrument, [
 
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("label", "name"),
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -299,7 +299,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
     F("qdur", "length", transformfunc=tfs.qdur),
-    F("name", "name"),
+    F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
     F("rgid", "tracks.medium.release.release_group.gid"),
@@ -362,7 +362,7 @@ SearchRecording = E(modelext.CustomRecording, [
 
 SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("release", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
@@ -424,7 +424,7 @@ SearchRelease = E(modelext.CustomRelease, [
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("releasegroup", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
@@ -487,41 +487,6 @@ SearchTag = E(models.Tag, [
 )
 
 
-SearchWork = E(modelext.CustomWork, [
-    F("mbid", "gid"),
-    F("name", "name"),
-    F("alias", "aliases.name"),
-    F("arid", "artist_links.artist.gid"),
-    F("artist", "artist_links.artist.name"),
-    F("comment", "comment"),
-    F("iswc", "iswcs.iswc"),
-    F("lang", "languages.language.iso_code_3"),
-    F("recording", "recording_links.recording.name"),
-    F("recording_count", "recording_count", transformfunc=tfs.integer_sum, trigger=False),
-    F("rid", "recording_links.recording.gid"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_work,
-    extrapaths=["aliases.type.name", "aliases.type.id",
-                "aliases.type.gid",
-                "aliases.sort_name", "aliases.locale",
-                "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "artist_links.link.link_type.name",
-                "artist_links.link.link_type.gid",
-                "artist_links.link.attributes.attribute_type.name",
-                "artist_links.link.attributes.attribute_type.gid",
-                "recording_links.link.link_type.name",
-                "recording_links.link.link_type.gid",
-                "recording_links.link.attributes.attribute_type.name",
-                "recording_links.link.attributes.attribute_type.gid",
-                "recording_links.recording.video",
-                "tags.count", "type.gid"]
-)
-
-
 SearchUrl = E(modelext.CustomURL, [
     F("mbid", "gid"),
     F("url", "url"),
@@ -554,6 +519,41 @@ SearchUrl = E(modelext.CustomURL, [
 )
 
 
+SearchWork = E(modelext.CustomWork, [
+    F("mbid", "gid"),
+    F("work", "name"),
+    F("alias", "aliases.name"),
+    F("arid", "artist_links.artist.gid"),
+    F("artist", "artist_links.artist.name"),
+    F("comment", "comment"),
+    F("iswc", "iswcs.iswc"),
+    F("lang", "languages.language.iso_code_3"),
+    F("recording", "recording_links.recording.name"),
+    F("recording_count", "recording_count", transformfunc=tfs.integer_sum, trigger=False),
+    F("rid", "recording_links.recording.gid"),
+    F("tag", "tags.tag.name"),
+    F("type", "type.name")
+],
+    1.5,
+    convert.convert_work,
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.type.gid",
+                "aliases.sort_name", "aliases.locale",
+                "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date",
+                "artist_links.link.link_type.name",
+                "artist_links.link.link_type.gid",
+                "artist_links.link.attributes.attribute_type.name",
+                "artist_links.link.attributes.attribute_type.gid",
+                "recording_links.link.link_type.name",
+                "recording_links.link.link_type.gid",
+                "recording_links.link.attributes.attribute_type.name",
+                "recording_links.link.attributes.attribute_type.gid",
+                "recording_links.recording.video",
+                "tags.count", "type.gid"]
+)
+
+
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
 SCHEMA = OrderedDict(sorted({
     # The dict gets sorted to guarantee a sorted order in `reindex`s --help
@@ -571,8 +571,8 @@ SCHEMA = OrderedDict(sorted({
     "release-group": SearchReleaseGroup,
     "series": SearchSeries,
     "tag": SearchTag,
-    "work": SearchWork,
     "url": SearchUrl,
+    "work": SearchWork,
 }.items(), key=lambda val: val[0]))
 
 
