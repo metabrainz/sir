@@ -169,7 +169,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("pid", "place_links.entity1.gid"),
     F("place", "place_links.entity1.name"),
     F("comment", "comment"),
-    F("name", "name"),
+    F("event", "name"),
     F("tag", "tags.tag.name"),
     F("type", "type.name"),
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
@@ -229,7 +229,7 @@ SearchInstrument = E(modelext.CustomInstrument, [
 
 SearchLabel = E(modelext.CustomLabel, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("label", "name"),
     F("alias", "aliases.name"),
     F("area", ["area.name", "area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -299,7 +299,7 @@ SearchRecording = E(modelext.CustomRecording, [
     F("position", "tracks.medium.position"),
     F("primarytype", "tracks.medium.release.release_group.type.name"),
     F("qdur", "length", transformfunc=tfs.qdur),
-    F("name", "name"),
+    F("recording", "name"),
     F("reid", "tracks.medium.release.gid"),
     F("release", "tracks.medium.release.name"),
     F("rgid", "tracks.medium.release.release_group.gid"),
@@ -362,7 +362,7 @@ SearchRecording = E(modelext.CustomRecording, [
 
 SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("release", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
@@ -424,7 +424,7 @@ SearchRelease = E(modelext.CustomRelease, [
 
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("releasegroup", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
@@ -489,7 +489,7 @@ SearchTag = E(models.Tag, [
 
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
-    F("name", "name"),
+    F("work", "name"),
     F("alias", "aliases.name"),
     F("arid", "artist_links.artist.gid"),
     F("artist", "artist_links.artist.name"),
