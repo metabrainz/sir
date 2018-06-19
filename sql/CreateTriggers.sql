@@ -488,6 +488,15 @@ CREATE TRIGGER search_place_type_update AFTER UPDATE OF gid, name ON musicbrainz
 CREATE TRIGGER search_place_type_delete BEFORE DELETE ON musicbrainz.place_type
     FOR EACH ROW EXECUTE PROCEDURE search_place_type_delete();
 
+CREATE TRIGGER search_recording_alias_insert AFTER INSERT ON musicbrainz.recording_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_alias_insert();
+
+CREATE TRIGGER search_recording_alias_update AFTER UPDATE OF name, recording, type ON musicbrainz.recording_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_alias_update();
+
+CREATE TRIGGER search_recording_alias_delete BEFORE DELETE ON musicbrainz.recording_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_alias_delete();
+
 CREATE TRIGGER search_artist_credit_insert AFTER INSERT ON musicbrainz.artist_credit
     FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_insert();
 
@@ -605,6 +614,15 @@ CREATE TRIGGER search_recording_tag_update AFTER UPDATE OF count, recording, tag
 CREATE TRIGGER search_recording_tag_delete BEFORE DELETE ON musicbrainz.recording_tag
     FOR EACH ROW EXECUTE PROCEDURE search_recording_tag_delete();
 
+CREATE TRIGGER search_release_alias_insert AFTER INSERT ON musicbrainz.release_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_alias_insert();
+
+CREATE TRIGGER search_release_alias_update AFTER UPDATE OF name, release, type ON musicbrainz.release_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_alias_update();
+
+CREATE TRIGGER search_release_alias_delete BEFORE DELETE ON musicbrainz.release_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_alias_delete();
+
 CREATE TRIGGER search_release_meta_insert AFTER INSERT ON musicbrainz.release_meta
     FOR EACH ROW EXECUTE PROCEDURE search_release_meta_insert();
 
@@ -649,6 +667,15 @@ CREATE TRIGGER search_release_tag_update AFTER UPDATE OF count, release, tag ON 
 
 CREATE TRIGGER search_release_tag_delete BEFORE DELETE ON musicbrainz.release_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_tag_delete();
+
+CREATE TRIGGER search_release_group_alias_insert AFTER INSERT ON musicbrainz.release_group_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_alias_insert();
+
+CREATE TRIGGER search_release_group_alias_update AFTER UPDATE OF name, release_group, type ON musicbrainz.release_group_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_alias_update();
+
+CREATE TRIGGER search_release_group_alias_delete BEFORE DELETE ON musicbrainz.release_group_alias
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_alias_delete();
 
 CREATE TRIGGER search_release_group_tag_insert AFTER INSERT ON musicbrainz.release_group_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_tag_insert();

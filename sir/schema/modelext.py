@@ -85,17 +85,20 @@ class CustomPlace(Place):
 
 
 class CustomRecording(Recording):
+    aliases = relationship("RecordingAlias")
     tags = relationship("RecordingTag")
     tracks = relationship("Track")
 
 
 class CustomReleaseGroup(ReleaseGroup):
+    aliases = relationship("ReleaseGroupAlias")
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
     release_count = column_property(select([func.count(Release.id)]).where(Release.release_group_id == ReleaseGroup.id))
 
 
 class CustomRelease(Release):
+    aliases = relationship("ReleaseAlias")
     asin = relationship("ReleaseMeta")
     medium_count = column_property(select([func.count(Medium.id)]).where(Medium.release_id == Release.id))
 
