@@ -282,6 +282,7 @@ SearchPlace = E(modelext.CustomPlace, [
 
 
 SearchRecording = E(modelext.CustomRecording, [
+    F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
@@ -362,6 +363,7 @@ SearchRecording = E(modelext.CustomRecording, [
 SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
     F("name", "name"),
+    F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
@@ -423,6 +425,7 @@ SearchRelease = E(modelext.CustomRelease, [
 SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
     F("name", "name"),
+    F("alias", "aliases.name"),
     F("arid", "artist_credit.artists.artist.gid"),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
