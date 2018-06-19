@@ -487,6 +487,38 @@ SearchTag = E(models.Tag, [
 )
 
 
+SearchUrl = E(modelext.CustomURL, [
+    F("mbid", "gid"),
+    F("url", "url"),
+    F("relationtype", ["artist_links.link.link_type.name",
+                       "release_links.link.link_type.name"]),
+    F("targetid", ["artist_links.artist.gid",
+                   "release_links.release.gid"]),
+    F("targettype", ["artist_links.__tablename__",
+                     "release_links.__tablename__" ],
+      transformfunc=tfs.url_type),
+],
+    1.5,
+    convert.convert_url,
+    extrapaths=["artist_links.artist.gid",
+                "artist_links.artist.name",
+                "artist_links.artist.comment",
+                "artist_links.artist.sort_name",
+                "artist_links.link.link_type.name",
+                "artist_links.link.link_type.gid",
+                "artist_links.link.attributes.attribute_type.name",
+                "artist_links.link.attributes.attribute_type.gid",
+                "release_links.release.gid",
+                "release_links.release.name",
+                "release_links.release.comment",
+                "release_links.link.link_type.name",
+                "release_links.link.link_type.gid",
+                "release_links.link.attributes.attribute_type.name",
+                "release_links.link.attributes.attribute_type.gid",
+                ]
+)
+
+
 SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
     F("work", "name"),
@@ -522,38 +554,6 @@ SearchWork = E(modelext.CustomWork, [
 )
 
 
-SearchUrl = E(modelext.CustomURL, [
-    F("mbid", "gid"),
-    F("url", "url"),
-    F("relationtype", ["artist_links.link.link_type.name",
-                       "release_links.link.link_type.name"]),
-    F("targetid", ["artist_links.artist.gid",
-                   "release_links.release.gid"]),
-    F("targettype", ["artist_links.__tablename__",
-                     "release_links.__tablename__" ],
-      transformfunc=tfs.url_type),
-],
-    1.5,
-    convert.convert_url,
-    extrapaths=["artist_links.artist.gid",
-                "artist_links.artist.name",
-                "artist_links.artist.comment",
-                "artist_links.artist.sort_name",
-                "artist_links.link.link_type.name",
-                "artist_links.link.link_type.gid",
-                "artist_links.link.attributes.attribute_type.name",
-                "artist_links.link.attributes.attribute_type.gid",
-                "release_links.release.gid",
-                "release_links.release.name",
-                "release_links.release.comment",
-                "release_links.link.link_type.name",
-                "release_links.link.link_type.gid",
-                "release_links.link.attributes.attribute_type.name",
-                "release_links.link.attributes.attribute_type.gid",
-                ]
-)
-
-
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
 SCHEMA = OrderedDict(sorted({
     # The dict gets sorted to guarantee a sorted order in `reindex`s --help
@@ -571,8 +571,8 @@ SCHEMA = OrderedDict(sorted({
     "release-group": SearchReleaseGroup,
     "series": SearchSeries,
     "tag": SearchTag,
-    "work": SearchWork,
     "url": SearchUrl,
+    "work": SearchWork,
 }.items(), key=lambda val: val[0]))
 
 
