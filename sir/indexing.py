@@ -205,7 +205,7 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
     :param Queue.Queue data_queue:
     """
     model = SCHEMA[entity_name].model
-    logger.info("Indexing %s %s", model, bounds)
+    logger.debug("Indexing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
@@ -289,7 +289,7 @@ def queue_to_solr(queue, batch_size, solr_connection):
         return
     logger.debug("%s: Sending remaining data & stopping", solr_connection)
     send_data_to_solr(solr_connection, data)
-    logger.info("Committing changes to Solr")
+    logger.debug("Committing changes to Solr")
     solr_connection.commit()
 
 

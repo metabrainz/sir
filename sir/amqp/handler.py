@@ -113,7 +113,7 @@ def callback_wrapper(f):
     @wraps(f)
     def wrapper(self, msg, queue):
         try:
-            logger.info("Received message from queue %s: %s" % (queue, msg.body))
+            logger.debug("Received message from queue %s: %s" % (queue, msg.body))
             parsed_message = message.Message.from_amqp_message(queue, msg)
             if parsed_message.table_name not in update_map:
                 raise ValueError("Unknown table: %s" % parsed_message.table_name)
