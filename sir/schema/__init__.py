@@ -378,7 +378,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("format", "mediums.format.name"),
     F("laid", "labels.label.gid"),
     F("label", "labels.label.name"),
-    F("lang", "language.name"),
+    F("lang", "language.iso_code_3"),
     F("mediums", "medium_count", transformfunc=tfs.integer_sum, trigger=False),
     F("primarytype", "release_group.type.name"),
     F("quality", "quality"),
