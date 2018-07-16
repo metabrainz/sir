@@ -1034,7 +1034,8 @@ def convert_release(obj):
     :type obj: :class:`mbdata.models.Release`
     """
     release = models.release(id=obj.gid, title=obj.name,
-                             artist_credit=convert_artist_credit(obj.artist_credit))  # noqa
+                             artist_credit=convert_artist_credit(obj.artist_credit,
+                             include_aliases=False))
 
     if obj.barcode is not None:
         release.set_barcode(obj.barcode)
