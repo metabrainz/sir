@@ -644,7 +644,7 @@ CREATE TRIGGER search_release_label_delete BEFORE DELETE ON musicbrainz.release_
 CREATE TRIGGER search_language_insert AFTER INSERT ON musicbrainz.language
     FOR EACH ROW EXECUTE PROCEDURE search_language_insert();
 
-CREATE TRIGGER search_language_update AFTER UPDATE OF iso_code_3, name ON musicbrainz.language
+CREATE TRIGGER search_language_update AFTER UPDATE OF iso_code_3 ON musicbrainz.language
     FOR EACH ROW EXECUTE PROCEDURE search_language_update();
 
 CREATE TRIGGER search_language_delete BEFORE DELETE ON musicbrainz.language

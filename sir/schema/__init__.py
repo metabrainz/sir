@@ -106,7 +106,8 @@ SearchArtist = E(modelext.CustomArtist, [
     F("artist", "name"),
     F("sortname", "sort_name"),
     F("alias", "aliases.name"),
-
+    # Does not require a trigger since this will get updated on an alias update
+    F("primary_alias", "primary_aliases", trigger=False),
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
     F("ended", "ended", transformfunc=tfs.ended_to_string),
