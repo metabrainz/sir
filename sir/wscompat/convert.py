@@ -490,7 +490,7 @@ def convert_medium_list(obj):
     """
     ml = models.medium_list()
     [ml.add_medium(convert_medium(m)) for m in obj]
-
+    ml.set_count(len(obj))
     tracks = 0
     for medium in obj:
         tracks += int(medium.track_count)
@@ -1034,7 +1034,8 @@ def convert_release(obj):
     :type obj: :class:`mbdata.models.Release`
     """
     release = models.release(id=obj.gid, title=obj.name,
-                             artist_credit=convert_artist_credit(obj.artist_credit))  # noqa
+                             artist_credit=convert_artist_credit(obj.artist_credit,
+                             include_aliases=False))
 
     if obj.barcode is not None:
         release.set_barcode(obj.barcode)
