@@ -490,7 +490,7 @@ def convert_medium_list(obj):
     """
     ml = models.medium_list()
     [ml.add_medium(convert_medium(m)) for m in obj]
-
+    ml.set_count(len(obj))
     tracks = 0
     for medium in obj:
         tracks += int(medium.track_count)
