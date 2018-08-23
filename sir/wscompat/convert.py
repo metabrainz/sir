@@ -760,7 +760,7 @@ def convert_annotation(obj):
     for a in obj.releases:
         l.append(convert_one_annotation(obj, 'release',      a.release))
     for a in obj.release_groups:
-        l.append(convert_one_annotation(obj, 'releasegroup', a.release_group))
+        l.append(convert_one_annotation(obj, 'release-group', a.release_group))
     for a in obj.series:
         l.append(convert_one_annotation(obj, 'series',       a.series))
     for a in obj.works:
