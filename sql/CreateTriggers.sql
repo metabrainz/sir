@@ -452,6 +452,15 @@ CREATE TRIGGER search_label_ipi_update AFTER UPDATE OF ipi, label ON musicbrainz
 CREATE TRIGGER search_label_ipi_delete BEFORE DELETE ON musicbrainz.label_ipi
     FOR EACH ROW EXECUTE PROCEDURE search_label_ipi_delete();
 
+CREATE TRIGGER search_label_isni_insert AFTER INSERT ON musicbrainz.label_isni
+    FOR EACH ROW EXECUTE PROCEDURE search_label_isni_insert();
+
+CREATE TRIGGER search_label_isni_update AFTER UPDATE OF isni, label ON musicbrainz.label_isni
+    FOR EACH ROW EXECUTE PROCEDURE search_label_isni_update();
+
+CREATE TRIGGER search_label_isni_delete BEFORE DELETE ON musicbrainz.label_isni
+    FOR EACH ROW EXECUTE PROCEDURE search_label_isni_delete();
+
 CREATE TRIGGER search_label_tag_insert AFTER INSERT ON musicbrainz.label_tag
     FOR EACH ROW EXECUTE PROCEDURE search_label_tag_insert();
 

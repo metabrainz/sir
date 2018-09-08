@@ -1802,6 +1802,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_label_isni_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(isni, label) AS (SELECT NEW.isni, NEW.label)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_isni"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_label_isni_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(isni, label) AS (SELECT NEW.isni, NEW.label)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_isni"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_label_isni_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(isni, label) AS (SELECT OLD.isni, OLD.label)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_isni"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_label_tag_insert() RETURNS trigger
     AS $$
 BEGIN
