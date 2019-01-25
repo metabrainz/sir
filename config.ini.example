@@ -1,5 +1,5 @@
 [database]
-uri = postgresql://musicbrainz@localhost/musicbrainz
+uri = postgresql://musicbrainz:musicbrainz@localhost/musicbrainz_db
 
 [solr]
 uri = http://127.0.0.1:8983/solr
