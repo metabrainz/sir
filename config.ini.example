@@ -15,6 +15,7 @@ host = localhost
 user = guest
 password = guest
 vhost = /
+prefetch_count = 350
 
 [sentry]
 dsn = https://something:something@sentry.metabrainz.org/42
