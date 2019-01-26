@@ -27,30 +27,23 @@ AMQP Extension
 ++++++++++++++
 
 * Install `pg_amqp <https://github.com/omniti-labs/pg_amqp>`_.
-* Connect to your database as a superuser with ``psql`` and execute
+* Check values for the following keys in the file ``config.ini``:
 
-.. code-block:: sql
-
-    CREATE EXTENSION amqp;
-    ALTER SCHEMA amqp OWNER TO <musicbrainz>;
-    ALTER TABLE amqp.broker OWNER TO <musicbrainz>;
-    INSERT INTO amqp.broker (host, vhost, username, password)
-        VALUES (<host>, <vhost>, <username>, <password>);
-
-applying the following replacements:
-
-============= ===========
-What          Description
-============= ===========
-<musicbrainz> Name of the PostgreSQL user the MusicBrainz Server uses
-<host>        The hostname that's running your RabbitMQ server
-<vhost>       The vhost of your RabbitMQ server
-<user>        The username with which to connect to your RabbitMQ server
-<password>    The password of <user>
-============= ===========
+=================== ===========
+Keys                Description
+=================== ===========
+[database] user     Name of the PostgreSQL user the MusicBrainz Server uses
+[rabbitmq] host     The hostname that's running your RabbitMQ server
+[rabbitmq] user     The username with which to connect to your RabbitMQ server
+[rabbitmq] password The password with which to connect to your RabbitMQ server
+[rabbitmq] vhost    The vhost on your RabbitMQ server
+=================== ===========
 
 The default values for the RabbitMQ configuration options can be found in `the
 RabbitMQ documentation`_.
+
+* Run ``python -m sir extension`` once to generate the file ``sql/CreateExtension.sql``.
+* Connect to your database as a superuser with ``psql`` to execute from this file.
 
 Triggers
 ++++++++

@@ -3,3 +3,4 @@ config.ini
 venv*
 build*
 sir/version.py
+sql/CreateExtension.sql
