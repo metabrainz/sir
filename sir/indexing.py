@@ -2,7 +2,6 @@
 # License: MIT, see LICENSE for details
 import multiprocessing
 import signal
-import os
 
 from . import config, querying, util, get_sentry
 from .schema import SCHEMA
@@ -128,7 +127,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                    solr_connection)
         solr_processes = []
         for i in range(max_solr_processes):
-            p = multiprocessing.Process(target=process_function, name="Solr-"+str(i))
+            p = multiprocessing.Process(target=process_function, name="Solr-" + str(i))
             p.start()
             solr_processes.append(p)
         indexer = partial(_index_entity_process_wrapper, live=live)
