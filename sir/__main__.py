@@ -19,7 +19,7 @@ logger = logging.getLogger("sir")
 
 def main():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="sir")
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("--sqltimings", action="store_true")
     subparsers = parser.add_subparsers()
