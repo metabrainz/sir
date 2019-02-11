@@ -16,7 +16,11 @@ index_limit = {{template "KEY" "index_limit"}}
 {{- with $pg_secondary_service_name := or (env "PG_SERVICE_SECONDARY") "pgbouncer-slave"}}
 {{- with or (service $pg_primary_service_name) (service $pg_secondary_service_name)}}
 {{- with index . 0}}
-uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/{{template "KEY" "db/musicbrainz_db"}}
+dbname = {{template "KEY" "db/musicbrainz_db"}}
+host = {{.Address}}
+password = {{template "KEY" "db/password"}}
+port = {{.Port}}
+user = {{template "KEY" "db/user"}}
 {{- end}}
 {{- end}}
 {{- end}}
