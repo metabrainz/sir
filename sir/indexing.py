@@ -118,7 +118,6 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         entity_id_list = list(entities.get(e, set())) if entities else None
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
-        db_uri = config.CFG.get("database", "uri")
 
         solr_connection = util.solr_connection(e)
         process_function = partial(queue_to_solr,
@@ -134,14 +133,14 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         if live:
             if entity_id_list:
                 for i in range(0, len(entity_id_list), query_batch_size):
-                    index_function_args.append((e, db_uri,
+                    index_function_args.append((e,
                                                 entity_id_list[i:i + query_batch_size],
                                                 entity_data_queue))
         else:
             with util.db_session_ctx(db_session) as session:
                 for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
                                                    query_batch_size, importlimit):
-                    args = (e, db_uri, bounds, entity_data_queue)
+                    args = (e, bounds, entity_data_queue)
                     index_function_args.append(args)
 
         try:
@@ -191,14 +190,13 @@ def _index_entity_process_wrapper(args, live=False):
         raise
 
 
-def index_entity(entity_name, db_uri, bounds, data_queue):
+def index_entity(entity_name, bounds, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
     :param str entity_name:
-    :param str db_uri:
     :param bounds:
     :type bounds: (int, int)
     :param Queue.Queue data_queue:
@@ -210,17 +208,16 @@ def index_entity(entity_name, db_uri, bounds, data_queue):
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    _query_database(entity_name, db_uri, condition, data_queue)
+    _query_database(entity_name, condition, data_queue)
 
 
-def live_index_entity(entity_name, db_uri, ids, data_queue):
+def live_index_entity(entity_name, ids, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
     :param str entity_name:
-    :param str db_uri:
     :param [int] ids:
     :param Queue.Queue data_queue:
     """
@@ -228,17 +225,16 @@ def live_index_entity(entity_name, db_uri, ids, data_queue):
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
     logger.debug("Indexing %s new rows for entity %s", len(ids), entity_name)
-    _query_database(entity_name, db_uri, condition, data_queue)
+    _query_database(entity_name, condition, data_queue)
 
 
-def _query_database(entity_name, db_uri, condition, data_queue):
+def _query_database(entity_name, condition, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
     :param str entity_name:
-    :param str db_uri:
     :param sqlalchemy.sql.expression.BinaryExpression condition:
     :param Queue.Queue data_queue:
     """

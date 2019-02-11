@@ -39,9 +39,6 @@ def db_session():
     """
     Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
 
-    :param str db_uri: A :ref:`database URL <sqla:database_urls>` for
-                       SQLAlchemy.
-
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
     db_uri = config.CFG.get("database", "uri")
