@@ -13,7 +13,7 @@ class PathsTestCase(unittest.TestCase):
         validate_selection(
             core_name="release-group",
             path="releases",
-            emitted_keys={'id': 1,},
+            emitted_keys={'id': 1},
             expected_sql='SELECT release_group_1.id AS release_group_1_id \nFROM musicbrainz.release_group AS release_group_1 JOIN musicbrainz.release ON release_group_1.id = musicbrainz.release.release_group \nWHERE musicbrainz.release.id = :id_1',
         )
         validate_selection(

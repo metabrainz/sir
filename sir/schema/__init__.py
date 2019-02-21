@@ -497,7 +497,7 @@ SearchUrl = E(modelext.CustomURL, [
     F("targetid", ["artist_links.artist.gid",
                    "release_links.release.gid"]),
     F("targettype", ["artist_links.__tablename__",
-                     "release_links.__tablename__" ],
+                     "release_links.__tablename__"],
       transformfunc=tfs.url_type),
 ],
     1.5,

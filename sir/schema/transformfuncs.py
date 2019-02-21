@@ -42,6 +42,7 @@ def fill_none(values):
         return values.add('none')
     return values
 
+
 def integer_sum(values):
     return int(sum(values))
 

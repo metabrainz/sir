@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from functools import partial
 from json import loads
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 
 
@@ -39,13 +40,14 @@ def db_session():
     """
     Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
 
-    :param str db_uri: A :ref:`database URL <sqla:database_urls>` for
-                       SQLAlchemy.
-
     :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
     """
-    db_uri = config.CFG.get("database", "uri")
-    e = create_engine(db_uri, server_side_cursors=False)
+    cget = partial(config.CFG.get, "database")
+    cdict = {"username": cget("user")}
+    for key in ["password", "host", "port"]:
+        cdict[key] = cget(key)
+    cdict["database"] = cget("dbname")
+    e = create_engine(URL("postgresql", **cdict), server_side_cursors=False)
     S = sessionmaker(bind=e)
     return S
 

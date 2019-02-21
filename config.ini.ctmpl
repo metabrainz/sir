@@ -12,15 +12,15 @@ live_index_batch_size = {{template "KEY" "live_index_batch_size"}}
 index_limit = {{template "KEY" "index_limit"}}
 
 [database]
-{{with $pg_primary_service_name := or (env "PG_SERVICE_PRIMARY") "pgbouncer-master"}}
-{{with $pg_secondary_service_name := or (env "PG_SERVICE_SECONDARY") "pgbouncer-slave"}}
-{{- if service $pg_primary_service_name}}
-{{- with index (service $pg_primary_service_name) 0}}
-uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/{{template "KEY" "db/musicbrainz_db"}}
-{{- end}}
-{{- else if service $pg_secondary_service_name}}
-{{- with index (service $pg_secondary_service_name) 0}}
-uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}@{{.Address}}:{{.Port}}/{{template "KEY" "db/musicbrainz_db"}}
+{{- with $pg_primary_service_name := or (env "PG_SERVICE_PRIMARY") "pgbouncer-master"}}
+{{- with $pg_secondary_service_name := or (env "PG_SERVICE_SECONDARY") "pgbouncer-slave"}}
+{{- with or (service $pg_primary_service_name) (service $pg_secondary_service_name)}}
+{{- with index . 0}}
+dbname = {{template "KEY" "db/musicbrainz_db"}}
+host = {{.Address}}
+password = {{template "KEY" "db/password"}}
+port = {{.Port}}
+user = {{template "KEY" "db/user"}}
 {{- end}}
 {{- end}}
 {{- end}}
@@ -30,17 +30,17 @@ uri = postgresql://{{template "KEY" "db/user"}}:{{template "KEY" "db/password"}}
 uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
 
-{{if service "rabbitmq"}}
+{{- if service "rabbitmq"}}
 [rabbitmq]
-{{with index (service "rabbitmq") 0}}
+{{- with index (service "rabbitmq") 0}}
 host = {{.Address}}:{{.Port}}
 user = {{template "KEY" "rabbitmq/user"}}
 password = {{template "KEY" "rabbitmq/password"}}
 vhost = {{template "KEY" "rabbitmq/vhost"}}
 prefetch_count = {{template "KEY" "rabbitmq/prefetch_count"}}
 timeout = {{template "KEY" "rabbitmq/timeout"}}
-{{end}}
-{{end}}
+{{- end}}
+{{- end}}
 
 [sentry]
 dsn = {{template "KEY" "sentry_dsn"}}

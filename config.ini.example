@@ -1,5 +1,9 @@
 [database]
-uri = postgresql://musicbrainz@localhost/musicbrainz
+dbname = musicbrainz_db
+host = localhost
+password = musicbrainz
+port = 5432
+user = musicbrainz
 
 [solr]
 uri = http://127.0.0.1:8983/solr
@@ -15,6 +19,7 @@ host = localhost
 user = guest
 password = guest
 vhost = /
+prefetch_count = 350
 
 [sentry]
 dsn = https://something:something@sentry.metabrainz.org/42

@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2015 Wieland Hoffmann
+# Copyright (c) 2014, 2015, 2019 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import argparse
 import logging
@@ -7,6 +7,7 @@ import ConfigParser
 
 import config
 from . import init_raven_client
+from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch
 from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
@@ -50,6 +51,15 @@ def main():
                                          default="1",
                                          help="ID of the AMQP broker row "
                                          "in the database.")
+
+    generate_extension_parser = subparsers.add_parser("extension",
+                                                      help="Generate extension")
+    generate_extension_parser.set_defaults(func=generate_extension)
+    generate_extension_parser.add_argument('-e', '--extension-file',
+                                           action="store",
+                                           default="sql/CreateExtension.sql",
+                                           help="The filename to save the "
+                                           "extension into")
 
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
                                               help="Set up AMQP exchanges and "
@@ -110,6 +120,7 @@ def main():
     func = args.func
     args = vars(args)
     func(args)
+
 
 if __name__ == '__main__':
     main()

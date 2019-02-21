@@ -80,6 +80,7 @@ class CustomLabel(Label):
     tags = relationship("LabelTag")
     release_count = column_property(select([func.count(ReleaseLabel.id)]).where(ReleaseLabel.label_id == Label.id))
 
+
 class CustomMediumCDToc(MediumCDTOC):
     medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id],
                           innerjoin=True, backref="cdtocs")
@@ -136,7 +137,6 @@ class CustomWork(Work):
     languages = relationship("WorkLanguage")
     recording_links = relationship("LinkRecordingWork")
     recording_count = column_property(select([func.count(LinkRecordingWork.id)]).where(LinkRecordingWork.work_id == Work.id))
-
 
 
 class CustomURL(URL):

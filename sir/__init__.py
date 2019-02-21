@@ -9,7 +9,6 @@ import raven.transport.threaded_requests
 from raven.handlers.logging import SentryHandler
 from raven.conf import setup_logging
 import logging
-import config
 
 
 class MissingRavenClient(raven.Client):
