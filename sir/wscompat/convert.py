@@ -204,7 +204,8 @@ def convert_name_credit(obj, include_aliases=True):
     """
     :type obj: :class:`mbdata.models.ArtistCreditName`
     """
-    nc = models.name_credit(artist=convert_artist_simple(obj.artist,
+    nc = models.name_credit(name=obj.name,
+                            artist=convert_artist_simple(obj.artist,
                                                          include_aliases))
     if obj.join_phrase != "":
         nc.set_joinphrase(obj.join_phrase)
