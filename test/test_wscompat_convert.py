@@ -1,8 +1,85 @@
 import unittest
+import xml.etree.ElementTree as ElementTree
 
 from mbdata.types import PartialDate
 from mock import MagicMock
-from sir.wscompat.convert import partialdate_to_string, calculate_type
+from sir.wscompat.convert import (
+    convert_name_credit,
+    partialdate_to_string,
+    calculate_type,
+)
+
+
+def xml_elements_equal(e1, e2):
+    if (e1.tag != e2.tag or
+            (e1.text or '').strip() != (e2.text or '').strip() or
+            (e1.tail or '').strip() != (e2.tail or '').strip() or
+            e1.attrib != e2.attrib or
+            len(e1) != len(e2)):
+        return False
+    return all(xml_elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
+
+
+class NameCreditConverterTest(unittest.TestCase):
+    def do(self, input, expected, include_aliases=False):
+        output = convert_name_credit(input, include_aliases).to_etree()
+        expected_xml = ElementTree.fromstring(expected)
+        self.assertTrue(xml_elements_equal(output, expected_xml))
+
+    def _create_artist(self, gid, name, sort_name):
+        artist = MagicMock()
+        artist.gid = gid
+        artist.name = name
+        artist.sort_name = sort_name
+        artist.comment = None
+        return artist
+
+    def _create_credit_name(self, artist, name=None, join_phrase=None):
+        credit_name = MagicMock()
+        credit_name.artist = artist
+        credit_name.name = name
+        credit_name.join_phrase = join_phrase
+        return credit_name
+
+    def test_credit_name(self):
+        artist = self._create_artist(
+            gid='b7ffd2af-418f-4be2-bdd1-22f8b48613da',
+            name='Nine Inch Nails',
+            sort_name='Nine Inch Nails',
+        )
+        credit_name = self._create_credit_name(artist=artist)
+        expected_credit_name = '''
+        <name-credit xmlns="http://musicbrainz.org/ns/mmd-2.0#">
+            <artist id="b7ffd2af-418f-4be2-bdd1-22f8b48613da">
+                <name>Nine Inch Nails</name>
+                <sort-name>Nine Inch Nails</sort-name>
+            </artist>
+        </name-credit>
+        '''
+        self.do(input=credit_name, expected=expected_credit_name)
+
+    def test_credit_name_with_join_phrase_and_name_credit(self):
+        artist = self._create_artist(
+            gid='b7ffd2af-418f-4be2-bdd1-22f8b48613da',
+            name='Nine Inch Nails',
+            sort_name='Nine Inch Nails',
+        )
+        credit_name = self._create_credit_name(
+            artist=artist,
+            name='NIN',
+            join_phrase=' and friends',
+        )
+        expected_credit_name = '''
+        <name-credit xmlns="http://musicbrainz.org/ns/mmd-2.0#" 
+                     joinphrase=" and friends">
+            <name>NIN</name>
+            <artist id="b7ffd2af-418f-4be2-bdd1-22f8b48613da">
+                <name>Nine Inch Nails</name>
+                <sort-name>Nine Inch Nails</sort-name>
+            </artist>
+        </name-credit>
+        '''
+        self.do(input=credit_name, expected=expected_credit_name)
 
 
 class PartialDateConverterTest(unittest.TestCase):
@@ -21,8 +98,8 @@ class PartialDateConverterTest(unittest.TestCase):
 
     def test_valid_partialdates(self):
         ds = [(PartialDate(1), "0001"),
-              (PartialDate(1,2), "0001-02"),
-              (PartialDate(1,2,3), "0001-02-03")]
+              (PartialDate(1, 2), "0001-02"),
+              (PartialDate(1, 2, 3), "0001-02-03")]
 
         for d, expected in ds:
             self.do(d, expected)
