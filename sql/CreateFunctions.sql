@@ -2630,6 +2630,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_release_packaging_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_packaging_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_packaging_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT OLD.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_script_insert() RETURNS trigger
     AS $$
 BEGIN

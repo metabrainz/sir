@@ -202,6 +202,9 @@ DROP TRIGGER search_release_group_secondary_type_join_delete ON musicbrainz.rele
 DROP TRIGGER search_release_group_secondary_type_insert ON musicbrainz.release_group_secondary_type;
 DROP TRIGGER search_release_group_secondary_type_update ON musicbrainz.release_group_secondary_type;
 DROP TRIGGER search_release_group_secondary_type_delete ON musicbrainz.release_group_secondary_type;
+DROP TRIGGER search_release_packaging_insert ON musicbrainz.release_packaging;
+DROP TRIGGER search_release_packaging_update ON musicbrainz.release_packaging;
+DROP TRIGGER search_release_packaging_delete ON musicbrainz.release_packaging;
 DROP TRIGGER search_release_status_insert ON musicbrainz.release_status;
 DROP TRIGGER search_release_status_update ON musicbrainz.release_status;
 DROP TRIGGER search_release_status_delete ON musicbrainz.release_status;
