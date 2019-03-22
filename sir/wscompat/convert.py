@@ -1,6 +1,7 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from sir.wscompat.modelfix import fix
+from slugify import slugify
 try:
     # Python 3
     from functools import lru_cache
@@ -1229,4 +1230,4 @@ def convert_gender(obj):
 
 
 def convert_format(obj):
-    return models.format(valueOf_=obj.name)
+    return models.format(valueOf_=slugify(obj.name))

@@ -1,8 +1,31 @@
+#!/usr/bin/env python
+# coding: utf-8
+# Copyright (c) 2014, 2017 Wieland Hoffmann, MetaBrainz Foundation
 import unittest
 
+from mbdata.models import MediumFormat
 from mbdata.types import PartialDate
 from mock import MagicMock
-from sir.wscompat.convert import partialdate_to_string, calculate_type
+from sir.wscompat.convert import (
+    calculate_type,
+    convert_format,
+    partialdate_to_string,
+)
+
+
+class MediumFormatConverterTest(unittest.TestCase):
+    def do(self, input, expected):
+        output = convert_format(MediumFormat(name=input)).get_valueOf_()
+        self.assertEqual(output, expected)
+
+    def test_medium_formats(self):
+        ds = [('3.5" Floppy Disk', '3-5-floppy-disk'),
+              ('8cm CD+G', '8cm-cd-g'),
+              ('DVDplus (CD side)', 'dvdplus-cd-side'),
+              ('Pathé disc', 'pathe-disc')]
+
+        for d, expected in ds:
+            self.do(d, expected)
 
 
 class PartialDateConverterTest(unittest.TestCase):
