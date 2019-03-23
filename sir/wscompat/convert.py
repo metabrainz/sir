@@ -452,7 +452,7 @@ def convert_medium(obj, disc_list=True):
     m = models.medium()
 
     if obj.format is not None:
-        m.set_format(convert_format(obj.format))
+        m.set_format(convert_medium_format(obj.format))
 
     if disc_list:
         dl = models.disc_list(count=len(obj.cdtocs))
@@ -1229,5 +1229,5 @@ def convert_gender(obj):
     return models.gender(valueOf_=obj.name.lower())
 
 
-def convert_format(obj):
+def convert_medium_format(obj):
     return models.format(valueOf_=slugify(obj.name))

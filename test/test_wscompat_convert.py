@@ -8,14 +8,14 @@ from mbdata.types import PartialDate
 from mock import MagicMock
 from sir.wscompat.convert import (
     calculate_type,
-    convert_format,
+    convert_medium_format,
     partialdate_to_string,
 )
 
 
 class MediumFormatConverterTest(unittest.TestCase):
     def do(self, input, expected):
-        output = convert_format(MediumFormat(name=input)).get_valueOf_()
+        output = convert_medium_format(MediumFormat(name=input)).get_valueOf_()
         self.assertEqual(output, expected)
 
     def test_medium_formats(self):
