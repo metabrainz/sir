@@ -827,7 +827,7 @@ def convert_artist(obj):
         artist.set_disambiguation(obj.comment)
 
     if obj.gender is not None:
-        artist.set_gender(convert_gender(obj.gender))
+        artist.set_gender(convert_artist_gender(obj.gender))
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
@@ -1225,7 +1225,7 @@ def convert_release_status(obj):
     return models.status(valueOf_=obj.name)
 
 
-def convert_gender(obj):
+def convert_artist_gender(obj):
     return models.gender(valueOf_=slugify(obj.name))
 
 
