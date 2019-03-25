@@ -23,7 +23,7 @@ def xml_elements_equal(e1, e2):
 class NameCreditConverterTest(unittest.TestCase):
     """Test that name-credit elements are built correctly."""
 
-    def do(self, actual, expected, include_aliases=False):
+    def check_name_credit(self, actual, expected, include_aliases=False):
         output = convert_name_credit(actual, include_aliases).to_etree()
         expected_xml = ElementTree.fromstring(expected)
         self.assertTrue(xml_elements_equal(output, expected_xml))
@@ -58,7 +58,7 @@ class NameCreditConverterTest(unittest.TestCase):
             </artist>
         </name-credit>
         '''
-        self.do(actual=credit_name, expected=expected_credit_name)
+        self.check_name_credit(actual=credit_name, expected=expected_credit_name)
 
     def test_credit_name_with_join_phrase_and_name_credit(self):
         artist = self._create_artist(
@@ -81,13 +81,13 @@ class NameCreditConverterTest(unittest.TestCase):
             </artist>
         </name-credit>
         '''
-        self.do(actual=credit_name, expected=expected_credit_name)
+        self.check_name_credit(actual=credit_name, expected=expected_credit_name)
 
 
 class PartialDateConverterTest(unittest.TestCase):
     """Test that partial dates are converted and/or skipped correctly."""
 
-    def do(self, actual, expected):
+    def check_partial_dates(self, actual, expected):
         output = partialdate_to_string(actual)
         self.assertEqual(output, expected)
 
@@ -98,7 +98,7 @@ class PartialDateConverterTest(unittest.TestCase):
               PartialDate()]
 
         for d in ds:
-            self.do(d, "")
+            self.check_partial_dates(d, "")
 
     def test_valid_partialdates(self):
         ds = [(PartialDate(1), "0001"),
@@ -106,13 +106,13 @@ class PartialDateConverterTest(unittest.TestCase):
               (PartialDate(1, 2, 3), "0001-02-03")]
 
         for d, expected in ds:
-            self.do(d, expected)
+            self.check_partial_dates(d, expected)
 
 
 class OldTypeCalculatorTest(unittest.TestCase):
     """Test the correct legacy type is picked from the RG type list."""
 
-    def do(self, primary_type, secondary_types, expected):
+    def check_legacy_type(self, primary_type, secondary_types, expected):
         output = calculate_type(primary_type, secondary_types)
         self.assertEqual(output.name, expected)
 
@@ -134,9 +134,9 @@ class OldTypeCalculatorTest(unittest.TestCase):
         secondary_types = ["Concert", "Remix", "Compilation", "Live"]
 
         for primary_type in primary_type_list:
-            self.do(self._create_type_object(primary_type),
-                    self._create_secondary_types(secondary_types),
-                    primary_type)
+            self.check_legacy_type(self._create_type_object(primary_type),
+                                   self._create_secondary_types(secondary_types),
+                                   primary_type)
 
     def test_album_type(self):
         primary_type = self._create_type_object('Album')
@@ -153,4 +153,4 @@ class OldTypeCalculatorTest(unittest.TestCase):
         for secondary_type_list, excepted_output in zip(secondary_type_lists,
                                                         excepted_outputs):
             secondary_types = self._create_secondary_types(secondary_type_list)
-            self.do(primary_type, secondary_types, excepted_output)
+            self.check_legacy_type(primary_type, secondary_types, excepted_output)
