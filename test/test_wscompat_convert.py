@@ -21,6 +21,8 @@ def xml_elements_equal(e1, e2):
 
 
 class NameCreditConverterTest(unittest.TestCase):
+    """Test that name-credit elements are built correctly."""
+
     def do(self, actual, expected, include_aliases=False):
         output = convert_name_credit(actual, include_aliases).to_etree()
         expected_xml = ElementTree.fromstring(expected)
@@ -83,6 +85,8 @@ class NameCreditConverterTest(unittest.TestCase):
 
 
 class PartialDateConverterTest(unittest.TestCase):
+    """Test that partial dates are converted and/or skipped correctly."""
+
     def do(self, actual, expected):
         output = partialdate_to_string(actual)
         self.assertEqual(output, expected)
@@ -106,6 +110,7 @@ class PartialDateConverterTest(unittest.TestCase):
 
 
 class OldTypeCalculatorTest(unittest.TestCase):
+    """Test the correct legacy type is picked from the RG type list."""
 
     def do(self, primary_type, secondary_types, expected):
         output = calculate_type(primary_type, secondary_types)
