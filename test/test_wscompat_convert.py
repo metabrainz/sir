@@ -21,8 +21,8 @@ def xml_elements_equal(e1, e2):
 
 
 class NameCreditConverterTest(unittest.TestCase):
-    def do(self, input, expected, include_aliases=False):
-        output = convert_name_credit(input, include_aliases).to_etree()
+    def do(self, actual, expected, include_aliases=False):
+        output = convert_name_credit(actual, include_aliases).to_etree()
         expected_xml = ElementTree.fromstring(expected)
         self.assertTrue(xml_elements_equal(output, expected_xml))
 
@@ -56,7 +56,7 @@ class NameCreditConverterTest(unittest.TestCase):
             </artist>
         </name-credit>
         '''
-        self.do(input=credit_name, expected=expected_credit_name)
+        self.do(actual=credit_name, expected=expected_credit_name)
 
     def test_credit_name_with_join_phrase_and_name_credit(self):
         artist = self._create_artist(
@@ -79,12 +79,12 @@ class NameCreditConverterTest(unittest.TestCase):
             </artist>
         </name-credit>
         '''
-        self.do(input=credit_name, expected=expected_credit_name)
+        self.do(actual=credit_name, expected=expected_credit_name)
 
 
 class PartialDateConverterTest(unittest.TestCase):
-    def do(self, input, expected):
-        output = partialdate_to_string(input)
+    def do(self, actual, expected):
+        output = partialdate_to_string(actual)
         self.assertEqual(output, expected)
 
     def test_missing_year(self):
