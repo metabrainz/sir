@@ -1045,7 +1045,7 @@ def convert_release(obj):
         release.set_disambiguation(obj.comment)
 
     if obj.packaging is not None:
-        release.set_packaging(obj.packaging.name)
+        release.set_packaging(convert_release_packaging(obj.packaging))
 
     if len(obj.country_dates) > 0:
         release.set_release_event_list(
@@ -1216,6 +1216,13 @@ def convert_release_group_primary_type(obj):
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
     return models.primary_type(valueOf_=obj.name, id=obj.gid)
+
+
+def convert_release_packaging(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleasePackaging`
+    """
+    return models.packaging(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_release_status(obj):
