@@ -357,6 +357,16 @@ def convert_ipi_list(obj):
     return ipi_list
 
 
+def convert_isni_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ArtistISNI]` or
+               :class:`[mbdata.models.LabelISNI]`
+    """
+    isni_list = models.isni_list()
+    [isni_list.add_isni(i.isni) for i in obj]
+    return isni_list
+
+
 def convert_isrc(obj):
     """
     :type obj: :class:`mbdata.models.ISRC`
@@ -853,6 +863,9 @@ def convert_artist(obj):
     if len(obj.ipis) > 0:
         artist.set_ipi_list(convert_ipi_list(obj.ipis))
 
+    if len(obj.isnis) > 0:
+        artist.set_isni_list(convert_isni_list(obj.isnis))
+
     if len(obj.tags) > 0:
         artist.set_tag_list(convert_tag_list(obj.tags))
 
@@ -986,6 +999,9 @@ def convert_label(obj):
 
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
+
+    if len(obj.isnis) > 0:
+        label.set_isni_list(convert_isni_list(obj.isnis))
 
     if obj.comment:
         label.set_disambiguation(obj.comment)
