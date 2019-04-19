@@ -882,7 +882,7 @@ def convert_cdstub(obj):
         cdstub.set_barcode(obj.barcode)
 
     if obj.comment:
-        cdstub.set_comment(obj.comment)
+        cdstub.set_disambiguation(obj.comment)
 
     return cdstub
 
