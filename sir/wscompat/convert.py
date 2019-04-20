@@ -350,7 +350,8 @@ def convert_recording_work_relation_list(obj):
 
 def convert_ipi_list(obj):
     """
-    :type obj: :class:`[mbdata.models.ArtistIPI]`
+    :type obj: :class:`[mbdata.models.ArtistIPI]` or
+               :class:`[mbdata.models.LabelIPI]`
     """
     ipi_list = models.ipi_list()
     [ipi_list.add_ipi(i.ipi) for i in obj]
