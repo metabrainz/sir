@@ -50,6 +50,7 @@ The artist index contains the following fields you can search:
 *** DONE ended
 *** DONE gender
 *** DONE ipi
+*** DONE isni
 *** DONE sortname
 *** DONE tag
 *** DONE type
@@ -70,7 +71,7 @@ search:
 
 ** Label [14/14]
 
-The label ndex contains the following fields you can search:
+The label index contains the following fields you can search:
 
 *** DONE alias
 *** DONE area
@@ -81,6 +82,7 @@ The label ndex contains the following fields you can search:
 *** DONE end
 *** DONE ended
 *** DONE ipi
+*** DONE isni
 *** DONE label
 *** DONE labelaccent
 *** DONE laid
