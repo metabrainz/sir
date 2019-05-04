@@ -1,10 +1,17 @@
 import unittest
 import xml.etree.ElementTree as ElementTree
 
-from mbdata.models import Artist, ArtistCreditName, ReleaseGroupSecondaryType, ReleaseGroupSecondaryTypeJoin
+from mbdata.models import (
+    Artist,
+    ArtistCreditName,
+    ReleaseGroupSecondaryType,
+    ReleaseGroupSecondaryTypeJoin,
+    ReleasePackaging,
+)
 from mbdata.types import PartialDate
 from sir.wscompat.convert import (
     convert_name_credit,
+    convert_release_packaging,
     partialdate_to_string,
     calculate_type,
 )
@@ -154,3 +161,33 @@ class OldTypeCalculatorTest(unittest.TestCase):
                                                         excepted_outputs):
             secondary_types = self._create_secondary_types(secondary_type_list)
             self.check_legacy_type(primary_type, secondary_types, excepted_output)
+
+
+class ReleasePackagingConverterTest(unittest.TestCase):
+    """Test that release packagings are converted correctly."""
+
+    def check_release_packaging(self, actual, expected):
+        output = convert_release_packaging(actual).to_etree()
+        expected_xml = ElementTree.fromstring(expected)
+        self.assertTrue(xml_elements_equal(output, expected_xml))
+
+    def _create_release_packaging(self, gid, name):
+        release_packaging = ReleasePackaging
+        release_packaging.gid = gid
+        release_packaging.name = name
+        return release_packaging
+
+    def test_release_packaging(self):
+        release_packaging = self._create_release_packaging(
+            gid='ec27701a-4a22-37f4-bfac-6616e0f9750a',
+            name='Jewel Case',
+        )
+        expected_release_packaging = '''
+        <packaging xmlns="http://musicbrainz.org/ns/mmd-2.0#"
+                   id="ec27701a-4a22-37f4-bfac-6616e0f9750a"
+        >Jewel Case</packaging>
+        '''
+        self.check_release_packaging(
+            actual=release_packaging,
+            expected=expected_release_packaging,
+        )
