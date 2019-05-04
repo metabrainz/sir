@@ -1,8 +1,8 @@
 import unittest
 import xml.etree.ElementTree as ElementTree
 
+from mbdata.models import Artist, ArtistCreditName, ReleaseGroupSecondaryType, ReleaseGroupSecondaryTypeJoin
 from mbdata.types import PartialDate
-from mock import MagicMock
 from sir.wscompat.convert import (
     convert_name_credit,
     partialdate_to_string,
@@ -29,7 +29,7 @@ class NameCreditConverterTest(unittest.TestCase):
         self.assertTrue(xml_elements_equal(output, expected_xml))
 
     def _create_artist(self, gid, name, sort_name):
-        artist = MagicMock()
+        artist = Artist()
         artist.gid = gid
         artist.name = name
         artist.sort_name = sort_name
@@ -37,7 +37,7 @@ class NameCreditConverterTest(unittest.TestCase):
         return artist
 
     def _create_credit_name(self, artist, name=None, join_phrase=None):
-        credit_name = MagicMock()
+        credit_name = ArtistCreditName
         credit_name.artist = artist
         credit_name.name = name
         credit_name.join_phrase = join_phrase
@@ -72,7 +72,7 @@ class NameCreditConverterTest(unittest.TestCase):
             join_phrase=' and friends',
         )
         expected_credit_name = '''
-        <name-credit xmlns="http://musicbrainz.org/ns/mmd-2.0#" 
+        <name-credit xmlns="http://musicbrainz.org/ns/mmd-2.0#"
                      joinphrase=" and friends">
             <name>NIN</name>
             <artist id="b7ffd2af-418f-4be2-bdd1-22f8b48613da">
@@ -117,14 +117,14 @@ class OldTypeCalculatorTest(unittest.TestCase):
         self.assertEqual(output.name, expected)
 
     def _create_type_object(self, name):
-        type_ = MagicMock()
+        type_ = ReleaseGroupSecondaryType()
         type_.name = name
         return type_
 
     def _create_secondary_types(self, secondary_type_list):
         secondary_types = []
         for type_ in secondary_type_list:
-            secondary_type = MagicMock()
+            secondary_type = ReleaseGroupSecondaryTypeJoin()
             secondary_type.secondary_type = self._create_type_object(type_)
             secondary_types.append(secondary_type)
         return secondary_types
