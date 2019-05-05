@@ -4,12 +4,15 @@ import xml.etree.ElementTree as ElementTree
 from mbdata.models import (
     Artist,
     ArtistCreditName,
+    ArtistISNI,
+    LabelISNI,
     ReleaseGroupSecondaryType,
     ReleaseGroupSecondaryTypeJoin,
     ReleasePackaging,
 )
 from mbdata.types import PartialDate
 from sir.wscompat.convert import (
+    convert_isni_list,
     convert_name_credit,
     convert_release_packaging,
     partialdate_to_string,
@@ -25,6 +28,57 @@ def xml_elements_equal(e1, e2):
             len(e1) != len(e2)):
         return False
     return all(xml_elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
+
+
+class IsniListConverterTest(unittest.TestCase):
+    """Test that ISNI lists are converted correctly."""
+
+    def check_isni_list(self, actual, expected):
+        output = convert_isni_list(actual).to_etree()
+        expected_xml = ElementTree.fromstring(expected)
+        self.assertTrue(xml_elements_equal(output, expected_xml))
+
+    def _create_isni_list(self, isni_class, only_isni_list):
+        isni_list = []
+        for only_isni in only_isni_list:
+            isni = isni_class()
+            isni.isni = only_isni
+            isni_list.append(isni)
+        return isni_list
+
+    def test_artist_isni_list(self):
+        artist_isni_list = self._create_isni_list(
+            isni_class=ArtistISNI,
+            only_isni_list=[u'000000005705334X',
+                            u'0000000078243206',
+                            u'0000000041815776'],
+        )
+        expected_artist_isni_list = '''
+        <isni-list xmlns="http://musicbrainz.org/ns/mmd-2.0#">
+            <isni>000000005705334X</isni>
+            <isni>0000000078243206</isni>
+            <isni>0000000041815776</isni>
+        </isni-list>
+        '''
+        self.check_isni_list(
+            actual=artist_isni_list,
+            expected=expected_artist_isni_list,
+        )
+
+    def test_label_isni_list(self):
+        label_isni_list = self._create_isni_list(
+            isni_class=LabelISNI,
+            only_isni_list=[u'000000011781560X'],
+        )
+        expected_label_isni_list = '''
+        <isni-list xmlns="http://musicbrainz.org/ns/mmd-2.0#">
+            <isni>000000011781560X</isni>
+        </isni-list>
+        '''
+        self.check_isni_list(
+            actual=label_isni_list,
+            expected=expected_label_isni_list,
+        )
 
 
 class NameCreditConverterTest(unittest.TestCase):
