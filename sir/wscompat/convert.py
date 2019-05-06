@@ -350,11 +350,22 @@ def convert_recording_work_relation_list(obj):
 
 def convert_ipi_list(obj):
     """
-    :type obj: :class:`[mbdata.models.ArtistIPI]`
+    :type obj: :class:`[mbdata.models.ArtistIPI]` or
+               :class:`[mbdata.models.LabelIPI]`
     """
     ipi_list = models.ipi_list()
     [ipi_list.add_ipi(i.ipi) for i in obj]
     return ipi_list
+
+
+def convert_isni_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.ArtistISNI]` or
+               :class:`[mbdata.models.LabelISNI]`
+    """
+    isni_list = models.isni_list()
+    [isni_list.add_isni(i.isni) for i in obj]
+    return isni_list
 
 
 def convert_isrc(obj):
@@ -853,6 +864,9 @@ def convert_artist(obj):
     if len(obj.ipis) > 0:
         artist.set_ipi_list(convert_ipi_list(obj.ipis))
 
+    if len(obj.isnis) > 0:
+        artist.set_isni_list(convert_isni_list(obj.isnis))
+
     if len(obj.tags) > 0:
         artist.set_tag_list(convert_tag_list(obj.tags))
 
@@ -882,7 +896,7 @@ def convert_cdstub(obj):
         cdstub.set_barcode(obj.barcode)
 
     if obj.comment:
-        cdstub.set_comment(obj.comment)
+        cdstub.set_disambiguation(obj.comment)
 
     return cdstub
 
@@ -987,6 +1001,9 @@ def convert_label(obj):
     if len(obj.ipis) > 0:
         label.set_ipi_list(convert_ipi_list(obj.ipis))
 
+    if len(obj.isnis) > 0:
+        label.set_isni_list(convert_isni_list(obj.isnis))
+
     if obj.comment:
         label.set_disambiguation(obj.comment)
 
@@ -1045,7 +1062,7 @@ def convert_release(obj):
         release.set_disambiguation(obj.comment)
 
     if obj.packaging is not None:
-        release.set_packaging(obj.packaging.name)
+        release.set_packaging(convert_release_packaging(obj.packaging))
 
     if len(obj.country_dates) > 0:
         release.set_release_event_list(
@@ -1216,6 +1233,13 @@ def convert_release_group_primary_type(obj):
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
     return models.primary_type(valueOf_=obj.name, id=obj.gid)
+
+
+def convert_release_packaging(obj):
+    """
+    :type obj: :class:`mbdata.models.ReleasePackaging`
+    """
+    return models.packaging(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_release_status(obj):
