@@ -16,13 +16,13 @@ class QueueToSolrTest(unittest.TestCase):
 
     def test_normal_send(self):
         queue_to_solr(self.queue, 1, self.solr_connection)
-        expected = [mock.call([{"foo": "bar"}], commit=False), mock.call([], commit=False), ]
+        expected = [mock.call([{"foo": "bar"}]), mock.call([]), ]
         calls = self.solr_connection.add.call_args_list
         self.assertEqual(calls, expected)
 
     def test_queue_drained_send(self):
         queue_to_solr(self.queue, 2, self.solr_connection)
-        self.solr_connection.add.assert_called_once_with([{"foo": "bar"}], commit=False)
+        self.solr_connection.add.assert_called_once_with([{"foo": "bar"}])
 
 
 class SendDataToSolrTest(unittest.TestCase):
@@ -32,7 +32,7 @@ class SendDataToSolrTest(unittest.TestCase):
 
     def test_normal_send(self):
         send_data_to_solr(self.solr_connection, [{"foo": "bar"}])
-        expected = [mock.call([{"foo": "bar"}], commit=False)]
+        expected = [mock.call([{"foo": "bar"}])]
         calls = self.solr_connection.add.call_args_list
         self.assertEqual(calls, expected)
 

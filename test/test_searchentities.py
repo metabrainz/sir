@@ -26,7 +26,7 @@ class QueryResultToDictTest(unittest.TestCase):
         self.expected = {
             "id": 1,
             "c_bar": "foo",
-            "c_bar_trans": ["foo", "yay"],
+            "c_bar_trans": {"foo", "yay"},
         }
         c = models.C(id=2, bar="foo")
         self.val = models.B(id=1, c=c)

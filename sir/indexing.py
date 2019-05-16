@@ -297,10 +297,7 @@ def send_data_to_solr(solr_connection, data):
     :raises: :class:`solr:solr.SolrException`
     """
     try:
-        # PySolr defaults to committing after every addition. This is slow.
-        # Let Solr autocommit according to its conf. and commit manually once
-        # all documents are sent.
-        solr_connection.add(data, commit=False)
+        solr_connection.add(data)
         logger.debug("Done sending data to Solr")
     except SolrError:
         get_sentry().captureException(extra={"data": data})
