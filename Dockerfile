@@ -1,4 +1,20 @@
-FROM metabrainz/python:2.7
+ARG PYTHON_VERSION=2.7
+FROM metabrainz/python:$PYTHON_VERSION
+
+ARG SIR_VERSION
+
+ARG PYTHON_VERSION
+
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+      org.label-schema.schema-version="1.0.0-rc1" \
+      org.label-schema.vcs-url="https://github.com/metabrainz/sir.git" \
+      org.label-schema.vcs-ref=${VCS_REF} \
+      org.label-schema.vendor="MetaBrainz Foundation" \
+      org.metabrainz.based-on-image="metabrainz/python:${PYTHON_VERSION}" \
+      org.metabrainz.sir.version=${SIR_VERSION}
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
