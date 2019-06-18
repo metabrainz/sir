@@ -8,7 +8,7 @@
 
 set -e -u
 
-vcs_ref=`git describe --always --broken --dirty`
+vcs_ref=`git describe --always --broken --dirty --tags`
 version=${vcs_ref#v}
 deployment=git2consul
 tag=${version}-${deployment}
