@@ -104,6 +104,7 @@ def main():
                                   parameters, context, executemany):
             conn.info.setdefault('query_start_time', []).append(time.time())
             sqltimelogger.debug("Start Query: %s", statement)
+            sqltimelogger.debug("With Parameters: %s", parameters)
 
         @event.listens_for(Engine, "after_cursor_execute")
         def after_cursor_execute(conn, cursor, statement,
