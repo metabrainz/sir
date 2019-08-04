@@ -186,7 +186,8 @@ def _index_entity_process_wrapper(args, live=False):
         if live:
             return live_index_entity(*args)
         return index_entity(*args)
-    except Exception:
+    except Exception as exc:
+        logger.exception(exc)
         raise
 
 
