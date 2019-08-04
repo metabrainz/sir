@@ -159,6 +159,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             pool.join()
             raise
         except Exception as exc:
+            logger.error("Failed to import %s.", e)
             logger.exception(exc)
         else:
             logger.debug("Importing %s successful!", e)
@@ -187,6 +188,9 @@ def _index_entity_process_wrapper(args, live=False):
             return live_index_entity(*args)
         return index_entity(*args)
     except Exception as exc:
+        logger.error("Failed to import %s with id in bounds %s",
+                     args[0],
+                     args[1])
         logger.exception(exc)
         raise
 
