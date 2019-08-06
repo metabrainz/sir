@@ -1,4 +1,9 @@
 *.pyc
+/.cache
+/.tox
+/MANIFEST
+/*.log
+/test_report.xml
 config.ini
 venv*
 build*
