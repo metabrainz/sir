@@ -4,8 +4,8 @@
 /MANIFEST
 /*.log
 /test_report.xml
-config.ini
-venv*
-build*
-sir/version.py
-sql/CreateExtension.sql
+/config.ini
+/venv*
+/build*
+/sir/version.py
+/sql/CreateExtension.sql
