@@ -113,6 +113,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     # memory
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entity_names:
+        logger.info("Importing %s...", e)
         index_function_args = []
         # `entities` will be None when reindexing the entire DB
         entity_id_list = list(entities.get(e, set())) if entities else None
@@ -162,7 +163,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             logger.exception(exc)
             pool.terminate()
         else:
-            logger.debug("Importing %s successful!", e)
+            logger.info("Successfully imported %s!", e)
         entity_data_queue.put(STOP)
         for p in solr_processes:
             p.join()
@@ -207,7 +208,7 @@ def index_entity(entity_name, bounds, data_queue):
     :param Queue.Queue data_queue:
     """
     model = SCHEMA[entity_name].model
-    logger.debug("Indexing %s %s", model, bounds)
+    logger.debug("Importing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
@@ -229,7 +230,7 @@ def live_index_entity(entity_name, ids, data_queue):
     if not PROCESS_FLAG.value:
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
-    logger.debug("Indexing %s new rows for entity %s", len(ids), entity_name)
+    logger.debug("Importing %s new rows for entity %s", len(ids), entity_name)
     _query_database(entity_name, condition, data_queue)
 
 
