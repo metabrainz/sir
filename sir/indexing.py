@@ -113,6 +113,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     # memory
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entity_names:
+        logger.info("Importing %s...", e)
         index_function_args = []
         # `entities` will be None when reindexing the entire DB
         entity_id_list = list(entities.get(e, set())) if entities else None
@@ -156,12 +157,13 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                 p.terminate()
                 p.join()
             pool.terminate()
-            pool.join()
             raise
         except Exception as exc:
+            logger.error("Failed to import %s.", e)
             logger.exception(exc)
+            pool.terminate()
         else:
-            logger.debug("Importing %s successful!", e)
+            logger.info("Successfully imported %s!", e)
         entity_data_queue.put(STOP)
         for p in solr_processes:
             p.join()
@@ -186,7 +188,11 @@ def _index_entity_process_wrapper(args, live=False):
         if live:
             return live_index_entity(*args)
         return index_entity(*args)
-    except Exception:
+    except Exception as exc:
+        logger.error("Failed to import %s with id in bounds %s",
+                     args[0],
+                     args[1])
+        logger.exception(exc)
         raise
 
 
@@ -202,7 +208,7 @@ def index_entity(entity_name, bounds, data_queue):
     :param Queue.Queue data_queue:
     """
     model = SCHEMA[entity_name].model
-    logger.debug("Indexing %s %s", model, bounds)
+    logger.debug("Importing %s %s", model, bounds)
     lower_bound, upper_bound = bounds
     if upper_bound is not None:
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
@@ -224,7 +230,7 @@ def live_index_entity(entity_name, ids, data_queue):
     if not PROCESS_FLAG.value:
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
-    logger.debug("Indexing %s new rows for entity %s", len(ids), entity_name)
+    logger.debug("Importing %s new rows for entity %s", len(ids), entity_name)
     _query_database(entity_name, condition, data_queue)
 
 
@@ -232,7 +238,11 @@ def _query_database(entity_name, condition, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
-    put the dicts into ``queue``.
+    put the dicts into ``data_queue``.
+
+    Rows that contain unsupported control character are just skipped
+    with log info. It is not considered as an indexing error, since
+    it should not be in the MusicBrainz database to start with.
 
     :param str entity_name:
     :param sqlalchemy.sql.expression.BinaryExpression condition:
@@ -247,8 +257,23 @@ def _query_database(entity_name, condition, data_queue):
         for row in query:
             if not PROCESS_FLAG.value:
                 return
-            data_queue.put(row_converter(row))
-            total_records += 1
+            try:
+                data_queue.put(row_converter(row))
+            except ValueError:
+                logger.info("Skipping %s with id %s. "
+                            "The most likely cause of this is an "
+                            "unsupported control character in the "
+                            "data.",
+                            entity_name,
+                            row.id)
+            except Exception as exc:
+                logger.error("Failed to import %s with id %s",
+                             entity_name,
+                             row.id)
+                logger.exception(exc)
+                raise
+            else:
+                total_records += 1
         logger.debug("Retrieved %s records in %s", total_records, model)
 
 
