@@ -7,7 +7,7 @@ from . import config, querying, util, get_sentry
 from .schema import SCHEMA
 from ConfigParser import NoOptionError
 from functools import partial
-from logging import getLogger
+from logging import getLogger, DEBUG, INFO
 from pysolr import SolrError
 from sqlalchemy import and_
 from .util import SIR_EXIT
@@ -113,7 +113,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     # memory
     pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
     for e in entity_names:
-        logger.info("Importing %s...", e)
+        logger.log(DEBUG if live else INFO, "Importing %s...", e)
         index_function_args = []
         # `entities` will be None when reindexing the entire DB
         entity_id_list = list(entities.get(e, set())) if entities else None
@@ -163,7 +163,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             logger.exception(exc)
             pool.terminate()
         else:
-            logger.info("Successfully imported %s!", e)
+            logger.log(DEBUG if live else INFO, "Successfully imported %s!", e)
         entity_data_queue.put(STOP)
         for p in solr_processes:
             p.join()
