@@ -157,6 +157,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                 p.terminate()
                 p.join()
             pool.terminate()
+            pool.join()
             raise
         except Exception as exc:
             logger.error("Failed to import %s.", e)
