@@ -25,19 +25,20 @@ class TriggerGenerator(object):
     # The routing key to be used for the message sent via AMQP
     # (`update`, `delete`, or `index`)
     routing_key = None
+    
+    #: The sir_message table name
+    sir_table_name = 'sir_message'
 
-    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1, **kwargs):
+    def __init__(self, table_name, pk_columns, fk_columns, **kwargs):
         """
         :param str table_name: The table on which to generate the trigger.
         :param pk_columns: List of primary key column names for a table that
                            this trigger is being generated for.
-        :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.table_name = table_name
         self.reference_columns = list(set(pk_columns + fk_columns))
         self.fk_columns = fk_columns
         self.reference_columns.sort()
-        self.broker_id = broker_id
 
     def trigger(self):
         """
@@ -62,22 +63,20 @@ class TriggerGenerator(object):
 
         https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
 
-        We use https://github.com/omniti-labs/pg_amqp to publish messages to
-        an AMQP broker.
-
         :rtype: str
         """
         return textwrap.dedent("""\
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
             BEGIN
-                PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', ({message}));
+                INSERT INTO {schema}.{table_name} (channel, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
                 RETURN {return_value};
             END;
             $$ LANGUAGE plpgsql;\n
         """).format(
+            schema="musicbrainz",
+            table_name=self.sir_table_name,
             trigger_name=self.trigger_name,
-            broker_id=self.broker_id,
             routing_key=self.routing_key,
             message=self.message,
             return_value=self.record_variable,
@@ -212,3 +211,101 @@ class ReferencedDeleteTriggerGenerator(DeleteTriggerGenerator):
     `SearchEntity` tables to be updated.
     """
     routing_key = "update"
+
+
+class SirMessageTableGenerator(object):
+    """
+    A create generator for database update message.
+    """
+    #: The schema
+    table_name = 'musicbrainz'
+    
+    #: The table name
+    table_name = 'sir_message'
+    
+    def create(self):
+        """
+        The ``CREATE TABLE`` statement for the sir_message table.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE TABLE {schema}.{table_name} (
+                channel varchar(40),
+                routing_key varchar(40),
+                message text
+            );\n
+        """).format(
+            schema="musicbrainz",
+            table_name=self.table_name
+        )
+    
+    
+class InsertAMQPTriggerGenerator(object):
+    """
+    A trigger generator for AMQP operations.
+    """
+    #: The operation
+    op = 'INSERT'
+    
+    #: The table name
+    table_name = 'sir_message'
+    
+    def __init__(self, broker_id=1, **kwargs):
+        """
+        :param int broker_id: ID of the AMQP broker row in a database.
+        """
+        self.broker_id = broker_id
+    
+    def trigger(self):
+        """
+        The ``CREATE TRIGGER`` statement for this trigger.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE TRIGGER {trigger_name} AFTER {op} ON {schema}.{table_name}
+                FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
+        """).format(
+            op=self.op.upper(),
+            trigger_name=self.trigger_name,
+            schema="musicbrainz",
+            table_name=self.table_name
+        )
+
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
+
+        We use https://github.com/omniti-labs/pg_amqp to publish messages to
+        an AMQP broker.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            BEGIN
+                PERFORM amqp.publish({broker_id}, NEW.channel, NEW.routing_key, NEW.message);
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;\n
+        """).format(
+            trigger_name=self.trigger_name,
+            broker_id=self.broker_id
+        )
+
+    @property
+    def trigger_name(self):
+        """
+        The name of this trigger and its function.
+
+        :rtype: str
+        """
+        return ("search_" + self.table_name + "_" + self.op).lower()
+
+    @property
+    def selection(self):
+        raise NotImplementedError
