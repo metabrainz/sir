@@ -46,6 +46,21 @@ def main():
                                          default="sql/CreateFunctions.sql",
                                          help="The filename to save the "
                                          "functions into")
+    generate_trigger_parser.add_argument('-c', '--create-sir-message-table-file',
+                                         action="store",
+                                         default="sql/CreateSirMessageTable.sql",
+                                         help="The filename to save the "
+                                         "message table create SQL into")
+    generate_trigger_parser.add_argument('-a', '--amqp-trigger-file',
+                                         action="store",
+                                         default="sql/CreateAMQPTrigger.sql",
+                                         help="The filename to save the "
+                                         "change table AMQP trigger into")
+    generate_trigger_parser.add_argument('-m', '--amqp-function-file',
+                                         action="store",
+                                         default="sql/CreateAMQPFunction.sql",
+                                         help="The filename to save the "
+                                         "change table AMQP function into")
     generate_trigger_parser.add_argument('-bid', '--broker-id',
                                          action="store",
                                          default="1",
