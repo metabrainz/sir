@@ -3,9 +3,11 @@
 BEGIN;
 
 CREATE TABLE musicbrainz.sir_message (
-    channel varchar(40),
+    id          serial PRIMARY KEY,
+    channel     varchar(40),
     routing_key varchar(40),
-    message text
+    message     jsonb,
+    created     timestamp DEFAULT current_timestamp
 );
 
 COMMIT;

@@ -100,7 +100,7 @@ class TriggerGenerator(object):
         return """
             WITH keys({column_keys}) AS ({select})
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"'),
-                             '{{{operation_type}}}', '"{operation}"')::text FROM keys
+                             '{{{operation_type}}}', '"{operation}"') FROM keys
         """.format(
                 table_name=self.table_name,
                 column_keys=", ".join(self.reference_columns),
@@ -231,9 +231,11 @@ class SirMessageTableGenerator(object):
         """
         return textwrap.dedent("""\
             CREATE TABLE {schema}.{table_name} (
-                channel varchar(40),
+                id          serial PRIMARY KEY,
+                channel     varchar(40),
                 routing_key varchar(40),
-                message text
+                message     jsonb,
+                created     timestamp DEFAULT current_timestamp
             );\n
         """).format(
             schema="musicbrainz",
@@ -264,7 +266,7 @@ class InsertAMQPTriggerGenerator(object):
         :rtype: str
         """
         return textwrap.dedent("""\
-            CREATE TRIGGER {trigger_name} AFTER {op} ON {schema}.{table_name}
+            CREATE TRIGGER {trigger_name} BEFORE {op} ON {schema}.{table_name}
                 FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
         """).format(
             op=self.op.upper(),
@@ -288,8 +290,8 @@ class InsertAMQPTriggerGenerator(object):
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
             BEGIN
-                PERFORM amqp.publish({broker_id}, NEW.channel, NEW.routing_key, NEW.message);
-                RETURN NEW;
+                PERFORM amqp.publish({broker_id}, NEW.channel, NEW.routing_key, NEW.message::text);
+                RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;\n
         """).format(
