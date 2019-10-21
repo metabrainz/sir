@@ -9,3 +9,4 @@
 /build*
 /sir/version.py
 /sql/CreateExtension.sql
+htmlcov

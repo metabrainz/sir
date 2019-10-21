@@ -5,6 +5,8 @@ import textwrap
 MSG_JSON_TABLE_NAME_KEY = "_table"
 MSG_JSON_OPERATION_TYPE = "_operation"
 
+SIR_SCHEMA = 'sir'
+SIR_MESSAGE_TABLE_NAME = 'message'
 
 class TriggerGenerator(object):
     """
@@ -26,9 +28,6 @@ class TriggerGenerator(object):
     # (`update`, `delete`, or `index`)
     routing_key = None
     
-    #: The sir_message table name
-    sir_table_name = 'sir_message'
-
     def __init__(self, table_name, pk_columns, fk_columns, **kwargs):
         """
         :param str table_name: The table on which to generate the trigger.
@@ -69,13 +68,13 @@ class TriggerGenerator(object):
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
             BEGIN
-                INSERT INTO {schema}.{table_name} (channel, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
+                INSERT INTO {schema}.{table_name} (exchange, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
                 RETURN {return_value};
             END;
             $$ LANGUAGE plpgsql;\n
         """).format(
-            schema="musicbrainz",
-            table_name=self.sir_table_name,
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME,
             trigger_name=self.trigger_name,
             routing_key=self.routing_key,
             message=self.message,
@@ -217,29 +216,24 @@ class SirMessageTableGenerator(object):
     """
     A create generator for database update message.
     """
-    #: The schema
-    table_name = 'musicbrainz'
-    
-    #: The table name
-    table_name = 'sir_message'
-    
     def create(self):
         """
-        The ``CREATE TABLE`` statement for the sir_message table.
+        The ``CREATE TABLE`` statement for the sir.message table.
 
         :rtype: str
         """
         return textwrap.dedent("""\
-            CREATE TABLE {schema}.{table_name} (
-                id          serial PRIMARY KEY,
-                channel     varchar(40),
-                routing_key varchar(40),
-                message     jsonb,
-                created     timestamp DEFAULT current_timestamp
+            CREATE SCHEMA {schema};
+            CREATE TABLE {schema}.{message_table_name} (
+                id                  serial      PRIMARY KEY,
+                exchange            varchar(40) NOT NULL,
+                routing_key         varchar(40) NOT NULL,
+                message             jsonb       NOT NULL,
+                created             timestamptz DEFAULT current_timestamp
             );\n
         """).format(
-            schema="musicbrainz",
-            table_name=self.table_name
+            schema=SIR_SCHEMA,
+            message_table_name=SIR_MESSAGE_TABLE_NAME
         )
     
     
@@ -249,9 +243,6 @@ class InsertAMQPTriggerGenerator(object):
     """
     #: The operation
     op = 'INSERT'
-    
-    #: The table name
-    table_name = 'sir_message'
     
     def __init__(self, broker_id=1, **kwargs):
         """
@@ -271,8 +262,8 @@ class InsertAMQPTriggerGenerator(object):
         """).format(
             op=self.op.upper(),
             trigger_name=self.trigger_name,
-            schema="musicbrainz",
-            table_name=self.table_name
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME
         )
 
     def function(self):
@@ -290,7 +281,7 @@ class InsertAMQPTriggerGenerator(object):
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
             BEGIN
-                PERFORM amqp.publish({broker_id}, NEW.channel, NEW.routing_key, NEW.message::text);
+                PERFORM amqp.publish({broker_id}, NEW.exchange, NEW.routing_key, NEW.message::text);
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;\n
@@ -306,7 +297,7 @@ class InsertAMQPTriggerGenerator(object):
 
         :rtype: str
         """
-        return ("search_" + self.table_name + "_" + self.op).lower()
+        return ("search_" + SIR_MESSAGE_TABLE_NAME + "_" + self.op).lower()
 
     @property
     def selection(self):
