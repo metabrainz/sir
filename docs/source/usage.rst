@@ -20,6 +20,12 @@ command line interface which provides several subcommands:
    This subcommand sets up AMQP exchanges and queues (see :ref:`amqp` for more
    information).
 
+.. option:: amqp_publish
+
+   This subcommand starts a process that fetches changes from the ``sir.message``
+   database table and publishes them on the configured queues (see :ref:`queue_setup`
+   for more information).
+
 .. option:: amqp_watch
 
    This subcommand starts a process that listens on the configured queues and
