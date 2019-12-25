@@ -3,9 +3,9 @@
 import argparse
 import logging
 import multiprocessing
-import ConfigParser
+import configparser
 
-import config
+from . import config
 from . import init_raven_client
 from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch
@@ -31,7 +31,7 @@ def main():
     reindex_parser.set_defaults(func=reindex)
     reindex_parser.add_argument('--entity-type', action='append',
                                 help="Which entity types to index.",
-                                choices=SCHEMA.keys())
+                                choices=list(SCHEMA.keys()))
 
     generate_trigger_parser = subparsers.add_parser("triggers",
                                                     help="Generate triggers")
@@ -116,7 +116,7 @@ def main():
     config.read_config()
     try:
         init_raven_client(config.CFG.get("sentry", "dsn"))
-    except ConfigParser.Error as e:
+    except configparser.Error as e:
         logger.info("Skipping Raven client initialization. Configuration issue: %s", e)
     func = args.func
     args = vars(args)
