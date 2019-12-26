@@ -47,7 +47,7 @@ def generate(trigger_filename, function_filename, broker_id):
         write_header(triggerfile)
         write_header(functionfile)
 
-        for table_name, table_info in get_trigger_tables().items():
+        for table_name, table_info in list(get_trigger_tables().items()):
             write_triggers(
                 trigger_file=triggerfile,
                 function_file=functionfile,
@@ -70,7 +70,7 @@ def get_trigger_tables():
         * whether it's an entity table
     """
     tables = collections.OrderedDict()  # mapping of table names to their models and their "kind" (direct or not)
-    for _, entity in SCHEMA.items():
+    for _, entity in list(SCHEMA.items()):
         # Entity table itself
         mapped_class = class_mapper(entity.model)
         tables[mapped_class.mapped_table.name] = {
