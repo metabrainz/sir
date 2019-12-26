@@ -1,6 +1,8 @@
-#!/usr/bin/env python2
-from __future__ import print_function
-import os, subprocess, re
+#!/usr/bin/env python3
+ # from __future__ import print_function
+import os
+import subprocess
+import re
 from distutils.core import setup, Command
 from distutils.command.sdist import sdist as _sdist
 from distutils.command.build import build as _build
@@ -42,7 +44,7 @@ def update_version_py():
 def get_version():
     try:
         f = open("sir/version.py")
-    except IOError, e:
+    except IOError as e:
         import errno
         if e.errno == errno.ENOENT:
             update_version_py()
@@ -89,7 +91,7 @@ class build(_build):
         # version
         self.distribution.metadata.version = get_version()
         return _build.run(self)
-
+ 
 # Here ends the code taken from Brian Warner
 
 setup(name="sir",
@@ -109,7 +111,7 @@ setup(name="sir",
                    "License :: OSI Approved :: MIT License",
                    "Natural Language :: English",
                    "Operating System :: OS Independent",
-                   "Programming Language :: Python :: 2.7"],
+                   "Programming Language :: Python :: 3"],
       cmdclass={"version": Version, "sdist": sdist, "build": build},
       description="Search Index Rabbit",
       long_description=open("README.rst").read()
