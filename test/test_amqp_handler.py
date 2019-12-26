@@ -116,7 +116,7 @@ class HandlerTest(AmqpTestCase):
         self.handler.cores[self.entity_type] = mock.Mock()
 
     def test_delete_callback(self):
-        entity_gid = u"90d7709d-feba-47e6-a2d1-8770da3c3d9c"
+        entity_gid = "90d7709d-feba-47e6-a2d1-8770da3c3d9c"
         self.message = Amqp_Message(
             body='{"_table": "%s", "gid": "%s"}' % (self.entity_type, entity_gid),
             application_headers={},
@@ -137,7 +137,7 @@ class HandlerTest(AmqpTestCase):
         parsed_message = Message(1, 'area_alias', columns, 'delete')
         handler.SCHEMA = SCHEMA
         self.handler = handler.Handler()
-        for entity_type, entity in SCHEMA.items():
+        for entity_type, entity in list(SCHEMA.items()):
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
         self.handler._index_by_fk(parsed_message)
@@ -171,7 +171,7 @@ class HandlerTest(AmqpTestCase):
         parsed_message = Message(1, 'release_meta', columns, 'delete')
         handler.SCHEMA = SCHEMA
         self.handler = handler.Handler()
-        for entity_type, entity in SCHEMA.items():
+        for entity_type, entity in list(SCHEMA.items()):
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
         self.handler._index_by_fk(parsed_message)
@@ -190,7 +190,7 @@ class HandlerTest(AmqpTestCase):
         parsed_message = Message(1, 'release', columns, 'delete')
         handler.SCHEMA = SCHEMA
         self.handler = handler.Handler()
-        for entity_type, entity in SCHEMA.items():
+        for entity_type, entity in list(SCHEMA.items()):
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
         self.handler._index_by_fk(parsed_message)
