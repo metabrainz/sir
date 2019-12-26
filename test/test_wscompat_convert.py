@@ -49,9 +49,9 @@ class IsniListConverterTest(unittest.TestCase):
     def test_artist_isni_list(self):
         artist_isni_list = self._create_isni_list(
             isni_class=ArtistISNI,
-            only_isni_list=[u'000000005705334X',
-                            u'0000000078243206',
-                            u'0000000041815776'],
+            only_isni_list=['000000005705334X',
+                            '0000000078243206',
+                            '0000000041815776'],
         )
         expected_artist_isni_list = '''
         <isni-list xmlns="http://musicbrainz.org/ns/mmd-2.0#">
@@ -68,7 +68,7 @@ class IsniListConverterTest(unittest.TestCase):
     def test_label_isni_list(self):
         label_isni_list = self._create_isni_list(
             isni_class=LabelISNI,
-            only_isni_list=[u'000000011781560X'],
+            only_isni_list=['000000011781560X'],
         )
         expected_label_isni_list = '''
         <isni-list xmlns="http://musicbrainz.org/ns/mmd-2.0#">

@@ -95,7 +95,7 @@ class MergePathsTest(unittest.TestCase):
     def test_dotless_path(self):
         paths = [["id"], ["name"]]
         expected = {"id": "", "name": ""}
-        self.assertEquals(merge_paths(paths), expected)
+        self.assertEqual(merge_paths(paths), expected)
 
     def test_dotted_path(self):
         paths = [["rel.id"], ["rel2.rel3.id"]]
@@ -113,7 +113,7 @@ class MergePathsTest(unittest.TestCase):
 class DBTest(unittest.TestCase):
     def test_non_composite_fk(self):
         paths, _, models, _ = generate_update_map()
-        for table_paths in paths.values():
+        for table_paths in list(paths.values()):
             for core_name, path in table_paths:
                 model, _ = second_last_model_in_path(SCHEMA[core_name].model, path)
                 if path:
