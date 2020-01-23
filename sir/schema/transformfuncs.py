@@ -67,7 +67,7 @@ def index_partialdate_to_string(dates):
 
 def qdur(durations):
     if len(durations):
-        return durations.pop() / 2000
+        return durations.pop() // 2000
     return None
 
 
