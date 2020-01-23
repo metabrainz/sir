@@ -5,7 +5,7 @@
 import mock
 import unittest
 
-from amqp import Message as Amqp_Message
+from amqp.basic_message import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
 from sir.amqp import handler
 from sir.amqp.message import Message
@@ -28,6 +28,7 @@ class AmqpTestCase(unittest.TestCase):
             body='{"_table": "%s", "id": "%s"}' % (self.entity_type, self.id_string),
             channel=mock.Mock(),
             application_headers={},
+            delivery_tag=object(),
         )
 
         self.message.delivery_info = {"routing_key": self.routing_key}
@@ -36,8 +37,7 @@ class AmqpTestCase(unittest.TestCase):
         handler.solr_connection = mock.Mock()
         handler.solr_version_check = mock.Mock()
         handler.live_index = mock.MagicMock()
-        self.delivery_tag = object()
-        self.message.delivery_tag = self.delivery_tag
+        self.delivery_tag = self.message.delivery_tag
 
         db_session_patcher = mock.patch("sir.amqp.handler.db_session")
         self.addCleanup(db_session_patcher.stop)
@@ -120,8 +120,9 @@ class HandlerTest(AmqpTestCase):
         self.message = Amqp_Message(
             body='{"_table": "%s", "gid": "%s"}' % (self.entity_type, entity_gid),
             application_headers={},
+            delivery_tag=object(),
         )
-        self.message.delivery_tag = self.delivery_tag
+        self.delivery_tag = self.message.delivery_tag
         self.message.delivery_info = {"routing_key": self.routing_key}
         self.handler.delete_callback(self.message, "search.delete")
 
