@@ -56,7 +56,7 @@ class Message(object):
 
         try:
             data = ujson.loads(amqp_message.body)
-        except StandardError as e:
+        except Exception as e:
             raise InvalidMessageContentException("Invalid message format (expected JSON): %s" % e)
         table_name = data.pop(MSG_JSON_TABLE_NAME_KEY, None)
 
