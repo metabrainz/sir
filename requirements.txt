@@ -1,7 +1,6 @@
 amqp==2.5.2
 backports.functools_lru_cache==1.0.1
 enum34==1.1.6
-enumerate_skip==1.0
 mbdata==25.0.0
 mb-rngpy==2.20190107.0
 psycopg2==2.8.4
