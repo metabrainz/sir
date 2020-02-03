@@ -212,7 +212,7 @@ class SearchEntity(object):
                             partial(is_composite_column, model),
                             required_columns)
                         for composite_column in composite_columns:
-                            composite_parts = (c.name for c in
+                            composite_parts = list(c.name for c in
                                                getattr(model,
                                                        composite_column).
                                                property.columns)
