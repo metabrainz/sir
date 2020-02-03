@@ -1,6 +1,6 @@
 import unittest
 
-from amqp import Message
+from amqp.basic_message import Message
 from sir.amqp.message import (InvalidMessageContentException,
                               Message as PMessage,
                               MESSAGE_TYPES)
