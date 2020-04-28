@@ -27,7 +27,7 @@ class TriggerGenerator(object):
     # The routing key to be used for the message sent via AMQP
     # (`update`, `delete`, or `index`)
     routing_key = None
-    
+
     def __init__(self, table_name, pk_columns, fk_columns, **kwargs):
         """
         :param str table_name: The table on which to generate the trigger.
@@ -64,6 +64,7 @@ class TriggerGenerator(object):
 
         :rtype: str
         """
+
         return textwrap.dedent("""\
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
@@ -171,6 +172,44 @@ class UpdateTriggerGenerator(TriggerGenerator):
             before_or_after=self.before_or_after.upper(),
         )
 
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
+
+        :rtype: str
+        """
+        update_condition = ""
+        end_update_condition = ""
+        # Consider FK columns in update triggers to make sure triggers are fired
+        # in case any FK of related tables are changed
+        if self.update_columns:
+            all_columns = set(self.fk_columns + list(self.update_columns))
+            update_condition = "IF %s THEN" % " OR ".join([("OLD.%s <> NEW.%s" % (column, column)) for column in sorted(all_columns)])
+            end_update_condition = "END IF;"
+
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            BEGIN
+                {update_condition}
+                    INSERT INTO {schema}.{table_name} (exchange, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
+                {end_update_condition}
+                RETURN {return_value};
+            END;
+            $$ LANGUAGE plpgsql;\n
+        """).format(
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME,
+            trigger_name=self.trigger_name,
+            routing_key=self.routing_key,
+            message=self.message,
+            return_value=self.record_variable,
+            update_condition=update_condition,
+            end_update_condition=end_update_condition
+        )
+
 
 class DeleteTriggerGenerator(TriggerGenerator):
     """
@@ -235,21 +274,21 @@ class SirMessageTableGenerator(object):
             schema=SIR_SCHEMA,
             message_table_name=SIR_MESSAGE_TABLE_NAME
         )
-    
-    
+
+
 class InsertAMQPTriggerGenerator(object):
     """
     A trigger generator for AMQP operations.
     """
     #: The operation
     op = 'INSERT'
-    
+
     def __init__(self, broker_id=1, **kwargs):
         """
         :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.broker_id = broker_id
-    
+
     def trigger(self):
         """
         The ``CREATE TRIGGER`` statement for this trigger.
