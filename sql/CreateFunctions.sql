@@ -17,11 +17,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.editor <> NEW.editor OR OLD.id <> NEW.id OR OLD.text <> NEW.text THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(editor, id) AS (SELECT NEW.editor, NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -53,11 +55,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_area_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.area <> NEW.area THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, area) AS (SELECT NEW.annotation, NEW.area)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -89,11 +93,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_area_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.comment <> NEW.comment OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.ended <> NEW.ended OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, type) AS (SELECT NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -125,11 +131,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.artist <> NEW.artist THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, artist) AS (SELECT NEW.annotation, NEW.artist)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -161,11 +169,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.begin_area <> NEW.begin_area OR OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.comment <> NEW.comment OR OLD.end_area <> NEW.end_area OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.ended <> NEW.ended OR OLD.gender <> NEW.gender OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, begin_area, end_area, gender, id, type) AS (SELECT NEW.area, NEW.begin_area, NEW.end_area, NEW.gender, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -197,11 +207,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_event_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.event <> NEW.event THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, event) AS (SELECT NEW.annotation, NEW.event)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -233,11 +245,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_event_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.comment <> NEW.comment OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.ended <> NEW.ended OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.time <> NEW.time OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, type) AS (SELECT NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -269,11 +283,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_instrument_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.instrument <> NEW.instrument THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, instrument) AS (SELECT NEW.annotation, NEW.instrument)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -305,11 +321,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_instrument_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.comment <> NEW.comment OR OLD.description <> NEW.description OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, type) AS (SELECT NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -341,11 +359,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.label <> NEW.label THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, label) AS (SELECT NEW.annotation, NEW.label)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -377,11 +397,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.comment <> NEW.comment OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.ended <> NEW.ended OR OLD.gid <> NEW.gid OR OLD.label_code <> NEW.label_code OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, id, type) AS (SELECT NEW.area, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -413,11 +435,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_place_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.place <> NEW.place THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, place) AS (SELECT NEW.annotation, NEW.place)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -449,11 +473,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_place_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.address <> NEW.address OR OLD.area <> NEW.area OR OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.comment <> NEW.comment OR OLD.coordinates <> NEW.coordinates OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.ended <> NEW.ended OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, id, type) AS (SELECT NEW.area, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -485,11 +511,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.recording <> NEW.recording THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, recording) AS (SELECT NEW.annotation, NEW.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -521,11 +549,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist_credit <> NEW.artist_credit OR OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.length <> NEW.length OR OLD.name <> NEW.name OR OLD.video <> NEW.video THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist_credit, id) AS (SELECT NEW.artist_credit, NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -557,11 +587,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.release <> NEW.release THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, release) AS (SELECT NEW.annotation, NEW.release)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -593,11 +625,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist_credit <> NEW.artist_credit OR OLD.barcode <> NEW.barcode OR OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.language <> NEW.language OR OLD.name <> NEW.name OR OLD.packaging <> NEW.packaging OR OLD.quality <> NEW.quality OR OLD.release_group <> NEW.release_group OR OLD.script <> NEW.script OR OLD.status <> NEW.status THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist_credit, id, language, packaging, release_group, script, status) AS (SELECT NEW.artist_credit, NEW.id, NEW.language, NEW.packaging, NEW.release_group, NEW.script, NEW.status)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -629,11 +663,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.release_group <> NEW.release_group THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, release_group) AS (SELECT NEW.annotation, NEW.release_group)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -665,11 +701,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist_credit <> NEW.artist_credit OR OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist_credit, id, type) AS (SELECT NEW.artist_credit, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -701,11 +739,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.series <> NEW.series THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, series) AS (SELECT NEW.annotation, NEW.series)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -737,11 +777,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.ordering_attribute <> NEW.ordering_attribute OR OLD.ordering_type <> NEW.ordering_type OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, ordering_attribute, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_attribute, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -773,11 +815,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_annotation_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.annotation <> NEW.annotation OR OLD.work <> NEW.work THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(annotation, work) AS (SELECT NEW.annotation, NEW.work)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work_annotation"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -809,11 +853,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, type) AS (SELECT NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -845,11 +891,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_area_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, id, type) AS (SELECT NEW.area, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -881,11 +929,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_iso_3166_1_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.code <> NEW.code THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_1"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -917,11 +967,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_iso_3166_2_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.code <> NEW.code THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_2"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -953,11 +1005,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_iso_3166_3_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.code <> NEW.code THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, code) AS (SELECT NEW.area, NEW.code)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"iso_3166_3"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -989,11 +1043,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_area_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.count <> NEW.count OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, tag) AS (SELECT NEW.area, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1025,11 +1081,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.id <> NEW.id OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1061,11 +1119,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_area_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.id <> NEW.id OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"area_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1097,11 +1157,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist <> NEW.artist OR OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist, id, type) AS (SELECT NEW.artist, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1133,11 +1195,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_gender_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"gender"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1169,11 +1233,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_ipi_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist <> NEW.artist OR OLD.ipi <> NEW.ipi THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist, ipi) AS (SELECT NEW.artist, NEW.ipi)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_ipi"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1205,11 +1271,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_isni_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist <> NEW.artist OR OLD.isni <> NEW.isni THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist, isni) AS (SELECT NEW.artist, NEW.isni)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_isni"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1241,11 +1309,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist <> NEW.artist OR OLD.count <> NEW.count OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist, tag) AS (SELECT NEW.artist, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1277,11 +1347,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1313,11 +1385,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_raw_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.added <> NEW.added OR OLD.artist <> NEW.artist OR OLD.barcode <> NEW.barcode OR OLD.comment <> NEW.comment OR OLD.id <> NEW.id OR OLD.title <> NEW.title THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_raw"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1349,11 +1423,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_cdtoc_raw_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.discid <> NEW.discid OR OLD.release <> NEW.release OR OLD.track_count <> NEW.track_count THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, release) AS (SELECT NEW.id, NEW.release)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"cdtoc_raw"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1385,11 +1461,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_editor_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area OR OLD.bio <> NEW.bio OR OLD.gender <> NEW.gender OR OLD.id <> NEW.id OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area, gender, id) AS (SELECT NEW.area, NEW.gender, NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"editor"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1421,11 +1499,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_event_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.event <> NEW.event OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(event, id, type) AS (SELECT NEW.event, NEW.id, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1457,11 +1537,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_area_event_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_area_event"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1493,11 +1575,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_artist_event_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_event"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1529,11 +1613,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_event_place_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_event_place"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1565,11 +1651,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_event_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.event <> NEW.event OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(event, tag) AS (SELECT NEW.event, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1601,11 +1689,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_event_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"event_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1637,11 +1727,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_instrument_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.instrument <> NEW.instrument OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, instrument, type) AS (SELECT NEW.id, NEW.instrument, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1673,11 +1765,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_instrument_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.instrument <> NEW.instrument OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(instrument, tag) AS (SELECT NEW.instrument, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1709,11 +1803,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_instrument_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"instrument_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1745,11 +1841,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.label <> NEW.label OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, label, type) AS (SELECT NEW.id, NEW.label, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1781,11 +1879,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_ipi_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.ipi <> NEW.ipi OR OLD.label <> NEW.label THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(ipi, label) AS (SELECT NEW.ipi, NEW.label)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_ipi"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1817,11 +1917,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_isni_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.isni <> NEW.isni OR OLD.label <> NEW.label THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(isni, label) AS (SELECT NEW.isni, NEW.label)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_isni"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1853,11 +1955,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.label <> NEW.label OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(label, tag) AS (SELECT NEW.label, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1889,11 +1993,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_label_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"label_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1925,11 +2031,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_place_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.place <> NEW.place OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, place, type) AS (SELECT NEW.id, NEW.place, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1961,11 +2069,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_place_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"place_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1997,11 +2107,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name OR OLD.recording <> NEW.recording OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, recording, type) AS (SELECT NEW.id, NEW.recording, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2033,11 +2145,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_credit_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2069,11 +2183,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_artist_credit_name_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist <> NEW.artist OR OLD.artist_credit <> NEW.artist_credit OR OLD.join_phrase <> NEW.join_phrase OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist, artist_credit, position) AS (SELECT NEW.artist, NEW.artist_credit, NEW.position)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"artist_credit_name"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2105,11 +2221,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_track_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.artist_credit <> NEW.artist_credit OR OLD.gid <> NEW.gid OR OLD.length <> NEW.length OR OLD.medium <> NEW.medium OR OLD.name <> NEW.name OR OLD.number <> NEW.number OR OLD.position <> NEW.position OR OLD.recording <> NEW.recording THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(artist_credit, id, medium, recording) AS (SELECT NEW.artist_credit, NEW.id, NEW.medium, NEW.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"track"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2141,11 +2259,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_medium_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.format <> NEW.format OR OLD.position <> NEW.position OR OLD.release <> NEW.release OR OLD.track_count <> NEW.track_count THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(format, id, release) AS (SELECT NEW.format, NEW.id, NEW.release)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"medium"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2177,11 +2297,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_country_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.country <> NEW.country OR OLD.date_day <> NEW.date_day OR OLD.date_month <> NEW.date_month OR OLD.date_year <> NEW.date_year OR OLD.release <> NEW.release THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(country, release) AS (SELECT NEW.country, NEW.release)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_country"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2213,11 +2335,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_country_area_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.area <> NEW.area THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(area) AS (SELECT NEW.area)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"country_area"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2249,11 +2373,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_medium_format_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"medium_format"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2285,11 +2411,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_isrc_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.isrc <> NEW.isrc OR OLD.recording <> NEW.recording THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, recording) AS (SELECT NEW.id, NEW.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"isrc"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2321,11 +2449,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_primary_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_primary_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2357,11 +2487,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_secondary_type_join_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.release_group <> NEW.release_group OR OLD.secondary_type <> NEW.secondary_type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(release_group, secondary_type) AS (SELECT NEW.release_group, NEW.secondary_type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_secondary_type_join"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2393,11 +2525,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_secondary_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_secondary_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2429,11 +2563,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_status_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_status"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2465,11 +2601,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.recording <> NEW.recording OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(recording, tag) AS (SELECT NEW.recording, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2501,11 +2639,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name OR OLD.release <> NEW.release OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, release, type) AS (SELECT NEW.id, NEW.release, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2537,11 +2677,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_meta_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.amazon_asin <> NEW.amazon_asin OR OLD.id <> NEW.id THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_meta"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2573,11 +2715,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_label_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.catalog_number <> NEW.catalog_number OR OLD.label <> NEW.label OR OLD.release <> NEW.release THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, label, release) AS (SELECT NEW.id, NEW.label, NEW.release)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_label"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2609,11 +2753,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_language_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.iso_code_3 <> NEW.iso_code_3 THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"language"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2645,11 +2791,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_script_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.iso_code <> NEW.iso_code THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"script"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2681,11 +2829,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.release <> NEW.release OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(release, tag) AS (SELECT NEW.release, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2717,11 +2867,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.name <> NEW.name OR OLD.release_group <> NEW.release_group OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, release_group, type) AS (SELECT NEW.id, NEW.release_group, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2753,11 +2905,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.release_group <> NEW.release_group OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(release_group, tag) AS (SELECT NEW.release_group, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2789,11 +2943,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.series <> NEW.series OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, series, type) AS (SELECT NEW.id, NEW.series, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2825,11 +2981,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_link_attribute_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2861,11 +3019,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.series <> NEW.series OR OLD.tag <> NEW.tag THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(series, tag) AS (SELECT NEW.series, NEW.tag)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2897,11 +3057,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2933,11 +3095,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_url_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.url <> NEW.url THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"url"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2969,11 +3133,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_artist_url_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_url"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3005,11 +3171,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_link_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.link_type <> NEW.link_type THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, link_type) AS (SELECT NEW.id, NEW.link_type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3041,11 +3209,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_link_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3077,11 +3247,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_release_url_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_release_url"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3113,11 +3285,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_alias_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.begin_date_day <> NEW.begin_date_day OR OLD.begin_date_month <> NEW.begin_date_month OR OLD.begin_date_year <> NEW.begin_date_year OR OLD.end_date_day <> NEW.end_date_day OR OLD.end_date_month <> NEW.end_date_month OR OLD.end_date_year <> NEW.end_date_year OR OLD.locale <> NEW.locale OR OLD.name <> NEW.name OR OLD.primary_for_locale <> NEW.primary_for_locale OR OLD.sort_name <> NEW.sort_name OR OLD.type <> NEW.type OR OLD.work <> NEW.work THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, type, work) AS (SELECT NEW.id, NEW.type, NEW.work)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work_alias"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3149,11 +3323,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_artist_work_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_artist_work"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3185,11 +3361,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_iswc_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.iswc <> NEW.iswc OR OLD.work <> NEW.work THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, work) AS (SELECT NEW.id, NEW.work)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"iswc"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3221,11 +3399,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_language_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.language <> NEW.language OR OLD.work <> NEW.work THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(language, work) AS (SELECT NEW.language, NEW.work)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work_language"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3257,11 +3437,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_l_recording_work_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.entity0 <> NEW.entity0 OR OLD.entity1 <> NEW.entity1 OR OLD.link <> NEW.link THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(entity0, entity1, id, link) AS (SELECT NEW.entity0, NEW.entity1, NEW.id, NEW.link)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"l_recording_work"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3293,11 +3475,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_tag_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.count <> NEW.count OR OLD.tag <> NEW.tag OR OLD.work <> NEW.work THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(tag, work) AS (SELECT NEW.tag, NEW.work)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work_tag"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -3329,11 +3513,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_work_type_update() RETURNS trigger
     AS $$
 BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"work_type"'),
                              '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
