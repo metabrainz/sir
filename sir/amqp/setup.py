@@ -21,6 +21,7 @@ def setup_rabbitmq(args):
     logger.info("Connecting to RabbitMQ")
     conn = util.create_amqp_connection()
     channel = amqp.Channel(conn)
+    channel.open()
 
     logger.info("Declaring exchanes")
 

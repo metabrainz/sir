@@ -25,5 +25,6 @@ RUN pip install -r requirements_dev.txt
 COPY . /code/
 
 CMD py.test --junitxml=/data/test_report.xml \
+            --cov=sir \
             --cov-report xml:/data/coverage.xml \
             --cov-report html:/data/coverage-html

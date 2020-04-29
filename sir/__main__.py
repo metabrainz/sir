@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2014, 2015, 2019 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import argparse
@@ -5,7 +6,7 @@ import logging
 import multiprocessing
 import ConfigParser
 
-import config
+from . import config
 from . import init_raven_client
 from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch

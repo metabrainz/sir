@@ -42,7 +42,7 @@ def update_version_py():
 def get_version():
     try:
         f = open("sir/version.py")
-    except IOError, e:
+    except IOError as e:
         import errno
         if e.errno == errno.ENOENT:
             update_version_py()

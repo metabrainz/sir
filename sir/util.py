@@ -131,9 +131,11 @@ def create_amqp_connection():
     :rtype: :class:`amqp:amqp.connection.Connection`
     """
     cget = partial(config.CFG.get, "rabbitmq")
-    return amqp.Connection(
+    conn = amqp.Connection(
         host=cget("host"),
         userid=cget("user"),
         password=cget("password"),
         virtual_host=cget("vhost"),
     )
+    conn.connect()
+    return conn
