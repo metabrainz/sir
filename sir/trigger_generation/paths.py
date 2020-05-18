@@ -1,8 +1,8 @@
 # Copyright (c) 2015, 2017 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
+import mbdata
 from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
-from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 
@@ -99,7 +99,7 @@ def last_model_in_path(model, path):
 
         # If this is not a column managed by SQLAlchemy, ignore it
         # TODO(roman): Document when this might happen
-        if not isinstance(column, InstrumentedAttribute):
+        if isinstance(column, (str, mbdata.models.Base)):
             # Let's assume some other path also covers this table
             return None
 
