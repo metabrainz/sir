@@ -1,6 +1,6 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import ConfigParser
+import configparser
 import os.path
 
 #: A :class:`SafeExpandingConfigParser` instance holding the configuration
@@ -8,11 +8,10 @@ import os.path
 CFG = None  # type: SafeExpandingConfigParser
 
 
-class SafeExpandingConfigParser(ConfigParser.SafeConfigParser, object):
-    def _interpolate(self, section, option, rawval, vars):
-        return os.path.expandvars(super(SafeExpandingConfigParser,
-            self)._interpolate(section, option, rawval, vars))
-
+class SafeExpandingConfigParser(configparser.SafeConfigParser, object):
+     def _interpolate(self, section, option, rawval, vars):
+         return os.path.expandvars(super(SafeExpandingConfigParser,
+             self)._interpolate(section, option, rawval, vars))
 
 class ConfigError(Exception):
     pass

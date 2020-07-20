@@ -4,12 +4,12 @@ docs:
 	cd docs && make html
 
 test:
-	python -m unittest discover
+	python3 -m unittest discover
 
 triggers: createsql createdropsql
 
 createsql:
-	python -m sir triggers
+	python3 -m sir triggers
 
 createdropsql:
 	$(MB_SERVER_PATH)/admin/GenerateSQLScripts.pl sql/

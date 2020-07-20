@@ -20,6 +20,7 @@ class QueryResultToDictTest(unittest.TestCase):
             F("c_bar", "c.bar"),
             F("c_bar_trans", "c.bar", transformfunc=lambda v:
                 v.union(set(["yay"])))
+                 #v.union({"yay"})) # set literals instead of constructor 
         ],
             1.1
         )
