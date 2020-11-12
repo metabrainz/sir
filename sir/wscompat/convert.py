@@ -1026,6 +1026,9 @@ def convert_recording(obj):
     if obj.comment:
         recording.set_disambiguation(obj.comment)
 
+    if obj.first_release is not None and obj.first_release.date is not None:
+        recording.set_first_release_date(partialdate_to_string(obj.first_release.date))
+
     recording.set_length(obj.length)
 
     if len(obj.isrcs) > 0:

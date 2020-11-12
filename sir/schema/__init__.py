@@ -295,6 +295,8 @@ SearchRecording = E(modelext.CustomRecording, [
     F("date", "tracks.medium.release.country_dates.date",
       transformfunc=tfs.index_partialdate_to_string),
     F("dur", "length"),
+    F("firstreleasedate", "first_release.date",
+      transformfunc=tfs.index_partialdate_to_string),
     F("format", "tracks.medium.format.name"),
     F("isrc", "isrcs.isrc"),
     F("mbid", "gid"),
