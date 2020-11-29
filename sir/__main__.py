@@ -51,6 +51,9 @@ def main():
                                          default="1",
                                          help="ID of the AMQP broker row "
                                          "in the database.")
+    generate_trigger_parser.add_argument('--entity-type', action='append',
+                                         help="Which entity types to index.",
+                                         choices=SCHEMA.keys())
 
     generate_extension_parser = subparsers.add_parser("extension",
                                                       help="Generate extension")
