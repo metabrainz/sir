@@ -72,6 +72,10 @@ def main():
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
                                               help="Watch AMQP queues for "
                                               "changes")
+    amqp_watch_parser.add_argument('--entity-type', action='append',
+                                   help="Which entity types to watch.",
+                                   choices=SCHEMA.keys())
+
     amqp_watch_parser.set_defaults(func=watch)
 
     args = parser.parse_args()

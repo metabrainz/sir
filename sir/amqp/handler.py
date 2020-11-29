@@ -142,9 +142,9 @@ class Handler(object):
     Solr cores.
     """
 
-    def __init__(self):
+    def __init__(self, entities):
         self.cores = {}
-        for core_name in SCHEMA.keys():
+        for core_name in entities:
             self.cores[core_name] = solr_connection(core_name)
             solr_version_check(core_name)
 
@@ -295,7 +295,10 @@ class Handler(object):
         logger.debug("Deleting {entity_type}: {id}".format(
             entity_type=parsed_message.table_name,
             id=parsed_message.columns[column_name]))
-        self.cores[core_map[parsed_message.table_name]].delete(parsed_message.columns[column_name])
+
+        core_name = core_map[parsed_message.table_name]
+        if core_name in self.cores:
+            self.cores[core_name].delete(parsed_message.columns[column_name])
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
@@ -337,6 +340,10 @@ class Handler(object):
 
     def _index_by_pk(self, parsed_message):
         for core_name, path in update_map[parsed_message.table_name]:
+
+            if not core_name in self.cores:
+                continue
+
             # Going through each core/entity that needs to be updated
             # depending on which table we receive a message from.
             entity = SCHEMA[core_name]
@@ -375,6 +382,10 @@ class Handler(object):
                              for r in class_mapper(index_model).mapper.relationships
                              if r.direction.name == 'MANYTOONE')
         for core_name, path in update_map[parsed_message.table_name]:
+
+            if not core_name in self.cores:
+                continue
+
             # Going through each core/entity that needs to be updated
             # depending on original index model
             entity = SCHEMA[core_name]
@@ -428,9 +439,9 @@ def _should_retry(exc):
 
 
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
-def _watch_impl():
+def _watch_impl(entities):
 
-    handler = Handler()
+    handler = Handler(entities)
     try:
         timeout = config.CFG.getint("rabbitmq", "timeout")
     except (NoOptionError, AttributeError):
@@ -493,7 +504,8 @@ def watch(args):
         exit(1)
 
     try:
-        _watch_impl()
+        entities = args["entity_type"] or SCHEMA.keys()
+        _watch_impl(entities)
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)
         exit(1)
