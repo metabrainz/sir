@@ -1250,7 +1250,10 @@ def convert_release_status(obj):
 
 
 def convert_gender(obj):
-    return models.gender(valueOf_=obj.name.lower())
+    """
+    :type obj: :class:`mbdata.models.Gender`
+    """
+    return models.gender(valueOf_=obj.name.lower(), id=obj.gid)
 
 
 def convert_format(obj):

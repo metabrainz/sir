@@ -133,6 +133,7 @@ SearchArtist = E(modelext.CustomArtist, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "begin_area.gid", "area.gid", "end_area.gid",
+                "gender.gid",
                 "type.gid"]
 )
 

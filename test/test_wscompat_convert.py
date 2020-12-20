@@ -5,6 +5,7 @@ from mbdata.models import (
     Artist,
     ArtistCreditName,
     ArtistISNI,
+    Gender,
     LabelISNI,
     ReleaseGroupSecondaryType,
     ReleaseGroupSecondaryTypeJoin,
@@ -12,6 +13,7 @@ from mbdata.models import (
 )
 from mbdata.types import PartialDate
 from sir.wscompat.convert import (
+    convert_gender,
     convert_isni_list,
     convert_name_credit,
     convert_release_packaging,
@@ -28,6 +30,36 @@ def xml_elements_equal(e1, e2):
             len(e1) != len(e2)):
         return False
     return all(xml_elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
+
+
+class GenderConverterTest(unittest.TestCase):
+    """Test that gender is converted correctly."""
+
+    def check_gender(self, actual, expected):
+        output = convert_gender(actual).to_etree()
+        expected_xml = ElementTree.fromstring(expected)
+        self.assertTrue(xml_elements_equal(output, expected_xml))
+
+    def _create_gender(self, gid, name):
+        gender = Gender
+        gender.gid = gid
+        gender.name = name
+        return gender
+
+    def test_gender(self):
+        gender = self._create_gender(
+            gid='8cf3c8c8-4af9-4b53-bad4-e43c0450ba04',
+            name='Not applicable',
+        )
+        expected_gender = '''
+        <gender xmlns="http://musicbrainz.org/ns/mmd-2.0#"
+                   id="8cf3c8c8-4af9-4b53-bad4-e43c0450ba04"
+        >not applicable</gender>
+        '''
+        self.check_gender(
+            actual=gender,
+            expected=expected_gender,
+        )
 
 
 class IsniListConverterTest(unittest.TestCase):
