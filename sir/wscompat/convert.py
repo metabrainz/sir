@@ -1253,7 +1253,7 @@ def convert_gender(obj):
     """
     :type obj: :class:`mbdata.models.Gender`
     """
-    return models.gender(valueOf_=obj.name.lower())
+    return models.gender(valueOf_=obj.name.lower(), id=obj.gid)
 
 
 def convert_format(obj):
