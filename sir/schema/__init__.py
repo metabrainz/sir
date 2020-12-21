@@ -359,6 +359,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.release_group.name",
                 "tracks.medium.release.release_group.type.gid",
                 "tracks.medium.release.release_group.secondary_types.secondary_type.gid",
+                "tracks.medium.release.status.gid",
                 "tracks.name"]
 )
 
@@ -420,6 +421,7 @@ SearchRelease = E(modelext.CustomRelease, [
                 "release_group.name",
                 "release_group.type.gid",
                 "release_group.secondary_types.secondary_type.gid",
+                "status.gid",
                 "language.iso_code_3",
                 "tags.count"]
 )
@@ -457,6 +459,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.artist.comment",
                 "tags.count", "type.gid",
+                "releases.status.gid",
                 "secondary_types.secondary_type.gid"
                 ]
 )
