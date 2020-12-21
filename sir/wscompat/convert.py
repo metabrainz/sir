@@ -1124,6 +1124,10 @@ def convert_release_group(obj):
                               id=obj.gid, title=obj.name)
     if obj.comment:
         rg.set_disambiguation(obj.comment)
+
+    if obj.meta.first_release_date:
+        rg.set_first_release_date(partialdate_to_string(obj.meta.first_release_date))
+
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
         type_ = calculate_type(obj.type, obj.secondary_types)

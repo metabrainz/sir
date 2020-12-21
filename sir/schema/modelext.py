@@ -99,6 +99,7 @@ class CustomRecording(Recording):
 
 class CustomReleaseGroup(ReleaseGroup):
     aliases = relationship("ReleaseGroupAlias")
+    first_release_date = relationship("ReleaseGroupMeta")
     releases = relationship("Release")
     tags = relationship("ReleaseGroupTag")
     release_count = column_property(select([func.count(Release.id)]).where(Release.release_group_id == ReleaseGroup.id))
