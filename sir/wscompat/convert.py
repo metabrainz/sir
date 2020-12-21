@@ -1246,7 +1246,7 @@ def convert_release_status(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseStatus`
     """
-    return models.status(valueOf_=obj.name)
+    return models.status(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_gender(obj):
