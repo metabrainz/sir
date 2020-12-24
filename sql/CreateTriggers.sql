@@ -704,6 +704,15 @@ CREATE TRIGGER search_release_group_alias_update AFTER UPDATE OF name, release_g
 CREATE TRIGGER search_release_group_alias_delete BEFORE DELETE ON musicbrainz.release_group_alias
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_alias_delete();
 
+CREATE TRIGGER search_release_group_meta_insert AFTER INSERT ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_insert();
+
+CREATE TRIGGER search_release_group_meta_update AFTER UPDATE OF first_release_date_day, first_release_date_month, first_release_date_year, id ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_update();
+
+CREATE TRIGGER search_release_group_meta_delete BEFORE DELETE ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_delete();
+
 CREATE TRIGGER search_release_group_tag_insert AFTER INSERT ON musicbrainz.release_group_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_tag_insert();
 
