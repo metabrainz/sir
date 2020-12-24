@@ -437,6 +437,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("creditname", "artist_credit.artists.name"),
+    F("firstreleasedate", "first_release_date.first_release_date",
+      transformfunc=tfs.index_partialdate_to_string),
     F("release", "releases.name"),
     F("reid", "releases.gid"),
     F("releases", "release_count", transformfunc=tfs.integer_sum, trigger=False),

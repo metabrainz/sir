@@ -148,7 +148,7 @@ Recording searches can contain you can search:
 *** DONE video
 
 Recording search terms with no fields search the /recording/ field only
-** Release Group [16/16]
+** Release Group [17/17]
 
 The release group index contains the following fields you can search:
 
@@ -157,6 +157,7 @@ The release group index contains the following fields you can search:
 *** DONE artistname
 *** DONE comment
 *** DONE creditname
+*** DONE firstreleasedate
 *** DONE primarytype
 *** DONE rgid
 *** DONE releasegroup
