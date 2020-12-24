@@ -284,7 +284,7 @@ CREATE TRIGGER search_artist_alias_delete BEFORE DELETE ON musicbrainz.artist_al
 CREATE TRIGGER search_gender_insert AFTER INSERT ON musicbrainz.gender
     FOR EACH ROW EXECUTE PROCEDURE search_gender_insert();
 
-CREATE TRIGGER search_gender_update AFTER UPDATE OF name ON musicbrainz.gender
+CREATE TRIGGER search_gender_update AFTER UPDATE OF gid, name ON musicbrainz.gender
     FOR EACH ROW EXECUTE PROCEDURE search_gender_update();
 
 CREATE TRIGGER search_gender_delete BEFORE DELETE ON musicbrainz.gender
@@ -608,7 +608,7 @@ CREATE TRIGGER search_release_group_secondary_type_delete BEFORE DELETE ON music
 CREATE TRIGGER search_release_status_insert AFTER INSERT ON musicbrainz.release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_status_insert();
 
-CREATE TRIGGER search_release_status_update AFTER UPDATE OF name ON musicbrainz.release_status
+CREATE TRIGGER search_release_status_update AFTER UPDATE OF gid, name ON musicbrainz.release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_status_update();
 
 CREATE TRIGGER search_release_status_delete BEFORE DELETE ON musicbrainz.release_status
