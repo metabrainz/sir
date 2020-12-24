@@ -659,6 +659,15 @@ CREATE TRIGGER search_language_update AFTER UPDATE OF iso_code_3 ON musicbrainz.
 CREATE TRIGGER search_language_delete BEFORE DELETE ON musicbrainz.language
     FOR EACH ROW EXECUTE PROCEDURE search_language_delete();
 
+CREATE TRIGGER search_release_packaging_insert AFTER INSERT ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_insert();
+
+CREATE TRIGGER search_release_packaging_update AFTER UPDATE OF name ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_update();
+
+CREATE TRIGGER search_release_packaging_delete BEFORE DELETE ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_delete();
+
 CREATE TRIGGER search_script_insert AFTER INSERT ON musicbrainz.script
     FOR EACH ROW EXECUTE PROCEDURE search_script_insert();
 
