@@ -560,6 +560,15 @@ CREATE TRIGGER search_country_area_update AFTER UPDATE OF area ON musicbrainz.co
 CREATE TRIGGER search_country_area_delete BEFORE DELETE ON musicbrainz.country_area
     FOR EACH ROW EXECUTE PROCEDURE search_country_area_delete();
 
+CREATE TRIGGER search_recording_first_release_date_insert AFTER INSERT ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_insert();
+
+CREATE TRIGGER search_recording_first_release_date_update AFTER UPDATE OF day, month, recording, year ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_update();
+
+CREATE TRIGGER search_recording_first_release_date_delete BEFORE DELETE ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_delete();
+
 CREATE TRIGGER search_medium_format_insert AFTER INSERT ON musicbrainz.medium_format
     FOR EACH ROW EXECUTE PROCEDURE search_medium_format_insert();
 

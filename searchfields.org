@@ -111,7 +111,7 @@ The place index contains the following fields you can search:
 
 Place search terms with no fields specified search the place, alias,
 address and area fields.
-** Recording [30/30]
+** Recording [31/31]
 
 Recording searches can contain you can search:
 
@@ -124,6 +124,7 @@ Recording searches can contain you can search:
 *** DONE date
 *** DONE dur
 *** DONE format
+*** DONE firstreleasedate
 *** DONE isrc
 *** DONE number
 *** DONE position

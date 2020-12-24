@@ -2234,6 +2234,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(recording) AS (SELECT NEW.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(recording) AS (SELECT NEW.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(recording) AS (SELECT OLD.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_medium_format_insert() RETURNS trigger
     AS $$
 BEGIN
