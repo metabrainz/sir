@@ -15,9 +15,11 @@ tag=${version}-${deployment}
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../"
 
-docker build \
+DOCKER_CMD=${DOCKER_CMD:-docker}
+
+${DOCKER_CMD} build \
   --build-arg SIR_VERSION=${version} \
   --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
   --build-arg VCS_REF=${vcs_ref} \
   --tag metabrainz/sir:${tag} .
-docker push metabrainz/sir:${tag}
+${DOCKER_CMD} push metabrainz/sir:${tag}
