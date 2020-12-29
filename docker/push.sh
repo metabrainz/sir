@@ -8,14 +8,13 @@
 
 set -e -u
 
+cd "$(dirname "${BASH_SOURCE[0]}")/../"
+
+DOCKER_CMD=${DOCKER_CMD:-docker}
 vcs_ref=`git describe --always --broken --dirty --tags`
 version=${vcs_ref#v}
 deployment=git2consul
 tag=${version}-${deployment}
-
-cd "$(dirname "${BASH_SOURCE[0]}")/../"
-
-DOCKER_CMD=${DOCKER_CMD:-docker}
 
 ${DOCKER_CMD} build \
   --build-arg SIR_VERSION=${version} \
