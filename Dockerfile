@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=2.7
-ARG BASE_IMAGE_DATE=20201201
+ARG BASE_IMAGE_DATE=20210115
 FROM metabrainz/python:$PYTHON_VERSION-$BASE_IMAGE_DATE
 
 ARG SIR_VERSION
@@ -57,6 +57,7 @@ COPY . /code/
 # Consul Template service is already set up with the base image.
 # Just need to copy the configuration.
 COPY ./docker/prod/consul-template.conf /etc/consul-template.conf
+COPY ./docker/prod/indexer/start-indexer.sh /usr/bin/start-indexer.sh
 
 COPY ./docker/prod/indexer/indexer.service /etc/service/indexer/run
 RUN chmod 755 /etc/service/indexer/run
