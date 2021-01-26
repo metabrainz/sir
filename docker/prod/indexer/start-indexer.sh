@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 cd /code
-python -m sir amqp_watch
+exec python -m sir amqp_watch
