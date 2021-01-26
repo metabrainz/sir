@@ -1,4 +1,5 @@
-.git
+/.git*
+/.editorconfig
 
 # Docker configuration
 /docker
@@ -6,18 +7,24 @@
 !/docker/prod/indexer/indexer.service
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
+**/__pycache__/
+**/*.py[cod]
 
 # Virtual environment
-env
-venv
-/build
+/env*/
+/venv*/
+/build*/
+
+# Package / test cache directories
+/.cache/
+/.pytest_cache/
+/.tox/
 
 # Logs
-*.log
-pip-log.txt
-pip-delete-this-directory.txt
+**/*.log
+**/pip-log.txt
+**/pip-delete-this-directory.txt
+**/test_report.xml
 
 # Configuration generated from Consul's KV storage
 /config.ini

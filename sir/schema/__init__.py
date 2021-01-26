@@ -133,6 +133,7 @@ SearchArtist = E(modelext.CustomArtist, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "begin_area.gid", "area.gid", "end_area.gid",
+                "gender.gid",
                 "type.gid"]
 )
 
@@ -294,6 +295,8 @@ SearchRecording = E(modelext.CustomRecording, [
     F("date", "tracks.medium.release.country_dates.date",
       transformfunc=tfs.index_partialdate_to_string),
     F("dur", "length"),
+    F("firstreleasedate", "first_release_date.date",
+      transformfunc=tfs.index_partialdate_to_string),
     F("format", "tracks.medium.format.name"),
     F("isrc", "isrcs.isrc"),
     F("mbid", "gid"),
@@ -358,6 +361,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.release_group.name",
                 "tracks.medium.release.release_group.type.gid",
                 "tracks.medium.release.release_group.secondary_types.secondary_type.gid",
+                "tracks.medium.release.status.gid",
                 "tracks.name"]
 )
 
@@ -382,6 +386,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("label", "labels.label.name"),
     F("lang", "language.iso_code_3"),
     F("mediums", "medium_count", transformfunc=tfs.integer_sum, trigger=False),
+    F("packaging", "packaging.name"),
     F("primarytype", "release_group.type.name"),
     F("quality", "quality"),
     F("rgid", "release_group.gid"),
@@ -414,11 +419,11 @@ SearchRelease = E(modelext.CustomRelease, [
                 "country_dates.date_month",
                 "country_dates.date_year",
                 "mediums.cdtocs.id",
-                "packaging.name",
                 "release_group.comment",
                 "release_group.name",
                 "release_group.type.gid",
                 "release_group.secondary_types.secondary_type.gid",
+                "status.gid",
                 "language.iso_code_3",
                 "tags.count"]
 )
@@ -432,6 +437,8 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("creditname", "artist_credit.artists.name"),
+    F("firstreleasedate", "first_release_date.first_release_date",
+      transformfunc=tfs.index_partialdate_to_string),
     F("release", "releases.name"),
     F("reid", "releases.gid"),
     F("releases", "release_count", transformfunc=tfs.integer_sum, trigger=False),
@@ -456,6 +463,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.artist.comment",
                 "tags.count", "type.gid",
+                "releases.status.gid",
                 "secondary_types.secondary_type.gid"
                 ]
 )

@@ -2358,6 +2358,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(recording) AS (SELECT NEW.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(recording) AS (SELECT NEW.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_recording_first_release_date_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(recording) AS (SELECT OLD.recording)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_medium_format_insert() RETURNS trigger
     AS $$
 BEGIN
@@ -2776,6 +2812,42 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_release_packaging_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_packaging_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_packaging_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT OLD.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_script_insert() RETURNS trigger
     AS $$
 BEGIN
@@ -2885,6 +2957,42 @@ BEGIN
             WITH keys(id, release_group, type) AS (SELECT OLD.id, OLD.release_group, OLD.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_alias"'),
                              '{_operation}', '"delete"') FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_meta_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_meta_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_release_group_meta_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT OLD.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
+                             '{_operation}', '"delete"')::text FROM keys
         ));
     RETURN OLD;
 END;

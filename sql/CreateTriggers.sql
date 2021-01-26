@@ -284,7 +284,7 @@ CREATE TRIGGER search_artist_alias_delete BEFORE DELETE ON musicbrainz.artist_al
 CREATE TRIGGER search_gender_insert AFTER INSERT ON musicbrainz.gender
     FOR EACH ROW EXECUTE PROCEDURE search_gender_insert();
 
-CREATE TRIGGER search_gender_update AFTER UPDATE OF name ON musicbrainz.gender
+CREATE TRIGGER search_gender_update AFTER UPDATE OF gid, name ON musicbrainz.gender
     FOR EACH ROW EXECUTE PROCEDURE search_gender_update();
 
 CREATE TRIGGER search_gender_delete BEFORE DELETE ON musicbrainz.gender
@@ -560,6 +560,15 @@ CREATE TRIGGER search_country_area_update AFTER UPDATE OF area ON musicbrainz.co
 CREATE TRIGGER search_country_area_delete BEFORE DELETE ON musicbrainz.country_area
     FOR EACH ROW EXECUTE PROCEDURE search_country_area_delete();
 
+CREATE TRIGGER search_recording_first_release_date_insert AFTER INSERT ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_insert();
+
+CREATE TRIGGER search_recording_first_release_date_update AFTER UPDATE OF day, month, recording, year ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_update();
+
+CREATE TRIGGER search_recording_first_release_date_delete BEFORE DELETE ON musicbrainz.recording_first_release_date
+    FOR EACH ROW EXECUTE PROCEDURE search_recording_first_release_date_delete();
+
 CREATE TRIGGER search_medium_format_insert AFTER INSERT ON musicbrainz.medium_format
     FOR EACH ROW EXECUTE PROCEDURE search_medium_format_insert();
 
@@ -608,7 +617,7 @@ CREATE TRIGGER search_release_group_secondary_type_delete BEFORE DELETE ON music
 CREATE TRIGGER search_release_status_insert AFTER INSERT ON musicbrainz.release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_status_insert();
 
-CREATE TRIGGER search_release_status_update AFTER UPDATE OF name ON musicbrainz.release_status
+CREATE TRIGGER search_release_status_update AFTER UPDATE OF gid, name ON musicbrainz.release_status
     FOR EACH ROW EXECUTE PROCEDURE search_release_status_update();
 
 CREATE TRIGGER search_release_status_delete BEFORE DELETE ON musicbrainz.release_status
@@ -659,6 +668,15 @@ CREATE TRIGGER search_language_update AFTER UPDATE OF iso_code_3 ON musicbrainz.
 CREATE TRIGGER search_language_delete BEFORE DELETE ON musicbrainz.language
     FOR EACH ROW EXECUTE PROCEDURE search_language_delete();
 
+CREATE TRIGGER search_release_packaging_insert AFTER INSERT ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_insert();
+
+CREATE TRIGGER search_release_packaging_update AFTER UPDATE OF name ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_update();
+
+CREATE TRIGGER search_release_packaging_delete BEFORE DELETE ON musicbrainz.release_packaging
+    FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_delete();
+
 CREATE TRIGGER search_script_insert AFTER INSERT ON musicbrainz.script
     FOR EACH ROW EXECUTE PROCEDURE search_script_insert();
 
@@ -685,6 +703,15 @@ CREATE TRIGGER search_release_group_alias_update AFTER UPDATE OF name, release_g
 
 CREATE TRIGGER search_release_group_alias_delete BEFORE DELETE ON musicbrainz.release_group_alias
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_alias_delete();
+
+CREATE TRIGGER search_release_group_meta_insert AFTER INSERT ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_insert();
+
+CREATE TRIGGER search_release_group_meta_update AFTER UPDATE OF first_release_date_day, first_release_date_month, first_release_date_year, id ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_update();
+
+CREATE TRIGGER search_release_group_meta_delete BEFORE DELETE ON musicbrainz.release_group_meta
+    FOR EACH ROW EXECUTE PROCEDURE search_release_group_meta_delete();
 
 CREATE TRIGGER search_release_group_tag_insert AFTER INSERT ON musicbrainz.release_group_tag
     FOR EACH ROW EXECUTE PROCEDURE search_release_group_tag_insert();

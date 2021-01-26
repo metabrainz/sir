@@ -1026,6 +1026,9 @@ def convert_recording(obj):
     if obj.comment:
         recording.set_disambiguation(obj.comment)
 
+    if obj.first_release is not None and obj.first_release.date is not None:
+        recording.set_first_release_date(partialdate_to_string(obj.first_release.date))
+
     recording.set_length(obj.length)
 
     if len(obj.isrcs) > 0:
@@ -1121,6 +1124,10 @@ def convert_release_group(obj):
                               id=obj.gid, title=obj.name)
     if obj.comment:
         rg.set_disambiguation(obj.comment)
+
+    if obj.meta.first_release_date:
+        rg.set_first_release_date(partialdate_to_string(obj.meta.first_release_date))
+
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
         type_ = calculate_type(obj.type, obj.secondary_types)
@@ -1246,11 +1253,14 @@ def convert_release_status(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseStatus`
     """
-    return models.status(valueOf_=obj.name)
+    return models.status(valueOf_=obj.name, id=obj.gid)
 
 
 def convert_gender(obj):
-    return models.gender(valueOf_=obj.name.lower())
+    """
+    :type obj: :class:`mbdata.models.Gender`
+    """
+    return models.gender(valueOf_=obj.name.lower(), id=obj.gid)
 
 
 def convert_format(obj):
