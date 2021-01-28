@@ -123,12 +123,6 @@ class CustomReleaseTag(ReleaseTag):
 
 class CustomSeries(Series):
     aliases = relationship("SeriesAlias")
-    link_attribute_type = relationship("LinkAttributeType",
-                                       primaryjoin="\
-                                       CustomSeries.ordering_attribute ==\
-                                       LinkAttributeType.id",
-                                       foreign_keys=Series.ordering_attribute,
-                                       remote_side=LinkAttributeType.id)
     tags = relationship("SeriesTag")
 
 
