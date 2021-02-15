@@ -30,15 +30,17 @@ user = {{template "KEY" "db/user"}}
 uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
 
-{{- if service "rabbitmq"}}
+{{- with $rabbitmq_service_name := or (env "RABBITMQ_SERVICE") "rabbitmq"}}
+{{- if service $rabbitmq_service_name}}
 [rabbitmq]
-{{- with index (service "rabbitmq") 0}}
+{{- with index (service $rabbitmq_service_name) 0}}
 host = {{.Address}}:{{.Port}}
 user = {{template "KEY" "rabbitmq/user"}}
 password = {{template "KEY" "rabbitmq/password"}}
 vhost = {{template "KEY" "rabbitmq/vhost"}}
 prefetch_count = {{template "KEY" "rabbitmq/prefetch_count"}}
 timeout = {{template "KEY" "rabbitmq/timeout"}}
+{{- end}}
 {{- end}}
 {{- end}}
 
