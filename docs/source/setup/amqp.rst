@@ -20,11 +20,18 @@ RabbitMQ documentation`_.
 Database
 ~~~~~~~~
 
-Sir requires that you both install an extension into your MusicBrainz database
-and add triggers to it.
+Sir requires that you optionally install an extension into your MusicBrainz database
+and add triggers database triggers and functions.
 
-AMQP Extension
-++++++++++++++
+There are two methods for tracking database changes. The first is by installing
+the ``pg_amqp`` extension on the database that publishes changes directly to RabbitMQ.
+The second is for situations where it is not possible to install the ``pg_amqp``
+extension on your PostgreSQL instance. It simply persists changes in a ``sir.message``
+database table. The contents of the table are then published to RabbitMQ and deleted from
+the table by running a separate ``amqp_publish`` process.
+
+Method 1: AMQP PostgreSQL Extension
++++++++++++++++++++++++++++++++++++
 
 * Install `pg_amqp <https://github.com/omniti-labs/pg_amqp>`_.
 * Check values for the following keys in the file ``config.ini``:
@@ -46,12 +53,35 @@ RabbitMQ documentation`_.
 * Connect to your database as a superuser with ``psql`` to execute from this file.
 
 Triggers
-++++++++
+""""""""
 
 In addition to the steps above, it is necessary to install functions and
 triggers into the database to send messages via AMQP after a change has been
 applied to the database. Those can be found in the ``sql`` directory and can be
 installed with
+
+.. code-block:: shell
+
+     MB_SERVER_PATH=<mb_path> make installsql
+     MB_SERVER_PATH=<mb_path> make installampqsql
+
+where ``<mb_path>`` is the path to your clone of the MusicBrainz server.
+
+Method 2: SIR Message Table & Publisher Process
++++++++++++++++++++++++++++++++++++++++++++++++
+
+If you cannot install the ``pg_amqp`` extension on your PostgreSQL instance you should
+take this approach. It will create a ``sir.message`` database table that SIR messages
+will be persisted to via triggers. It will be necessary to run the separate
+``amqp_publish`` process, which will fetch messages from the database, publish them to
+RabbitMQ and finally remove them from the ``sir.message`` database table. Assuming that
+you have this process running, the ``sir.message`` table should normally be empty, or
+have a small number of records.
+
+Triggers
+""""""""
+
+These can be found in the ``sql`` directory and can be installed with
 
 .. code-block:: shell
 

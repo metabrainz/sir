@@ -5,6 +5,8 @@ import textwrap
 MSG_JSON_TABLE_NAME_KEY = "_table"
 MSG_JSON_OPERATION_TYPE = "_operation"
 
+SIR_SCHEMA = 'sir'
+SIR_MESSAGE_TABLE_NAME = 'message'
 
 class TriggerGenerator(object):
     """
@@ -26,18 +28,16 @@ class TriggerGenerator(object):
     # (`update`, `delete`, or `index`)
     routing_key = None
 
-    def __init__(self, table_name, pk_columns, fk_columns, broker_id=1, **kwargs):
+    def __init__(self, table_name, pk_columns, fk_columns, **kwargs):
         """
         :param str table_name: The table on which to generate the trigger.
         :param pk_columns: List of primary key column names for a table that
                            this trigger is being generated for.
-        :param int broker_id: ID of the AMQP broker row in a database.
         """
         self.table_name = table_name
         self.reference_columns = list(set(pk_columns + fk_columns))
         self.fk_columns = fk_columns
         self.reference_columns.sort()
-        self.broker_id = broker_id
 
     def trigger(self):
         """
@@ -62,22 +62,21 @@ class TriggerGenerator(object):
 
         https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
 
-        We use https://github.com/omniti-labs/pg_amqp to publish messages to
-        an AMQP broker.
-
         :rtype: str
         """
+
         return textwrap.dedent("""\
             CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
                 AS $$
             BEGIN
-                PERFORM amqp.publish({broker_id}, 'search', '{routing_key}', ({message}));
+                INSERT INTO {schema}.{table_name} (exchange, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
                 RETURN {return_value};
             END;
             $$ LANGUAGE plpgsql;\n
         """).format(
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME,
             trigger_name=self.trigger_name,
-            broker_id=self.broker_id,
             routing_key=self.routing_key,
             message=self.message,
             return_value=self.record_variable,
@@ -101,7 +100,7 @@ class TriggerGenerator(object):
         return """
             WITH keys({column_keys}) AS ({select})
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{{{table_name_key}}}', '"{table_name}"'),
-                             '{{{operation_type}}}', '"{operation}"')::text FROM keys
+                             '{{{operation_type}}}', '"{operation}"') FROM keys
         """.format(
                 table_name=self.table_name,
                 column_keys=", ".join(self.reference_columns),
@@ -173,6 +172,44 @@ class UpdateTriggerGenerator(TriggerGenerator):
             before_or_after=self.before_or_after.upper(),
         )
 
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
+
+        :rtype: str
+        """
+        update_condition = ""
+        end_update_condition = ""
+        # Consider FK columns in update triggers to make sure triggers are fired
+        # in case any FK of related tables are changed
+        if self.update_columns:
+            all_columns = set(self.fk_columns + list(self.update_columns))
+            update_condition = "IF %s THEN" % " OR ".join([("OLD.%s <> NEW.%s" % (column, column)) for column in sorted(all_columns)])
+            end_update_condition = "END IF;"
+
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            BEGIN
+                {update_condition}
+                    INSERT INTO {schema}.{table_name} (exchange, routing_key, message) VALUES ('search', '{routing_key}', ({message}));
+                {end_update_condition}
+                RETURN {return_value};
+            END;
+            $$ LANGUAGE plpgsql;\n
+        """).format(
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME,
+            trigger_name=self.trigger_name,
+            routing_key=self.routing_key,
+            message=self.message,
+            return_value=self.record_variable,
+            update_condition=update_condition,
+            end_update_condition=end_update_condition
+        )
+
 
 class DeleteTriggerGenerator(TriggerGenerator):
     """
@@ -212,3 +249,95 @@ class ReferencedDeleteTriggerGenerator(DeleteTriggerGenerator):
     `SearchEntity` tables to be updated.
     """
     routing_key = "update"
+
+
+class SirMessageTableGenerator(object):
+    """
+    A create generator for database update message.
+    """
+    def create(self):
+        """
+        The ``CREATE TABLE`` statement for the sir.message table.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE SCHEMA {schema};
+            CREATE TABLE {schema}.{message_table_name} (
+                id                  serial      PRIMARY KEY,
+                exchange            varchar(40) NOT NULL,
+                routing_key         varchar(40) NOT NULL,
+                message             jsonb       NOT NULL,
+                created             timestamptz DEFAULT current_timestamp
+            );\n
+        """).format(
+            schema=SIR_SCHEMA,
+            message_table_name=SIR_MESSAGE_TABLE_NAME
+        )
+
+
+class InsertAMQPTriggerGenerator(object):
+    """
+    A trigger generator for AMQP operations.
+    """
+    #: The operation
+    op = 'INSERT'
+
+    def __init__(self, broker_id=1, **kwargs):
+        """
+        :param int broker_id: ID of the AMQP broker row in a database.
+        """
+        self.broker_id = broker_id
+
+    def trigger(self):
+        """
+        The ``CREATE TRIGGER`` statement for this trigger.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE TRIGGER {trigger_name} BEFORE {op} ON {schema}.{table_name}
+                FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
+        """).format(
+            op=self.op.upper(),
+            trigger_name=self.trigger_name,
+            schema=SIR_SCHEMA,
+            table_name=SIR_MESSAGE_TABLE_NAME
+        )
+
+    def function(self):
+        """
+        The ``CREATE FUNCTION`` statement for this trigger.
+
+        https://www.postgresql.org/docs/9.0/static/plpgsql-structure.html
+
+        We use https://github.com/omniti-labs/pg_amqp to publish messages to
+        an AMQP broker.
+
+        :rtype: str
+        """
+        return textwrap.dedent("""\
+            CREATE OR REPLACE FUNCTION {trigger_name}() RETURNS trigger
+                AS $$
+            BEGIN
+                PERFORM amqp.publish({broker_id}, NEW.exchange, NEW.routing_key, NEW.message::text);
+                RETURN NULL;
+            END;
+            $$ LANGUAGE plpgsql;\n
+        """).format(
+            trigger_name=self.trigger_name,
+            broker_id=self.broker_id
+        )
+
+    @property
+    def trigger_name(self):
+        """
+        The name of this trigger and its function.
+
+        :rtype: str
+        """
+        return ("search_" + SIR_MESSAGE_TABLE_NAME + "_" + self.op).lower()
+
+    @property
+    def selection(self):
+        raise NotImplementedError

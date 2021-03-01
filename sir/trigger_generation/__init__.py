@@ -17,11 +17,15 @@ def generate_func(args):
     generate(
         trigger_filename=args["trigger_file"],
         function_filename=args["function_file"],
+        create_sir_message_table_filename=args["create_sir_message_table_file"],
+        amqp_trigger_filename=args["amqp_trigger_file"],
+        amqp_function_filename=args["amqp_function_file"],
         broker_id=args["broker_id"],
     )
 
 
-def generate(trigger_filename, function_filename, broker_id):
+def generate(trigger_filename, function_filename, create_sir_message_table_filename, \
+    amqp_trigger_filename, amqp_function_filename, broker_id):
     """Generates SQL queries that create and remove triggers for the MusicBrainz database.
 
     Generation works in the following way:
@@ -30,34 +34,61 @@ def generate(trigger_filename, function_filename, broker_id):
             * Entity tables themselves
             * Tables in every path of entity's fields
 
-        2. Generate triggers (for inserts, updates, and deletions) for each table (model in mbdata):
-            2.1. Get a list of PKs
-            2.2. Write triggers that would send messages into appropriate RabbitMQ queues ("search.index"
-                 queue for INSERT and UPDATE queries, "search.delete" for DELETE queries):
+        2. Generates SQL to create a sir_message table
+
+        3. Generate triggers (for inserts, updates, and deletions) for each table (model in mbdata):
+            3.1. Get a list of PKs
+            3.2. Write triggers that send messages into the sir_message table ("search.index"
+                 for INSERT and UPDATE queries, "search.delete" for DELETE queries):
 
                     <table name>, PKs{<PK row name>, <PK value>}
+                    
+        4. Generate triggers (for inserts) for the sir_message table:
+            4.1. Write trigger that sends new messages into the appropriate RabbitMQ queues
+                 ("search.index" queue for "search.index" messages, "search.delete" queue
+                 for "search.delete" messages)
 
-        3. Write generated triggers into SQL scripts to be run on the MusicBrainz database
+        4. Write generated triggers into SQL scripts to be run on the MusicBrainz database
 
     Since table might have multiple primary keys, we need to explicitly specify their row names and values.
     """
     with open(trigger_filename,  "w") as triggerfile, \
-         open(function_filename, "w") as functionfile:
+         open(function_filename, "w") as functionfile, \
+         open(create_sir_message_table_filename, "w") as create_sir_message_tablefile, \
+         open(amqp_trigger_filename,  "w") as amqp_triggerfile, \
+         open(amqp_function_filename, "w") as amqp_functionfile:
 
+        # Write mbdata tables' triggers and functions
         write_header(triggerfile)
         write_header(functionfile)
-
         for table_name, table_info in get_trigger_tables().items():
             write_triggers(
                 trigger_file=triggerfile,
                 function_file=functionfile,
                 model=table_info["model"],
                 is_direct=table_info["is_direct"],
-                has_gid=table_info.get('has_gid', False),
-                broker_id=broker_id,
+                has_gid=table_info.get('has_gid', False)
             )
         write_footer(triggerfile)
         write_footer(functionfile)
+        
+        # Write create message table SQL
+        write_header(create_sir_message_tablefile)
+        write_create_sir_message_table(
+            message_table_file=create_sir_message_tablefile
+        )
+        write_footer(create_sir_message_tablefile)
+        
+        # Write AMQP trigger and function
+        write_header(amqp_triggerfile)
+        write_header(amqp_functionfile)
+        write_amqp_triggers(
+            amqp_trigger_file=amqp_triggerfile,
+            amqp_function_file=amqp_functionfile,
+            broker_id=broker_id,
+        )
+        write_footer(amqp_triggerfile)
+        write_footer(amqp_functionfile)
 
 
 def get_trigger_tables():
@@ -128,6 +159,28 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
         pk_columns=[pk.name for pk in mapper.primary_key],
         fk_columns=fk_columns,
         update_columns=update_columns,
+        **generator_args
+    )
+
+
+def write_create_sir_message_table(message_table_file):
+    """
+    :param str sir_message table file message_table_file: File where sir_message create table is written.
+    """
+    message_table_file.write(sql_generator.SirMessageTableGenerator().create())
+
+
+def write_amqp_triggers(amqp_trigger_file, amqp_function_file, **generator_args):
+    """
+    :param str AMQP file trigger_file: File where AMQP triggers will be written.
+    :param str AMQP file function_file: File where AMQP functions will be written.
+    """
+    write_triggers_to_file(
+        trigger_file=amqp_trigger_file,
+        function_file=amqp_function_file,
+        generators=[
+            sql_generator.InsertAMQPTriggerGenerator,
+        ],
         **generator_args
     )
 
