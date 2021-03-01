@@ -1195,7 +1195,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_gender_update() RETURNS trigger
     AS $$
 BEGIN
-    IF OLD.name <> NEW.name THEN
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
         INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"gender"'),
@@ -2361,10 +2361,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_first_release_date_insert() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'index', (
             WITH keys(recording) AS (SELECT NEW.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
-                             '{_operation}', '"insert"')::text FROM keys
+                             '{_operation}', '"insert"') FROM keys
         ));
     RETURN NEW;
 END;
@@ -2373,11 +2373,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_first_release_date_update() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    IF OLD.day <> NEW.day OR OLD.month <> NEW.month OR OLD.recording <> NEW.recording OR OLD.year <> NEW.year THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(recording) AS (SELECT NEW.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
-                             '{_operation}', '"update"')::text FROM keys
+                             '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2385,10 +2387,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_recording_first_release_date_delete() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(recording) AS (SELECT OLD.recording)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"recording_first_release_date"'),
-                             '{_operation}', '"delete"')::text FROM keys
+                             '{_operation}', '"delete"') FROM keys
         ));
     RETURN OLD;
 END;
@@ -2599,7 +2601,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_status_update() RETURNS trigger
     AS $$
 BEGIN
-    IF OLD.name <> NEW.name THEN
+    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
         INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_status"'),
@@ -2815,10 +2817,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_packaging_insert() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'index', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
-                             '{_operation}', '"insert"')::text FROM keys
+                             '{_operation}', '"insert"') FROM keys
         ));
     RETURN NEW;
 END;
@@ -2827,11 +2829,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_packaging_update() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    IF OLD.name <> NEW.name THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
-                             '{_operation}', '"update"')::text FROM keys
+                             '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2839,10 +2843,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_packaging_delete() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_packaging"'),
-                             '{_operation}', '"delete"')::text FROM keys
+                             '{_operation}', '"delete"') FROM keys
         ));
     RETURN OLD;
 END;
@@ -2965,10 +2969,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_meta_insert() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'index', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
-                             '{_operation}', '"insert"')::text FROM keys
+                             '{_operation}', '"insert"') FROM keys
         ));
     RETURN NEW;
 END;
@@ -2977,11 +2981,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_meta_update() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    IF OLD.first_release_date_day <> NEW.first_release_date_day OR OLD.first_release_date_month <> NEW.first_release_date_month OR OLD.first_release_date_year <> NEW.first_release_date_year OR OLD.id <> NEW.id THEN
+        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT NEW.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
-                             '{_operation}', '"update"')::text FROM keys
+                             '{_operation}', '"update"') FROM keys
         ));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2989,10 +2995,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_release_group_meta_delete() RETURNS trigger
     AS $$
 BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
+    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id) AS (SELECT OLD.id)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"release_group_meta"'),
-                             '{_operation}', '"delete"')::text FROM keys
+                             '{_operation}', '"delete"') FROM keys
         ));
     RETURN OLD;
 END;
