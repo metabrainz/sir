@@ -185,7 +185,7 @@ CREATE TRIGGER search_series_annotation_delete BEFORE DELETE ON musicbrainz.seri
 CREATE TRIGGER search_series_insert AFTER INSERT ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_insert();
 
-CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name, ordering_attribute, ordering_type, type ON musicbrainz.series
+CREATE TRIGGER search_series_update AFTER UPDATE OF comment, gid, name, ordering_type, type ON musicbrainz.series
     FOR EACH ROW EXECUTE PROCEDURE search_series_update();
 
 CREATE TRIGGER search_series_delete BEFORE DELETE ON musicbrainz.series
@@ -730,15 +730,6 @@ CREATE TRIGGER search_series_alias_update AFTER UPDATE OF begin_date_day, begin_
 
 CREATE TRIGGER search_series_alias_delete BEFORE DELETE ON musicbrainz.series_alias
     FOR EACH ROW EXECUTE PROCEDURE search_series_alias_delete();
-
-CREATE TRIGGER search_link_attribute_type_insert AFTER INSERT ON musicbrainz.link_attribute_type
-    FOR EACH ROW EXECUTE PROCEDURE search_link_attribute_type_insert();
-
-CREATE TRIGGER search_link_attribute_type_update AFTER UPDATE OF gid, name ON musicbrainz.link_attribute_type
-    FOR EACH ROW EXECUTE PROCEDURE search_link_attribute_type_update();
-
-CREATE TRIGGER search_link_attribute_type_delete BEFORE DELETE ON musicbrainz.link_attribute_type
-    FOR EACH ROW EXECUTE PROCEDURE search_link_attribute_type_delete();
 
 CREATE TRIGGER search_series_tag_insert AFTER INSERT ON musicbrainz.series_tag
     FOR EACH ROW EXECUTE PROCEDURE search_series_tag_insert();

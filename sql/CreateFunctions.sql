@@ -726,7 +726,7 @@ CREATE OR REPLACE FUNCTION search_series_insert() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id, ordering_attribute, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_attribute, NEW.ordering_type, NEW.type)
+            WITH keys(id, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"insert"')::text FROM keys
         ));
@@ -738,7 +738,7 @@ CREATE OR REPLACE FUNCTION search_series_update() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id, ordering_attribute, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_attribute, NEW.ordering_type, NEW.type)
+            WITH keys(id, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"update"')::text FROM keys
         ));
@@ -750,7 +750,7 @@ CREATE OR REPLACE FUNCTION search_series_delete() RETURNS trigger
     AS $$
 BEGIN
     PERFORM amqp.publish(2, 'search', 'delete', (
-            WITH keys(id, ordering_attribute, ordering_type, type, gid) AS (SELECT OLD.id, OLD.ordering_attribute, OLD.ordering_type, OLD.type, OLD.gid)
+            WITH keys(id, ordering_type, type, gid) AS (SELECT OLD.id, OLD.ordering_type, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
@@ -2912,42 +2912,6 @@ BEGIN
     PERFORM amqp.publish(2, 'search', 'update', (
             WITH keys(id, series, type) AS (SELECT OLD.id, OLD.series, OLD.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"'),
-                             '{_operation}', '"delete"')::text FROM keys
-        ));
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_insert() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
-                             '{_operation}', '"insert"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_update() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
-                             '{_operation}', '"update"')::text FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_delete() RETURNS trigger
-    AS $$
-BEGIN
-    PERFORM amqp.publish(2, 'search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
                              '{_operation}', '"delete"')::text FROM keys
         ));
     RETURN OLD;
