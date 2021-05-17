@@ -766,7 +766,7 @@ CREATE OR REPLACE FUNCTION search_series_insert() RETURNS trigger
     AS $$
 BEGIN
     INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'index', (
-            WITH keys(id, ordering_attribute, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_attribute, NEW.ordering_type, NEW.type)
+            WITH keys(id, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"insert"') FROM keys
         ));
@@ -779,7 +779,7 @@ CREATE OR REPLACE FUNCTION search_series_update() RETURNS trigger
 BEGIN
     IF OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.ordering_attribute <> NEW.ordering_attribute OR OLD.ordering_type <> NEW.ordering_type OR OLD.type <> NEW.type THEN
         INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
-            WITH keys(id, ordering_attribute, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_attribute, NEW.ordering_type, NEW.type)
+            WITH keys(id, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"update"') FROM keys
         ));
@@ -792,7 +792,7 @@ CREATE OR REPLACE FUNCTION search_series_delete() RETURNS trigger
     AS $$
 BEGIN
     INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'delete', (
-            WITH keys(id, ordering_attribute, ordering_type, type, gid) AS (SELECT OLD.id, OLD.ordering_attribute, OLD.ordering_type, OLD.type, OLD.gid)
+            WITH keys(id, ordering_type, type, gid) AS (SELECT OLD.id, OLD.ordering_type, OLD.type, OLD.gid)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
                              '{_operation}', '"delete"') FROM keys
         ));
@@ -3074,44 +3074,6 @@ BEGIN
     INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, series, type) AS (SELECT OLD.id, OLD.series, OLD.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series_alias"'),
-                             '{_operation}', '"delete"') FROM keys
-        ));
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_insert() RETURNS trigger
-    AS $$
-BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'index', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
-                             '{_operation}', '"insert"') FROM keys
-        ));
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_update() RETURNS trigger
-    AS $$
-BEGIN
-    IF OLD.gid <> NEW.gid OR OLD.name <> NEW.name THEN
-        INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
-            WITH keys(id) AS (SELECT NEW.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
-                             '{_operation}', '"update"') FROM keys
-        ));
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION search_link_attribute_type_delete() RETURNS trigger
-    AS $$
-BEGIN
-    INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
-            WITH keys(id) AS (SELECT OLD.id)
-            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"link_attribute_type"'),
                              '{_operation}', '"delete"') FROM keys
         ));
     RETURN OLD;

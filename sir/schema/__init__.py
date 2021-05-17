@@ -473,7 +473,6 @@ SearchSeries = E(modelext.CustomSeries, [
     F("mbid", "gid"),
     F("alias", "aliases.name"),
     F("comment", "comment"),
-    F("orderingattribute", "link_attribute_type.name"),
     F("series", "name"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
