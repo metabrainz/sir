@@ -777,7 +777,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION search_series_update() RETURNS trigger
     AS $$
 BEGIN
-    IF OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.ordering_attribute <> NEW.ordering_attribute OR OLD.ordering_type <> NEW.ordering_type OR OLD.type <> NEW.type THEN
+    IF OLD.comment <> NEW.comment OR OLD.gid <> NEW.gid OR OLD.name <> NEW.name OR OLD.ordering_type <> NEW.ordering_type OR OLD.type <> NEW.type THEN
         INSERT INTO sir.message (exchange, routing_key, message) VALUES ('search', 'update', (
             WITH keys(id, ordering_type, type) AS (SELECT NEW.id, NEW.ordering_type, NEW.type)
             SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"series"'),
