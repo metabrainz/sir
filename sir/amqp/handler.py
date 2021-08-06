@@ -450,27 +450,23 @@ def _watch_impl():
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
-    try:
-        handler.connect_to_rabbitmq()
-        logger.info("Connection to RabbitMQ established")
-        logger.debug("Waiting for a message")
-        while indexing.PROCESS_FLAG.value:
-            try:
-                handler.connection.drain_events(timeout)
-            except socket_error:
-                # In case of a timeout, simply continue
-                pass
-            except Exception as exc:
-                # Do not log system call interruption in case of SIGTERM or SIGINT
-                if exc.errno != errno.EINTR:
-                    logger.error(format_exc(exc))
-            if indexing.PROCESS_FLAG.value:
-                if ((time.time() - handler.last_message) >= handler.process_delay
-                    or len(handler.pending_messages) >= handler.batch_size):
-                    handler.process_messages()
-    except Exception as e:
-        sentry_sdk.capture_exception(e)
-        raise
+    handler.connect_to_rabbitmq()
+    logger.info("Connection to RabbitMQ established")
+    logger.debug("Waiting for a message")
+    while indexing.PROCESS_FLAG.value:
+        try:
+            handler.connection.drain_events(timeout)
+        except socket_error:
+            # In case of a timeout, simply continue
+            pass
+        except Exception as exc:
+            # Do not log system call interruption in case of SIGTERM or SIGINT
+            if exc.errno != errno.EINTR:
+                logger.error(format_exc(exc))
+        if indexing.PROCESS_FLAG.value:
+            if (time.time() - handler.last_message) >= handler.process_delay \
+                    or len(handler.pending_messages) >= handler.batch_size:
+                handler.process_messages()
 
     # There might be some pending messages left in case we quit SIR while it's
     # sitting idle on drain_events.
