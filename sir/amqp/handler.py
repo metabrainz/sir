@@ -5,11 +5,14 @@
 import errno
 import os
 import signal
+
+import sentry_sdk
+
 import sir.indexing as indexing
 import time
 
 from sir.amqp import message
-from sir import get_sentry, config
+from sir import config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import live_index
 from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
@@ -465,8 +468,8 @@ def _watch_impl():
                 if ((time.time() - handler.last_message) >= handler.process_delay
                     or len(handler.pending_messages) >= handler.batch_size):
                     handler.process_messages()
-    except Exception:
-        get_sentry().captureException()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
         raise
 
     # There might be some pending messages left in case we quit SIR while it's
