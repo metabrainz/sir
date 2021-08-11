@@ -461,7 +461,7 @@ def _watch_impl():
             pass
         except Exception as exc:
             # Do not log system call interruption in case of SIGTERM or SIGINT
-            if exc.errno != errno.EINTR:
+            if not hasattr(exc, 'errno') or exc.errno != errno.EINTR:
                 logger.error(format_exc(exc))
         if indexing.PROCESS_FLAG.value:
             if (time.time() - handler.last_message) >= handler.process_delay \
