@@ -196,8 +196,10 @@ class Handler(object):
                 self.connection.close()
 
         conn = create_amqp_connection()
+        self.connection = conn
         logger.debug("Heartbeat value: %s" % conn.heartbeat)
         ch = conn.channel()
+        self.channel = ch
         # Keep in mind that `prefetch_size` is not supported by the version of RabbitMQ that
         # we are currently using (https://www.rabbitmq.com/specification.html).
         # Limits are requires because consumer connection might time out when receive buffer
@@ -207,8 +209,6 @@ class Handler(object):
 
         add_handler("search.index", self.index_callback, ch)
         add_handler("search.delete", self.delete_callback, ch)
-        self.connection = conn
-        self.channel = ch
 
     @action_wrapper
     def requeue_message(self, msg, exc, fail=False):
