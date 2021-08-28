@@ -23,7 +23,9 @@ RUN apt-get update && \
                     build-essential \
                     ca-certificates \
                     cron \
+                    curl \
                     git \
+                    gnupg \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \
@@ -32,9 +34,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # PostgreSQL client
-RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+RUN mkdir -p /usr/local/share/keyrings && \
+    curl -sSL --retry 5 https://www.postgresql.org/media/keys/ACCC4CF8.asc > /tmp/postgres-key.asc && \
+    gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --import /tmp/postgres-key.asc && \
+    gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --export --output /usr/local/share/keyrings/apt.postgresql.org.gpg && \
+    rm -f /tmp/postgres-key.asc /tmp/postgres-keyring.gpg
 ENV PG_MAJOR 9.5
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
+RUN echo 'deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && \
     apt-get install -y postgresql-client-$PG_MAJOR && \
     rm -rf /var/lib/apt/lists/*
