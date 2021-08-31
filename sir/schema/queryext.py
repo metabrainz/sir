@@ -25,7 +25,8 @@ models = [
 
 
 def filter_valid_annotations(query):
-    # TODO: Document this. What's going on in this filter?
+    # Skip all annotations for an entity except the last
+    # since all others are no longer current
     queries = [Query(func.max(getattr(m, "annotation_id"))).
                group_by(
                    getattr(m,
