@@ -6,59 +6,9 @@ from test import helpers, models
 from collections import defaultdict
 from sqlalchemy.orm.properties import RelationshipProperty
 from sir.querying import iterate_path_values
-from sir.schema.searchentities import defer_everything_but, merge_paths
+from sir.schema.searchentities import merge_paths
 from sir.schema import generate_update_map, SCHEMA
 from sir.trigger_generation.paths import second_last_model_in_path
-
-
-class DeferEverythingButTest(unittest.TestCase):
-    def setUp(self):
-        mapper = helpers.Object()
-        mapper.iterate_properties = []
-        pk1 = helpers.Object()
-        pk1.name = "pk1"
-        pk2 = helpers.Object()
-        pk2.name = "pk2"
-        mapper.primary_key = [pk1, pk2]
-
-        self.mapper = mapper
-
-        prop = helpers.Object()
-        prop.columns = ""
-        self.prop = prop
-        self.mapper.iterate_properties.append(prop)
-
-        self.load = mock.Mock()
-        self.required_columns = ["key", "key2"]
-
-    def test_plain_column_called(self):
-        self.prop.key = "foo"
-        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        load.defer.assert_called_once_with("foo")
-
-    def test_plain_column_not_called(self):
-        self.prop.key = "key"
-        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_id_column(self):
-        self.prop.key = "foo_id"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_position_column(self):
-        self.prop.key = "position"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_primary_key_always_loaded(self):
-        self.prop.key = "pk1"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
-
 
 class IteratePathValuesTest(unittest.TestCase):
     @classmethod
