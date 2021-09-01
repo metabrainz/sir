@@ -225,6 +225,11 @@ class SearchEntity(object):
                         for relationship_column in relationship_columns:
                             required_columns.remove(relationship_column)
 
+                        # Remove __tablename__ from column list because if it
+                        # ends up there because its not a column
+                        if '__tablename__' in required_columns:
+                            required_columns.remove('__tablename__')
+
                         logger.debug("Loading only %s on %s",
                                      required_columns,
                                      model)
