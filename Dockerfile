@@ -39,7 +39,7 @@ RUN mkdir -p /usr/local/share/keyrings && \
     gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --import /tmp/postgres-key.asc && \
     gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --export --output /usr/local/share/keyrings/apt.postgresql.org.gpg && \
     rm -f /tmp/postgres-key.asc /tmp/postgres-keyring.gpg
-ENV PG_MAJOR 9.5
+ENV PG_MAJOR 12
 RUN echo 'deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && \
     apt-get install -y postgresql-client-$PG_MAJOR && \
