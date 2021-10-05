@@ -6,8 +6,7 @@ import logging
 import multiprocessing
 import ConfigParser
 
-from . import config
-from . import init_raven_client
+from . import config, init_sentry_sdk
 from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch
 from .amqp.publisher import publish
@@ -136,9 +135,9 @@ def main():
 
     config.read_config()
     try:
-        init_raven_client(config.CFG.get("sentry", "dsn"))
+        init_sentry_sdk(config.CFG.get("sentry", "dsn"))
     except ConfigParser.Error as e:
-        logger.info("Skipping Raven client initialization. Configuration issue: %s", e)
+        logger.info("Skipping sentry initialization. Configuration issue: %s", e)
     func = args.func
     args = vars(args)
     func(args)

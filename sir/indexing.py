@@ -3,7 +3,9 @@
 import multiprocessing
 import signal
 
-from . import config, querying, util, get_sentry
+import sentry_sdk
+
+from . import config, querying, util
 from .schema import SCHEMA
 from ConfigParser import NoOptionError
 from functools import partial
@@ -322,11 +324,13 @@ def send_data_to_solr(solr_connection, data):
     :param [dict] data:
     :raises: :class:`solr:solr.SolrException`
     """
-    try:
-        solr_connection.add(data)
-        logger.debug("Done sending data to Solr")
-    except SolrError:
-        get_sentry().captureException(extra={"data": data})
-        FAILED.value = True
-    else:
-        logger.debug("Sent data to Solr")
+    with sentry_sdk.push_scope() as scope:
+        scope.set_extra("data", data)
+        try:
+            solr_connection.add(data)
+            logger.debug("Done sending data to Solr")
+        except SolrError as e:
+            sentry_sdk.capture_exception(e)
+            FAILED.value = True
+        else:
+            logger.debug("Sent data to Solr")
