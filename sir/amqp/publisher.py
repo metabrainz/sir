@@ -5,6 +5,7 @@
 
 import errno
 import signal
+import sentry_sdk
 import time
 import ujson
 
@@ -12,7 +13,6 @@ from amqp.basic_message import Message
 from amqp.exceptions import AMQPError
 from logging import getLogger
 from retrying import retry
-from sir import get_sentry
 from sir.util import create_amqp_connection, db_session, db_session_ctx
 from socket import error as socket_error
 from sys import exit
@@ -45,20 +45,20 @@ class SIRMessage(Base):
     """
     Represents a message in the sir.message table that is queued for delivery
     """
-    
+
     __tablename__ = 'message'
     __table_args__ = { 'schema': 'sir' }
-    
+
     id = Column(Integer, primary_key=True)
     exchange = Column(String)
     routing_key = Column(String)
     message = Column(Text)
     created = Column(DateTime(timezone=True))
-    
+
     def to_amqp_message(self):
         json_message = ujson.dumps(self.message)
         return Message(json_message, delivery_mode=AMQP_DELIVERY_MODE)
-    
+
     def __repr__(self):
         return "<SIRMessage(exchange='%s', routing_key='%s', message='%s', created='%s')>" % (
             self.exchange, self.routing_key, self.message, self.created.isoformat())
@@ -96,7 +96,7 @@ class Publisher(object):
                 with db_session_ctx(self.db_session) as session:
                     for msg in self._sir_message_query(session).limit(_SIR_MESSAGE_BATCH_SIZE):
                         logger.debug("Publishing sid.message ID: %s", msg.id)
-                        try:                            
+                        try:
                             self._queue_message(msg.to_amqp_message(), msg.exchange, msg.routing_key)
                             session.delete(msg)
                         except Exception as e:
@@ -107,10 +107,10 @@ class Publisher(object):
                 messages_pending = _PROCESS_FLAG and num_remaining > 0
         except Exception as e:
             logger.error(format_exc(e))
-    
+
     def _sir_message_query(self, session):
         return session.query(SIRMessage).order_by(SIRMessage.id.asc())
-                
+
     def _queue_message(self, msg, exchange, routing_key):
         self.channel.basic_publish(msg, exchange=exchange, routing_key=routing_key)
 
@@ -127,7 +127,7 @@ def _should_retry(exc):
 @retry(wait_fixed=_RETRY_WAIT_SECS * 1000, retry_on_exception=_should_retry)
 def _publish_impl():
     publisher = Publisher()
-    
+
     def signal_handler(signum, frame):
         global _PROCESS_FLAG
         _PROCESS_FLAG = False
@@ -151,8 +151,8 @@ def _publish_impl():
                 if not _PROCESS_FLAG:
                     break
                 time.sleep(1)
-    except Exception:
-        get_sentry().captureException()
+    except Exception as e:
+        sentry_sdk.captureException(e)
         raise
 
     logger.info('Terminating SIR Publisher')
