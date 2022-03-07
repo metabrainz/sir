@@ -163,6 +163,12 @@ class UpdateTriggerGenerator(TriggerGenerator):
         # in case any FK of related tables are changed
         all_columns = sorted(set(self.fk_columns + list(self.update_columns)))
         operation = "UPDATE OF %s" % ", ".join(all_columns)
+        # Compare all columns but 'coordinates' because its data type 'point'
+        # has no comparison operator '=' (only '=~') to use with 'DISTINCT'.
+        try:
+            all_columns.remove('coordinates');
+        except ValueError as e:
+            pass
         old = ", ".join(['OLD.{column}'.format(column=column) for column in all_columns])
         new = ", ".join(['NEW.{column}'.format(column=column) for column in all_columns])
         when = "({old}) IS DISTINCT FROM ({new})".format(old=old, new=new)
