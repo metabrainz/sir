@@ -495,7 +495,7 @@ def watch(args):
     """
     Watch AMQP queues for messages.
 
-    :param args: will be ignored
+    :param [str] entity_type: Entity types to watch.
     """
     try:
         create_amqp_connection()

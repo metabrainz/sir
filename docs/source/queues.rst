@@ -60,3 +60,7 @@ for another try.
 
 If processing a message failed too often, it will be put into ``search.failed``
 for manual inspection and intervention.
+
+Note that all messages are processed by default, but it is possible to
+optionally focus on processing message for a specified set of entity
+types only, through the option ``--entity-type``.
