@@ -69,6 +69,8 @@ def get_trigger_tables(entities):
 
         * list of primary keys for each table.
         * whether it's an entity table
+
+    :param [str] entities Which entity types to index if not all.
     """
     tables = collections.OrderedDict()  # mapping of table names to their models and their "kind" (direct or not)
     for entity in [SCHEMA[name] for name in entities]:
