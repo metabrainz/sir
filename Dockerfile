@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=2.7
-ARG BASE_IMAGE_DATE=20201201
+ARG BASE_IMAGE_DATE=20210517
 FROM metabrainz/python:$PYTHON_VERSION-$BASE_IMAGE_DATE
 
 ARG SIR_VERSION
@@ -40,7 +40,7 @@ RUN mkdir -p /usr/local/share/keyrings && \
     gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --export --output /usr/local/share/keyrings/apt.postgresql.org.gpg && \
     rm -f /tmp/postgres-key.asc /tmp/postgres-keyring.gpg
 ENV PG_MAJOR 12
-RUN echo 'deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
+RUN echo 'deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && \
     apt-get install -y postgresql-client-$PG_MAJOR && \
     rm -rf /var/lib/apt/lists/*
