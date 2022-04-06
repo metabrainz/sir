@@ -1,4 +1,4 @@
 #!/bin/sh
 
 cd /code
-exec python -m sir amqp_watch
+exec run-consul-template -config /etc/consul-template.conf
