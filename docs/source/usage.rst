@@ -13,12 +13,13 @@ command line interface which provides several subcommands:
 
 .. option:: triggers
 
-   This subcommand regenerates the trigger files in the ``sql/`` directory.
+   This subcommand regenerates the trigger files in the ``sql/`` directory (see
+   :ref:`amqp` for more information).
 
 .. option:: amqp_setup
 
-   This subcommand sets up AMQP exchanges and queues (see :ref:`amqp` for more
-   information).
+   This subcommand sets up AMQP exchanges and queues (see :ref:`triggers` for
+   more information).
 
 .. option:: amqp_watch
 
