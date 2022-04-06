@@ -157,7 +157,7 @@ class UpdateTriggerGenerator(TriggerGenerator):
         """
 
         if not self.update_columns:
-            return super().triger()
+            return super().trigger()
 
         # Consider FK columns in update triggers to make sure triggers are fired
         # in case any FK of related tables are changed
