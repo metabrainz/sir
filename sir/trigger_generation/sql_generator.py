@@ -155,22 +155,36 @@ class UpdateTriggerGenerator(TriggerGenerator):
 
         :rtype: str
         """
-        operation = 'UPDATE'
+
+        if not self.update_columns:
+            return super().trigger()
+
         # Consider FK columns in update triggers to make sure triggers are fired
         # in case any FK of related tables are changed
-        if self.update_columns:
-            all_columns = set(self.fk_columns + list(self.update_columns))
-            operation = "UPDATE OF %s" % ", ".join(sorted(all_columns))
+        all_columns = sorted(set(self.fk_columns + list(self.update_columns)))
+        operation = "UPDATE OF %s" % ", ".join(all_columns)
+        # Compare all columns but 'coordinates' because its data type 'point'
+        # has no comparison operator '=' (only '=~') to use with 'DISTINCT'.
+        try:
+            all_columns.remove('coordinates');
+        except ValueError as e:
+            pass
+        old = ", ".join(['OLD.{column}'.format(column=column) for column in all_columns])
+        new = ", ".join(['NEW.{column}'.format(column=column) for column in all_columns])
+        when = "({old}) IS DISTINCT FROM ({new})".format(old=old, new=new)
 
         return textwrap.dedent("""\
             CREATE TRIGGER {trigger_name} {before_or_after} {op} ON {schema}.{table_name}
-                FOR EACH ROW EXECUTE PROCEDURE {trigger_name}();\n
+                FOR EACH ROW
+                WHEN ({when})
+                EXECUTE PROCEDURE {trigger_name}();\n
         """).format(
             trigger_name=self.trigger_name,
             schema="musicbrainz",
             table_name=self.table_name,
             op=operation,
             before_or_after=self.before_or_after.upper(),
+            when=when
         )
 
 
