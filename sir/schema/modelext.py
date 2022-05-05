@@ -95,7 +95,6 @@ class CustomRecording(Recording):
     aliases = relationship("RecordingAlias")
     first_release_date = relationship("RecordingFirstReleaseDate")
     tags = relationship("RecordingTag")
-    tracks = relationship("Track")
 
 
 class CustomReleaseGroup(ReleaseGroup):
