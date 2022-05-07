@@ -3,6 +3,10 @@ FROM metabrainz/python:2.7-20220421
 RUN mkdir /code
 WORKDIR /code
 
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
 # Python dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -23,8 +27,10 @@ RUN pip install -r requirements.txt
 RUN pip install -r requirements_dev.txt
 
 COPY . /code/
+RUN cp config.test.ini config.ini
 
-CMD py.test --junitxml=/data/test_report.xml \
+CMD dockerize -wait tcp://musicbrainz_db:5432 -timeout 600s \
+        bash -c "py.test --junitxml=/data/test_report.xml \
             --cov=sir \
             --cov-report xml:/data/coverage.xml \
-            --cov-report html:/data/coverage-html
+            --cov-report html:/data/coverage-html"
