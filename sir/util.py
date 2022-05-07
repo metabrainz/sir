@@ -36,20 +36,27 @@ class VersionMismatchException(Exception):
                                                   self.actual)
 
 
-def db_session():
+def engine():
     """
-    Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
+    Create a new :class:`sqla:sqlalchemy.engine.Engine`.
 
-    :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
+    :rtype: :class:`sqla:sqlalchemy.engine.Engine`
     """
     cget = partial(config.CFG.get, "database")
     cdict = {"username": cget("user")}
     for key in ["password", "host", "port"]:
         cdict[key] = cget(key)
     cdict["database"] = cget("dbname")
-    e = create_engine(URL("postgresql", **cdict), server_side_cursors=False)
-    S = sessionmaker(bind=e)
-    return S
+    return create_engine(URL("postgresql", **cdict), server_side_cursors=False)
+
+
+def db_session():
+    """
+    Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
+
+    :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
+    """
+    return sessionmaker(bind=engine())
 
 
 @contextmanager
