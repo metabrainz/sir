@@ -199,7 +199,7 @@ def _index_entity_process_wrapper(args, live=False):
         raise
 
 
-def index_entity(entity_name, bounds, data_queue):
+def index_entity(entity_name, bounds, data_queue, session=None):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
@@ -217,7 +217,7 @@ def index_entity(entity_name, bounds, data_queue):
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    _query_database(entity_name, condition, data_queue)
+    _query_database(entity_name, condition, data_queue, session)
 
 
 def live_index_entity(entity_name, ids, data_queue):
