@@ -3,7 +3,7 @@
 import logging
 
 
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
@@ -107,10 +107,10 @@ def iter_bounds(db_session, column, batch_size, importlimit):
         from_self(column)
 
     if batch_size > 1:
-        q = q.filter("rownum %% %d=1" % batch_size)
+        q = q.filter(text("rownum % :batch_size=1").bindparams(batch_size=batch_size))
 
     if importlimit:
-        q = q.filter("rownum <= %d" % (importlimit))
+        q = q.filter(text("rownum <= :import_limit").bindparams(import_limit=importlimit))
 
     intervals = [id for id in q]
     bounds = []
