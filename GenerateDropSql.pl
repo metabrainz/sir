@@ -39,11 +39,11 @@ sub process_functions
     print OUT "-- Automatically generated, do not edit.\n";
     print OUT "\\unset ON_ERROR_STOP\n\n";
     foreach my $func (@functions) {
-        print OUT "DROP FUNCTION $func;\n";
+        print OUT "DROP FUNCTION IF EXISTS $func;\n";
     }
     foreach my $agg (@aggregates) {
         my ($name, $type) = @$agg;
-        print OUT "DROP AGGREGATE $name ($type);\n";
+        print OUT "DROP AGGREGATE IF EXISTS $name ($type);\n";
     }
     close OUT;
 }
@@ -72,7 +72,7 @@ sub process_triggers
     print OUT "-- Automatically generated, do not edit.\n";
     print OUT "\\unset ON_ERROR_STOP\n\n";
     foreach my $trigger (@triggers) {
-        print OUT "DROP TRIGGER $trigger->[0] ON $trigger->[1];\n";
+        print OUT "DROP TRIGGER IF EXISTS $trigger->[0] ON $trigger->[1];\n";
     }
     close OUT;
 }
