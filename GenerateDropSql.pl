@@ -27,6 +27,12 @@ sub process_functions
         my $name = $1;
         push @functions, $name;
     }
+    # Functions created by the previous versions of SIR
+    push @functions, qw(
+        search_link_attribute_type_insert
+        search_link_attribute_type_update
+        search_link_attribute_type_delete
+    );
     @functions = sort(@functions);
 
     my @aggregates;
@@ -67,6 +73,15 @@ sub process_triggers
     while ($create_triggers_sql =~ m/CREATE (?:CONSTRAINT )?TRIGGER\s+"?([a-z0-9_]+)"?\s+.*?\s+ON\s+"?([a-z0-9_\.]+)"?.*?;/gsi) {
         push @triggers, [$1, $2];
     }
+    # Triggers created by the previous versions of SIR
+    push @triggers, (
+        ['search_release_packaging_insert', 'musicbrainz.release_packaging'],
+        ['search_release_packaging_update', 'musicbrainz.release_packaging'],
+        ['search_release_packaging_delete', 'musicbrainz.release_packaging'],
+        ['search_link_attribute_type_insert', 'musicbrainz.link_attribute_type'],
+        ['search_link_attribute_type_update', 'musicbrainz.link_attribute_type'],
+        ['search_link_attribute_type_delete', 'musicbrainz.link_attribute_type']
+    );
 
     open OUT, ">$dir/$outfile";
     print OUT "-- Automatically generated, do not edit.\n";
