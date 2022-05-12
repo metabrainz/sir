@@ -82,6 +82,7 @@ sub process_triggers
         ['search_link_attribute_type_update', 'musicbrainz.link_attribute_type'],
         ['search_link_attribute_type_delete', 'musicbrainz.link_attribute_type']
     );
+    @triggers = sort(@triggers);
 
     open OUT, ">$dir/$outfile";
     print OUT "-- Automatically generated, do not edit.\n";
