@@ -52,13 +52,25 @@ RabbitMQ documentation`_.
 * Run ``python -m sir extension`` once to generate the file ``sql/CreateExtension.sql``.
 * Connect to your database as a superuser with ``psql`` to execute from this file.
 
+.. _triggers:
+
 Triggers
 """"""""
 
 In addition to the steps above, it is necessary to install functions and
 triggers into the database to send messages via AMQP after a change has been
-applied to the database. Those can be found in the ``sql`` directory and can be
-installed with
+applied to the database. Those can be found in the ``sql`` directory and will
+send messages for all entity types by default.
+
+If you just want search indices to be updated for a limited set of entity types,
+for example artists and works, you can regenerated those by running
+
+.. code-block:: shell
+
+     python -m sir triggers --entity-type artist --entity-type work
+
+Once you are satisfied with the (default or generated) SQL triggers, those can
+be installed with
 
 .. code-block:: shell
 
@@ -88,6 +100,5 @@ These can be found in the ``sql`` directory and can be installed with
      MB_SERVER_PATH=<mb_path> make installsql
 
 where ``<mb_path>`` is the path to your clone of the MusicBrainz server.
-
 
 .. _the RabbitMQ documentation: https://www.rabbitmq.com/configure.html

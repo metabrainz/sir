@@ -48,7 +48,7 @@ class CallbackWrapperTest(AmqpTestCase):
 
     def setUp(self):
         super(CallbackWrapperTest, self).setUp()
-        self.handler = handler.Handler()
+        self.handler = handler.Handler(SCHEMA.keys())
         self.channel = self.handler.channel = mock.MagicMock()
         self.handler.connection = mock.MagicMock()
 
@@ -109,7 +109,7 @@ class HandlerTest(AmqpTestCase):
         self.addCleanup(solr_version_check_patcher.stop)
         solr_version_check_patcher.start()
 
-        self.handler = handler.Handler()
+        self.handler = handler.Handler(handler.SCHEMA.keys())
         self.channel = self.handler.channel = mock.MagicMock()
         self.handler.connection = mock.MagicMock()
 
@@ -137,7 +137,7 @@ class HandlerTest(AmqpTestCase):
                    'type': '3'}
         parsed_message = Message(1, 'area_alias', columns, 'delete')
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler()
+        self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
@@ -171,7 +171,7 @@ class HandlerTest(AmqpTestCase):
         columns = {'id': '1'}
         parsed_message = Message(1, 'release_meta', columns, 'delete')
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler()
+        self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
@@ -190,7 +190,7 @@ class HandlerTest(AmqpTestCase):
         columns = {'release_group': 1}
         parsed_message = Message(1, 'release', columns, 'delete')
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler()
+        self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
             entity.build_entity_query = mock.MagicMock()
