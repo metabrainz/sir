@@ -6,8 +6,6 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile.test
-    volumes:
-      - "..:/code"
     depends_on:
       - musicbrainz_db
 
