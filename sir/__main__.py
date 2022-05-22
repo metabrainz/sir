@@ -63,6 +63,11 @@ def main():
                                            default="sql/CreateExtension.sql",
                                            help="The filename to save the "
                                            "extension into")
+    generate_extension_parser.add_argument('-w', '--wrapper-file',
+                                           action="store",
+                                           default="sql/psql",
+                                           help="The filename to save the "
+                                           "psql wrapper into")
 
     amqp_setup_parser = subparsers.add_parser("amqp_setup",
                                               help="Set up AMQP exchanges and "

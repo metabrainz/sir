@@ -7,6 +7,8 @@ from psycopg2 import connect, sql
 from sir import config
 from sir.trigger_generation import write_header, write_footer
 from textwrap import dedent
+import os
+import stat
 
 
 def generate_extension(args):
@@ -14,10 +16,24 @@ def generate_extension(args):
     Generate an SQL file to create extension amqp.
     """
     extension_filename = args["extension_file"]
+    wrapper_filename = args["wrapper_file"]
 
     dbcget = partial(config.CFG.get, "database")
     database_config = {key: dbcget(key) for key in
             ["dbname", "user", "password", "host", "port"]}
+    
+    with open(wrapper_filename, "w") as f:
+        f.write("#!/bin/bash\n")
+        psql_string = "PGPASSWORD={password} psql -h {host} -p {port} -U {user} -d {dbname} \"$@\"\n".format(
+            host=database_config["host"],
+            port=database_config["port"],
+            user=database_config["user"],
+            password=database_config["password"],
+            dbname=database_config["dbname"])
+        f.write(psql_string)
+    
+    st = os.stat(wrapper_filename)
+    os.chmod(wrapper_filename, st.st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
     rmqcget = partial(config.CFG.get, "rabbitmq")
     rabbitmq_config = [rmqcget(key) for key in
