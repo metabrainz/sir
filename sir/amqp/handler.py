@@ -475,6 +475,10 @@ def _watch_impl(entities):
             if not hasattr(exc, 'errno') or exc.errno != errno.EINTR:
                 logger.error(format_exc(exc))
         if indexing.PROCESS_FLAG.value:
+            logger.debug("delay: {delay} count: {count}".format(
+                delay = time.time() - handler.last_message,
+                count = len(handler.pending_messages)
+            ))
             if (time.time() - handler.last_message) >= handler.process_delay \
                     or len(handler.pending_messages) >= handler.batch_size:
                 handler.process_messages()
