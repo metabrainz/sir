@@ -9,3 +9,19 @@
 /build*
 /sir/version.py
 /sql/CreateExtension.sql
+/sql/CreateExtension.sql
+/sql/CreateTriggers.sql
+/sql/CreateFunctions.sql
+/sql/DropTriggers.sql
+/sql/DropFunctions.sql
+/sql/psql
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
