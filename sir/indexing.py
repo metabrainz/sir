@@ -237,7 +237,7 @@ def live_index_entity(entity_name, ids, data_queue):
     _query_database(entity_name, condition, data_queue)
 
 
-def _query_database(entity_name, condition, data_queue):
+def _query_database(entity_name, condition, data_queue, session=None):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
@@ -254,30 +254,33 @@ def _query_database(entity_name, condition, data_queue):
     search_entity = SCHEMA[entity_name]
     model = search_entity.model
     row_converter = search_entity.query_result_to_dict
-    with util.db_session_ctx(util.db_session()) as session:
-        query = search_entity.query.filter(condition).with_session(session)
-        total_records = 0
-        for row in query:
-            if not PROCESS_FLAG.value:
-                return
-            try:
-                data_queue.put(row_converter(row))
-            except ValueError:
-                logger.info("Skipping %s with id %s. "
-                            "The most likely cause of this is an "
-                            "unsupported control character in the "
-                            "data.",
-                            entity_name,
-                            row.id)
-            except Exception as exc:
-                logger.error("Failed to import %s with id %s",
-                             entity_name,
-                             row.id)
-                logger.exception(exc)
-                raise
-            else:
-                total_records += 1
-        logger.debug("Retrieved %s records in %s", total_records, model)
+
+    if session is None:
+        session = util.db_session()
+
+    query = search_entity.query.filter(condition).with_session(session)
+    total_records = 0
+    for row in query:
+        if not PROCESS_FLAG.value:
+            return
+        try:
+            data_queue.put(row_converter(row))
+        except ValueError:
+            logger.info("Skipping %s with id %s. "
+                        "The most likely cause of this is an "
+                        "unsupported control character in the "
+                        "data.",
+                        entity_name,
+                        row.id)
+        except Exception as exc:
+            logger.error("Failed to import %s with id %s",
+                         entity_name,
+                         row.id)
+            logger.exception(exc)
+            raise
+        else:
+            total_records += 1
+    logger.debug("Retrieved %s records in %s", total_records, model)
 
 
 def queue_to_solr(queue, batch_size, solr_connection):
