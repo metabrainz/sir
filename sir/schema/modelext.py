@@ -169,8 +169,17 @@ class CustomWork(Work):
 
 
 class CustomURL(URL):
+    area_links = relationship("LinkAreaURL", viewonly=True)
     artist_links = relationship("LinkArtistURL", viewonly=True)
+    event_links = relationship("LinkEventURL", viewonly=True)
+    instrument_links = relationship("LinkInstrumentURL", viewonly=True)
+    label_links = relationship("LinkLabelURL", viewonly=True)
+    place_links = relationship("LinkPlaceURL", viewonly=True)
+    recording_links = relationship("LinkRecordingURL", viewonly=True)
+    release_group_links = relationship("LinkReleaseGroupURL", viewonly=True)
     release_links = relationship("LinkReleaseURL", viewonly=True)
+    series_links = relationship("LinkSeriesURL", viewonly=True)
+    work_links = relationship("LinkURLWork", viewonly=True)
 
 
 class CustomLinkAttribute(LinkAttribute):
