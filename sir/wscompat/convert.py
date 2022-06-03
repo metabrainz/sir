@@ -648,7 +648,7 @@ def convert_release_from_track(obj):
     release.set_medium_list(convert_medium_list_from_track(obj))
 
     release.set_release_group(
-        convert_release_group_for_release(rel.release_group))
+        convert_release_group_simple(rel.release_group))
 
     if rel.status is not None:
         release.set_status(convert_release_status(rel.status))
@@ -656,7 +656,7 @@ def convert_release_from_track(obj):
     return release
 
 
-def convert_release_group_for_release(obj):
+def convert_release_group_simple(obj, include_releases=False):
     """
     :type obj: :class:`mbdata.models.ReleaseGroup`
     """
@@ -672,29 +672,8 @@ def convert_release_group_for_release(obj):
         rg.set_secondary_type_list(
             convert_secondary_type_list(obj.secondary_types))
 
-    if obj.comment:
-        rg.set_disambiguation(obj.comment)
-
-    return rg
-
-
-def convert_release_group_simple(obj):
-    """
-    :type obj: :class:`mbdata.models.ReleaseGroup`
-    """
-    rg = models.release_group(id=obj.gid, title=obj.name)
-
-    if obj.type is not None:
-        rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        type_ = calculate_type(obj.type, obj.secondary_types)
-        rg.set_type(type_.name)
-        rg.set_type_id(type_.gid)
-
-    if len(obj.secondary_types) > 0:
-        rg.set_secondary_type_list(
-            convert_secondary_type_list(obj.secondary_types))
-
-    rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
+    if include_releases:
+        rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
 
     if obj.comment:
         rg.set_disambiguation(obj.comment)
@@ -1100,7 +1079,7 @@ def convert_release(obj):
         release.set_medium_list(convert_medium_list(obj.mediums))
 
     release.set_release_group(
-        convert_release_group_for_release(obj.release_group))
+        convert_release_group_simple(obj.release_group))
 
     if obj.status is not None:
         release.set_status(convert_release_status(obj.status))
