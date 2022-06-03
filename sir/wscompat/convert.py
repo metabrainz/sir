@@ -681,6 +681,25 @@ def convert_release_group_simple(obj, include_releases=False):
     return rg
 
 
+def convert_release_group_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkReleaseGroupURL`
+    """
+    relation = convert_relation(obj)
+    release_group = convert_release_group_simple(obj.release_group)
+    relation.set_release_group(release_group)
+    return relation
+
+
+def convert_release_group_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkReleaseGroupURL]`
+    """
+    relation_list = models.relation_list(target_type="release_group")
+    [relation_list.add_relation(convert_release_group_relation(p)) for p in obj]
+    return relation_list
+
+
 def convert_release_list_for_recordings(obj):
     """
     :type obj: :class:`[mbdata.models.Track]`
