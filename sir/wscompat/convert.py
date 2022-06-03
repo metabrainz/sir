@@ -172,9 +172,10 @@ def convert_area_relation(obj):
     return relation
 
 
-def convert_event_area_relation(obj):
+def convert_area_others_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkAreaEvent`
+    :type obj: :class:`mbdata.models.LinkAreaEvent` or
+               :class:`mbdata.models.LinkAreaURL`
     """
     relation = convert_relation(obj)
     area = convert_area_simple(obj.area)
@@ -191,12 +192,13 @@ def convert_area_relation_list(obj):
     return relations
 
 
-def convert_event_area_relation_list(obj):
+def convert_area_others_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkAreaEvent]`
+    :type obj: :class:`[mbdata.models.LinkAreaEvent]` or
+               :class:`[mbdata.models.LinkAreaURL]`
     """
     relations = models.relation_list(target_type="area")
-    [relations.add_relation(convert_event_area_relation(a)) for a in obj]
+    [relations.add_relation(convert_area_others_relation(a)) for a in obj]
     return relations
 
 
@@ -940,7 +942,7 @@ def convert_event(obj):
         event.set_time(datetime_to_string(obj.time))
 
     if obj.area_links:
-        event.add_relation_list(convert_event_area_relation_list(obj.area_links))
+        event.add_relation_list(convert_area_others_relation_list(obj.area_links))
 
     if obj.artist_links:
         event.add_relation_list(convert_artist_relation_list(obj.artist_links))
