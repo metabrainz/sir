@@ -172,9 +172,10 @@ def convert_area_relation(obj):
     return relation
 
 
-def convert_event_area_relation(obj):
+def convert_area_others_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkAreaEvent`
+    :type obj: :class:`mbdata.models.LinkAreaEvent` or
+               :class:`mbdata.models.LinkAreaURL`
     """
     relation = convert_relation(obj)
     area = convert_area_simple(obj.area)
@@ -191,12 +192,13 @@ def convert_area_relation_list(obj):
     return relations
 
 
-def convert_event_area_relation_list(obj):
+def convert_area_others_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkAreaEvent]`
+    :type obj: :class:`[mbdata.models.LinkAreaEvent]` or
+               :class:`[mbdata.models.LinkAreaURL]`
     """
     relations = models.relation_list(target_type="area")
-    [relations.add_relation(convert_event_area_relation(a)) for a in obj]
+    [relations.add_relation(convert_area_others_relation(a)) for a in obj]
     return relations
 
 
@@ -300,8 +302,9 @@ def convert_artist_simple(obj, include_aliases=True):
 
 def convert_artist_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkArtistWork` or
-               :class:`mbdata.models.LinkArtistEvent`
+    :type obj: :class:`mbdata.models.LinkArtistEvent` or
+               :class:`mbdata.models.LinkArtistURL` or
+               :class:`mbdata.models.LinkArtistWork`
     """
     relation = convert_relation(obj)
     artist = convert_artist_simple(obj.artist, include_aliases=False)
@@ -311,8 +314,9 @@ def convert_artist_relation(obj):
 
 def convert_artist_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkArtistWork]` or
-               :class:`[mbdata.models.LinkArtistEvent]`
+    :type obj: :class:`[mbdata.models.LinkArtistEvent]` or
+               :class:`[mbdata.models.LinkArtistURL]` or
+               :class:`[mbdata.models.LinkArtistWork]`
     """
     relation_list = models.relation_list(target_type="artist")
     [relation_list.add_relation(convert_artist_relation(r)) for r in obj]
@@ -324,14 +328,17 @@ def convert_recording_simple(obj):
     :type obj: :class:`sir.schema.modelext.CustomRecording`
     """
     recording = models.recording(id=obj.gid, title=obj.name)
+    if obj.comment:
+        recording.set_disambiguation(obj.comment)
     if obj.video:
         recording.set_video("true")
     return recording
 
 
-def convert_recording_work_relation(obj):
+def convert_recording_others_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkRecordingWork`
+    :type obj: :class:`mbdata.models.LinkRecordingWork` or
+               :class:`mbdata.models.LinkRecordingURL`
     """
     relation = convert_relation(obj)
     recording = convert_recording_simple(obj.recording)
@@ -339,12 +346,13 @@ def convert_recording_work_relation(obj):
     return relation
 
 
-def convert_recording_work_relation_list(obj):
+def convert_recording_others_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkRecordingWork]`
+    :type obj: :class:`[mbdata.models.LinkRecordingWork]` or
+               :class:`[mbdata.models.LinkRecordingURL]`
     """
     relation_list = models.relation_list(target_type="recording")
-    [relation_list.add_relation(convert_recording_work_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_recording_others_relation(r)) for r in obj]
     return relation_list
 
 
@@ -562,12 +570,15 @@ def convert_place_simple(obj):
     :type obj: :class:`mbdata.models.Place`
     """
     place = models.place(id=obj.gid, name=obj.name)
+    if obj.comment:
+        place.set_disambiguation(obj.comment)
     return place
 
 
 def convert_place_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkEventPlace`
+    :type obj: :class:`mbdata.models.LinkEventPlace` or
+               :class:`mbdata.models.LinkPlaceURL`
     """
     relation = convert_relation(obj)
     place = convert_place_simple(obj.place)
@@ -577,7 +588,8 @@ def convert_place_relation(obj):
 
 def convert_place_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkEventPlace]`
+    :type obj: :class:`[mbdata.models.LinkEventPlace]` or
+               :class:`[mbdata.models.LinkPlaceURL]`
     """
     relation_list = models.relation_list(target_type="place")
     [relation_list.add_relation(convert_place_relation(p)) for p in obj]
@@ -636,7 +648,7 @@ def convert_release_from_track(obj):
     release.set_medium_list(convert_medium_list_from_track(obj))
 
     release.set_release_group(
-        convert_release_group_for_release(rel.release_group))
+        convert_release_group_simple(rel.release_group))
 
     if rel.status is not None:
         release.set_status(convert_release_status(rel.status))
@@ -644,7 +656,7 @@ def convert_release_from_track(obj):
     return release
 
 
-def convert_release_group_for_release(obj):
+def convert_release_group_simple(obj, include_releases=False):
     """
     :type obj: :class:`mbdata.models.ReleaseGroup`
     """
@@ -660,34 +672,32 @@ def convert_release_group_for_release(obj):
         rg.set_secondary_type_list(
             convert_secondary_type_list(obj.secondary_types))
 
-    if obj.comment:
-        rg.set_disambiguation(obj.comment)
-
-    return rg
-
-
-def convert_release_group_simple(obj):
-    """
-    :type obj: :class:`mbdata.models.ReleaseGroup`
-    """
-    rg = models.release_group(id=obj.gid, title=obj.name)
-
-    if obj.type is not None:
-        rg.set_primary_type(convert_release_group_primary_type(obj.type))
-        type_ = calculate_type(obj.type, obj.secondary_types)
-        rg.set_type(type_.name)
-        rg.set_type_id(type_.gid)
-
-    if len(obj.secondary_types) > 0:
-        rg.set_secondary_type_list(
-            convert_secondary_type_list(obj.secondary_types))
-
-    rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
+    if include_releases:
+        rg.set_release_list(convert_release_list_for_release_groups(obj.releases))
 
     if obj.comment:
         rg.set_disambiguation(obj.comment)
 
     return rg
+
+
+def convert_release_group_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkReleaseGroupURL`
+    """
+    relation = convert_relation(obj)
+    release_group = convert_release_group_simple(obj.release_group)
+    relation.set_release_group(release_group)
+    return relation
+
+
+def convert_release_group_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkReleaseGroupURL]`
+    """
+    relation_list = models.relation_list(target_type="release_group")
+    [relation_list.add_relation(convert_release_group_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_release_list_for_recordings(obj):
@@ -934,7 +944,7 @@ def convert_event(obj):
         event.set_time(datetime_to_string(obj.time))
 
     if obj.area_links:
-        event.add_relation_list(convert_event_area_relation_list(obj.area_links))
+        event.add_relation_list(convert_area_others_relation_list(obj.area_links))
 
     if obj.artist_links:
         event.add_relation_list(convert_artist_relation_list(obj.artist_links))
@@ -949,6 +959,35 @@ def convert_event(obj):
         event.set_tag_list(convert_tag_list(obj.tags))
 
     return event
+
+
+def convert_event_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Event`
+    """
+    event = models.event(id=obj.gid, name=obj.name)
+    if obj.comment:
+        event.set_disambiguation(obj.comment)
+    return event
+
+
+def convert_event_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkEventURL`
+    """
+    relation = convert_relation(obj)
+    event = convert_event_simple(obj.event)
+    relation.set_event(event)
+    return relation
+
+
+def convert_event_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkEventURL]`
+    """
+    relation_list = models.relation_list(target_type="event")
+    [relation_list.add_relation(convert_event_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_instrument(obj):
@@ -974,6 +1013,35 @@ def convert_instrument(obj):
         instrument.set_tag_list(convert_tag_list(obj.tags))
 
     return instrument
+
+
+def convert_instrument_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Instrument`
+    """
+    instrument = models.instrument(id=obj.gid, name=obj.name)
+    if obj.comment:
+        instrument.set_disambiguation(obj.comment)
+    return instrument
+
+
+def convert_instrument_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkInstrumentURL`
+    """
+    relation = convert_relation(obj)
+    instrument = convert_instrument_simple(obj.instrument)
+    relation.set_instrument(instrument)
+    return relation
+
+
+def convert_instrument_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkInstrumentURL]`
+    """
+    relation_list = models.relation_list(target_type="instrument")
+    [relation_list.add_relation(convert_instrument_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_label(obj):
@@ -1014,6 +1082,35 @@ def convert_label(obj):
         label.set_tag_list(convert_tag_list(obj.tags))
 
     return label
+
+
+def convert_label_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Label`
+    """
+    label = models.label(id=obj.gid, name=obj.name)
+    if obj.comment:
+        label.set_disambiguation(obj.comment)
+    return label
+
+
+def convert_label_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkLabelURL`
+    """
+    relation = convert_relation(obj)
+    label = convert_label_simple(obj.label)
+    relation.set_label(label)
+    return relation
+
+
+def convert_label_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkLabelURL]`
+    """
+    relation_list = models.relation_list(target_type="label")
+    [relation_list.add_relation(convert_label_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_recording(obj):
@@ -1088,7 +1185,7 @@ def convert_release(obj):
         release.set_medium_list(convert_medium_list(obj.mediums))
 
     release.set_release_group(
-        convert_release_group_for_release(obj.release_group))
+        convert_release_group_simple(obj.release_group))
 
     if obj.status is not None:
         release.set_status(convert_release_status(obj.status))
@@ -1145,6 +1242,9 @@ def convert_release_group(obj):
 
 
 def convert_release_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkReleaseURL`
+    """
     relation = convert_relation(obj)
     release_obj = obj.release
     release = models.release(id=release_obj.gid, title=release_obj.name)
@@ -1155,6 +1255,9 @@ def convert_release_relation(obj):
 
 
 def convert_release_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkReleaseURL]`
+    """
     relation_list = models.relation_list(target_type="release")
     [relation_list.add_relation(convert_release_relation(r)) for r in obj]
     return relation_list
@@ -1182,6 +1285,35 @@ def convert_series(obj):
     return series
 
 
+def convert_series_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Series`
+    """
+    series = models.series(id=obj.gid, name=obj.name)
+    if obj.comment:
+        series.set_disambiguation(obj.comment)
+    return series
+
+
+def convert_series_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkSeriesURL`
+    """
+    relation = convert_relation(obj)
+    series = convert_series_simple(obj.series)
+    relation.set_series(series)
+    return relation
+
+
+def convert_series_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkSeriesURL]`
+    """
+    relation_list = models.relation_list(target_type="series")
+    [relation_list.add_relation(convert_series_relation(p)) for p in obj]
+    return relation_list
+
+
 def convert_standalone_tag(obj):
     """
     Converts a standalone tag - one that does not have a `count` attribute
@@ -1198,10 +1330,28 @@ def convert_url(obj):
     :type obj: :class`mbdata_models.URL`
     """
     url = models.url(id=obj.gid, resource=obj.url)
+    if obj.area_links:
+        url.add_relation_list(convert_area_others_relation_list(obj.area_links))
     if obj.artist_links:
         url.add_relation_list(convert_artist_relation_list(obj.artist_links))
+    if obj.event_links:
+        url.add_relation_list(convert_event_relation_list(obj.event_links))
+    if obj.instrument_links:
+        url.add_relation_list(convert_instrument_relation_list(obj.instrument_links))
+    if obj.label_links:
+        url.add_relation_list(convert_label_relation_list(obj.label_links))
+    if obj.place_links:
+        url.add_relation_list(convert_place_relation_list(obj.place_links))
+    if obj.recording_links:
+        url.add_relation_list(convert_recording_others_relation_list(obj.recording_links))
+    if obj.release_group_links:
+        url.add_relation_list(convert_release_group_relation_list(obj.release_group_links))
     if obj.release_links:
         url.add_relation_list(convert_release_relation_list(obj.release_links))
+    if obj.series_links:
+        url.add_relation_list(convert_series_relation_list(obj.series_links))
+    if obj.work_links:
+        url.add_relation_list(convert_work_relation_list(obj.work_links))
     return url
 
 
@@ -1219,7 +1369,7 @@ def convert_work(obj):
         work.set_disambiguation(obj.comment)
     if obj.recording_links:
         work.add_relation_list(
-            convert_recording_work_relation_list(obj.recording_links))
+            convert_recording_others_relation_list(obj.recording_links))
     if obj.languages:
         work.set_language_list(convert_language_list(obj.languages))
         if len(obj.languages) == 1:
@@ -1233,6 +1383,35 @@ def convert_work(obj):
         work.set_iswc_list(convert_iswc_list(obj.iswcs))
 
     return work
+
+
+def convert_work_simple(obj):
+    """
+    :type obj: :class:`mbdata.models.Work`
+    """
+    work = models.work(id=obj.gid, name=obj.name)
+    if obj.comment:
+        work.set_disambiguation(obj.comment)
+    return work
+
+
+def convert_work_relation(obj):
+    """
+    :type obj: :class:`mbdata.models.LinkURLWork`
+    """
+    relation = convert_relation(obj)
+    work = convert_work_simple(obj.work)
+    relation.set_work(work)
+    return relation
+
+
+def convert_work_relation_list(obj):
+    """
+    :type obj: :class:`[mbdata.models.LinkURLWork]`
+    """
+    relation_list = models.relation_list(target_type="work")
+    [relation_list.add_relation(convert_work_relation(p)) for p in obj]
+    return relation_list
 
 
 def convert_release_group_primary_type(obj):
