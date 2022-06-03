@@ -1330,10 +1330,28 @@ def convert_url(obj):
     :type obj: :class`mbdata_models.URL`
     """
     url = models.url(id=obj.gid, resource=obj.url)
+    if obj.area_links:
+        url.add_relation_list(convert_area_others_relation_list(obj.area_links))
     if obj.artist_links:
         url.add_relation_list(convert_artist_relation_list(obj.artist_links))
+    if obj.event_links:
+        url.add_relation_list(convert_event_relation_list(obj.event_links))
+    if obj.instrument_links:
+        url.add_relation_list(convert_instrument_relation_list(obj.instrument_links))
+    if obj.label_links:
+        url.add_relation_list(convert_label_relation_list(obj.label_links))
+    if obj.place_links:
+        url.add_relation_list(convert_place_relation_list(obj.place_links))
+    if obj.recording_links:
+        url.add_relation_list(convert_recording_others_relation_list(obj.recording_links))
+    if obj.release_group_links:
+        url.add_relation_list(convert_release_group_relation_list(obj.release_group_links))
     if obj.release_links:
         url.add_relation_list(convert_release_relation_list(obj.release_links))
+    if obj.series_links:
+        url.add_relation_list(convert_series_relation_list(obj.series_links))
+    if obj.work_links:
+        url.add_relation_list(convert_work_relation_list(obj.work_links))
     return url
 
 
