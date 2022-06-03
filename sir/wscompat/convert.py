@@ -575,7 +575,8 @@ def convert_place_simple(obj):
 
 def convert_place_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkEventPlace`
+    :type obj: :class:`mbdata.models.LinkEventPlace` or
+               :class:`mbdata.models.LinkPlaceURL`
     """
     relation = convert_relation(obj)
     place = convert_place_simple(obj.place)
@@ -585,7 +586,8 @@ def convert_place_relation(obj):
 
 def convert_place_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkEventPlace]`
+    :type obj: :class:`[mbdata.models.LinkEventPlace]` or
+               :class:`[mbdata.models.LinkPlaceURL]`
     """
     relation_list = models.relation_list(target_type="place")
     [relation_list.add_relation(convert_place_relation(p)) for p in obj]
