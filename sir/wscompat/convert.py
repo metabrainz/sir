@@ -335,9 +335,10 @@ def convert_recording_simple(obj):
     return recording
 
 
-def convert_recording_work_relation(obj):
+def convert_recording_others_relation(obj):
     """
-    :type obj: :class:`mbdata.models.LinkRecordingWork`
+    :type obj: :class:`mbdata.models.LinkRecordingWork` or
+               :class:`mbdata.models.LinkRecordingURL`
     """
     relation = convert_relation(obj)
     recording = convert_recording_simple(obj.recording)
@@ -345,12 +346,13 @@ def convert_recording_work_relation(obj):
     return relation
 
 
-def convert_recording_work_relation_list(obj):
+def convert_recording_others_relation_list(obj):
     """
-    :type obj: :class:`[mbdata.models.LinkRecordingWork]`
+    :type obj: :class:`[mbdata.models.LinkRecordingWork]` or
+               :class:`[mbdata.models.LinkRecordingURL]`
     """
     relation_list = models.relation_list(target_type="recording")
-    [relation_list.add_relation(convert_recording_work_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_recording_others_relation(r)) for r in obj]
     return relation_list
 
 
@@ -1235,7 +1237,7 @@ def convert_work(obj):
         work.set_disambiguation(obj.comment)
     if obj.recording_links:
         work.add_relation_list(
-            convert_recording_work_relation_list(obj.recording_links))
+            convert_recording_others_relation_list(obj.recording_links))
     if obj.languages:
         work.set_language_list(convert_language_list(obj.languages))
         if len(obj.languages) == 1:
