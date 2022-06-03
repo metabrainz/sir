@@ -564,6 +564,8 @@ def convert_place_simple(obj):
     :type obj: :class:`mbdata.models.Place`
     """
     place = models.place(id=obj.gid, name=obj.name)
+    if obj.comment:
+        place.set_disambiguation(obj.comment)
     return place
 
 
