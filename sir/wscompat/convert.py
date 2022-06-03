@@ -326,6 +326,8 @@ def convert_recording_simple(obj):
     :type obj: :class:`sir.schema.modelext.CustomRecording`
     """
     recording = models.recording(id=obj.gid, title=obj.name)
+    if obj.comment:
+        recording.set_disambiguation(obj.comment)
     if obj.video:
         recording.set_video("true")
     return recording
