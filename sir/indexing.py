@@ -189,9 +189,10 @@ def _index_entity_process_wrapper(args, live=False):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     try:
+        session = Session(util.engine())
         if live:
-            return live_index_entity(*args)
-        return index_entity(*args)
+            return live_index_entity(session, *args)
+        return index_entity(session, *args)
     except Exception as exc:
         logger.error("Failed to import %s with id in bounds %s",
                      args[0],
@@ -200,12 +201,13 @@ def _index_entity_process_wrapper(args, live=False):
         raise
 
 
-def index_entity(entity_name, bounds, data_queue, session=None):
+def index_entity(session, entity_name, bounds, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
+    :param sqlalchemy.orm.Session session:
     :param str entity_name:
     :param bounds:
     :type bounds: (int, int)
@@ -218,15 +220,16 @@ def index_entity(entity_name, bounds, data_queue, session=None):
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    _query_database(entity_name, condition, data_queue, session)
+    _query_database(session, entity_name, condition, data_queue)
 
 
-def live_index_entity(entity_name, ids, data_queue):
+def live_index_entity(session, entity_name, ids, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
+    :param sqlalchemy.orm.Session session:
     :param str entity_name:
     :param [int] ids:
     :param Queue.Queue data_queue:
@@ -235,10 +238,10 @@ def live_index_entity(entity_name, ids, data_queue):
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
     logger.debug("Importing %s new rows for entity %s", len(ids), entity_name)
-    _query_database(entity_name, condition, data_queue)
+    _query_database(session, entity_name, condition, data_queue)
 
 
-def _query_database(entity_name, condition, data_queue, session=None):
+def _query_database(session, entity_name, condition, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
@@ -255,9 +258,6 @@ def _query_database(entity_name, condition, data_queue, session=None):
     search_entity = SCHEMA[entity_name]
     model = search_entity.model
     row_converter = search_entity.query_result_to_dict
-
-    if session is None:
-        session = Session(util.engine())
 
     with session:
         query = search_entity.query.filter(condition).with_session(session)

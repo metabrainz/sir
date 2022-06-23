@@ -41,7 +41,7 @@ class IndexingTestCase(unittest.TestCase):
         )
 
         queue = Queue()
-        index_entity(entity, bounds[0], queue, session=self.session)
+        index_entity(self.session, entity, bounds[0], queue)
 
         received = []
         while not queue.empty():
