@@ -5,10 +5,11 @@ This module wraps models from mbdata package and adds missing relationships
 that are used in SIR.
 """
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
-                           Instrument, Label, LinkAttribute, LinkAttributeType,
-                           LinkRecordingWork, Medium, MediumCDTOC, Place, Recording, Release,
-                           ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
-                           Work, URL)
+                           Genre, Instrument, Label, LinkAttribute,
+                           LinkAttributeType, LinkRecordingWork, Medium,
+                           MediumCDTOC, Place, Recording, Release,
+                           ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag,
+                           Series, Work, URL)
 from sqlalchemy import exc as sa_exc, func, select
 from sqlalchemy.orm import relationship, column_property
 from sqlalchemy.sql.expression import and_
@@ -67,6 +68,10 @@ class CustomEvent(Event):
     area_links = relationship("LinkAreaEvent")
     artist_links = relationship("LinkArtistEvent")
     tags = relationship("EventTag")
+
+
+class CustomGenre(Genre):
+    aliases = relationship("GenreAlias")
 
 
 class CustomInstrument(Instrument):

@@ -211,6 +211,23 @@ SearchEvent = E(modelext.CustomEvent, [
                 "time"]
 )
 
+SearchGenre = E(modelext.CustomGenre, [
+    F("mbid", "gid"),
+    F("alias", "aliases.name"),
+    F("comment", "comment"),
+    F("genre", "name"),
+    F("sortname", "aliases.sort_name"),
+],
+    1.5,
+    convert.convert_genre,
+    extrapaths=["aliases.type.name", "aliases.type.id",
+                "aliases.sort_name", "aliases.type.gid",
+                "aliases.locale", "aliases.primary_for_locale",
+                "aliases.begin_date", "aliases.end_date",
+                ]
+)
+
+
 SearchInstrument = E(modelext.CustomInstrument, [
     F("alias", "aliases.name"),
     F("comment", "comment"),
@@ -572,6 +589,7 @@ SCHEMA = OrderedDict(sorted({
     "cdstub": SearchCDStub,
     "editor": SearchEditor,
     "event": SearchEvent,
+    "genre": SearchGenre,
     "instrument": SearchInstrument,
     "label": SearchLabel,
     "place": SearchPlace,
