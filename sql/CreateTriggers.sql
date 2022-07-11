@@ -79,6 +79,28 @@ CREATE TRIGGER search_event_update AFTER UPDATE OF begin_date_day, begin_date_mo
 CREATE TRIGGER search_event_delete BEFORE DELETE ON musicbrainz.event
     FOR EACH ROW EXECUTE PROCEDURE search_event_delete();
 
+CREATE TRIGGER search_genre_annotation_insert AFTER INSERT ON musicbrainz.genre_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_genre_annotation_insert();
+
+CREATE TRIGGER search_genre_annotation_update AFTER UPDATE OF annotation, genre ON musicbrainz.genre_annotation
+    FOR EACH ROW
+    WHEN ((OLD.annotation, OLD.genre) IS DISTINCT FROM (NEW.annotation, NEW.genre))
+    EXECUTE PROCEDURE search_genre_annotation_update();
+
+CREATE TRIGGER search_genre_annotation_delete BEFORE DELETE ON musicbrainz.genre_annotation
+    FOR EACH ROW EXECUTE PROCEDURE search_genre_annotation_delete();
+
+CREATE TRIGGER search_genre_insert AFTER INSERT ON musicbrainz.genre
+    FOR EACH ROW EXECUTE PROCEDURE search_genre_insert();
+
+CREATE TRIGGER search_genre_update AFTER UPDATE OF gid, name ON musicbrainz.genre
+    FOR EACH ROW
+    WHEN ((OLD.gid, OLD.name) IS DISTINCT FROM (NEW.gid, NEW.name))
+    EXECUTE PROCEDURE search_genre_update();
+
+CREATE TRIGGER search_genre_delete BEFORE DELETE ON musicbrainz.genre
+    FOR EACH ROW EXECUTE PROCEDURE search_genre_delete();
+
 CREATE TRIGGER search_instrument_annotation_insert AFTER INSERT ON musicbrainz.instrument_annotation
     FOR EACH ROW EXECUTE PROCEDURE search_instrument_annotation_insert();
 

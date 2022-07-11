@@ -254,6 +254,78 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION search_genre_annotation_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(annotation, genre) AS (SELECT NEW.annotation, NEW.genre)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre_annotation"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_genre_annotation_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(annotation, genre) AS (SELECT NEW.annotation, NEW.genre)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre_annotation"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_genre_annotation_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(annotation, genre) AS (SELECT OLD.annotation, OLD.genre)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre_annotation"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_genre_insert() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'index', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre"'),
+                             '{_operation}', '"insert"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_genre_update() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT NEW.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre"'),
+                             '{_operation}', '"update"')::text FROM keys
+        ));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION search_genre_delete() RETURNS trigger
+    AS $$
+BEGIN
+    PERFORM amqp.publish(2, 'search', 'update', (
+            WITH keys(id) AS (SELECT OLD.id)
+            SELECT jsonb_set(jsonb_set(to_jsonb(keys), '{_table}', '"genre"'),
+                             '{_operation}', '"delete"')::text FROM keys
+        ));
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_instrument_annotation_insert() RETURNS trigger
     AS $$
 BEGIN

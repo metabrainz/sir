@@ -22,6 +22,7 @@ class CustomAnnotation(Annotation):
     areas = relationship("AreaAnnotation")
     artists = relationship("ArtistAnnotation")
     events = relationship("EventAnnotation")
+    genres = relationship("GenreAnnotation")
     instruments = relationship("InstrumentAnnotation")
     labels = relationship("LabelAnnotation")
     places = relationship("PlaceAnnotation")

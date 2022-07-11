@@ -761,6 +761,8 @@ def convert_annotation(obj):
         l.append(convert_one_annotation(obj, 'artist',       a.artist))
     for a in obj.events:
         l.append(convert_one_annotation(obj, 'event',        a.event))
+    for a in obj.genres:
+        l.append(convert_one_annotation(obj, 'genre',        a.genre))
     for a in obj.instruments:
         l.append(convert_one_annotation(obj, 'instrument',   a.instrument))
     for a in obj.labels:
