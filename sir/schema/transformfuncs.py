@@ -23,6 +23,7 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
     "l_area_url": "area",
     "l_artist_url": "artist",
     "l_event_url": "event",
+    "l_genre_url": "genre",
     "l_instrument_url": "instrument",
     "l_label_url": "label",
     "l_place_url": "place",
