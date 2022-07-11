@@ -5,7 +5,7 @@ This module wraps models from mbdata package and adds missing relationships
 that are used in SIR.
 """
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
-                           Instrument, Label, LinkAttribute,
+                           Genre, Instrument, Label, LinkAttribute,
                            LinkRecordingWork, Medium, MediumCDTOC, Place, Recording, Release,
                            ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
                            Work, URL)
@@ -87,6 +87,10 @@ class CustomEvent(Event):
     area_links = relationship("LinkAreaEvent", viewonly=True)
     artist_links = relationship("LinkArtistEvent", viewonly=True)
     tags = relationship("EventTag", viewonly=True)
+
+
+class CustomGenre(Genre):
+    aliases = relationship("GenreAlias")
 
 
 class CustomInstrument(Instrument):
