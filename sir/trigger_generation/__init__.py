@@ -18,7 +18,7 @@ def generate_func(args):
         trigger_filename=args["trigger_file"],
         function_filename=args["function_file"],
         broker_id=args["broker_id"],
-        entities = args["entity_type"] or list(SCHEMA.keys())
+        entities=args["entity_type"] or SCHEMA.keys()
     )
 
 
@@ -48,7 +48,7 @@ def generate(trigger_filename, function_filename, broker_id, entities):
         write_header(triggerfile)
         write_header(functionfile)
 
-        for table_name, table_info in list(get_trigger_tables(entities).items()):
+        for table_name, table_info in get_trigger_tables(entities).items():
             write_triggers(
                 trigger_file=triggerfile,
                 function_file=functionfile,
