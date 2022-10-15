@@ -23,6 +23,9 @@ Database
 Sir requires that you both install an extension into your MusicBrainz database
 and add triggers to it.
 
+It also requires to have built the materialized (or denormalized) tables
+for the MusicBrainz database.
+
 AMQP Extension
 ++++++++++++++
 
