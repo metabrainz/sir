@@ -198,7 +198,7 @@ class SearchEntity(object):
                             load = load.joinedload(pathelem)
                         else:
                             load = load.defaultload(pathelem)
-                        required_columns = current_merged_path.keys()
+                        required_columns = list(current_merged_path.keys())
                         required_columns.append(pk)
 
                         # Get the mapper class of the current element of the
@@ -208,9 +208,9 @@ class SearchEntity(object):
                         # For composite properties, load the columns they
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
-                        composite_columns = filter(
+                        composite_columns = list(filter(
                             partial(is_composite_column, model),
-                            required_columns)
+                            required_columns))
                         for composite_column in composite_columns:
                             composite_parts = list(c.name for c in
                                                getattr(model,

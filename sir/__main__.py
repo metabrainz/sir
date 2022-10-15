@@ -1,10 +1,10 @@
-from __future__ import absolute_import
+
 # Copyright (c) 2014, 2015, 2019 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import argparse
 import logging
 import multiprocessing
-import ConfigParser
+import configparser
 
 from . import config, init_sentry_sdk
 from .amqp.extension_generation import generate_extension
@@ -31,7 +31,7 @@ def main():
     reindex_parser.set_defaults(func=reindex)
     reindex_parser.add_argument('--entity-type', action='append',
                                 help="Which entity types to index.",
-                                choices=SCHEMA.keys())
+                                choices=list(SCHEMA.keys()))
 
     generate_trigger_parser = subparsers.add_parser("triggers",
                                                     help="Generate triggers")
@@ -53,7 +53,7 @@ def main():
                                          "in the database.")
     generate_trigger_parser.add_argument('--entity-type', action='append',
                                          help="Which entity types to index.",
-                                         choices=SCHEMA.keys())
+                                         choices=list(SCHEMA.keys()))
 
     generate_extension_parser = subparsers.add_parser("extension",
                                                       help="Generate extension")
@@ -74,7 +74,7 @@ def main():
                                               "changes")
     amqp_watch_parser.add_argument('--entity-type', action='append',
                                    help="Which entity types to watch.",
-                                   choices=SCHEMA.keys())
+                                   choices=list(SCHEMA.keys()))
 
     amqp_watch_parser.set_defaults(func=watch)
 
@@ -123,7 +123,7 @@ def main():
     config.read_config()
     try:
         init_sentry_sdk(config.CFG.get("sentry", "dsn"))
-    except ConfigParser.Error as e:
+    except configparser.Error as e:
         logger.info("Skipping sentry initialization. Configuration issue: %s", e)
     func = args.func
     args = vars(args)

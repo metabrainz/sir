@@ -49,7 +49,7 @@ class Message(object):
         :param amqp.basic_message.Message amqp_message: Message object from the queue.
         :rtype: :class:`sir.amqp.message.Message`
         """
-        if queue_name not in QUEUE_TO_TYPE.keys():
+        if queue_name not in list(QUEUE_TO_TYPE.keys()):
             raise ValueError("Unknown queue: %s" % queue_name)
         else:
             message_type = QUEUE_TO_TYPE[queue_name]

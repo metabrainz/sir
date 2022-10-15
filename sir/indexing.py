@@ -7,7 +7,7 @@ import sentry_sdk
 
 from . import config, querying, util
 from .schema import SCHEMA
-from ConfigParser import NoOptionError
+from configparser import NoOptionError
 from functools import partial
 from logging import getLogger, DEBUG, INFO
 from pysolr import SolrError
@@ -45,7 +45,7 @@ def reindex(args):
         return
 
     entities = args["entity_type"]
-    known_entities = SCHEMA.keys()
+    known_entities = list(SCHEMA.keys())
     if entities is None:
         entities = known_entities
 
@@ -77,7 +77,7 @@ def live_index(entities):
         return
     # Reset failed before each import
     FAILED.value = False
-    _multiprocessed_import(entities.keys(), live=True, entities=entities)
+    _multiprocessed_import(list(entities.keys()), live=True, entities=entities)
     if FAILED.value:
         raise Exception('Post to Solr failed. Requeueing all pending messages for retry.')
 
