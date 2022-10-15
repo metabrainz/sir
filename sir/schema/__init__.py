@@ -580,7 +580,7 @@ SearchWork = E(modelext.CustomWork, [
 
 
 #: Maps core names to :class:`~sir.schema.searchentities.SearchEntity` objects.
-SCHEMA = OrderedDict(sorted({
+SCHEMA = OrderedDict(sorted(list({
     # The dict gets sorted to guarantee a sorted order in `reindex`s --help
     "annotation": SearchAnnotation,
     "artist": SearchArtist,
@@ -598,7 +598,7 @@ SCHEMA = OrderedDict(sorted({
     "tag": SearchTag,
     "url": SearchUrl,
     "work": SearchWork,
-}.items(), key=lambda val: val[0]))
+}.items()), key=lambda val: val[0]))
 
 
 def generate_update_map():
@@ -624,7 +624,7 @@ def generate_update_map():
     # Used to map table names to core names while handling entity deletion.
     core_map = {}
 
-    for core_name, entity in SCHEMA.items():
+    for core_name, entity in list(SCHEMA.items()):
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
         table_name = class_mapper(entity.model).persist_selectable.name

@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+#!/usr/bin/env python3
+
 import os, subprocess, re
 from distutils.core import setup, Command
 from distutils.command.sdist import sdist as _sdist

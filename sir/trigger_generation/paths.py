@@ -77,7 +77,7 @@ def unique_split_paths(paths):
     for path in paths:
         splits = path.split(".")
         split_length = len(splits)
-        for i in xrange(1, split_length + 1):
+        for i in range(1, split_length + 1):
             join = ".".join(splits[:i])
             if join not in seen_paths:
                 seen_paths.add(join)

@@ -29,8 +29,8 @@ from retrying import retry
 from socket import error as socket_error
 from sqlalchemy.orm import class_mapper
 from sys import exit
-from urllib2 import URLError
-from ConfigParser import NoOptionError
+from urllib.error import URLError
+from configparser import NoOptionError
 from collections import defaultdict
 from traceback import format_exc
 
@@ -504,7 +504,7 @@ def watch(args):
         exit(1)
 
     try:
-        entities = args["entity_type"] or SCHEMA.keys()
+        entities = args["entity_type"] or list(SCHEMA.keys())
         _watch_impl(entities)
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)
