@@ -1,4 +1,3 @@
-
 # Copyright (c) 2014, 2015, 2019 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import argparse
@@ -31,7 +30,7 @@ def main():
     reindex_parser.set_defaults(func=reindex)
     reindex_parser.add_argument('--entity-type', action='append',
                                 help="Which entity types to index.",
-                                choices=list(SCHEMA.keys()))
+                                choices=SCHEMA.keys())
 
     generate_trigger_parser = subparsers.add_parser("triggers",
                                                     help="Generate triggers")
@@ -53,7 +52,7 @@ def main():
                                          "in the database.")
     generate_trigger_parser.add_argument('--entity-type', action='append',
                                          help="Which entity types to index.",
-                                         choices=list(SCHEMA.keys()))
+                                         choices=SCHEMA.keys())
 
     generate_extension_parser = subparsers.add_parser("extension",
                                                       help="Generate extension")
@@ -74,7 +73,7 @@ def main():
                                               "changes")
     amqp_watch_parser.add_argument('--entity-type', action='append',
                                    help="Which entity types to watch.",
-                                   choices=list(SCHEMA.keys()))
+                                   choices=SCHEMA.keys())
 
     amqp_watch_parser.set_defaults(func=watch)
 

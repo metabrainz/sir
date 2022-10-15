@@ -504,7 +504,7 @@ def watch(args):
         exit(1)
 
     try:
-        entities = args["entity_type"] or list(SCHEMA.keys())
+        entities = args["entity_type"] or SCHEMA.keys()
         _watch_impl(entities)
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)

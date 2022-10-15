@@ -208,9 +208,9 @@ class SearchEntity(object):
                         # For composite properties, load the columns they
                         # consist of because eagerly loading a composite
                         # property doesn't load automatically load them.
-                        composite_columns = list(filter(
+                        composite_columns = filter(
                             partial(is_composite_column, model),
-                            required_columns))
+                            required_columns)
                         for composite_column in composite_columns:
                             composite_parts = list(c.name for c in
                                                getattr(model,
