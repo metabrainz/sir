@@ -1,4 +1,4 @@
-FROM metabrainz/python:2.7-20220421
+FROM metabrainz/python:3.10-20220315
 
 RUN mkdir /code
 WORKDIR /code
