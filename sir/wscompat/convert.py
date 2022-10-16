@@ -987,7 +987,7 @@ def convert_label(obj):
         if len(obj.area.iso_3166_1_codes) > 0:
             label.set_country(obj.area.iso_3166_1_codes[0].code)
 
-    if obj.label_code > 0:
+    if obj.label_code is not None and obj.label_code > 0:
         label.set_label_code(obj.label_code)
 
     if len(obj.aliases) > 0:
