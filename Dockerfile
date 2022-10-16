@@ -26,6 +26,7 @@ RUN apt-get update && \
                     curl \
                     git \
                     gnupg \
+                    libz-dev \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \
