@@ -378,7 +378,7 @@ class Handler(object):
         # to update the related entities. For 'one to many' relationships, the related
         # entity would have had an update trigger firing off to unlink the `index_entity`
         # before `index_entity` itself is deleted, so we can ignore those.
-        relevant_rels = dict((r.mapper.mapped_table.name, (list(r.local_columns)[0].name, list(r.remote_side)[0]))
+        relevant_rels = dict((r.mapper.persist_selectable.name, (list(r.local_columns)[0].name, list(r.remote_side)[0]))
                              for r in class_mapper(index_model).mapper.relationships
                              if r.direction.name == 'MANYTOONE')
         for core_name, path in update_map[parsed_message.table_name]:
@@ -398,7 +398,7 @@ class Handler(object):
             related_model, new_path = second_last_model_in_path(entity.model, path)
             related_table_name = ""
             if related_model:
-                related_table_name = class_mapper(related_model).mapped_table.name
+                related_table_name = class_mapper(related_model).persist_selectable.name
             if related_table_name in relevant_rels:
                 with db_session_ctx(self.db_session) as session:
                     select_query = None

@@ -76,7 +76,7 @@ def get_trigger_tables(entities):
     for entity in [SCHEMA[name] for name in entities]:
         # Entity table itself
         mapped_class = class_mapper(entity.model)
-        tables[mapped_class.mapped_table.name] = {
+        tables[mapped_class.persist_selectable.name] = {
             "model": entity.model,
             "is_direct": True,
             "has_gid": mapped_class.has_property('gid'),
@@ -87,7 +87,7 @@ def get_trigger_tables(entities):
                                              for path in field.paths if field.trigger]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
-                table_name = class_mapper(model).mapped_table.name
+                table_name = class_mapper(model).persist_selectable.name
                 if table_name not in tables:
                     tables[table_name] = {
                         "model": model,
@@ -106,7 +106,7 @@ def write_triggers(trigger_file, function_file, model, is_direct, has_gid, **gen
     """
     # Mapper defines correlation of model class attributes to database table columns
     mapper = class_mapper(model)
-    table_name = mapper.mapped_table.name
+    table_name = mapper.persist_selectable.name
     fk_columns = [list(r.local_columns)[0].name for r in mapper.relationships
                   if r.direction.name == 'MANYTOONE']
     if is_direct:
