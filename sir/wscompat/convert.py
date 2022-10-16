@@ -1,11 +1,7 @@
 # Copyright (c) Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from sir.wscompat.modelfix import fix
-try:
-    # Python 3
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache
+from functools import lru_cache
 from mbrng import models
 
 fix()
