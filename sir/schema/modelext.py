@@ -9,34 +9,33 @@ from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
                            LinkRecordingWork, Medium, MediumCDTOC, Place, Recording, Release,
                            ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
                            Work, URL)
-from sqlalchemy import exc as sa_exc, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import relationship, column_property
 from sqlalchemy.sql.expression import and_
-from warnings import simplefilter
-
-# Ignore SQLAlchemy's warnings that we're overriding some attributes
-simplefilter(action="ignore", category=sa_exc.SAWarning)
 
 
 class CustomAnnotation(Annotation):
-    areas = relationship("AreaAnnotation")
-    artists = relationship("ArtistAnnotation")
-    events = relationship("EventAnnotation")
-    instruments = relationship("InstrumentAnnotation")
-    labels = relationship("LabelAnnotation")
-    places = relationship("PlaceAnnotation")
-    recordings = relationship("RecordingAnnotation")
-    releases = relationship("ReleaseAnnotation")
-    release_groups = relationship("ReleaseGroupAnnotation")
-    series = relationship("SeriesAnnotation")
-    works = relationship("WorkAnnotation")
+    areas = relationship("AreaAnnotation", viewonly=True)
+    artists = relationship("ArtistAnnotation", viewonly=True)
+    events = relationship("EventAnnotation", viewonly=True)
+    instruments = relationship("InstrumentAnnotation", viewonly=True)
+    labels = relationship("LabelAnnotation", viewonly=True)
+    places = relationship("PlaceAnnotation", viewonly=True)
+    recordings = relationship("RecordingAnnotation", viewonly=True)
+    releases = relationship("ReleaseAnnotation", viewonly=True)
+    release_groups = relationship("ReleaseGroupAnnotation", viewonly=True)
+    series = relationship("SeriesAnnotation", viewonly=True)
+    works = relationship("WorkAnnotation", viewonly=True)
 
 
 class CustomArea(Area):
-    aliases = relationship("AreaAlias")
-    area_links = relationship("LinkAreaArea",
-                              primaryjoin="Area.id == LinkAreaArea.entity1_id")
-    tags = relationship("AreaTag")
+    aliases = relationship("AreaAlias", viewonly=True)
+    area_links = relationship(
+        "LinkAreaArea",
+        primaryjoin="Area.id == LinkAreaArea.entity1_id",
+        viewonly=True
+    )
+    tags = relationship("AreaTag", viewonly=True)
     place_count = column_property(select([func.count(Place.id)]).where(Place.area_id == Area.id))
     label_count = column_property(select([func.count(Label.id)]).where(Label.area_id == Area.id))
     artist_count = column_property(select([func.count(Artist.id)]).where(Artist.area_id == Area.id))
@@ -47,8 +46,9 @@ class CustomArtist(Artist):
     begin_area = relationship('CustomArea',
                               foreign_keys=[Artist.begin_area_id])
     end_area = relationship('CustomArea', foreign_keys=[Artist.end_area_id])
-    tags = relationship('ArtistTag')
-    artist_credit_names = relationship("ArtistCreditName", innerjoin=True)
+    tags = relationship('ArtistTag', viewonly=True)
+    artist_credit_names = relationship("ArtistCreditName", innerjoin=True,
+                                       viewonly=True)
     primary_aliases = column_property(select(
         [func.array_agg(ArtistAlias.name)]).where(
             and_(ArtistAlias.artist_id == Artist.id,
@@ -57,89 +57,89 @@ class CustomArtist(Artist):
 
 class CustomArtistAlias(ArtistAlias):
     artist = relationship('Artist', foreign_keys=[ArtistAlias.artist_id],
-                          innerjoin=True, backref="aliases")
+                          innerjoin=True, backref="aliases", viewonly=True)
 
 
 class CustomEvent(Event):
     # still need to allow searching with place/area/artist aliases
-    aliases = relationship("EventAlias")
-    place_links = relationship("LinkEventPlace")
-    area_links = relationship("LinkAreaEvent")
-    artist_links = relationship("LinkArtistEvent")
-    tags = relationship("EventTag")
+    aliases = relationship("EventAlias", viewonly=True)
+    place_links = relationship("LinkEventPlace", viewonly=True)
+    area_links = relationship("LinkAreaEvent", viewonly=True)
+    artist_links = relationship("LinkArtistEvent", viewonly=True)
+    tags = relationship("EventTag", viewonly=True)
 
 
 class CustomInstrument(Instrument):
-    aliases = relationship("InstrumentAlias")
-    tags = relationship("InstrumentTag")
+    aliases = relationship("InstrumentAlias", viewonly=True)
+    tags = relationship("InstrumentTag", viewonly=True)
 
 
 class CustomLabel(Label):
-    aliases = relationship("LabelAlias")
+    aliases = relationship("LabelAlias", viewonly=True)
     area = relationship("CustomArea", foreign_keys=[Label.area_id])
-    tags = relationship("LabelTag")
+    tags = relationship("LabelTag", viewonly=True)
     release_count = column_property(select([func.count(ReleaseLabel.id)]).where(ReleaseLabel.label_id == Label.id))
 
 
 class CustomMediumCDToc(MediumCDTOC):
     medium = relationship('Medium', foreign_keys=[MediumCDTOC.medium_id],
-                          innerjoin=True, backref="cdtocs")
+                          innerjoin=True, backref="cdtocs", viewonly=True)
 
 
 class CustomPlace(Place):
     area = relationship("CustomArea", foreign_keys=[Place.area_id])
-    aliases = relationship("PlaceAlias")
+    aliases = relationship("PlaceAlias", viewonly=True)
 
 
 class CustomRecording(Recording):
-    aliases = relationship("RecordingAlias")
-    first_release_date = relationship("RecordingFirstReleaseDate")
-    tags = relationship("RecordingTag")
+    aliases = relationship("RecordingAlias", viewonly=True)
+    first_release_date = relationship("RecordingFirstReleaseDate", viewonly=True)
+    tags = relationship("RecordingTag", viewonly=True)
 
 
 class CustomReleaseGroup(ReleaseGroup):
-    aliases = relationship("ReleaseGroupAlias")
-    first_release_date = relationship("ReleaseGroupMeta")
-    releases = relationship("Release")
-    tags = relationship("ReleaseGroupTag")
+    aliases = relationship("ReleaseGroupAlias", viewonly=True)
+    first_release_date = relationship("ReleaseGroupMeta", viewonly=True)
+    releases = relationship("Release", viewonly=True)
+    tags = relationship("ReleaseGroupTag", viewonly=True)
     release_count = column_property(select([func.count(Release.id)]).where(Release.release_group_id == ReleaseGroup.id))
 
 
 class CustomRelease(Release):
-    aliases = relationship("ReleaseAlias")
-    asin = relationship("ReleaseMeta")
+    aliases = relationship("ReleaseAlias", viewonly=True)
+    asin = relationship("ReleaseMeta", viewonly=True)
     medium_count = column_property(select([func.count(Medium.id)]).where(Medium.release_id == Release.id))
 
 
 class CustomReleaseRaw(ReleaseRaw):
-    discids = relationship("CDTOCRaw")
+    discids = relationship("CDTOCRaw", viewonly=True)
 
 
 class CustomReleaseTag(ReleaseTag):
     release = relationship('Release', foreign_keys=[ReleaseTag.release_id],
-                           innerjoin=True, backref="tags")
+                           innerjoin=True, backref="tags", viewonly=True)
 
 
 class CustomSeries(Series):
-    aliases = relationship("SeriesAlias")
-    tags = relationship("SeriesTag")
+    aliases = relationship("SeriesAlias", viewonly=True)
+    tags = relationship("SeriesTag", viewonly=True)
 
 
 class CustomWork(Work):
-    aliases = relationship("WorkAlias")
-    artist_links = relationship("LinkArtistWork")
-    tags = relationship("WorkTag")
-    languages = relationship("WorkLanguage")
-    recording_links = relationship("LinkRecordingWork")
+    aliases = relationship("WorkAlias", viewonly=True)
+    artist_links = relationship("LinkArtistWork", viewonly=True)
+    tags = relationship("WorkTag", viewonly=True)
+    languages = relationship("WorkLanguage", viewonly=True)
+    recording_links = relationship("LinkRecordingWork", viewonly=True)
     recording_count = column_property(select([func.count(LinkRecordingWork.id)]).where(LinkRecordingWork.work_id == Work.id))
 
 
 class CustomURL(URL):
-    artist_links = relationship("LinkArtistURL")
-    release_links = relationship("LinkReleaseURL")
+    artist_links = relationship("LinkArtistURL", viewonly=True)
+    release_links = relationship("LinkReleaseURL", viewonly=True)
 
 
 class CustomLinkAttribute(LinkAttribute):
     link = relationship('Link',
                         foreign_keys=[LinkAttribute.link_id], innerjoin=True,
-                        backref="attributes")
+                        backref="attributes", viewonly=True)
