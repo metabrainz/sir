@@ -36,9 +36,21 @@ class CustomArea(Area):
         viewonly=True
     )
     tags = relationship("AreaTag", viewonly=True)
-    place_count = column_property(select([func.count(Place.id)]).where(Place.area_id == Area.id))
-    label_count = column_property(select([func.count(Label.id)]).where(Label.area_id == Area.id))
-    artist_count = column_property(select([func.count(Artist.id)]).where(Artist.area_id == Area.id))
+    place_count = column_property(
+        select([func.count(Place.id)]).
+        where(Place.area_id == Area.id).
+        scalar_subquery()
+    )
+    label_count = column_property(
+        select([func.count(Label.id)]).
+        where(Label.area_id == Area.id).
+        scalar_subquery()
+    )
+    artist_count = column_property(
+        select([func.count(Artist.id)]).
+        where(Artist.area_id == Area.id).
+        scalar_subquery()
+    )
 
 
 class CustomArtist(Artist):
@@ -49,10 +61,14 @@ class CustomArtist(Artist):
     tags = relationship('ArtistTag', viewonly=True)
     artist_credit_names = relationship("ArtistCreditName", innerjoin=True,
                                        viewonly=True)
-    primary_aliases = column_property(select(
-        [func.array_agg(ArtistAlias.name)]).where(
-            and_(ArtistAlias.artist_id == Artist.id,
-                 ArtistAlias.primary_for_locale == True)))
+    primary_aliases = column_property(
+        select([func.array_agg(ArtistAlias.name)]).
+        where(and_(
+            ArtistAlias.artist_id == Artist.id,
+            ArtistAlias.primary_for_locale == True
+        )).
+        scalar_subquery()
+    )
 
 
 class CustomArtistAlias(ArtistAlias):
@@ -78,7 +94,11 @@ class CustomLabel(Label):
     aliases = relationship("LabelAlias", viewonly=True)
     area = relationship("CustomArea", foreign_keys=[Label.area_id])
     tags = relationship("LabelTag", viewonly=True)
-    release_count = column_property(select([func.count(ReleaseLabel.id)]).where(ReleaseLabel.label_id == Label.id))
+    release_count = column_property(
+        select([func.count(ReleaseLabel.id)]).
+        where(ReleaseLabel.label_id == Label.id).
+        scalar_subquery()
+    )
 
 
 class CustomMediumCDToc(MediumCDTOC):
@@ -102,13 +122,21 @@ class CustomReleaseGroup(ReleaseGroup):
     first_release_date = relationship("ReleaseGroupMeta", viewonly=True)
     releases = relationship("Release", viewonly=True)
     tags = relationship("ReleaseGroupTag", viewonly=True)
-    release_count = column_property(select([func.count(Release.id)]).where(Release.release_group_id == ReleaseGroup.id))
+    release_count = column_property(
+        select([func.count(Release.id)]).
+        where(Release.release_group_id == ReleaseGroup.id).
+        scalar_subquery()
+    )
 
 
 class CustomRelease(Release):
     aliases = relationship("ReleaseAlias", viewonly=True)
     asin = relationship("ReleaseMeta", viewonly=True)
-    medium_count = column_property(select([func.count(Medium.id)]).where(Medium.release_id == Release.id))
+    medium_count = column_property(
+        select([func.count(Medium.id)]).
+        where(Medium.release_id == Release.id).
+        scalar_subquery()
+    )
 
 
 class CustomReleaseRaw(ReleaseRaw):
@@ -131,7 +159,11 @@ class CustomWork(Work):
     tags = relationship("WorkTag", viewonly=True)
     languages = relationship("WorkLanguage", viewonly=True)
     recording_links = relationship("LinkRecordingWork", viewonly=True)
-    recording_count = column_property(select([func.count(LinkRecordingWork.id)]).where(LinkRecordingWork.work_id == Work.id))
+    recording_count = column_property(
+        select([func.count(LinkRecordingWork.id)]).
+        where(LinkRecordingWork.work_id == Work.id).
+        scalar_subquery()
+    )
 
 
 class CustomURL(URL):
