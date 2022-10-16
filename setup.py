@@ -90,6 +90,7 @@ class build(_build):
         self.distribution.metadata.version = get_version()
         return _build.run(self)
 
+
 # Here ends the code taken from Brian Warner
 
 setup(name="sir",
@@ -102,14 +103,14 @@ setup(name="sir",
                 "sir.trigger_generation",
                 "sir.wscompat"],
       package_dir={"sir": "sir"},
-      download_url=["https://github.com/metabrainz/sir/tarball/master"],
-      url=["http://github.com/metabrainz/sir"],
+      download_url="https://github.com/metabrainz/sir/tarball/master",
+      url="https://github.com/metabrainz/sir",
       license="MIT",
       classifiers=["Development Status :: 4 - Beta",
                    "License :: OSI Approved :: MIT License",
                    "Natural Language :: English",
                    "Operating System :: OS Independent",
-                   "Programming Language :: Python :: 2.7"],
+                   "Programming Language :: Python :: 3.10"],
       cmdclass={"version": Version, "sdist": sdist, "build": build},
       description="Search Index Rabbit",
       long_description=open("README.rst").read()
