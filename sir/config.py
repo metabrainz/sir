@@ -1,17 +1,16 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import configparser
+from configparser import ConfigParser, ExtendedInterpolation
 import os.path
 
-#: A :class:`SafeExpandingConfigParser` instance holding the configuration
-#: data.
-CFG = None  # type: SafeExpandingConfigParser
+#: A :class:`ConfigParser` instance holding the configuration data.
+CFG = None  # type: ConfigParser
 
 
-class SafeExpandingConfigParser(configparser.SafeConfigParser, object):
-    def _interpolate(self, section, option, rawval, vars):
-        return os.path.expandvars(super(SafeExpandingConfigParser,
-            self)._interpolate(section, option, rawval, vars))
+class EnvironmentInterpolation(ExtendedInterpolation):
+    def before_read(self, parser, section, option, value):
+        value = super().before_read(parser, section, option, value)
+        return os.path.expandvars(value)
 
 
 class ConfigError(Exception):
@@ -24,7 +23,7 @@ def read_config():
     :const:`sir.config.CFG` to a :class:`SafeExpandingConfigParser`
     instance.
     """
-    config = SafeExpandingConfigParser()
+    config = ConfigParser(interpolation=EnvironmentInterpolation())
     read_files = config.read([os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         "..", "config.ini"
