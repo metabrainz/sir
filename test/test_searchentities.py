@@ -43,7 +43,7 @@ class QueryResultToDictTest(unittest.TestCase):
 
         res = self.entity.query_result_to_dict(self.val)
 
-        self.expected["_store"] = tostring(elem)
+        self.expected["_store"] = str(tostring(elem, encoding="us-ascii"), encoding="us-ascii")
         self.assertDictEqual(self.expected, res)
         self.assertEqual(convmock.to_etree.call_count, 1)
 

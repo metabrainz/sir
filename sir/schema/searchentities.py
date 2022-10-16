@@ -262,6 +262,6 @@ class SearchEntity(object):
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
             not None):
-            data["_store"] = tostring(self.compatconverter(obj).to_etree())
+            data["_store"] = str(tostring(self.compatconverter(obj).to_etree(), encoding='us-ascii'), encoding='us-ascii')
 
         return data
