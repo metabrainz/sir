@@ -160,7 +160,7 @@ def write_header(f):
     :param file f: File to write the header into.
     """
     f.write("-- Automatically generated, do not edit!\n")
-    f.write("\set ON_ERROR_STOP 1\n")
+    f.write("\\set ON_ERROR_STOP 1\n")
     f.write("BEGIN;\n\n")
 
 
