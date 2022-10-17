@@ -13,7 +13,7 @@ def noop(*args, **kwargs):
 
 class VersionCheckerTest(unittest.TestCase):
     def setUp(self):
-        urlopen = mock.patch("sir.util.urllib2.urlopen")
+        urlopen = mock.patch("sir.util.urllib.request.urlopen")
         urlopenmock = urlopen.start()
         self.addCleanup(urlopen.stop)
 
@@ -41,14 +41,14 @@ class VersionCheckerTest(unittest.TestCase):
 
     def test_solr_version_too_large(self):
         self.read.return_value = dumps({"version": 1.2})
-        self.assertRaisesRegexp(util.VersionMismatchException,
+        self.assertRaisesRegex(util.VersionMismatchException,
                                 "^testcore: Expected 1.1, got 1.2",
                                 util.solr_version_check,
                                 "testcore")
 
     def test_solr_version_too_small(self):
         self.read.return_value = dumps({"version": 1.0})
-        self.assertRaisesRegexp(util.VersionMismatchException,
+        self.assertRaisesRegex(util.VersionMismatchException,
                                 "^testcore: Expected 1.1, got 1.0",
                                 util.solr_version_check,
                                 "testcore")

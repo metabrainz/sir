@@ -95,7 +95,7 @@ class MergePathsTest(unittest.TestCase):
     def test_dotless_path(self):
         paths = [["id"], ["name"]]
         expected = {"id": "", "name": ""}
-        self.assertEquals(merge_paths(paths), expected)
+        self.assertEqual(merge_paths(paths), expected)
 
     def test_dotted_path(self):
         paths = [["rel.id"], ["rel2.rel3.id"]]
