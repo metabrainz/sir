@@ -611,10 +611,10 @@ def generate_update_map():
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
-        persist_selectable = class_mapper(entity.model).persist_selectable.name
-        core_map[persist_selectable] = core_name
-        paths[persist_selectable].add((core_name, None))
-        models[persist_selectable] = entity.model
+        table_name = class_mapper(entity.model).persist_selectable.name
+        core_map[table_name] = core_name
+        paths[table_name].add((core_name, None))
+        models[table_name] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
                                         for path in field.paths if field.trigger] + [path for path in entity.extrapaths or []]):
