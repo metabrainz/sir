@@ -1,7 +1,7 @@
 import codecs
 import os
 import unittest
-from Queue import Queue
+from queue import Queue
 from datetime import datetime
 
 import psycopg2
@@ -46,7 +46,7 @@ class IndexingTestCase(unittest.TestCase):
         received = []
         while not queue.empty():
             received.append(queue.get_nowait())
-        self.assertItemsEqual(expected_messages, received)
+        self.assertCountEqual(expected_messages, received)
 
     def test_index_area(self):
         expected = [
