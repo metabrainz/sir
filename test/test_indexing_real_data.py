@@ -47,6 +47,8 @@ class IndexingTestCase(unittest.TestCase):
         while not queue.empty():
             received.append(queue.get_nowait())
         self.assertItemsEqual(expected_messages, received)
+        # HACK to print logs, pytest doesn't show logs for passing tests
+        assert False
 
     def test_index_area(self):
         expected = [

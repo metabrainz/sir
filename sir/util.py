@@ -47,7 +47,7 @@ def engine():
     for key in ["password", "host", "port"]:
         cdict[key] = cget(key)
     cdict["database"] = cget("dbname")
-    return create_engine(URL("postgresql", **cdict), server_side_cursors=False)
+    return create_engine(URL("postgresql", **cdict), server_side_cursors=False, echo=True)
 
 
 def db_session():
