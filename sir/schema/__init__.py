@@ -611,16 +611,16 @@ def generate_update_map():
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
-        mapped_table = class_mapper(entity.model).mapped_table.name
-        core_map[mapped_table] = core_name
-        paths[mapped_table].add((core_name, None))
-        models[mapped_table] = entity.model
+        table_name = class_mapper(entity.model).persist_selectable.name
+        core_map[table_name] = core_name
+        paths[table_name].add((core_name, None))
+        models[table_name] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
                                         for path in field.paths if field.trigger] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
-                name = class_mapper(model).mapped_table.name
+                name = class_mapper(model).persist_selectable.name
                 paths[name].add((core_name, path))
                 if name not in models:
                     models[name] = model
