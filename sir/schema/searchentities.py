@@ -32,17 +32,6 @@ def is_composite_column(model, colname):
     return (hasattr(attr, "property") and
             isinstance(attr.property, CompositeProperty))
 
-def is_relationship_column(model, colname):
-    """
-    Checks if a models attribute is a relationship column.
-
-    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
-    :param str colname: The column name.
-    :rtype: bool
-    """
-    attr = getattr(model, colname)
-    return (hasattr(attr, "property") and
-            isinstance(attr.property, RelationshipProperty))
 
 def merge_paths(field_paths):
     """
@@ -74,6 +63,23 @@ def merge_paths(field_paths):
                 current_path_dict[pathelem] = new_path_dict
                 current_path_dict = new_path_dict
     return paths
+
+
+def defer_everything_but(mapper, load, *columns):
+    primary_keys = [c.name for c in mapper.primary_key]
+    for prop in mapper.iterate_properties:
+        if hasattr(prop, "columns"):
+            key = prop.key
+            if (key not in columns and key[:-3] not in columns and
+                key[-3:] != "_id" and key != "position" and
+                key not in primary_keys):
+                # We need the _id columns for subqueries and joins
+                # Position is needed because sqla automatically orders by
+                # artist_credit_name.position
+                logger.debug("Deferring %s on %s", key, mapper)
+                load.defer(key)
+    return load
+
 
 class SearchField(object):
     """Represents a searchable field.
@@ -217,23 +223,12 @@ class SearchEntity(object):
                             required_columns.remove(composite_column)
                             required_columns.extend(composite_parts)
 
-                        # load_only cannot operate on relationship columns
-                        # so we need to remove those before running it
-                        relationship_columns = filter(
-                            partial(is_relationship_column, model),
-                            required_columns)
-                        for relationship_column in relationship_columns:
-                            required_columns.remove(relationship_column)
-
-                        # Remove __tablename__ from column list because if it
-                        # ends up there because its not a column
-                        if '__tablename__' in required_columns:
-                            required_columns.remove('__tablename__')
-
                         logger.debug("Loading only %s on %s",
                                      required_columns,
                                      model)
-                        load.load_only(*required_columns)
+                        load = defer_everything_but(class_mapper(model),
+                                                    load,
+                                                    *required_columns)
                 query = query.options(load)
         if self.extraquery is not None:
             query = self.extraquery(query)
