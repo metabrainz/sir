@@ -5,7 +5,7 @@ This module wraps models from mbdata package and adds missing relationships
 that are used in SIR.
 """
 from mbdata.models import (Annotation, Area, Artist, ArtistAlias, Event,
-                           Instrument, Label, LinkAttribute, LinkAttributeType,
+                           Instrument, Label, LinkAttribute,
                            LinkRecordingWork, Medium, MediumCDTOC, Place, Recording, Release,
                            ReleaseGroup, ReleaseLabel, ReleaseRaw, ReleaseTag, Series,
                            Work, URL)
