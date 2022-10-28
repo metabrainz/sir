@@ -111,7 +111,6 @@ SearchArtist = E(modelext.CustomArtist, [
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
     F("ended", "ended", transformfunc=tfs.ended_to_string),
-
     F("area", ["area.name", "area.aliases.name"]),
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -133,6 +132,10 @@ SearchArtist = E(modelext.CustomArtist, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "begin_area.gid", "area.gid", "end_area.gid",
+                "area.begin_date", "area.end_date", "area.ended",
+                "begin_area.begin_date", "begin_area.end_date",
+                "begin_area.ended", "end_area.begin_date",
+                "end_area.end_date", "end_area.ended",
                 "gender.gid",
                 "type.gid"]
 )
