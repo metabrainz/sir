@@ -200,6 +200,7 @@ SearchEvent = E(modelext.CustomEvent, [
                 "artist_links.artist.gid",
                 "artist_links.artist.name",
                 "artist_links.artist.comment",
+                "artist_links.artist.sort_name",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
