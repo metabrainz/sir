@@ -429,6 +429,7 @@ SearchRelease = E(modelext.CustomRelease, [
                 "release_group.type.gid",
                 "release_group.secondary_types.secondary_type.gid",
                 "status.gid",
+                "packaging.gid",
                 "language.iso_code_3",
                 "tags.count"]
 )
