@@ -114,7 +114,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
-    pool = multiprocessing.Pool(max_processes, maxtasksperchild=1)
+    pool = multiprocessing.Pool(max_processes)
     for e in entity_names:
         logger.log(DEBUG if live else INFO, "Importing %s...", e)
         index_function_args = []
