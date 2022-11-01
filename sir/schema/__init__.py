@@ -416,6 +416,7 @@ SearchRelease = E(modelext.CustomRelease, [
                 "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
+                "artist_credit.artists.artist.comment",
                 "country_dates.country.area.gid",
                 "country_dates.country.area.name",
                 "country_dates.country.area.iso_3166_1_codes.code",
