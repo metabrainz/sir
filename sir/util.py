@@ -49,7 +49,8 @@ def engine():
     cdict["database"] = cget("dbname")
     return create_engine(
         URL.create("postgresql", **cdict),
-        server_side_cursors=False
+        server_side_cursors=False,
+        echo=True
     )
 
 
