@@ -462,6 +462,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.aliases.primary_for_locale",
                 "artist_credit.artists.artist.aliases.sort_name",
                 "artist_credit.artists.artist.aliases.type.id",
+                "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.aliases.type.name",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
