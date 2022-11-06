@@ -193,7 +193,7 @@ class SearchEntity(object):
                     if isinstance(prop, RelationshipProperty):
                         pk = column.mapper.primary_key[0].name
                         if prop.direction == ONETOMANY:
-                            load = load.subqueryload(pathelem)
+                            load = load.selectinload(pathelem)
                         elif prop.direction == MANYTOONE:
                             load = load.joinedload(pathelem)
                         else:
