@@ -138,7 +138,9 @@ SearchArtist = E(modelext.CustomArtist, [
                 "begin_area.begin_date", "begin_area.end_date",
                 "begin_area.ended", "end_area.begin_date",
                 "end_area.end_date", "end_area.ended",
-                "gender.gid",
+                "gender.gid", "area.type.gid", "area.type.name",
+                "begin_area.type.gid", "begin_area.type.name",
+                "end_area.type.gid", "end_area.type.name",
                 "type.gid"]
 )
 
