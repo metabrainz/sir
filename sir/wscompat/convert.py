@@ -1125,8 +1125,11 @@ def convert_release_group(obj):
     if obj.comment:
         rg.set_disambiguation(obj.comment)
 
-    if obj.meta.first_release_date:
-        rg.set_first_release_date(partialdate_to_string(obj.meta.first_release_date))
+    if obj.first_release_date and len(obj.first_release_date) > 0\
+            and obj.first_release_date[0].first_release_date:
+        rg.set_first_release_date(
+            partialdate_to_string(obj.first_release_date[0].first_release_date)
+        )
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
