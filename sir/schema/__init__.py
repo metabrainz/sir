@@ -286,7 +286,9 @@ SearchPlace = E(modelext.CustomPlace, [
                 "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area.gid", "type.gid"]
+                "area.gid", "area.type.gid", "area.type.name",
+                "area.begin_date", "area.end_date", "area.ended",
+                "type.gid"]
 )
 
 
