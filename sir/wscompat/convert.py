@@ -1112,8 +1112,8 @@ def convert_release(obj):
     if tr is not None:
         release.set_text_representation(tr)
 
-    if obj.meta.amazon_asin is not None:
-        release.set_asin(obj.meta.amazon_asin)
+    if obj.asin and len(obj.asin) > 0 and obj.asin[0].amazon_asin:
+        release.set_asin(obj.asin[0].amazon_asin)
 
     return release
 
