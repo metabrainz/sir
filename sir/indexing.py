@@ -159,8 +159,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                     index_function_args.append(args)
 
         try:
-            results = pool.imap(indexer,
-                                index_function_args)
+            results = pool.imap(indexer, index_function_args)
             for r in results:
                 if not PROCESS_FLAG.value:
                     raise SIR_EXIT
@@ -200,7 +199,10 @@ def _index_entity_process_wrapper(args, live=False):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     try:
-        session = Session(args.pop(0))
+        engine = args.pop(0)
+        logger.info("Engine: %s", engine)
+        logger.info("Args: %s", args)
+        session = Session(engine)
         if live:
             return live_index_entity(session, *args)
         return index_entity(session, *args)
