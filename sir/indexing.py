@@ -111,10 +111,16 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
     db_session = util.db_session()
+    engine = util.engine()
+
+    def initializer():
+        """ensure the parent proc's database connections are not touched
+        in the new connection pool"""
+        engine.dispose(close=False)
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
-    pool = multiprocessing.Pool(max_processes)
+    pool = multiprocessing.Pool(max_processes, initializer=initializer)
     for e in entity_names:
         logger.log(DEBUG if live else INFO, "Importing %s...", e)
         index_function_args = []
@@ -137,14 +143,19 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         if live:
             if entity_id_list:
                 for i in range(0, len(entity_id_list), query_batch_size):
-                    index_function_args.append((e,
-                                                entity_id_list[i:i + query_batch_size],
-                                                entity_data_queue))
+                    index_function_args.append(
+                        (
+                            engine,
+                            e,
+                            entity_id_list[i:i + query_batch_size],
+                            entity_data_queue
+                        )
+                    )
         else:
             with util.db_session_ctx(db_session) as session:
                 for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
                                                    query_batch_size, importlimit):
-                    args = (e, bounds, entity_data_queue)
+                    args = (engine, e, bounds, entity_data_queue)
                     index_function_args.append(args)
 
         try:
@@ -189,7 +200,7 @@ def _index_entity_process_wrapper(args, live=False):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     try:
-        session = Session(util.engine())
+        session = Session(args.pop(0))
         if live:
             return live_index_entity(session, *args)
         return index_entity(session, *args)
