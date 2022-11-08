@@ -27,6 +27,14 @@ PROCESS_FLAG = multiprocessing.Value(c_bool, True)
 FAILED = multiprocessing.Value(c_bool, False)
 STOP = None
 
+idx_engine = util.engine()
+
+
+def initializer():
+    """ensure the parent proc's database connections are not touched
+    in the new connection pool"""
+    idx_engine.dispose(close=False)
+
 
 def reindex(args):
     """
@@ -111,12 +119,6 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
     db_session = util.db_session()
-    engine = util.engine()
-
-    def initializer():
-        """ensure the parent proc's database connections are not touched
-        in the new connection pool"""
-        engine.dispose(close=False)
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
@@ -145,7 +147,6 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                 for i in range(0, len(entity_id_list), query_batch_size):
                     index_function_args.append(
                         (
-                            engine,
                             e,
                             entity_id_list[i:i + query_batch_size],
                             entity_data_queue
@@ -155,7 +156,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             with util.db_session_ctx(db_session) as session:
                 for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
                                                    query_batch_size, importlimit):
-                    args = (engine, e, bounds, entity_data_queue)
+                    args = (e, bounds, entity_data_queue)
                     index_function_args.append(args)
 
         try:
@@ -199,10 +200,7 @@ def _index_entity_process_wrapper(args, live=False):
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
     try:
-        engine = args.pop(0)
-        logger.info("Engine: %s", engine)
-        logger.info("Args: %s", args)
-        session = Session(engine)
+        session = Session(idx_engine)
         if live:
             return live_index_entity(session, *args)
         return index_entity(session, *args)
