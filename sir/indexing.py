@@ -27,7 +27,7 @@ PROCESS_FLAG = multiprocessing.Value(c_bool, True)
 FAILED = multiprocessing.Value(c_bool, False)
 STOP = None
 
-idx_engine = util.engine()
+idx_engine = None
 
 
 def initializer():
@@ -119,6 +119,9 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     solr_batch_size = config.CFG.getint("solr", "batch_size")
 
     db_session = util.db_session()
+
+    global idx_engine
+    idx_engine = util.engine()
 
     # Only allow one task per child to prevent the process consuming too much
     # memory
