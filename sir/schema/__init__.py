@@ -564,6 +564,8 @@ SearchWork = E(modelext.CustomWork, [
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
+                "artist_links.entity0.sort_name",
+                "artist_links.entity0.comment",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
@@ -572,7 +574,7 @@ SearchWork = E(modelext.CustomWork, [
                 "recording_links.link.link_type.gid",
                 "recording_links.link.attributes.attribute_type.name",
                 "recording_links.link.attributes.attribute_type.gid",
-                "recording_links.recording.video",
+                "recording_links.entity0.video",
                 "tags.count", "type.gid"]
 )
 
