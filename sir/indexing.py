@@ -309,15 +309,12 @@ def queue_to_solr(queue, batch_size, solr_connection):
         if len(data) >= batch_size:
             send_data_to_solr(solr_connection, data)
             count += len(data)
-            logger.debug("Sent %d new documents. Total: %d", len(data), count)
             data = []
 
     queue.put(STOP)
     if not PROCESS_FLAG.value:
         return
-    logger.debug("%s: Sending remaining data & stopping", solr_connection)
     send_data_to_solr(solr_connection, data)
-    logger.debug("Committing changes to Solr")
     solr_connection.commit()
 
 
