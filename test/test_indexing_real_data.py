@@ -386,6 +386,38 @@ class IndexingTestCase(unittest.TestCase):
                 'mbid': '659f405b-b4ee-4033-868a-0daa27784b89',
                 'release': u'Aerial',
                 'position': 1
+            },
+            {
+                'tnum': set([1, 2, 3, 4, 5]),
+                'primarytype': u'Album',
+                '_store': '<ns0:recording xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="66c2ebff-94a3-42ba-7dab-7388a66604b8"><ns0:title>The same track over and over</ns0:title><ns0:artist-credit><ns0:name-credit><ns0:name>Artist</ns0:name><ns0:artist id="945c079d-374e-4436-9448-da92dedef3cf"><ns0:name>Artist</ns0:name><ns0:sort-name>Artist</ns0:sort-name></ns0:artist></ns0:name-credit></ns0:artist-credit><ns0:release-list><ns0:release id="8c2a1f4e-e11a-4261-a0f4-d1039ef94745"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>10</ns0:track-count><ns0:medium><ns0:position>1</ns0:position><ns0:track-list count="10" offset="0"><ns0:track id="66c2ebff-8530-4e12-a9a2-1650fb97d9d8"><ns0:number>1</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="8c2a1f4e-e11a-4261-a0f4-d1039ef94745"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>10</ns0:track-count><ns0:medium><ns0:position>1</ns0:position><ns0:track-list count="10" offset="1"><ns0:track id="54b9d183-0d1e-483e-c33c-ec6ab7fada06"><ns0:number>2</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="8c2a1f4e-e11a-4261-a0f4-d1039ef94745"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>10</ns0:track-count><ns0:medium><ns0:position>1</ns0:position><ns0:track-list count="10" offset="2"><ns0:track id="f891acda-a9d1-7c28-39d6-dd87b7c46a0a"><ns0:number>3</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="8c2a1f4e-e11a-4261-a0f4-d1039ef94745"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>10</ns0:track-count><ns0:medium><ns0:position>1</ns0:position><ns0:track-list count="10" offset="3"><ns0:track id="6c04d03c-4995-43be-86a8-215ca911dcbf"><ns0:number>4</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="8c2a1f4e-e11a-4261-a0f4-d1039ef94745"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>10</ns0:track-count><ns0:medium><ns0:position>1</ns0:position><ns0:track-list count="10" offset="4"><ns0:track id="849dc232-c33a-b7da-a6a5-5a0969d63422"><ns0:number>5</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="37b58375-019f-4ffb-8360-9c4b11d087b8"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>6</ns0:track-count><ns0:medium><ns0:position>2</ns0:position><ns0:track-list count="6" offset="0"><ns0:track id="72469a76-7c28-8844-b7da-174c1034cd0a"><ns0:number>6</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="37b58375-019f-4ffb-8360-9c4b11d087b8"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>6</ns0:track-count><ns0:medium><ns0:position>2</ns0:position><ns0:track-list count="6" offset="1"><ns0:track id="5d54de57-561d-cafe-9ced-af4327249d66"><ns0:number>7</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release><ns0:release id="37b58375-019f-4ffb-8360-9c4b11d087b8"><ns0:title>Aerial</ns0:title><ns0:release-group id="7c3218d7-75e0-4e8c-971f-f097b6c308c5" type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc"><ns0:title>Aerial</ns0:title><ns0:primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</ns0:primary-type></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>6</ns0:track-count><ns0:medium><ns0:position>2</ns0:position><ns0:track-list count="6" offset="2"><ns0:track id="c05b1c9a-e768-6543-b2b6-c687060c8f1e"><ns0:number>1</ns0:number><ns0:title>The same track over and over</ns0:title></ns0:track></ns0:track-list></ns0:medium></ns0:medium-list></ns0:release></ns0:release-list></ns0:recording>',
+                'tracks': set([10, 6]),
+                'artist': u'Artist',
+                'creditname': u'Artist',
+                'reid': set([
+                    '37b58375-019f-4ffb-8360-9c4b11d087b8',
+                    '8c2a1f4e-e11a-4261-a0f4-d1039ef94745'
+                ]),
+                'number': set([u'1', u'3', u'2', u'5', u'4', u'7', u'6']),
+                'arid': '945c079d-374e-4436-9448-da92dedef3cf',
+                'recording': u'The same track over and over',
+                'tid': set([
+                    '66c2ebff-8530-4e12-a9a2-1650fb97d9d8',
+                    'f891acda-a9d1-7c28-39d6-dd87b7c46a0a',
+                    '6c04d03c-4995-43be-86a8-215ca911dcbf',
+                    '849dc232-c33a-b7da-a6a5-5a0969d63422',
+                    '54b9d183-0d1e-483e-c33c-ec6ab7fada06',
+                    '72469a76-7c28-8844-b7da-174c1034cd0a',
+                    'c05b1c9a-e768-6543-b2b6-c687060c8f1e',
+                    '5d54de57-561d-cafe-9ced-af4327249d66'
+                ]),
+                'artistname': u'Artist',
+                'video': 'f',
+                'rgid': '7c3218d7-75e0-4e8c-971f-f097b6c308c5',
+                'tracksrelease': 16,
+                'position': set([1, 2]),
+                'release': u'Aerial',
+                'mbid': '66c2ebff-94a3-42ba-7dab-7388a66604b8'
             }
         ]
         self._test_index_entity("recording", expected)
