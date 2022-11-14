@@ -611,6 +611,15 @@ class IndexingTestCase(unittest.TestCase):
                 'work': u'Test',
                 '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="745c079d-374e-4436-9448-da92dedef3cf"><ns0:title>Test</ns0:title><ns0:iswc-list><ns0:iswc>T-000.000.002-0</ns0:iswc></ns0:iswc-list></ns0:work>',
                 'iswc': u'T-000.000.002-0'
+            },
+            {
+                '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="640b17f5-4aa3-3fb1-8c6c-4792458e8a56" type="Song" type-id="f061270a-2fd6-32f1-a641-f0f8676d14e6"><ns0:title>Blue Lines</ns0:title><ns0:relation-list target-type="recording"><ns0:relation type="performance" type-id="a3005666-a872-32c3-ad06-98af558e99b0"><ns0:direction>backward</ns0:direction><ns0:recording id="bef81f8f-4bcf-4308-bd66-e57018169a94"><ns0:title>Blue Lines</ns0:title></ns0:recording></ns0:relation><ns0:relation type="performance" type-id="a3005666-a872-32c3-ad06-98af558e99b0"><ns0:direction>backward</ns0:direction><ns0:recording id="a2383c02-2430-4294-9177-ef799a6eca31"><ns0:title>Blue Lines</ns0:title></ns0:recording></ns0:relation></ns0:relation-list></ns0:work>',
+                'work': u'Blue Lines',
+                'recording_count': 2,
+                'recording': u'Blue Lines',
+                'mbid': '640b17f5-4aa3-3fb1-8c6c-4792458e8a56',
+                'rid': set(['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31']),
+                'type': u'Song'
             }
         ]
         self._test_index_entity("work", expected)
