@@ -13,7 +13,7 @@ from logging import getLogger, DEBUG, INFO
 from pysolr import SolrError
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
-from .util import SIR_EXIT
+from .util import SIR_EXIT, profiled
 from ctypes import c_bool
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
@@ -227,14 +227,15 @@ def index_entity(session, entity_name, bounds, data_queue):
     :type bounds: (int, int)
     :param Queue.Queue data_queue:
     """
-    model = SCHEMA[entity_name].model
-    logger.debug("Importing %s %s", model, bounds)
-    lower_bound, upper_bound = bounds
-    if upper_bound is not None:
-        condition = and_(model.id >= lower_bound, model.id < upper_bound)
-    else:
-        condition = model.id >= lower_bound
-    _query_database(session, entity_name, condition, data_queue)
+    with profiled():
+        model = SCHEMA[entity_name].model
+        logger.debug("Importing %s %s", model, bounds)
+        lower_bound, upper_bound = bounds
+        if upper_bound is not None:
+            condition = and_(model.id >= lower_bound, model.id < upper_bound)
+        else:
+            condition = model.id >= lower_bound
+        _query_database(session, entity_name, condition, data_queue)
 
 
 def live_index_entity(session, entity_name, ids, data_queue):
