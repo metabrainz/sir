@@ -162,9 +162,9 @@ def profiled():
     pr.enable()
     yield
     pr.disable()
-    s = io.StringIO()
+    s = io.BytesIO()
     ps = pstats.Stats(pr, stream=s).sort_stats("cumulative")
     ps.print_stats()
     # uncomment this to see who's calling what
     # ps.print_callers()
-    print(s.getvalue())
+    print(s.getvalue().decode(encoding='utf-8'))
