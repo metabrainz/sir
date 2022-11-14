@@ -255,6 +255,7 @@ SearchLabel = E(modelext.CustomLabel, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "area.gid", "area.type.name", "area.type.gid",
+                "area.begin_date", "area.end_date", "area.ended",
                 "tags.count", "type.gid"
                 ]
 )
