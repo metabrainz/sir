@@ -43,6 +43,10 @@ def fill_none(values):
     return values
 
 
+def integer_count_all(records):
+    return int(len(records))
+
+
 def integer_sum(values):
     return int(sum(values))
 

@@ -159,11 +159,6 @@ class CustomWork(Work):
     tags = relationship("WorkTag", viewonly=True)
     languages = relationship("WorkLanguage", viewonly=True)
     recording_links = relationship("LinkRecordingWork", viewonly=True)
-    recording_count = column_property(
-        select([func.count(LinkRecordingWork.id)]).
-        where(LinkRecordingWork.work_id == Work.id).
-        scalar_subquery()
-    )
 
 
 class CustomURL(URL):
