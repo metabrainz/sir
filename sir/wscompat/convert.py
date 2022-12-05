@@ -219,7 +219,7 @@ def convert_artist_credit(obj, include_aliases=True):
     """
     :type obj: :class:`mbdata.models.ArtistCredit`
     """
-    ac = models.artist_credit()
+    ac = models.artist_credit(id=str(obj.gid))
     [ac.add_name_credit(convert_name_credit(nc, include_aliases)) for nc in
      obj.artists]
     return ac
