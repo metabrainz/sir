@@ -3,7 +3,8 @@
 # Copyright (c) 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
 from mbdata.models import (Annotation, AreaAnnotation, ArtistAnnotation,
-                           EventAnnotation, InstrumentAnnotation, LabelAnnotation,
+                           EventAnnotation, GenreAnnotation,
+                           InstrumentAnnotation, LabelAnnotation,
                            PlaceAnnotation, RecordingAnnotation, ReleaseAnnotation,
                            ReleaseGroupAnnotation, SeriesAnnotation, WorkAnnotation)
 from sqlalchemy import func
@@ -13,6 +14,7 @@ models = [
     AreaAnnotation,
     ArtistAnnotation,
     EventAnnotation,
+    GenreAnnotation,
     InstrumentAnnotation,
     LabelAnnotation,
     PlaceAnnotation,
