@@ -103,6 +103,18 @@ def boolean(values):
     else:
         return "f"
 
+def quality_to_string(values):
+    """
+    :type values: set
+    """
+    quality = values.pop()
+    if quality == 0:
+        return "low"
+    elif quality == 2:
+        return "high"
+    else:
+        # Both 1 (normal, hand-set) and -1 (default) should return "normal"
+        return "normal"
 
 def url_type(values):
     types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
