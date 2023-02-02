@@ -425,7 +425,7 @@ class IndexingTestCase(unittest.TestCase):
                 'mbid': '7a906020-72db-11de-8a39-0800200c9a66',
                 'rgid': '3b4faa80-72d9-11de-8a39-0800200c9a66',
                 'release': u'Release #2',
-                'quality': -1
+                'quality': u'normal'
             },
             {
                 'comment': u'Comment',
@@ -447,7 +447,7 @@ class IndexingTestCase(unittest.TestCase):
                 'rgid': '3b4faa80-72d9-11de-8a39-0800200c9a66',
                 'laid': '00a23bd0-72db-11de-8a39-0800200c9a66',
                 'release': u'Arrival',
-                'quality': -1,
+                'quality': u'normal',
                 'primarytype': u'Album'
             },
             {
@@ -459,7 +459,7 @@ class IndexingTestCase(unittest.TestCase):
                 'mbid': '538aff00-a009-4515-a064-11a6d5a502ee',
                 'rgid': '329fb554-2a81-3d8a-8e22-ec2c66810019',
                 'release': u'Blonde on Blonde',
-                'quality': -1},
+                'quality': u'low'},
             {
                 '_store': '<ns0:release xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title><ns0:artist-credit id="c44109ce-57d7-3691-84c8-37926e3d41d2"><ns0:name-credit><ns0:name>Various Artists</ns0:name><ns0:artist id="7a906020-72db-11de-8a39-0800200c9a66"><ns0:name>Various Artists</ns0:name><ns0:sort-name>Various Artists</ns0:sort-name></ns0:artist></ns0:name-credit></ns0:artist-credit><ns0:release-group id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>3</ns0:track-count><ns0:medium id="c517968f-afd0-48e6-ab4b-dfdae888ad9d"><ns0:disc-list count="0" /><ns0:track-list count="3" /></ns0:medium></ns0:medium-list><ns0:tag-list /></ns0:release>',
                 'tracks': 3, 'artist': u'Various Artists',
@@ -472,7 +472,7 @@ class IndexingTestCase(unittest.TestCase):
                 'rgid': '25b6fe30-ff5b-11de-8a39-0800200c9a66',
                 'release': u'Various Release',
                 'mediums': 1,
-                'quality': -1
+                'quality': u'normal'
             }
         ]
         self._test_index_entity("release", expected)
