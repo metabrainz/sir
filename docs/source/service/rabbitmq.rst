@@ -65,6 +65,7 @@ Procedures
 * Move service:
 
   * Create vhost, user, permissions, queues in the new instance
+  * Declare exchanges and queues as described in :ref:`amqp`
   * Update broker in PostgreSQL to point to the new instance
   * Once the queues in the old instance are empty,
     switch the live indexer to the new instance
