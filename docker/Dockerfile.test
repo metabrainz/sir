@@ -1,4 +1,4 @@
-FROM metabrainz/python:3.10-20220315
+FROM metabrainz/python:3.11-20221221
 
 RUN mkdir /code
 WORKDIR /code
@@ -31,7 +31,7 @@ COPY . /code/
 RUN cp config.test.ini config.ini
 
 CMD dockerize -wait tcp://musicbrainz_db:5432 -timeout 600s \
-        bash -c "py.test --junitxml=/data/test_report.xml \
+        bash -c "pytest --junitxml=/data/test_report.xml \
             --cov=sir \
             --cov-report xml:/data/coverage.xml \
             --cov-report html:/data/coverage-html"

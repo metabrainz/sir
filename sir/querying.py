@@ -7,7 +7,6 @@ from sqlalchemy import func, text
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
-from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 
 
 logger = logging.getLogger("sir")
