@@ -1,10 +1,9 @@
-import codecs
 import os
 import unittest
 from queue import Queue
-from datetime import datetime
+from datetime import datetime, timezone
 
-import psycopg2
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from sir import querying, util, config
@@ -31,10 +30,11 @@ class IndexingTestCase(unittest.TestCase):
         self.connection.close()
 
     def _test_index_entity(self, entity, expected_messages):
-        self.session.execute(codecs.open(
-            os.path.join(self.TEST_SQL_FILES_DIR, "{}.sql".format(entity)),
-            encoding='utf-8'
-        ).read())
+        with open(
+            os.path.join(self.TEST_SQL_FILES_DIR, f"{entity}.sql"),
+            encoding="utf-8"
+        ) as f:
+            self.session.execute(text(f.read()))
 
         bounds = querying.iter_bounds(
             self.session, SCHEMA[entity].model.id, 100, 0
@@ -500,23 +500,23 @@ class IndexingTestCase(unittest.TestCase):
             {
                 'series': u'Dumb Recording Series',
                 'mbid': 'dbb23c50-d4e4-11e3-9c1a-0800200c9a66',
-                'type': u'Recording',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="dbb23c50-d4e4-11e3-9c1a-0800200c9a66" type="Recording" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Dumb Recording Series</ns0:name></ns0:series>'
+                'type': u'Recording series',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="dbb23c50-d4e4-11e3-9c1a-0800200c9a66" type="Recording series" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Dumb Recording Series</ns0:name></ns0:series>'
             },
             {
                 'comment': u'test comment 1',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="a8749d0c-4a5a-4403-97c5-f6cd018f8e6d" type="Recording" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Test Recording Series</ns0:name><ns0:disambiguation>test comment 1</ns0:disambiguation><ns0:alias-list><ns0:alias sort-name="Test Recording Series Alias" type="Search hint" type-id="8950366b-5ea3-32f2-bf74-ee482474c18b">Test Recording Series Alias</ns0:alias></ns0:alias-list></ns0:series>',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="a8749d0c-4a5a-4403-97c5-f6cd018f8e6d" type="Recording series" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Test Recording Series</ns0:name><ns0:disambiguation>test comment 1</ns0:disambiguation><ns0:alias-list><ns0:alias sort-name="Test Recording Series Alias" type="Search hint" type-id="8950366b-5ea3-32f2-bf74-ee482474c18b">Test Recording Series Alias</ns0:alias></ns0:alias-list></ns0:series>',
                 'series': u'Test Recording Series',
                 'alias': u'Test Recording Series Alias',
                 'mbid': 'a8749d0c-4a5a-4403-97c5-f6cd018f8e6d',
-                'type': u'Recording'
+                'type': u'Recording series',
             },
             {
                 'comment': u'test comment 2',
                 'series': u'Test Work Series',
                 'mbid': '2e8872b9-2745-4807-a84e-094d425ec267',
-                'type': u'Work',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="2e8872b9-2745-4807-a84e-094d425ec267" type="Work" type-id="b689f694-6305-3d78-954d-df6759a1877b"><ns0:name>Test Work Series</ns0:name><ns0:disambiguation>test comment 2</ns0:disambiguation></ns0:series>'
+                'type': u'Work series',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="2e8872b9-2745-4807-a84e-094d425ec267" type="Work series" type-id="b689f694-6305-3d78-954d-df6759a1877b"><ns0:name>Test Work Series</ns0:name><ns0:disambiguation>test comment 2</ns0:disambiguation></ns0:series>'
             }
         ]
         self._test_index_entity("series", expected)
@@ -630,7 +630,7 @@ class IndexingTestCase(unittest.TestCase):
                 'comment': u'this is a comment',
                 'added': datetime(
                     2000, 1, 1, 0, 0,
-                    tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None)
+                    tzinfo=timezone.utc
                 ),
                 '_store': '<ns0:cdstub xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="YfSgiOEayqN77Irs.VNV.UNJ0Zs-"><ns0:title>Test Stub</ns0:title><ns0:artist>Test Artist</ns0:artist><ns0:barcode>837101029192</ns0:barcode><ns0:disambiguation>this is a comment</ns0:disambiguation><ns0:track-list count="2" /></ns0:cdstub>',
                 'discid': u'YfSgiOEayqN77Irs.VNV.UNJ0Zs-',
