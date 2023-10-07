@@ -80,7 +80,7 @@ def calculate_type(primary_type, secondary_types):
 
 def convert_relation(obj, direction="backward", **kwargs):
     relation = models.relation(direction=direction,
-                               type_id=obj.link.link_type.gid,
+                               type_id=str(obj.link.link_type.gid),
                                type_=obj.link.link_type.name,
                                **kwargs)
 
@@ -125,12 +125,12 @@ def convert_area_inner(obj):
     """
     :type obj: :class:`mbdata.models.Area`
     """
-    area = models.def_area_element_inner(id=obj.gid, name=obj.name,
+    area = models.def_area_element_inner(id=str(obj.gid), name=obj.name,
                                          sort_name=obj.name)
 
     if obj.type is not None:
         area.set_type(obj.type.name)
-        area.set_type_id(obj.type.gid)
+        area.set_type_id(str(obj.type.gid))
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -142,7 +142,7 @@ def convert_area_simple(obj):
     """
     :type obj: :class:`mbdata.models.Area`
     """
-    area = models.def_area_element_inner(id=obj.gid, name=obj.name)
+    area = models.def_area_element_inner(id=str(obj.gid), name=obj.name)
     return area
 
 
@@ -151,7 +151,7 @@ def convert_area_for_release_event(obj):
     """
     :type obj: :class:`mbdata.models.Area`
     """
-    area = models.def_area_element_inner(id=obj.gid, name=obj.name,
+    area = models.def_area_element_inner(id=str(obj.gid), name=obj.name,
                                          sort_name=obj.name,
                                          iso_3166_1_code_list=convert_iso_3166_1_code_list(obj.iso_3166_1_codes))  # noqa
     return area
@@ -162,7 +162,7 @@ def convert_area_relation(obj):
     :type obj: :class:`mbdata.models.LinkAreaArea`
     """
     relation = convert_relation(obj,
-                                target=models.target(valueOf_=obj.area0.gid),
+                                target=models.target(valueOf_=str(obj.area0.gid)),
                                 area=convert_area_inner(obj.area0))
 
     return relation
@@ -229,7 +229,7 @@ def convert_alias(obj):
     alias.set_valueOf_(obj.name)
     if obj.type is not None:
         alias.set_type(obj.type.name)
-        alias.set_type_id(obj.type.gid)
+        alias.set_type_id(str(obj.type.gid))
     if obj.primary_for_locale:
         alias.set_primary("primary")
     if obj.begin_date_year is not None:
@@ -274,7 +274,7 @@ def convert_attribute(obj):
     """
     attribute = models.attributeType()
     attribute.set_valueOf_(obj.attribute_type.name)
-    attribute.set_type_id(obj.attribute_type.gid)
+    attribute.set_type_id(str(obj.attribute_type.gid))
     return attribute
 
 
@@ -283,7 +283,7 @@ def convert_artist_simple(obj, include_aliases=True):
     """
     :type obj: :class:`sir.schema.modelext.CustomArtist`
     """
-    artist = models.artist(id=obj.gid, name=obj.name)
+    artist = models.artist(id=str(obj.gid), name=obj.name)
     if obj.comment:
         artist.set_disambiguation(obj.comment)
     if obj.sort_name is not None:
@@ -319,7 +319,7 @@ def convert_recording_simple(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomRecording`
     """
-    recording = models.recording(id=obj.gid, title=obj.name)
+    recording = models.recording(id=str(obj.gid), title=obj.name)
     if obj.video:
         recording.set_video("true")
     return recording
@@ -401,7 +401,7 @@ def convert_label_info(obj):
         li.set_catalog_number(obj.catalog_number)
     if obj.label is not None:
         label = models.label()
-        label.set_id(obj.label.gid)
+        label.set_id(str(obj.label.gid))
         label.set_name(obj.label.name)
         li.set_label(label)
     return li
@@ -480,7 +480,7 @@ def convert_medium_from_track(obj):
 
     m.set_position(medium.position)
 
-    track = models.def_track_data(id=obj.gid, length=obj.length,
+    track = models.def_track_data(id=str(obj.gid), length=obj.length,
                                   number=obj.number, title=obj.name)
 
     tl = m.track_list
@@ -526,7 +526,7 @@ def convert_place(obj):
     """
     :type obj: :class:`mbdata.models.Place`
     """
-    place = models.place(id=obj.gid, name=obj.name)
+    place = models.place(id=str(obj.gid), name=obj.name)
 
     if obj.address:
         place.set_address(obj.address)
@@ -548,7 +548,7 @@ def convert_place(obj):
 
     if obj.type is not None:
         place.set_type(obj.type.name)
-        place.set_type_id(obj.type.gid)
+        place.set_type_id(str(obj.type.gid))
 
     return place
 
@@ -557,7 +557,7 @@ def convert_place_simple(obj):
     """
     :type obj: :class:`mbdata.models.Place`
     """
-    place = models.place(id=obj.gid, name=obj.name)
+    place = models.place(id=str(obj.gid), name=obj.name)
     return place
 
 
@@ -604,7 +604,7 @@ def convert_release_from_track(obj):
     """
     medium = obj.medium
     rel = medium.release
-    release = models.release(id=rel.gid, title=rel.name)
+    release = models.release(id=str(rel.gid), title=rel.name)
 
     # The lucene search server skips this if the release artist credit is the
     # same as the recording artist credit, but we've already built it so just
@@ -644,13 +644,13 @@ def convert_release_group_for_release(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroup`
     """
-    rg = models.release_group(id=obj.gid, title=obj.name)
+    rg = models.release_group(id=str(obj.gid), title=obj.name)
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
         type_ = calculate_type(obj.type, obj.secondary_types)
         rg.set_type(type_.name)
-        rg.set_type_id(type_.gid)
+        rg.set_type_id(str(type_.gid))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -666,13 +666,13 @@ def convert_release_group_simple(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroup`
     """
-    rg = models.release_group(id=obj.gid, title=obj.name)
+    rg = models.release_group(id=str(obj.gid), title=obj.name)
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
         type_ = calculate_type(obj.type, obj.secondary_types)
         rg.set_type(type_.name)
-        rg.set_type_id(type_.gid)
+        rg.set_type_id(str(type_.gid))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -702,7 +702,7 @@ def convert_release_list_for_release_groups(obj):
     release_list = models.release_list(count=len(obj))
     for r in obj:
         release = models.release()
-        release.set_id(r.gid)
+        release.set_id(str(r.gid))
         release.set_title(r.name)
         if r.status is not None:
             release.set_status(convert_release_status(r.status))
@@ -716,7 +716,7 @@ def convert_secondary_type(obj):
     :type obj: :class:`mbdata.models.ReleaseGroupSecondaryTypeJoin`
     """
     secondary_type = models.secondary_type(valueOf_=obj.secondary_type.name)
-    secondary_type.set_id(obj.secondary_type.gid)
+    secondary_type.set_id(str(obj.secondary_type.gid))
     return secondary_type
 
 
@@ -742,7 +742,7 @@ def convert_one_annotation(obj, type_, entity):
     """
     :type obj: :class:`mbdata.models.Annotation`
     """
-    return models.annotation(type_, entity.gid, entity.name, obj.text)
+    return models.annotation(type_, str(entity.gid), entity.name, obj.text)
 
 
 def convert_annotation(obj):
@@ -788,7 +788,7 @@ def convert_area(obj):
     :type obj: :class:`mbdata.models.Area`
     """
     arealist = models.area_list()
-    area = models.def_area_element_inner(id=obj.gid, name=obj.name,
+    area = models.def_area_element_inner(id=str(obj.gid), name=obj.name,
                                          sort_name=obj.name)
 
     if len(obj.aliases) > 0:
@@ -799,7 +799,7 @@ def convert_area(obj):
 
     if obj.type is not None:
         area.set_type(obj.type.name)
-        area.set_type_id(obj.type.gid)
+        area.set_type_id(str(obj.type.gid))
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     area.set_life_span(lifespan)
@@ -827,7 +827,7 @@ def convert_artist(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomArtist`
     """
-    artist = models.artist(id=obj.gid, name=obj.name,
+    artist = models.artist(id=str(obj.gid), name=obj.name,
                            sort_name=obj.sort_name)
 
     if obj.comment:
@@ -838,7 +838,7 @@ def convert_artist(obj):
 
     if obj.type is not None:
         artist.set_type(obj.type.name)
-        artist.set_type_id(obj.type.gid)
+        artist.set_type_id(str(obj.type.gid))
 
     if obj.begin_area is not None:
         artist.set_begin_area(convert_area_inner(obj.begin_area))
@@ -913,14 +913,14 @@ def convert_event(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomEvent`
     """
-    event = models.event(id=obj.gid, name=obj.name)
+    event = models.event(id=str(obj.gid), name=obj.name)
 
     if obj.comment:
         event.set_disambiguation(obj.comment)
 
     if obj.type is not None:
         event.set_type(obj.type.name)
-        event.set_type_id(obj.type.gid)
+        event.set_type_id(str(obj.type.gid))
 
     lifespan = convert_life_span(obj.begin_date, obj.end_date, obj.ended)
     if lifespan.get_begin() is not None or lifespan.get_end() is not None:
@@ -951,7 +951,7 @@ def convert_instrument(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomInstrument`
     """
-    instrument = models.instrument(id=obj.gid, name=obj.name)
+    instrument = models.instrument(id=str(obj.gid), name=obj.name)
 
     if obj.comment:
         instrument.set_disambiguation(obj.comment)
@@ -961,7 +961,7 @@ def convert_instrument(obj):
 
     if obj.type is not None:
         instrument.set_type(obj.type.name)
-        instrument.set_type_id(obj.type.gid)
+        instrument.set_type_id(str(obj.type.gid))
 
     if len(obj.aliases) > 0:
         instrument.set_alias_list(convert_alias_list(obj.aliases))
@@ -976,11 +976,11 @@ def convert_label(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomLabel`
     """
-    label = models.label(id=obj.gid, name=obj.name, sort_name=obj.name)
+    label = models.label(id=str(obj.gid), name=obj.name, sort_name=obj.name)
 
     if obj.type is not None:
         label.set_type(obj.type.name)
-        label.set_type_id(obj.type.gid)
+        label.set_type_id(str(obj.type.gid))
 
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
@@ -1016,7 +1016,7 @@ def convert_recording(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomRecording`
     """
-    recording = models.recording(id=obj.gid, title=obj.name,
+    recording = models.recording(id=str(obj.gid), title=obj.name,
                                  artist_credit=convert_artist_credit(obj.artist_credit))  # noqa
 
     if obj.comment:
@@ -1053,7 +1053,7 @@ def convert_release(obj):
     """
     :type obj: :class:`mbdata.models.Release`
     """
-    release = models.release(id=obj.gid, title=obj.name,
+    release = models.release(id=str(obj.gid), title=obj.name,
                              artist_credit=convert_artist_credit(obj.artist_credit,
                              include_aliases=False))
 
@@ -1120,7 +1120,7 @@ def convert_release_group(obj):
     """
     rg = models.release_group(artist_credit=convert_artist_credit(obj.artist_credit),  # noqa
                               release_list=convert_release_list_for_release_groups(obj.releases),  # noqa
-                              id=obj.gid, title=obj.name)
+                              id=str(obj.gid), title=obj.name)
     if obj.comment:
         rg.set_disambiguation(obj.comment)
 
@@ -1134,7 +1134,7 @@ def convert_release_group(obj):
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
         type_ = calculate_type(obj.type, obj.secondary_types)
         rg.set_type(type_.name)
-        rg.set_type_id(type_.gid)
+        rg.set_type_id(str(type_.gid))
 
     if len(obj.secondary_types) > 0:
         rg.set_secondary_type_list(
@@ -1149,7 +1149,7 @@ def convert_release_group(obj):
 def convert_release_relation(obj):
     relation = convert_relation(obj)
     release_obj = obj.release
-    release = models.release(id=release_obj.gid, title=release_obj.name)
+    release = models.release(id=str(release_obj.gid), title=release_obj.name)
     if release_obj.comment:
         release.set_disambiguation(release_obj.comment)
     relation.set_release(release)
@@ -1166,7 +1166,7 @@ def convert_series(obj):
     """
     :param obj: :class:`mbdata.models.Series
     """
-    series = models.series(id=obj.gid, name=obj.name)
+    series = models.series(id=str(obj.gid), name=obj.name)
 
     if obj.comment:
         series.set_disambiguation(obj.comment)
@@ -1179,7 +1179,7 @@ def convert_series(obj):
 
     if obj.type:
         series.set_type(obj.type.name)
-        series.set_type_id(obj.type.gid)
+        series.set_type_id(str(obj.type.gid))
 
     return series
 
@@ -1199,7 +1199,7 @@ def convert_url(obj):
     """
     :type obj: :class`mbdata_models.URL`
     """
-    url = models.url(id=obj.gid, resource=obj.url)
+    url = models.url(id=str(obj.gid), resource=obj.url)
     if obj.artist_links:
         url.add_relation_list(convert_artist_relation_list(obj.artist_links))
     if obj.release_links:
@@ -1211,7 +1211,7 @@ def convert_work(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomWork`
     """
-    work = models.work(id=obj.gid, title=obj.name)
+    work = models.work(id=str(obj.gid), title=obj.name)
     if len(obj.aliases) > 0:
         work.set_alias_list(convert_alias_list(obj.aliases))
     if len(obj.artist_links) > 0:
@@ -1230,7 +1230,7 @@ def convert_work(obj):
             work.set_language('mul')
     if obj.type:
         work.set_type(obj.type.name)
-        work.set_type_id(obj.type.gid)
+        work.set_type_id(str(obj.type.gid))
     if obj.iswcs:
         work.set_iswc_list(convert_iswc_list(obj.iswcs))
 
@@ -1241,28 +1241,28 @@ def convert_release_group_primary_type(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseGroupPrimaryType`
     """
-    return models.primary_type(valueOf_=obj.name, id=obj.gid)
+    return models.primary_type(valueOf_=obj.name, id=str(obj.gid))
 
 
 def convert_release_packaging(obj):
     """
     :type obj: :class:`mbdata.models.ReleasePackaging`
     """
-    return models.packaging(valueOf_=obj.name, id=obj.gid)
+    return models.packaging(valueOf_=obj.name, id=str(obj.gid))
 
 
 def convert_release_status(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseStatus`
     """
-    return models.status(valueOf_=obj.name, id=obj.gid)
+    return models.status(valueOf_=obj.name, id=str(obj.gid))
 
 
 def convert_gender(obj):
     """
     :type obj: :class:`mbdata.models.Gender`
     """
-    return models.gender(valueOf_=obj.name.lower(), id=obj.gid)
+    return models.gender(valueOf_=obj.name.lower(), id=str(obj.gid))
 
 
 def convert_format(obj):
