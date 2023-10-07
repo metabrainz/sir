@@ -37,7 +37,7 @@ class IndexingTestCase(unittest.TestCase):
             self.session.execute(text(f.read()))
 
         bounds = querying.iter_bounds(
-            self.session, SCHEMA[entity].model.id, 100, 0
+            self.session, SCHEMA[entity].model, 100, 0
         )
 
         queue = Queue()

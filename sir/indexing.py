@@ -142,7 +142,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                                 entity_data_queue))
         else:
             with util.db_session_ctx(db_session) as session:
-                for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
+                for bounds in querying.iter_bounds(session, SCHEMA[e].model,
                                                    query_batch_size, importlimit):
                     args = (e, bounds, entity_data_queue)
                     index_function_args.append(args)
