@@ -79,7 +79,7 @@ def defer_everything_but(mapper, load, *columns):
                 # Position is needed because sqla automatically orders by
                 # artist_credit_name.position
                 logger.debug("Deferring %s on %s", key, mapper)
-                load.defer(key)
+                load.defer(prop)
     return load
 
 
@@ -195,11 +195,11 @@ class SearchEntity(object):
                     if isinstance(prop, RelationshipProperty):
                         pk = column.mapper.primary_key[0].name
                         if prop.direction == ONETOMANY:
-                            load = load.subqueryload(pathelem)
+                            load = load.subqueryload(column)
                         elif prop.direction == MANYTOONE:
-                            load = load.joinedload(pathelem)
+                            load = load.joinedload(column)
                         else:
-                            load = load.defaultload(pathelem)
+                            load = load.defaultload(column)
                         required_columns = list(current_merged_path.keys())
                         required_columns.append(pk)
 
@@ -214,10 +214,8 @@ class SearchEntity(object):
                             partial(is_composite_column, model),
                             required_columns))
                         for composite_column in composite_columns:
-                            composite_parts = list(c.name for c in
-                                               getattr(model,
-                                                       composite_column).
-                                               property.columns)
+                            composite_parts = getattr(model, composite_column)\
+                                .property.columns
                             logger.debug("Loading %s instead of %s on %s",
                                          composite_parts,
                                          composite_column,

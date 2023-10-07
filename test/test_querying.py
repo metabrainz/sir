@@ -34,7 +34,7 @@ class DeferEverythingButTest(unittest.TestCase):
     def test_plain_column_called(self):
         self.prop.key = "foo"
         load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        load.defer.assert_called_once_with("foo")
+        load.defer.assert_called_once_with(self.prop)
 
     def test_plain_column_not_called(self):
         self.prop.key = "key"
