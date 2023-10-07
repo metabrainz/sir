@@ -1,5 +1,7 @@
 # Copyright (c) 2014, 2015 Lukas Lalinsky, Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from uuid import UUID
+
 from sir import config
 from sir.querying import iterate_path_values
 from collections import defaultdict
@@ -258,6 +260,8 @@ class SearchEntity(object):
             if isinstance(tempvals, set) and len(tempvals) == 1:
                 tempvals = tempvals.pop()
             if tempvals is not None and tempvals:
+                if isinstance(tempvals, UUID):
+                    tempvals = str(tempvals)
                 data[fieldname] = tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
