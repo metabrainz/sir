@@ -223,7 +223,17 @@ class IndexingTestCase(unittest.TestCase):
                 'mbid': 'f2a9a3c0-72e3-11de-8a39-0800200c9a66',
                 '_store': '<ns0:label xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="f2a9a3c0-72e3-11de-8a39-0800200c9a66"><ns0:name>To Merge</ns0:name><ns0:sort-name>To Merge</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:label>',
                 'label': u'To Merge'
-            }
+            },
+            {
+                'begin': '1953-03-15',
+                'end': '1991-11-27',
+                'area': u'Soviet Union',
+                'country': u'SU',
+                'label': u'U.S.S.R. Ministry of Culture',
+                'ended': 'true',
+                'mbid': '449ddb7e-4e92-41eb-a683-5bbcc7fd7d4a',
+                '_store': '<ns0:label xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="449ddb7e-4e92-41eb-a683-5bbcc7fd7d4a"><ns0:name>U.S.S.R. Ministry of Culture</ns0:name><ns0:sort-name>U.S.S.R. Ministry of Culture</ns0:sort-name><ns0:country>SU</ns0:country><ns0:area id="32f90933-b4b4-3248-b98c-e573d5329f57" type="Country" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><ns0:name>Soviet Union</ns0:name><ns0:sort-name>Soviet Union</ns0:sort-name><ns0:life-span><ns0:begin>1922</ns0:begin><ns0:end>1991</ns0:end><ns0:ended>true</ns0:ended></ns0:life-span></ns0:area><ns0:life-span><ns0:begin>1953-03-15</ns0:begin><ns0:end>1991-11-27</ns0:end><ns0:ended>true</ns0:ended></ns0:life-span></ns0:label>'
+             }
         ]
         self._test_index_entity("label", expected)
 
@@ -601,6 +611,15 @@ class IndexingTestCase(unittest.TestCase):
                 'work': u'Test',
                 '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="745c079d-374e-4436-9448-da92dedef3cf"><ns0:title>Test</ns0:title><ns0:iswc-list><ns0:iswc>T-000.000.002-0</ns0:iswc></ns0:iswc-list></ns0:work>',
                 'iswc': u'T-000.000.002-0'
+            },
+            {
+                '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="640b17f5-4aa3-3fb1-8c6c-4792458e8a56" type="Song" type-id="f061270a-2fd6-32f1-a641-f0f8676d14e6"><ns0:title>Blue Lines</ns0:title><ns0:relation-list target-type="recording"><ns0:relation type="performance" type-id="a3005666-a872-32c3-ad06-98af558e99b0"><ns0:direction>backward</ns0:direction><ns0:recording id="bef81f8f-4bcf-4308-bd66-e57018169a94"><ns0:title>Blue Lines</ns0:title></ns0:recording></ns0:relation><ns0:relation type="performance" type-id="a3005666-a872-32c3-ad06-98af558e99b0"><ns0:direction>backward</ns0:direction><ns0:recording id="a2383c02-2430-4294-9177-ef799a6eca31"><ns0:title>Blue Lines</ns0:title></ns0:recording></ns0:relation></ns0:relation-list></ns0:work>',
+                'work': u'Blue Lines',
+                'recording_count': 2,
+                'recording': u'Blue Lines',
+                'mbid': '640b17f5-4aa3-3fb1-8c6c-4792458e8a56',
+                'rid': set(['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31']),
+                'type': u'Song'
             }
         ]
         self._test_index_entity("work", expected)

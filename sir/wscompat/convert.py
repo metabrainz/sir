@@ -1022,8 +1022,11 @@ def convert_recording(obj):
     if obj.comment:
         recording.set_disambiguation(obj.comment)
 
-    if obj.first_release is not None and obj.first_release.date is not None:
-        recording.set_first_release_date(partialdate_to_string(obj.first_release.date))
+    if obj.first_release_date and len(obj.first_release_date) > 0\
+            and obj.first_release_date[0].date:
+        recording.set_first_release_date(
+            partialdate_to_string(obj.first_release_date[0].date)
+        )
 
     recording.set_length(obj.length)
 
@@ -1105,8 +1108,8 @@ def convert_release(obj):
     if tr is not None:
         release.set_text_representation(tr)
 
-    if obj.meta.amazon_asin is not None:
-        release.set_asin(obj.meta.amazon_asin)
+    if obj.asin and len(obj.asin) > 0 and obj.asin[0].amazon_asin:
+        release.set_asin(obj.asin[0].amazon_asin)
 
     return release
 
@@ -1121,8 +1124,11 @@ def convert_release_group(obj):
     if obj.comment:
         rg.set_disambiguation(obj.comment)
 
-    if obj.meta.first_release_date:
-        rg.set_first_release_date(partialdate_to_string(obj.meta.first_release_date))
+    if obj.first_release_date and len(obj.first_release_date) > 0\
+            and obj.first_release_date[0].first_release_date:
+        rg.set_first_release_date(
+            partialdate_to_string(obj.first_release_date[0].first_release_date)
+        )
 
     if obj.type is not None:
         rg.set_primary_type(convert_release_group_primary_type(obj.type))
