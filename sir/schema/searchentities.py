@@ -9,7 +9,7 @@ try:
     from xml.etree.cElementTree import tostring
 except ImportError:
     from xml.etree.ElementTree import tostring
-from sqlalchemy.orm import class_mapper, Load
+from sqlalchemy.orm import class_mapper, Load, raiseload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
@@ -229,7 +229,7 @@ class SearchEntity(object):
                         load = defer_everything_but(class_mapper(model),
                                                     load,
                                                     *required_columns)
-                query = query.options(load)
+                query = query.options(load, raiseload("*"))
         if self.extraquery is not None:
             query = self.extraquery(query)
         return query
