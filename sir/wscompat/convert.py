@@ -40,6 +40,10 @@ def partialdate_to_string(obj):
     return formatstring % tuple(args)
 
 
+def partialdate_to_def_incomplete_date(obj):
+    return models.def_incomplete_date(partialdate_to_string(obj))
+
+
 def datetime_to_string(obj):
     """
     :type obj: :class:`datetime.time`
@@ -79,10 +83,12 @@ def calculate_type(primary_type, secondary_types):
 
 
 def convert_relation(obj, direction="backward", **kwargs):
-    relation = models.relation(direction=direction,
-                               type_id=str(obj.link.link_type.gid),
-                               type_=obj.link.link_type.name,
-                               **kwargs)
+    relation = models.relation(
+        direction=models.def_direction(direction),
+        type_id=str(obj.link.link_type.gid),
+        type_=obj.link.link_type.name,
+        **kwargs
+    )
 
     if len(obj.link.attributes) > 0:
         attribute_list = models.attribute_listType()
@@ -97,27 +103,27 @@ def convert_iso_3166_1_code_list(obj):
     """
     :type obj: :class:`[mbdata.models.ISO31661]`
     """
-    l = models.iso_3166_1_code_list()
-    [l.add_iso_3166_1_code(c.code) for c in obj]
-    return l
+    return models.iso_3166_1_code_list(
+        [models.def_iso_3166_1_code(c.code) for c in obj]
+    )
 
 
 def convert_iso_3166_2_code_list(obj):
     """
     :type obj: :class:`[mbdata.models.ISO31662]`
     """
-    l = models.iso_3166_2_code_list()
-    [l.add_iso_3166_2_code(c.code) for c in obj]
-    return l
+    return models.iso_3166_2_code_list(
+        [models.def_iso_3166_2_code(c.code) for c in obj]
+    )
 
 
 def convert_iso_3166_3_code_list(obj):
     """
     :type obj: :class:`[mbdata.models.ISO31663]`
     """
-    l = models.iso_3166_3_code_list()
-    [l.add_iso_3166_3_code(c.code) for c in obj]
-    return l
+    return models.iso_3166_3_code_list(
+        [models.def_iso_3166_3_code(c.code) for c in obj]
+    )
 
 
 @lru_cache()
@@ -349,9 +355,7 @@ def convert_ipi_list(obj):
     :type obj: :class:`[mbdata.models.ArtistIPI]` or
                :class:`[mbdata.models.LabelIPI]`
     """
-    ipi_list = models.ipi_list()
-    [ipi_list.add_ipi(i.ipi) for i in obj]
-    return ipi_list
+    return models.ipi_list([models.def_ipi(i.ipi) for i in obj])
 
 
 def convert_isni_list(obj):
@@ -359,9 +363,7 @@ def convert_isni_list(obj):
     :type obj: :class:`[mbdata.models.ArtistISNI]` or
                :class:`[mbdata.models.LabelISNI]`
     """
-    isni_list = models.isni_list()
-    [isni_list.add_isni(i.isni) for i in obj]
-    return isni_list
+    return models.isni_list([models.def_isni(i.isni) for i in obj])
 
 
 def convert_isrc(obj):
@@ -439,10 +441,10 @@ def convert_life_span(begin_date, end_date, ended):
     lifespan = models.life_span()
 
     if begin_date.year is not None:
-        lifespan.set_begin(partialdate_to_string(begin_date))
+        lifespan.set_begin(partialdate_to_def_incomplete_date(begin_date))
 
     if end_date.year is not None:
-        lifespan.set_end(partialdate_to_string(end_date))
+        lifespan.set_end(partialdate_to_def_incomplete_date(end_date))
 
     if ended:
         lifespan.set_ended("true")
@@ -465,7 +467,7 @@ def convert_medium(obj, disc_list=True):
         dl = models.disc_list(count=len(obj.cdtocs))
         m.set_disc_list(dl)
 
-    tl = models.track_listType6(count=obj.track_count)
+    tl = models.data_track_list(count=obj.track_count)
     m.set_track_list(tl)
 
     return m
@@ -584,8 +586,10 @@ def convert_release_event(obj):
     """
     :type obj: :class:`mbdata.models.ReleaseCountry`
     """
-    re = models.release_event(area=convert_area_for_release_event(obj.country.area),  # noqa
-                              date=partialdate_to_string(obj.date))
+    re = models.release_event(
+        area=convert_area_for_release_event(obj.country.area),  # noqa
+        date=partialdate_to_def_incomplete_date(obj.date)
+    )
     return re
 
 
@@ -846,7 +850,9 @@ def convert_artist(obj):
     if obj.area is not None:
         artist.set_area(convert_area_inner(obj.area))
         if len(obj.area.iso_3166_1_codes) > 0:
-            artist.set_country(obj.area.iso_3166_1_codes[0].code)
+            artist.set_country(
+                models.def_iso_3166_1_code(obj.area.iso_3166_1_codes[0].code)
+            )
 
     if obj.end_area is not None:
         artist.set_end_area(convert_area_inner(obj.end_area))
@@ -927,7 +933,7 @@ def convert_event(obj):
         event.set_life_span(lifespan)
 
     if obj.time is not None:
-        event.set_time(datetime_to_string(obj.time))
+        event.set_time(models.def_time(datetime_to_string(obj.time)))
 
     if obj.area_links:
         event.add_relation_list(convert_event_area_relation_list(obj.area_links))
@@ -985,7 +991,9 @@ def convert_label(obj):
     if obj.area is not None:
         label.set_area(convert_area_inner(obj.area))
         if len(obj.area.iso_3166_1_codes) > 0:
-            label.set_country(obj.area.iso_3166_1_codes[0].code)
+            label.set_country(
+                models.def_iso_3166_1_code(obj.area.iso_3166_1_codes[0].code)
+            )
 
     if obj.label_code is not None and obj.label_code > 0:
         label.set_label_code(obj.label_code)
@@ -1025,7 +1033,7 @@ def convert_recording(obj):
     if obj.first_release_date and len(obj.first_release_date) > 0\
             and obj.first_release_date[0].date:
         recording.set_first_release_date(
-            partialdate_to_string(obj.first_release_date[0].date)
+            partialdate_to_def_incomplete_date(obj.first_release_date[0].date)
         )
 
     recording.set_length(obj.length)
@@ -1103,7 +1111,7 @@ def convert_release(obj):
     if obj.script is not None:
         if tr is None:
             tr = models.text_representation()
-        tr.set_script(obj.script.iso_code)
+        tr.set_script(models.def_iso_15924(obj.script.iso_code))
 
     if tr is not None:
         release.set_text_representation(tr)
@@ -1127,7 +1135,9 @@ def convert_release_group(obj):
     if obj.first_release_date and len(obj.first_release_date) > 0\
             and obj.first_release_date[0].first_release_date:
         rg.set_first_release_date(
-            partialdate_to_string(obj.first_release_date[0].first_release_date)
+            partialdate_to_def_incomplete_date(
+                obj.first_release_date[0].first_release_date
+            )
         )
 
     if obj.type is not None:
