@@ -259,8 +259,16 @@ class SearchEntity(object):
                 tempvals = tempvals.pop()
             if tempvals is not None and tempvals:
                 if isinstance(tempvals, UUID):
-                    tempvals = str(tempvals)
-                data[fieldname] = tempvals
+                    new_tempvals = str(tempvals)
+                elif isinstance(tempvals, set) or isinstance(tempvals, list):
+                    new_tempvals = set()
+                    for tempval in tempvals:
+                        if isinstance(tempval, UUID):
+                            tempval = str(tempval)
+                        new_tempvals.add(tempval)
+                else:
+                    new_tempvals = tempvals
+                data[fieldname] = new_tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
             not None):
