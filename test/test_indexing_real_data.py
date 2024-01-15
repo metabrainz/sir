@@ -1,5 +1,7 @@
+import json
 import os
 import unittest
+from pprint import pprint
 from queue import Queue
 from datetime import datetime, timezone
 
@@ -46,6 +48,7 @@ class IndexingTestCase(unittest.TestCase):
         received = []
         while not queue.empty():
             received.append(queue.get_nowait())
+        pprint(received, indent=4)
         self.assertCountEqual(expected_messages, received)
 
     def test_index_area(self):
@@ -181,7 +184,15 @@ class IndexingTestCase(unittest.TestCase):
         self._test_index_entity("editor", expected)
 
     def test_index_instrument(self):
+        # Klavier/piano is present in the test database by default so account for that
         expected = [
+            {
+                '_store': '<ns0:instrument xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="b3eac5f9-7859-4416-ac39-7154e2e8d348" type="String instrument" type-id="cc00f97f-cf3d-3ae2-9163-041cb1a0d726"><ns0:name>piano</ns0:name><ns0:alias-list><ns0:alias locale="de" sort-name="Klavier" type="Instrument name" type-id="2322fc94-fbf3-3c09-b23c-aa5ec8d14fcd" primary="primary">Klavier</ns0:alias></ns0:alias-list></ns0:instrument>',
+                'alias': 'Klavier',
+                'instrument': 'piano',
+                'mbid': 'b3eac5f9-7859-4416-ac39-7154e2e8d348',
+                'type': 'String instrument'
+            },
             {
                 'comment': u'Yet Another Test Instrument',
                 '_store': '<ns0:instrument xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="745c079d-374e-4436-9448-da92dedef3ce" type="String instrument" type-id="cc00f97f-cf3d-3ae2-9163-041cb1a0d726"><ns0:name>Test Instrument</ns0:name><ns0:disambiguation>Yet Another Test Instrument</ns0:disambiguation><ns0:description>This is a description!</ns0:description></ns0:instrument>',
