@@ -1,5 +1,5 @@
-ARG PYTHON_VERSION=2.7
-ARG BASE_IMAGE_DATE=20220421
+ARG PYTHON_VERSION=3.11
+ARG BASE_IMAGE_DATE=20221221
 FROM metabrainz/python:$PYTHON_VERSION-$BASE_IMAGE_DATE
 
 ARG SIR_VERSION
@@ -26,6 +26,7 @@ RUN apt-get update && \
                     curl \
                     git \
                     gnupg \
+                    libz-dev \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \

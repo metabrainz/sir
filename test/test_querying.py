@@ -34,7 +34,7 @@ class DeferEverythingButTest(unittest.TestCase):
     def test_plain_column_called(self):
         self.prop.key = "foo"
         load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        load.defer.assert_called_once_with("foo")
+        load.defer.assert_called_once_with(self.prop)
 
     def test_plain_column_not_called(self):
         self.prop.key = "key"
@@ -95,7 +95,7 @@ class MergePathsTest(unittest.TestCase):
     def test_dotless_path(self):
         paths = [["id"], ["name"]]
         expected = {"id": "", "name": ""}
-        self.assertEquals(merge_paths(paths), expected)
+        self.assertEqual(merge_paths(paths), expected)
 
     def test_dotted_path(self):
         paths = [["rel.id"], ["rel2.rel3.id"]]

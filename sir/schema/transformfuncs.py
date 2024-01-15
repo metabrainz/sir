@@ -105,3 +105,7 @@ def boolean(values):
 def url_type(values):
     types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
     return types
+
+
+def uuid_set_to_str_set(values):
+    return {str(x) for x in values}

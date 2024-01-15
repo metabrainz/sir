@@ -37,18 +37,21 @@ class CustomArea(Area):
     )
     tags = relationship("AreaTag", viewonly=True)
     place_count = column_property(
-        select([func.count(Place.id)]).
+        select(func.count(Place.id)).
         where(Place.area_id == Area.id).
+        correlate_except(Place).
         scalar_subquery()
     )
     label_count = column_property(
-        select([func.count(Label.id)]).
+        select(func.count(Label.id)).
         where(Label.area_id == Area.id).
+        correlate_except(Label).
         scalar_subquery()
     )
     artist_count = column_property(
-        select([func.count(Artist.id)]).
+        select(func.count(Artist.id)).
         where(Artist.area_id == Area.id).
+        correlate_except(Artist).
         scalar_subquery()
     )
 
@@ -62,11 +65,12 @@ class CustomArtist(Artist):
     artist_credit_names = relationship("ArtistCreditName", innerjoin=True,
                                        viewonly=True)
     primary_aliases = column_property(
-        select([func.array_agg(ArtistAlias.name)]).
+        select(func.array_agg(ArtistAlias.name)).
         where(and_(
             ArtistAlias.artist_id == Artist.id,
             ArtistAlias.primary_for_locale == True
         )).
+        correlate_except(ArtistAlias).
         scalar_subquery()
     )
 
@@ -95,8 +99,9 @@ class CustomLabel(Label):
     area = relationship("CustomArea", foreign_keys=[Label.area_id])
     tags = relationship("LabelTag", viewonly=True)
     release_count = column_property(
-        select([func.count(ReleaseLabel.id)]).
+        select(func.count(ReleaseLabel.id)).
         where(ReleaseLabel.label_id == Label.id).
+        correlate_except(ReleaseLabel).
         scalar_subquery()
     )
 
@@ -123,8 +128,9 @@ class CustomReleaseGroup(ReleaseGroup):
     releases = relationship("Release", viewonly=True)
     tags = relationship("ReleaseGroupTag", viewonly=True)
     release_count = column_property(
-        select([func.count(Release.id)]).
+        select(func.count(Release.id)).
         where(Release.release_group_id == ReleaseGroup.id).
+        correlate_except(Release).
         scalar_subquery()
     )
 
@@ -133,8 +139,9 @@ class CustomRelease(Release):
     aliases = relationship("ReleaseAlias", viewonly=True)
     asin = relationship("ReleaseMeta", viewonly=True)
     medium_count = column_property(
-        select([func.count(Medium.id)]).
+        select(func.count(Medium.id)).
         where(Medium.release_id == Release.id).
+        correlate_except(Medium).
         scalar_subquery()
     )
 
