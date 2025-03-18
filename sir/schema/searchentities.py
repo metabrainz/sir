@@ -255,17 +255,17 @@ class SearchEntity(object):
                             tempvals.add(value)
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
-            if isinstance(tempvals, set) and len(tempvals) == 1:
+            if (isinstance(tempvals, set) or isinstance(tempvals, list)) and len(tempvals) == 1:
                 tempvals = tempvals.pop()
             if tempvals is not None and tempvals:
                 if isinstance(tempvals, UUID):
                     new_tempvals = str(tempvals)
                 elif isinstance(tempvals, set) or isinstance(tempvals, list):
-                    new_tempvals = set()
+                    new_tempvals = list()
                     for tempval in tempvals:
                         if isinstance(tempval, UUID):
                             tempval = str(tempval)
-                        new_tempvals.add(tempval)
+                        new_tempvals.append(tempval)
                 else:
                     new_tempvals = tempvals
                 data[fieldname] = new_tempvals

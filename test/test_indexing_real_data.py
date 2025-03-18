@@ -1,4 +1,3 @@
-import json
 import os
 import unittest
 from pprint import pprint
@@ -25,13 +24,14 @@ class IndexingTestCase(unittest.TestCase):
         self.connection = util.engine().connect()
         self.transaction = self.connection.begin()
         self.session = Session(bind=self.connection)
+        self.maxDiff = None
 
     def tearDown(self):
         self.session.close()
         self.transaction.rollback()
         self.connection.close()
 
-    def _test_index_entity(self, entity, expected_messages):
+    def _test_index_entity(self, entity, expected_messages, key="mbid"):
         with open(
             os.path.join(self.TEST_SQL_FILES_DIR, f"{entity}.sql"),
             encoding="utf-8"
@@ -45,11 +45,23 @@ class IndexingTestCase(unittest.TestCase):
         queue = Queue()
         index_entity(self.session, entity, bounds[0], queue)
 
-        received = []
+        received_messages = []
         while not queue.empty():
-            received.append(queue.get_nowait())
-        pprint(received, indent=4)
-        self.assertCountEqual(expected_messages, received)
+            received_messages.append(queue.get_nowait())
+        pprint(received_messages, indent=4)
+
+        self.assertEqual(len(expected_messages), len(received_messages))
+        expected = {x[key]: x for x in expected_messages}
+        received = {x[key]: x for x in received_messages}
+        for expected_key, expected_val in expected.items():
+            self.assertIn(expected_key, received)
+            received_val = received[expected_key]
+            self.assertCountEqual(expected_val.keys(), received_val.keys())
+            for k, v in expected_val.items():
+                if isinstance(v, list):
+                    self.assertCountEqual(v, received_val[k])
+                else:
+                    self.assertEqual(v, received_val[k])
 
     def test_index_area(self):
         expected = [
@@ -181,7 +193,7 @@ class IndexingTestCase(unittest.TestCase):
                 'editor': u'kuno'
             }
         ]
-        self._test_index_entity("editor", expected)
+        self._test_index_entity("editor", expected, key="id")
 
     def test_index_instrument(self):
         # Klavier/piano is present in the test database by default so account for that
@@ -431,7 +443,7 @@ class IndexingTestCase(unittest.TestCase):
                 'packaging': u'Jewel Case',
                 'date': '2009-05-08',
                 'mbid': 'f34c079d-374e-4436-9448-da92dedef3ce',
-                'catno': set([u'ABC-123', u'ABC-123-X']),
+                'catno': [u'ABC-123', u'ABC-123-X'],
                 'rgid': '3b4faa80-72d9-11de-8a39-0800200c9a66',
                 'laid': '00a23bd0-72db-11de-8a39-0800200c9a66',
                 'release': u'Arrival',
@@ -555,7 +567,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 4
             }
         ]
-        self._test_index_entity("tag", expected)
+        self._test_index_entity("tag", expected, key="id")
 
     def test_index_url(self):
         expected = [
@@ -605,7 +617,7 @@ class IndexingTestCase(unittest.TestCase):
             {
                 'comment': u'Work',
                 '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="755c079d-374e-4436-9448-da92dedef3ce" type="Aria" type-id="ae801f48-7a7f-3af6-91c7-456f82dae8a9"><ns0:title>Test</ns0:title><ns0:iswc-list><ns0:iswc>T-500.000.001-0</ns0:iswc><ns0:iswc>T-500.000.002-0</ns0:iswc></ns0:iswc-list><ns0:disambiguation>Work</ns0:disambiguation></ns0:work>',
-                'iswc': set([u'T-500.000.002-0', u'T-500.000.001-0']),
+                'iswc': [u'T-500.000.002-0', u'T-500.000.001-0'],
                 'work': u'Test',
                 'mbid': '755c079d-374e-4436-9448-da92dedef3ce',
                 'type': u'Aria'
@@ -629,20 +641,21 @@ class IndexingTestCase(unittest.TestCase):
                 'recording_count': 2,
                 'recording': u'Blue Lines',
                 'mbid': '640b17f5-4aa3-3fb1-8c6c-4792458e8a56',
-                'rid': set(['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31']),
+                'rid': ['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31'],
                 'type': u'Song'
             }
         ]
         self._test_index_entity("work", expected)
 
     def test_index_cdstub(self):
+        expected_timestamp = int(
+            datetime(2000, 1, 1, tzinfo=timezone.utc)
+            .timestamp()
+        )
         expected = [
             {
                 'comment': u'this is a comment',
-                'added': datetime(
-                    2000, 1, 1, 0, 0,
-                    tzinfo=timezone.utc
-                ),
+                'added': expected_timestamp,
                 '_store': '<ns0:cdstub xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="YfSgiOEayqN77Irs.VNV.UNJ0Zs-"><ns0:title>Test Stub</ns0:title><ns0:artist>Test Artist</ns0:artist><ns0:barcode>837101029192</ns0:barcode><ns0:disambiguation>this is a comment</ns0:disambiguation><ns0:track-list count="2" /></ns0:cdstub>',
                 'discid': u'YfSgiOEayqN77Irs.VNV.UNJ0Zs-',
                 'artist': u'Test Artist',
@@ -652,7 +665,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 1
             }
         ]
-        self._test_index_entity("cdstub", expected)
+        self._test_index_entity("cdstub", expected, key="id")
 
     def test_index_annotation(self):
         expected = [
@@ -689,7 +702,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 4
             }
         ]
-        self._test_index_entity("annotation", expected)
+        self._test_index_entity("annotation", expected, key="id")
 
     def test_index_event(self):
         expected = [
@@ -697,12 +710,12 @@ class IndexingTestCase(unittest.TestCase):
                 'comment': u'2022, Prom 60',
                 'begin': '2022-09-01',
                 'end': '2022-09-01',
-                'artist': set([u'BBC Concert Orchestra', u'Kwam\xe9 Ryan']),
+                'artist': [u'Kwam\xe9 Ryan', u'BBC Concert Orchestra'],
                 'pid': '4352063b-a833-421b-a420-e7fb295dece0',
-                'arid': set([
+                'arid': [
                     'f72a5b32-449f-4090-9a2a-ebbdd8d3c2e5',
                     'dfeba5ea-c967-4ad2-9cdd-3cffb4320143'
-                ]),
+                ],
                 'ended': 'true',
                 'mbid': 'ca1d24c1-1999-46fd-8a95-3d4108df5cb2',
                 'place': u'Royal Albert Hall',
