@@ -1,5 +1,4 @@
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from multiprocessing import Queue
 
@@ -10,7 +9,7 @@ import sir.indexing
 from sir.indexing import queue_to_solr, send_data_to_solr, FAILED
 
 
-class QueueToSolrTest(unittest.TestCase):
+class QueueToSolrTest(TestCase):
     def setUp(self):
         self.queue = Queue()
         self.queue.put({"foo": "bar"})
@@ -33,7 +32,7 @@ class QueueToSolrTest(unittest.TestCase):
         mock_add.assert_called_once_with([{"foo": "bar"}])
         mock_commit.assert_called()
 
-class SendDataToSolrTest(unittest.TestCase):
+class SendDataToSolrTest(TestCase):
     def setUp(self):
         self.solr_connection = mock.MagicMock()
         self.solr_connection.add = mock.MagicMock()
@@ -50,7 +49,7 @@ class SendDataToSolrTest(unittest.TestCase):
         send_data_to_solr(self.solr_connection, [{"foo": "bar"}])
         self.assertTrue(FAILED.value)
 
-class LiveIndexFailTest(unittest.TestCase):
+class LiveIndexFailTest(TestCase):
     def setUp(self):
         self.imp = sir.indexing._multiprocessed_import = mock.MagicMock()
         FAILED.value = False

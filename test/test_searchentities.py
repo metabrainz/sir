@@ -1,5 +1,4 @@
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from test import models
 from xml.etree.ElementTree import Element, tostring
@@ -9,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-class QueryResultToDictTest(unittest.TestCase):
+class QueryResultToDictTest(TestCase):
     def setUp(self):
         config_patcher = mock.patch("sir.config.CFG")
         self.addCleanup(config_patcher.stop)
@@ -54,7 +53,7 @@ class QueryResultToDictTest(unittest.TestCase):
         self.assertEqual(convmock.to_etree.call_count, 1)
 
 
-class TestIsCompositeColumn(unittest.TestCase):
+class TestIsCompositeColumn(TestCase):
     def test_composite_column(self):
         self.assertTrue(is_composite_column(models.B, "composite_column"))
 
@@ -65,7 +64,7 @@ class TestIsCompositeColumn(unittest.TestCase):
         self.assertFalse(is_composite_column(models.B, "c"))
 
 
-class SearchEntityTest(unittest.TestCase):
+class SearchEntityTest(TestCase):
     FILTER_MAX = 20
 
     @staticmethod

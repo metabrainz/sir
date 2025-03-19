@@ -1,6 +1,5 @@
 import doctest
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from test import helpers, models
 from collections import defaultdict
@@ -11,7 +10,7 @@ from sir.schema import generate_update_map, SCHEMA
 from sir.trigger_generation.paths import second_last_model_in_path
 
 
-class DeferEverythingButTest(unittest.TestCase):
+class DeferEverythingButTest(TestCase):
     def setUp(self):
         mapper = helpers.Object()
         mapper.iterate_properties = []
@@ -60,7 +59,7 @@ class DeferEverythingButTest(unittest.TestCase):
         self.assertFalse(load.defer.called)
 
 
-class IteratePathValuesTest(unittest.TestCase):
+class IteratePathValuesTest(TestCase):
     @classmethod
     def setUpClass(cls):
         c = models.C(id=1)
@@ -91,7 +90,7 @@ class IteratePathValuesTest(unittest.TestCase):
         self.assertEqual(res, [models.C.__tablename__])
 
 
-class MergePathsTest(unittest.TestCase):
+class MergePathsTest(TestCase):
     def test_dotless_path(self):
         paths = [["id"], ["name"]]
         expected = {"id": "", "name": ""}
@@ -110,7 +109,7 @@ class MergePathsTest(unittest.TestCase):
         self.assertEqual(dict(merge_paths(paths)), expected)
 
 
-class DBTest(unittest.TestCase):
+class DBTest(TestCase):
     def test_non_composite_fk(self):
         paths, _, models, _ = generate_update_map()
         for table_paths in paths.values():
