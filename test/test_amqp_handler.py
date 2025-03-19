@@ -2,8 +2,7 @@
 # coding: utf-8
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from amqp.basic_message import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
@@ -17,7 +16,7 @@ from sir.schema import SCHEMA
 basicConfig(level=CRITICAL)
 
 
-class AmqpTestCase(unittest.TestCase):
+class AmqpTestCase(TestCase):
 
     def setUp(self):
         self.maxDiff = None

@@ -10,7 +10,6 @@ from .schema import SCHEMA
 from configparser import NoOptionError
 from functools import partial
 from logging import getLogger, DEBUG, INFO
-from pysolr import SolrError
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from .util import SIR_EXIT
@@ -329,7 +328,7 @@ def send_data_to_solr(solr_connection, data):
     :param [dict] data:
     :raises: :class:`solr:solr.SolrException`
     """
-    with sentry_sdk.push_scope() as scope:
+    with sentry_sdk.new_scope() as scope:
         scope.set_extra("data", data)
         try:
             solr_connection.add(data)

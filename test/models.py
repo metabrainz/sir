@@ -1,7 +1,6 @@
 from collections import namedtuple
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import composite, relationship
+from sqlalchemy.orm import composite, relationship, declarative_base
 
 Base = declarative_base()
 

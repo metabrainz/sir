@@ -1,5 +1,4 @@
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from test.models import B
 from json import dumps
@@ -11,7 +10,7 @@ def noop(*args, **kwargs):
     pass
 
 
-class VersionCheckerTest(unittest.TestCase):
+class VersionCheckerTest(TestCase):
     def setUp(self):
         urlopen = mock.patch("sir.util.urllib.request.urlopen")
         urlopenmock = urlopen.start()
