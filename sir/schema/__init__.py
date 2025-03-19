@@ -151,7 +151,7 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("artist", "artist"),
     F("comment", "comment"),
     F("barcode", "barcode"),
-    F("added", "added"),
+    F("added", "added", transformfunc=tfs.datetime_to_timestamp),
     F("tracks", "discids.track_count"),
     F("discid", "discids.discid")
 ],
