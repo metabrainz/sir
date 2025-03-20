@@ -122,11 +122,10 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
 
-        solr_connection = util.solr_connection(e)
         process_function = partial(queue_to_solr,
                                    entity_data_queue,
                                    solr_batch_size,
-                                   solr_connection)
+                                   e)
         solr_processes = []
         for i in range(max_solr_processes):
             p = multiprocessing.Process(target=process_function, name="Solr-" + str(i))
@@ -186,6 +185,8 @@ def _index_entity_process_wrapper(args, live=False):
     # Restoring the default SIGTERM handler so the pool can actually terminate
     # its workers
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+    config.read_config()
 
     try:
         session = Session(util.engine())
@@ -284,19 +285,22 @@ def _query_database(session, entity_name, condition, data_queue):
         logger.debug("Retrieved %s records in %s", total_records, model)
 
 
-def queue_to_solr(queue, batch_size, solr_connection):
+def queue_to_solr(queue, batch_size, entity_name):
     """
     Read :class:`dict` objects from ``queue`` and send them to the Solr server
     behind ``solr_connection`` in batches of ``batch_size``.
 
     :param multiprocessing.Queue queue:
     :param int batch_size:
-    :param solr.Solr solr_connection:
+    :param str entity_name:
     """
 
     # Restoring the default SIGTERM handler so the Solr process can actually
     # be terminated on calling terminate.
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+    config.read_config()
+    solr_connection = util.solr_connection(entity_name)
 
     data = []
     count = 0
