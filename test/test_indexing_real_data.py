@@ -1,10 +1,10 @@
-import codecs
 import os
 import unittest
-from Queue import Queue
-from datetime import datetime
+from pprint import pprint
+from queue import Queue
+from datetime import datetime, timezone
 
-import psycopg2
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from sir import querying, util, config
@@ -24,29 +24,44 @@ class IndexingTestCase(unittest.TestCase):
         self.connection = util.engine().connect()
         self.transaction = self.connection.begin()
         self.session = Session(bind=self.connection)
+        self.maxDiff = None
 
     def tearDown(self):
         self.session.close()
         self.transaction.rollback()
         self.connection.close()
 
-    def _test_index_entity(self, entity, expected_messages):
-        self.session.execute(codecs.open(
-            os.path.join(self.TEST_SQL_FILES_DIR, "{}.sql".format(entity)),
-            encoding='utf-8'
-        ).read())
+    def _test_index_entity(self, entity, expected_messages, key="mbid"):
+        with open(
+            os.path.join(self.TEST_SQL_FILES_DIR, f"{entity}.sql"),
+            encoding="utf-8"
+        ) as f:
+            self.session.execute(text(f.read()))
 
         bounds = querying.iter_bounds(
-            self.session, SCHEMA[entity].model.id, 100, 0
+            self.session, SCHEMA[entity].model, 100, 0
         )
 
         queue = Queue()
         index_entity(self.session, entity, bounds[0], queue)
 
-        received = []
+        received_messages = []
         while not queue.empty():
-            received.append(queue.get_nowait())
-        self.assertItemsEqual(expected_messages, received)
+            received_messages.append(queue.get_nowait())
+        pprint(received_messages, indent=4)
+
+        self.assertEqual(len(expected_messages), len(received_messages))
+        expected = {x[key]: x for x in expected_messages}
+        received = {x[key]: x for x in received_messages}
+        for expected_key, expected_val in expected.items():
+            self.assertIn(expected_key, received)
+            received_val = received[expected_key]
+            self.assertCountEqual(expected_val.keys(), received_val.keys())
+            for k, v in expected_val.items():
+                if isinstance(v, list):
+                    self.assertCountEqual(v, received_val[k])
+                else:
+                    self.assertEqual(v, received_val[k])
 
     def test_index_area(self):
         expected = [
@@ -178,10 +193,18 @@ class IndexingTestCase(unittest.TestCase):
                 'editor': u'kuno'
             }
         ]
-        self._test_index_entity("editor", expected)
+        self._test_index_entity("editor", expected, key="id")
 
     def test_index_instrument(self):
+        # Klavier/piano is present in the test database by default so account for that
         expected = [
+            {
+                '_store': '<ns0:instrument xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="b3eac5f9-7859-4416-ac39-7154e2e8d348" type="String instrument" type-id="cc00f97f-cf3d-3ae2-9163-041cb1a0d726"><ns0:name>piano</ns0:name><ns0:alias-list><ns0:alias locale="de" sort-name="Klavier" type="Instrument name" type-id="2322fc94-fbf3-3c09-b23c-aa5ec8d14fcd" primary="primary">Klavier</ns0:alias></ns0:alias-list></ns0:instrument>',
+                'alias': 'Klavier',
+                'instrument': 'piano',
+                'mbid': 'b3eac5f9-7859-4416-ac39-7154e2e8d348',
+                'type': 'String instrument'
+            },
             {
                 'comment': u'Yet Another Test Instrument',
                 '_store': '<ns0:instrument xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="745c079d-374e-4436-9448-da92dedef3ce" type="String instrument" type-id="cc00f97f-cf3d-3ae2-9163-041cb1a0d726"><ns0:name>Test Instrument</ns0:name><ns0:disambiguation>Yet Another Test Instrument</ns0:disambiguation><ns0:description>This is a description!</ns0:description></ns0:instrument>',
@@ -420,7 +443,7 @@ class IndexingTestCase(unittest.TestCase):
                 'packaging': u'Jewel Case',
                 'date': '2009-05-08',
                 'mbid': 'f34c079d-374e-4436-9448-da92dedef3ce',
-                'catno': set([u'ABC-123', u'ABC-123-X']),
+                'catno': [u'ABC-123', u'ABC-123-X'],
                 'rgid': '3b4faa80-72d9-11de-8a39-0800200c9a66',
                 'laid': '00a23bd0-72db-11de-8a39-0800200c9a66',
                 'release': u'Arrival',
@@ -500,23 +523,23 @@ class IndexingTestCase(unittest.TestCase):
             {
                 'series': u'Dumb Recording Series',
                 'mbid': 'dbb23c50-d4e4-11e3-9c1a-0800200c9a66',
-                'type': u'Recording',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="dbb23c50-d4e4-11e3-9c1a-0800200c9a66" type="Recording" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Dumb Recording Series</ns0:name></ns0:series>'
+                'type': u'Recording series',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="dbb23c50-d4e4-11e3-9c1a-0800200c9a66" type="Recording series" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Dumb Recording Series</ns0:name></ns0:series>'
             },
             {
                 'comment': u'test comment 1',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="a8749d0c-4a5a-4403-97c5-f6cd018f8e6d" type="Recording" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Test Recording Series</ns0:name><ns0:disambiguation>test comment 1</ns0:disambiguation><ns0:alias-list><ns0:alias sort-name="Test Recording Series Alias" type="Search hint" type-id="8950366b-5ea3-32f2-bf74-ee482474c18b">Test Recording Series Alias</ns0:alias></ns0:alias-list></ns0:series>',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="a8749d0c-4a5a-4403-97c5-f6cd018f8e6d" type="Recording series" type-id="dd968243-7128-30a2-81f0-79843430a8e2"><ns0:name>Test Recording Series</ns0:name><ns0:disambiguation>test comment 1</ns0:disambiguation><ns0:alias-list><ns0:alias sort-name="Test Recording Series Alias" type="Search hint" type-id="8950366b-5ea3-32f2-bf74-ee482474c18b">Test Recording Series Alias</ns0:alias></ns0:alias-list></ns0:series>',
                 'series': u'Test Recording Series',
                 'alias': u'Test Recording Series Alias',
                 'mbid': 'a8749d0c-4a5a-4403-97c5-f6cd018f8e6d',
-                'type': u'Recording'
+                'type': u'Recording series',
             },
             {
                 'comment': u'test comment 2',
                 'series': u'Test Work Series',
                 'mbid': '2e8872b9-2745-4807-a84e-094d425ec267',
-                'type': u'Work',
-                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="2e8872b9-2745-4807-a84e-094d425ec267" type="Work" type-id="b689f694-6305-3d78-954d-df6759a1877b"><ns0:name>Test Work Series</ns0:name><ns0:disambiguation>test comment 2</ns0:disambiguation></ns0:series>'
+                'type': u'Work series',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="2e8872b9-2745-4807-a84e-094d425ec267" type="Work series" type-id="b689f694-6305-3d78-954d-df6759a1877b"><ns0:name>Test Work Series</ns0:name><ns0:disambiguation>test comment 2</ns0:disambiguation></ns0:series>'
             }
         ]
         self._test_index_entity("series", expected)
@@ -544,7 +567,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 4
             }
         ]
-        self._test_index_entity("tag", expected)
+        self._test_index_entity("tag", expected, key="id")
 
     def test_index_url(self):
         expected = [
@@ -594,7 +617,7 @@ class IndexingTestCase(unittest.TestCase):
             {
                 'comment': u'Work',
                 '_store': '<ns0:work xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="755c079d-374e-4436-9448-da92dedef3ce" type="Aria" type-id="ae801f48-7a7f-3af6-91c7-456f82dae8a9"><ns0:title>Test</ns0:title><ns0:iswc-list><ns0:iswc>T-500.000.001-0</ns0:iswc><ns0:iswc>T-500.000.002-0</ns0:iswc></ns0:iswc-list><ns0:disambiguation>Work</ns0:disambiguation></ns0:work>',
-                'iswc': set([u'T-500.000.002-0', u'T-500.000.001-0']),
+                'iswc': [u'T-500.000.002-0', u'T-500.000.001-0'],
                 'work': u'Test',
                 'mbid': '755c079d-374e-4436-9448-da92dedef3ce',
                 'type': u'Aria'
@@ -618,20 +641,21 @@ class IndexingTestCase(unittest.TestCase):
                 'recording_count': 2,
                 'recording': u'Blue Lines',
                 'mbid': '640b17f5-4aa3-3fb1-8c6c-4792458e8a56',
-                'rid': set(['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31']),
+                'rid': ['bef81f8f-4bcf-4308-bd66-e57018169a94', 'a2383c02-2430-4294-9177-ef799a6eca31'],
                 'type': u'Song'
             }
         ]
         self._test_index_entity("work", expected)
 
     def test_index_cdstub(self):
+        expected_timestamp = int(
+            datetime(2000, 1, 1, tzinfo=timezone.utc)
+            .timestamp()
+        )
         expected = [
             {
                 'comment': u'this is a comment',
-                'added': datetime(
-                    2000, 1, 1, 0, 0,
-                    tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None)
-                ),
+                'added': expected_timestamp,
                 '_store': '<ns0:cdstub xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="YfSgiOEayqN77Irs.VNV.UNJ0Zs-"><ns0:title>Test Stub</ns0:title><ns0:artist>Test Artist</ns0:artist><ns0:barcode>837101029192</ns0:barcode><ns0:disambiguation>this is a comment</ns0:disambiguation><ns0:track-list count="2" /></ns0:cdstub>',
                 'discid': u'YfSgiOEayqN77Irs.VNV.UNJ0Zs-',
                 'artist': u'Test Artist',
@@ -641,7 +665,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 1
             }
         ]
-        self._test_index_entity("cdstub", expected)
+        self._test_index_entity("cdstub", expected, key="id")
 
     def test_index_annotation(self):
         expected = [
@@ -678,7 +702,7 @@ class IndexingTestCase(unittest.TestCase):
                 'id': 4
             }
         ]
-        self._test_index_entity("annotation", expected)
+        self._test_index_entity("annotation", expected, key="id")
 
     def test_index_event(self):
         expected = [
@@ -686,12 +710,12 @@ class IndexingTestCase(unittest.TestCase):
                 'comment': u'2022, Prom 60',
                 'begin': '2022-09-01',
                 'end': '2022-09-01',
-                'artist': set([u'BBC Concert Orchestra', u'Kwam\xe9 Ryan']),
+                'artist': [u'Kwam\xe9 Ryan', u'BBC Concert Orchestra'],
                 'pid': '4352063b-a833-421b-a420-e7fb295dece0',
-                'arid': set([
+                'arid': [
                     'f72a5b32-449f-4090-9a2a-ebbdd8d3c2e5',
                     'dfeba5ea-c967-4ad2-9cdd-3cffb4320143'
-                ]),
+                ],
                 'ended': 'true',
                 'mbid': 'ca1d24c1-1999-46fd-8a95-3d4108df5cb2',
                 'place': u'Royal Albert Hall',

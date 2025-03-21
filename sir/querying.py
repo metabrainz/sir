@@ -3,11 +3,10 @@
 import logging
 
 
-from sqlalchemy import func, text
+from sqlalchemy import func, select
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
-from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 
 
 logger = logging.getLogger("sir")
@@ -89,7 +88,7 @@ def iterate_path_values(path, obj):
         yield getattr(obj, pathelem)
 
 
-def iter_bounds(db_session, column, batch_size, importlimit):
+def iter_bounds(db_session, model, batch_size, importlimit):
     """
     Return a list of (lower bound, upper bound) tuples which contain row ids to
     iterate through a table in batches of ``batch_size``. If ``importlimit`` is
@@ -99,26 +98,22 @@ def iter_bounds(db_session, column, batch_size, importlimit):
     ``batch_size`` rows.
 
     :param sqlalchemy.orm.session.Session db_session:
-    :param sqlalchemy.Column column:
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param int batch_size:
     :param int importlimit:
     :rtype: [(int, int)]
     """
-    q = db_session.query(
-        column,
-        func.row_number().
-        over(order_by=column).
-        label('rownum')
-    ).\
-        from_self(column)
-
+    subq = select(
+        model.id,
+        func.row_number().over(order_by=model.id).label('rownum')
+    ).subquery()
+    q = select(subq.c.id)
     if batch_size > 1:
-        q = q.filter(text("rownum % :batch_size=1").bindparams(batch_size=batch_size))
-
+        q = q.filter(subq.c.rownum % batch_size == 1)
     if importlimit:
-        q = q.filter(text("rownum <= :import_limit").bindparams(import_limit=importlimit))
+        q = q.filter(subq.c.rownum <= importlimit)
 
-    intervals = [id for id in q]
+    intervals = list(db_session.execute(q).all())
     bounds = []
 
     while intervals:
