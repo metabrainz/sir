@@ -468,6 +468,7 @@ class IndexingTestCase(unittest.TestCase):
                 'arid': '7a906020-72db-11de-8a39-0800200c9a66',
                 'tracksmedium': 3,
                 'mbid': '25b6fe30-ff5b-11de-8a39-0800200c9a66',
+                'mediumid': 'c517968f-afd0-48e6-ab4b-dfdae888ad9d',
                 'rgid': '25b6fe30-ff5b-11de-8a39-0800200c9a66',
                 'release': u'Various Release',
                 'mediums': 1,
