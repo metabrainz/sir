@@ -25,8 +25,8 @@ INSERT INTO release_unknown_country (release, date_year)
 VALUES (1, 2007), (2, 2008);
 
 INSERT INTO medium_format (id, gid, name, has_discids) VALUES (123465, '52014420-cae8-11de-8a39-0800200c9a26', 'Format', TRUE);
-INSERT INTO medium (id, release, position, format, name) VALUES (1, 1, 1, 123465, 'A Sea of Honey');
-INSERT INTO medium (id, release, position, format, name) VALUES (2, 1, 2, 123465, 'A Sky of Honey');
+INSERT INTO medium (id, gid, release, position, format, name) VALUES (1, '6e8ede88-4145-4412-8951-9e5ba757ea29', 1, 1, 123465, 'A Sea of Honey');
+INSERT INTO medium (id, gid, release, position, format, name) VALUES (2, '3c9ba218-abdd-40ea-a140-c4c9a50f456d', 1, 2, 123465, 'A Sky of Honey');
 
 INSERT INTO track (id, gid, medium, position, number, recording, name, artist_credit, length)
     VALUES (1, '66c2ebff-86a8-4e12-a9a2-1650fb97d9d8', 1, 1, 1, 1, 'King of the Mountain', 1, NULL),
