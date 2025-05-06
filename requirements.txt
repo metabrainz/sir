@@ -1,5 +1,5 @@
 amqp==5.1.1
-mbdata@git+https://github.com/acoustid/mbdata.git@37d507a54251f96cb7aa71a3ab59c41f357db61e
+git+https://github.com/metabrainz/mbdata.git@v30.0.0#egg=mbdata
 mb-rngpy==2.20250423.0
 psycopg2-binary==2.9.10
 retrying==1.3.3
