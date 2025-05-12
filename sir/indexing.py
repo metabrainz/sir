@@ -334,7 +334,8 @@ def send_data_to_solr(solr_connection, data):
         try:
             solr_connection.add(data)
             logger.debug("Done sending data to Solr")
-        except SolrError as e:
+        except Exception as e:
+            logger.error("Error while submitting data to Solr:", exc_info=True)
             sentry_sdk.capture_exception(e)
             FAILED.value = True
         else:
