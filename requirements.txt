@@ -1,6 +1,6 @@
 amqp==5.1.1
 git+https://github.com/amCap1712/mbdata.git@v27.0.dev2#egg=mbdata
-git+https://github.com/yvanzo/mb-rngpy.git@test-ac-genre-series#egg=mb-rngpy
+mb-rngpy==2.20250423.0
 psycopg2-binary==2.9.10
 retrying==1.3.3
 pysolr==3.10.0
