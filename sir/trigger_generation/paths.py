@@ -5,6 +5,7 @@ from sqlalchemy.orm import class_mapper, aliased
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
+from sqlalchemy_utils import get_mapper
 
 
 def generate_query(model, path, filters=None):
@@ -16,13 +17,11 @@ def generate_query(model, path, filters=None):
     :param [sqlalchemy.sql.expression.BinaryExpression] filters:
     :rtype: A :ref:`sqlalchemy.orm.query.Query` object
     """
-
-    # We start with the query selecting the ids of the models we want to return.
-    query = Query(model.id)
     if path:
+        curr_model = aliased(model)
         # In case path is not blank, we need to alias the model id while joining
         # to prevent referencing the same table again.
-        query = (Query(aliased(model).id))
+        query = Query(curr_model.id)
         # The below is a fix in case the same table is joined
         # multiple times. In that case, we alias everything except
         # the last path and then filter on the last path.
@@ -30,10 +29,20 @@ def generate_query(model, path, filters=None):
         last_path = path_list[-1]
         path_list = path_list[:-1]
         if path_list:
-            query = query.join(*path_list, aliased=True)
-        # The last path is purposfully left out from being aliased to make it easier
-        # to contrunct filter conditions.
-        query = query.join(last_path, from_joinpoint=True)
+            for elem in path_list:
+                curr_elem = getattr(curr_model, elem)
+                curr_alias = aliased(curr_elem.mapper.class_)
+                query = query.join(curr_elem.of_type(curr_alias))
+                curr_model = get_mapper(curr_alias).class_
+
+        # The last path is purposefully left out from being aliased to make it
+        # easier to construct filter conditions.
+        last_elem = getattr(curr_model, last_path)
+        query = query.join(last_elem)
+    else:
+        # We start with the query selecting the ids of the models we want to
+        # return.
+        query = Query(model.id)
     if filters is not None:
         if isinstance(filters, list):
             query = query.filter(*filters)
@@ -77,7 +86,7 @@ def unique_split_paths(paths):
     for path in paths:
         splits = path.split(".")
         split_length = len(splits)
-        for i in xrange(1, split_length + 1):
+        for i in range(1, split_length + 1):
             join = ".".join(splits[:i])
             if join not in seen_paths:
                 seen_paths.add(join)
@@ -134,10 +143,10 @@ def second_last_model_in_path(model, path):
     :param str path: The path itself.
     """
     if path is None:
-        return (None, None)
+        return None, None
     current_model = model
     new_path = ".".join(path.split(".")[:-1])
     if new_path == "":
-        return (current_model, "")
+        return current_model, ""
     else:
-        return (last_model_in_path(model, new_path), new_path)
+        return last_model_in_path(model, new_path), new_path

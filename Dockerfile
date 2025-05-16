@@ -1,5 +1,5 @@
-ARG PYTHON_VERSION=2.7
-ARG BASE_IMAGE_DATE=20220421
+ARG PYTHON_VERSION=3.13
+ARG BASE_IMAGE_DATE=20250313
 FROM metabrainz/python:$PYTHON_VERSION-$BASE_IMAGE_DATE
 
 ARG SIR_VERSION
@@ -26,6 +26,7 @@ RUN apt-get update && \
                     curl \
                     git \
                     gnupg \
+                    libz-dev \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \
@@ -39,9 +40,10 @@ RUN mkdir -p /usr/local/share/keyrings && \
     gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --import /tmp/postgres-key.asc && \
     gpg --no-default-keyring --keyring /tmp/postgres-keyring.gpg --export --output /usr/local/share/keyrings/apt.postgresql.org.gpg && \
     rm -f /tmp/postgres-key.asc /tmp/postgres-keyring.gpg
-ENV PG_MAJOR 12
-RUN echo 'deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
-RUN apt-get update && \
+ENV PG_MAJOR 17
+RUN . /etc/os-release && \
+    echo "deb [signed-by=/usr/local/share/keyrings/apt.postgresql.org.gpg] https://apt.postgresql.org/pub/repos/apt/ ${VERSION_CODENAME}-pgdg main ${PG_MAJOR}" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
     apt-get install -y postgresql-client-$PG_MAJOR && \
     rm -rf /var/lib/apt/lists/*
 # Specifying password so that client doesn't ask scripts for it...

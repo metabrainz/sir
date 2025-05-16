@@ -18,7 +18,7 @@ def generate_func(args):
         trigger_filename=args["trigger_file"],
         function_filename=args["function_file"],
         broker_id=args["broker_id"],
-        entities = args["entity_type"] or SCHEMA.keys()
+        entities=args["entity_type"] or SCHEMA.keys()
     )
 
 
@@ -160,7 +160,7 @@ def write_header(f):
     :param file f: File to write the header into.
     """
     f.write("-- Automatically generated, do not edit!\n")
-    f.write("\set ON_ERROR_STOP 1\n")
+    f.write("\\set ON_ERROR_STOP 1\n")
     f.write("BEGIN;\n\n")
 
 

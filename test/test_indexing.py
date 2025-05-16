@@ -1,31 +1,38 @@
-import mock
-import unittest
-
-import sir.indexing
+from unittest import mock, TestCase
 
 from multiprocessing import Queue
-from sir.indexing import queue_to_solr, send_data_to_solr, FAILED
+
+import pysolr
 from pysolr import SolrError
 
-class QueueToSolrTest(unittest.TestCase):
+import sir.indexing
+from sir.indexing import queue_to_solr, send_data_to_solr, FAILED
+
+
+class QueueToSolrTest(TestCase):
     def setUp(self):
-        self.solr_connection = mock.Mock()
         self.queue = Queue()
         self.queue.put({"foo": "bar"})
         self.queue.put(None)
 
-    def test_normal_send(self):
-        queue_to_solr(self.queue, 1, self.solr_connection)
-        expected = [mock.call([{"foo": "bar"}]), mock.call([]), ]
-        calls = self.solr_connection.add.call_args_list
-        self.assertEqual(calls, expected)
+    @mock.patch("urllib.request.urlopen")
+    @mock.patch.object(pysolr.Solr, "commit")
+    @mock.patch.object(pysolr.Solr, "add")
+    def test_normal_send(self, mock_add, mock_commit, _):
+        queue_to_solr(self.queue, 1, "test")
+        expected = [mock.call([{"foo": "bar"}]), mock.call([]),]
+        mock_add.assert_has_calls(expected)
+        mock_commit.assert_called()
 
-    def test_queue_drained_send(self):
-        queue_to_solr(self.queue, 2, self.solr_connection)
-        self.solr_connection.add.assert_called_once_with([{"foo": "bar"}])
+    @mock.patch("urllib.request.urlopen")
+    @mock.patch.object(pysolr.Solr, "commit")
+    @mock.patch.object(pysolr.Solr, "add")
+    def test_queue_drained_send(self, mock_add, mock_commit, _):
+        queue_to_solr(self.queue, 2, "test")
+        mock_add.assert_called_once_with([{"foo": "bar"}])
+        mock_commit.assert_called()
 
-
-class SendDataToSolrTest(unittest.TestCase):
+class SendDataToSolrTest(TestCase):
     def setUp(self):
         self.solr_connection = mock.MagicMock()
         self.solr_connection.add = mock.MagicMock()
@@ -42,7 +49,7 @@ class SendDataToSolrTest(unittest.TestCase):
         send_data_to_solr(self.solr_connection, [{"foo": "bar"}])
         self.assertTrue(FAILED.value)
 
-class LiveIndexFailTest(unittest.TestCase):
+class LiveIndexFailTest(TestCase):
     def setUp(self):
         self.imp = sir.indexing._multiprocessed_import = mock.MagicMock()
         FAILED.value = False

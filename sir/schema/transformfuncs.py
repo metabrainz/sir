@@ -1,5 +1,7 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+from datetime import datetime
+
 from sir.wscompat.convert import partialdate_to_string
 
 
@@ -105,3 +107,12 @@ def boolean(values):
 def url_type(values):
     types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
     return types
+
+
+def uuid_set_to_str_set(values):
+    return {str(x) for x in values}
+
+
+def datetime_to_timestamp(values):
+    if values:
+        return int(values.pop().timestamp())

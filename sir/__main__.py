@@ -1,10 +1,9 @@
-from __future__ import absolute_import
 # Copyright (c) 2014, 2015, 2019 Wieland Hoffmann, MetaBrainz Foundation
 # License: MIT, see LICENSE for details
 import argparse
 import logging
 import multiprocessing
-import ConfigParser
+import configparser
 
 from . import config, init_sentry_sdk
 from .amqp.extension_generation import generate_extension
@@ -123,7 +122,7 @@ def main():
     config.read_config()
     try:
         init_sentry_sdk(config.CFG.get("sentry", "dsn"))
-    except ConfigParser.Error as e:
+    except configparser.Error as e:
         logger.info("Skipping sentry initialization. Configuration issue: %s", e)
     func = args.func
     args = vars(args)

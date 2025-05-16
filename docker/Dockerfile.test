@@ -1,4 +1,4 @@
-FROM metabrainz/python:2.7-20220421
+FROM metabrainz/python:3.13-20250313
 
 RUN mkdir /code
 WORKDIR /code
@@ -14,6 +14,7 @@ RUN apt-get update && \
                     ca-certificates \
                     cron \
                     git \
+                    libz-dev \
                     libpq-dev \
                     libffi-dev \
                     libssl-dev \
@@ -30,7 +31,7 @@ COPY . /code/
 RUN cp config.test.ini config.ini
 
 CMD dockerize -wait tcp://musicbrainz_db:5432 -timeout 600s \
-        bash -c "py.test --junitxml=/data/test_report.xml \
+        bash -c "pytest --junitxml=/data/test_report.xml \
             --cov=sir \
             --cov-report xml:/data/coverage.xml \
             --cov-report html:/data/coverage-html"

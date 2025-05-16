@@ -32,6 +32,7 @@ batch_size = {{template "KEY" "solr/batch_size"}}
 
 {{- with $rabbitmq_service_name := or (env "RABBITMQ_SERVICE") "rabbitmq"}}
 {{- if service $rabbitmq_service_name}}
+
 [rabbitmq]
 {{- with index (service $rabbitmq_service_name) 0}}
 host = {{.Address}}:{{.Port}}

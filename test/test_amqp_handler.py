@@ -2,8 +2,7 @@
 # coding: utf-8
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from amqp.basic_message import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
@@ -17,7 +16,7 @@ from sir.schema import SCHEMA
 basicConfig(level=CRITICAL)
 
 
-class AmqpTestCase(unittest.TestCase):
+class AmqpTestCase(TestCase):
 
     def setUp(self):
         self.maxDiff = None
@@ -170,7 +169,7 @@ class HandlerTest(AmqpTestCase):
             'FROM musicbrainz.area \n'
             'WHERE musicbrainz.area.id = :id_1']
 
-        self.assertEqual(expected_queries, actual_queries)
+        self.assertCountEqual(expected_queries, actual_queries)
 
     def test_index_by_fk_2(self):
         columns = {'id': '1'}

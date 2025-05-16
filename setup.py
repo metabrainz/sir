@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+#!/usr/bin/env python3
+
 import os, subprocess, re
 from distutils.core import setup, Command
 from distutils.command.sdist import sdist as _sdist
@@ -32,7 +32,7 @@ def update_version_py():
     if p.returncode != 0:
         print("unable to run git, leaving sir/version.py alone")
         return
-    ver = stdout.strip()
+    ver = str(stdout.strip(), encoding="utf-8")
     f = open("sir/version.py", "w")
     f.write(VERSION_PY % ver)
     f.close()
@@ -90,6 +90,7 @@ class build(_build):
         self.distribution.metadata.version = get_version()
         return _build.run(self)
 
+
 # Here ends the code taken from Brian Warner
 
 setup(name="sir",
@@ -102,14 +103,14 @@ setup(name="sir",
                 "sir.trigger_generation",
                 "sir.wscompat"],
       package_dir={"sir": "sir"},
-      download_url=["https://github.com/metabrainz/sir/tarball/master"],
-      url=["http://github.com/metabrainz/sir"],
+      download_url="https://github.com/metabrainz/sir/tarball/master",
+      url="https://github.com/metabrainz/sir",
       license="MIT",
       classifiers=["Development Status :: 4 - Beta",
                    "License :: OSI Approved :: MIT License",
                    "Natural Language :: English",
                    "Operating System :: OS Independent",
-                   "Programming Language :: Python :: 2.7"],
+                   "Programming Language :: Python :: 3.11"],
       cmdclass={"version": Version, "sdist": sdist, "build": build},
       description="Search Index Rabbit",
       long_description=open("README.rst").read()
