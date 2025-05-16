@@ -399,7 +399,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("mediums", "medium_count", transformfunc=tfs.integer_sum, trigger=False),
     F("packaging", "packaging.name"),
     F("primarytype", "release_group.type.name"),
-    F("quality", "quality"),
+    F("quality", "quality", transformfunc=tfs.quality_to_string),
     F("rgid", "release_group.gid"),
     F("script", "script.iso_code"),
     F("secondarytype", "release_group.secondary_types.secondary_type.name"),
