@@ -110,7 +110,7 @@ setup(name="sir",
                    "License :: OSI Approved :: MIT License",
                    "Natural Language :: English",
                    "Operating System :: OS Independent",
-                   "Programming Language :: Python :: 3.11"],
+                   "Programming Language :: Python :: 3.13"],
       cmdclass={"version": Version, "sdist": sdist, "build": build},
       description="Search Index Rabbit",
       long_description=open("README.rst").read()

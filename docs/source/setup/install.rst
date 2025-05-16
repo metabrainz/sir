@@ -14,11 +14,11 @@ You can easily clone the code with git::
 
 Now you can install it system-wide::
 
-    python2 setup.py install
+    python setup.py install
 
 or start hacking on the code. To do that, you'll need to run at least::
 
-    python2 setup version
+    python setup version
 
 once to generate the file ``sir/version.py`` which the code needs. This file
 does not have to be added into the git repository because it only contains the
@@ -29,7 +29,7 @@ Setup
 
 The easiest way to run sir at the moment is to use a `virtual environment
 <http://www.virtualenv.org/en/latest/>`_. Once you have virtualenv for Python
-2.7 installed, use the following to create the environment::
+3.13 installed, use the following to create the environment::
 
     virtualenv venv
     source venv/bin/activate
