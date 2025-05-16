@@ -1,11 +1,11 @@
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-from __future__ import absolute_import
+
 
 import amqp
 import logging
 import pysolr
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from . import config
 from .schema import SCHEMA
@@ -36,20 +36,30 @@ class VersionMismatchException(Exception):
                                                   self.actual)
 
 
-def db_session():
+def engine():
     """
-    Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
+    Create a new :class:`sqla:sqlalchemy.engine.Engine`.
 
-    :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
+    :rtype: :class:`sqla:sqlalchemy.engine.Engine`
     """
     cget = partial(config.CFG.get, "database")
     cdict = {"username": cget("user")}
     for key in ["password", "host", "port"]:
         cdict[key] = cget(key)
     cdict["database"] = cget("dbname")
-    e = create_engine(URL("postgresql", **cdict), server_side_cursors=False)
-    S = sessionmaker(bind=e)
-    return S
+    return create_engine(
+        URL.create("postgresql", **cdict),
+        server_side_cursors=False
+    )
+
+
+def db_session():
+    """
+    Creates a new :class:`sqla:sqlalchemy.orm.session.sessionmaker`.
+
+    :rtype: :class:`sqla:sqlalchemy.orm.session.sessionmaker`
+    """
+    return sessionmaker(bind=engine())
 
 
 @contextmanager
@@ -85,7 +95,7 @@ def solr_connection(core):
 
     logger.debug("Setting up a connection to %s", solr_uri)
     logger.debug("Pinging %s", ping_uri)
-    urllib2.urlopen(ping_uri)
+    urllib.request.urlopen(ping_uri)
 
     logger.debug("Connection to the Solr core at %s", core_uri)
     return pysolr.Solr(core_uri)
@@ -103,7 +113,7 @@ def solr_version_check(core):
     """
     expected_version = SCHEMA[core].version
     solr_uri = config.CFG.get("solr", "uri")
-    u = urllib2.urlopen("%s/%s/schema/version" % (solr_uri, core))
+    u = urllib.request.urlopen("%s/%s/schema/version" % (solr_uri, core))
     content = loads(u.read())
     seen_version = content["version"]
     if not seen_version == expected_version:
@@ -120,7 +130,7 @@ def check_solr_cores_version(cores):
     :raises sir.util.VersionMismatchException: If the version in Solr is
                                                different from the supported one
     """
-    map(solr_version_check, cores)
+    list(map(solr_version_check, cores))
 
 
 def create_amqp_connection():

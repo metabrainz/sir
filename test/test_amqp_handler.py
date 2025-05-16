@@ -2,8 +2,7 @@
 # coding: utf-8
 # Copyright (c) 2014 Wieland Hoffmann
 # License: MIT, see LICENSE for details
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from amqp.basic_message import Message as Amqp_Message
 from logging import basicConfig, CRITICAL
@@ -17,7 +16,7 @@ from sir.schema import SCHEMA
 basicConfig(level=CRITICAL)
 
 
-class AmqpTestCase(unittest.TestCase):
+class AmqpTestCase(TestCase):
 
     def setUp(self):
         self.maxDiff = None
@@ -115,6 +114,11 @@ class HandlerTest(AmqpTestCase):
 
         self.handler.cores[self.entity_type] = mock.Mock()
 
+        for entity_type, entity in SCHEMA.items():
+            patcher = mock.patch.object(entity, 'build_entity_query')
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
     def test_delete_callback(self):
         entity_gid = u"90d7709d-feba-47e6-a2d1-8770da3c3d9c"
         self.message = Amqp_Message(
@@ -140,7 +144,7 @@ class HandlerTest(AmqpTestCase):
         self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
-            entity.build_entity_query = mock.MagicMock()
+
         self.handler._index_by_fk(parsed_message)
         calls = self.handler.db_session().execute.call_args_list
         self.assertEqual(len(calls), 6)
@@ -165,7 +169,7 @@ class HandlerTest(AmqpTestCase):
             'FROM musicbrainz.area \n'
             'WHERE musicbrainz.area.id = :id_1']
 
-        self.assertEqual(expected_queries, actual_queries)
+        self.assertCountEqual(expected_queries, actual_queries)
 
     def test_index_by_fk_2(self):
         columns = {'id': '1'}
@@ -174,7 +178,7 @@ class HandlerTest(AmqpTestCase):
         self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
-            entity.build_entity_query = mock.MagicMock()
+
         self.handler._index_by_fk(parsed_message)
         calls = self.handler.db_session().execute.call_args_list
         self.assertEqual(len(calls), 1)
@@ -193,7 +197,7 @@ class HandlerTest(AmqpTestCase):
         self.handler = handler.Handler(SCHEMA.keys())
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
-            entity.build_entity_query = mock.MagicMock()
+
         self.handler._index_by_fk(parsed_message)
         calls = self.handler.db_session().execute.call_args_list
         self.assertEqual(len(calls), 1)

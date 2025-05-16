@@ -1,7 +1,6 @@
 from collections import namedtuple
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import composite, relationship
+from sqlalchemy.orm import composite, relationship, declarative_base
 
 Base = declarative_base()
 
@@ -19,7 +18,6 @@ class B(Base):
     foo = Column(Integer)
     c_id = Column('c', Integer, ForeignKey("table_c.id"))
     composite_column = composite(Comp, foo, c_id)
-    c = relationship("C")
 
 
 class C(Base):
@@ -30,4 +28,4 @@ class C(Base):
     __tablename__ = "table_c"
     id = Column(Integer, primary_key=True)
     bar = Column(Integer)
-    bs = relationship("B")
+    bs = relationship("B", backref="c")

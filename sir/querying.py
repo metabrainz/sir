@@ -3,10 +3,11 @@
 import logging
 
 
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
 from sqlalchemy.orm.properties import RelationshipProperty
+
 
 logger = logging.getLogger("sir")
 
@@ -28,6 +29,10 @@ def iterate_path_values(path, obj):
     2. The path element is the last one in the path. In this case, the value
        returned by the :func:`getattr` call will be returned and added to the
        list of values for this field.
+
+    .. warning::
+
+        Hybrid attributes like @hybrid_property are currently not supported.
 
     To give an example, lets presume the object we're starting with is an
     instance of :class:`~mbdata.models.Artist` and the path is
@@ -83,7 +88,7 @@ def iterate_path_values(path, obj):
         yield getattr(obj, pathelem)
 
 
-def iter_bounds(db_session, column, batch_size, importlimit):
+def iter_bounds(db_session, model, batch_size, importlimit):
     """
     Return a list of (lower bound, upper bound) tuples which contain row ids to
     iterate through a table in batches of ``batch_size``. If ``importlimit`` is
@@ -93,26 +98,22 @@ def iter_bounds(db_session, column, batch_size, importlimit):
     ``batch_size`` rows.
 
     :param sqlalchemy.orm.session.Session db_session:
-    :param sqlalchemy.Column column:
+    :param model: A :ref:`declarative <sqla:declarative_toplevel>` class.
     :param int batch_size:
     :param int importlimit:
     :rtype: [(int, int)]
     """
-    q = db_session.query(
-        column,
-        func.row_number().
-        over(order_by=column).
-        label('rownum')
-    ).\
-        from_self(column)
-
+    subq = select(
+        model.id,
+        func.row_number().over(order_by=model.id).label('rownum')
+    ).subquery()
+    q = select(subq.c.id)
     if batch_size > 1:
-        q = q.filter("rownum %% %d=1" % batch_size)
-
+        q = q.filter(subq.c.rownum % batch_size == 1)
     if importlimit:
-        q = q.filter("rownum <= %d" % (importlimit))
+        q = q.filter(subq.c.rownum <= importlimit)
 
-    intervals = [id for id in q]
+    intervals = list(db_session.execute(q).all())
     bounds = []
 
     while intervals:

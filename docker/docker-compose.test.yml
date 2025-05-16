@@ -1,8 +1,16 @@
 # Docker Compose file for testing
-version: "2"
+version: "3.8"
 services:
 
   test:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile.test
+    depends_on:
+      - musicbrainz_db
+
+  musicbrainz_db:
+    image: metabrainz/musicbrainz-test-database:production
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /var/lib/postgresql-musicbrainz/data

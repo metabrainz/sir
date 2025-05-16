@@ -7,11 +7,11 @@ import sentry_sdk
 
 from . import config, querying, util
 from .schema import SCHEMA
-from ConfigParser import NoOptionError
+from configparser import NoOptionError
 from functools import partial
 from logging import getLogger, DEBUG, INFO
-from pysolr import SolrError
 from sqlalchemy import and_
+from sqlalchemy.orm import Session
 from .util import SIR_EXIT
 from ctypes import c_bool
 
@@ -122,11 +122,10 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
         manager = multiprocessing.Manager()
         entity_data_queue = manager.Queue()
 
-        solr_connection = util.solr_connection(e)
         process_function = partial(queue_to_solr,
                                    entity_data_queue,
                                    solr_batch_size,
-                                   solr_connection)
+                                   e)
         solr_processes = []
         for i in range(max_solr_processes):
             p = multiprocessing.Process(target=process_function, name="Solr-" + str(i))
@@ -141,7 +140,7 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
                                                 entity_data_queue))
         else:
             with util.db_session_ctx(db_session) as session:
-                for bounds in querying.iter_bounds(session, SCHEMA[e].model.id,
+                for bounds in querying.iter_bounds(session, SCHEMA[e].model,
                                                    query_batch_size, importlimit):
                     args = (e, bounds, entity_data_queue)
                     index_function_args.append(args)
@@ -187,10 +186,13 @@ def _index_entity_process_wrapper(args, live=False):
     # its workers
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
 
+    config.read_config()
+
     try:
+        session = Session(util.engine())
         if live:
-            return live_index_entity(*args)
-        return index_entity(*args)
+            return live_index_entity(session, *args)
+        return index_entity(session, *args)
     except Exception as exc:
         logger.error("Failed to import %s with id in bounds %s",
                      args[0],
@@ -199,12 +201,13 @@ def _index_entity_process_wrapper(args, live=False):
         raise
 
 
-def index_entity(entity_name, bounds, data_queue):
+def index_entity(session, entity_name, bounds, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
+    :param sqlalchemy.orm.Session session:
     :param str entity_name:
     :param bounds:
     :type bounds: (int, int)
@@ -217,15 +220,16 @@ def index_entity(entity_name, bounds, data_queue):
         condition = and_(model.id >= lower_bound, model.id < upper_bound)
     else:
         condition = model.id >= lower_bound
-    _query_database(entity_name, condition, data_queue)
+    _query_database(session, entity_name, condition, data_queue)
 
 
-def live_index_entity(entity_name, ids, data_queue):
+def live_index_entity(session, entity_name, ids, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
     put the dicts into ``queue``.
 
+    :param sqlalchemy.orm.Session session:
     :param str entity_name:
     :param [int] ids:
     :param Queue.Queue data_queue:
@@ -234,10 +238,10 @@ def live_index_entity(entity_name, ids, data_queue):
         return
     condition = and_(SCHEMA[entity_name].model.id.in_(ids))
     logger.debug("Importing %s new rows for entity %s", len(ids), entity_name)
-    _query_database(entity_name, condition, data_queue)
+    _query_database(session, entity_name, condition, data_queue)
 
 
-def _query_database(entity_name, condition, data_queue):
+def _query_database(session, entity_name, condition, data_queue):
     """
     Retrieve rows for a single entity type identified by ``entity_name``,
     convert them to a dict with :func:`sir.indexing.query_result_to_dict` and
@@ -254,7 +258,8 @@ def _query_database(entity_name, condition, data_queue):
     search_entity = SCHEMA[entity_name]
     model = search_entity.model
     row_converter = search_entity.query_result_to_dict
-    with util.db_session_ctx(util.db_session()) as session:
+
+    with session:
         query = search_entity.query.filter(condition).with_session(session)
         total_records = 0
         for row in query:
@@ -280,19 +285,22 @@ def _query_database(entity_name, condition, data_queue):
         logger.debug("Retrieved %s records in %s", total_records, model)
 
 
-def queue_to_solr(queue, batch_size, solr_connection):
+def queue_to_solr(queue, batch_size, entity_name):
     """
     Read :class:`dict` objects from ``queue`` and send them to the Solr server
     behind ``solr_connection`` in batches of ``batch_size``.
 
     :param multiprocessing.Queue queue:
     :param int batch_size:
-    :param solr.Solr solr_connection:
+    :param str entity_name:
     """
 
     # Restoring the default SIGTERM handler so the Solr process can actually
     # be terminated on calling terminate.
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+    config.read_config()
+    solr_connection = util.solr_connection(entity_name)
 
     data = []
     count = 0
@@ -324,12 +332,13 @@ def send_data_to_solr(solr_connection, data):
     :param [dict] data:
     :raises: :class:`solr:solr.SolrException`
     """
-    with sentry_sdk.push_scope() as scope:
+    with sentry_sdk.new_scope() as scope:
         scope.set_extra("data", data)
         try:
             solr_connection.add(data)
             logger.debug("Done sending data to Solr")
-        except SolrError as e:
+        except Exception as e:
+            logger.error("Error while submitting data to Solr:", exc_info=True)
             sentry_sdk.capture_exception(e)
             FAILED.value = True
         else:

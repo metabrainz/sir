@@ -86,12 +86,14 @@ SearchArea = E(modelext.CustomArea, [
                 "aliases.sort_name", "aliases.type.gid",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area_links.area0.name",
-                "area_links.area0.gid",
-                "area_links.area0.begin_date",
-                "area_links.area0.end_date",
-                "area_links.area0.type.id",
-                "area_links.area0.type.gid",
+                "area_links.entity0.name",
+                "area_links.entity0.gid",
+                "area_links.entity0.begin_date",
+                "area_links.entity0.end_date",
+                "area_links.entity0.ended",
+                "area_links.entity0.type.id",
+                "area_links.entity0.type.gid",
+                "area_links.entity0.type.name",
                 "area_links.link.link_type.name",
                 "area_links.link.link_type.gid",
                 "area_links.link.attributes.attribute_type.name",
@@ -111,7 +113,6 @@ SearchArtist = E(modelext.CustomArtist, [
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
     F("ended", "ended", transformfunc=tfs.ended_to_string),
-
     F("area", ["area.name", "area.aliases.name"]),
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
     F("country", "area.iso_3166_1_codes.code"),
@@ -133,7 +134,13 @@ SearchArtist = E(modelext.CustomArtist, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "begin_area.gid", "area.gid", "end_area.gid",
-                "gender.gid",
+                "area.begin_date", "area.end_date", "area.ended",
+                "begin_area.begin_date", "begin_area.end_date",
+                "begin_area.ended", "end_area.begin_date",
+                "end_area.end_date", "end_area.ended",
+                "gender.gid", "area.type.gid", "area.type.name",
+                "begin_area.type.gid", "begin_area.type.name",
+                "end_area.type.gid", "end_area.type.name",
                 "type.gid"]
 )
 
@@ -144,7 +151,7 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("artist", "artist"),
     F("comment", "comment"),
     F("barcode", "barcode"),
-    F("added", "added"),
+    F("added", "added", transformfunc=tfs.datetime_to_timestamp),
     F("tracks", "discids.track_count"),
     F("discid", "discids.discid")
 ],
@@ -166,7 +173,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("alias", "aliases.name"),
     F("aid", "area_links.entity0.gid"),
     F("area", "area_links.entity0.name"),
-    F("arid", "artist_links.entity0.gid"),
+    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_set_to_str_set),
     F("artist", "artist_links.entity0.name"),
     F("pid", "place_links.entity1.gid"),
     F("place", "place_links.entity1.name"),
@@ -188,21 +195,22 @@ SearchEvent = E(modelext.CustomEvent, [
                 "aliases.primary_for_locale",
                 "aliases.begin_date",
                 "aliases.end_date",
-                "area_links.area.name",
-                "area_links.area.gid",
+                "area_links.entity0.name",
+                "area_links.entity0.gid",
                 "area_links.link.link_type.name",
                 "area_links.link.link_type.gid",
                 "area_links.link.attributes.attribute_type.name",
                 "area_links.link.attributes.attribute_type.gid",
-                "artist_links.artist.gid",
-                "artist_links.artist.name",
-                "artist_links.artist.comment",
+                "artist_links.entity0.gid",
+                "artist_links.entity0.name",
+                "artist_links.entity0.comment",
+                "artist_links.entity0.sort_name",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
                 "artist_links.link.attributes.attribute_type.gid",
-                "place_links.place.gid",
-                "place_links.place.name",
+                "place_links.entity1.gid",
+                "place_links.entity1.name",
                 "place_links.link.link_type.name",
                 "place_links.link.link_type.gid",
                 "place_links.link.attributes.attribute_type.name",
@@ -255,6 +263,7 @@ SearchLabel = E(modelext.CustomLabel, [
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
                 "area.gid", "area.type.name", "area.type.gid",
+                "area.begin_date", "area.end_date", "area.ended",
                 "tags.count", "type.gid"
                 ]
 )
@@ -280,13 +289,15 @@ SearchPlace = E(modelext.CustomPlace, [
                 "aliases.type.gid", "aliases.sort_name",
                 "aliases.locale", "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
-                "area.gid", "type.gid"]
+                "area.gid", "area.type.gid", "area.type.name",
+                "area.begin_date", "area.end_date", "area.ended",
+                "type.gid"]
 )
 
 
 SearchRecording = E(modelext.CustomRecording, [
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid"),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("comment", "comment"),
@@ -337,6 +348,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.join_phrase",
                 "artist_credit.artists.name",
+                "artist_credit.gid",
                 "artist_credit.name",
                 "tags.count",
                 "tags.tag.name",
@@ -348,6 +360,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tracks.medium.release.artist_credit.artists.artist.sort_name",
                 "tracks.medium.release.artist_credit.artists.join_phrase",
                 "tracks.medium.release.artist_credit.artists.name",
+                "tracks.medium.release.artist_credit.gid",
                 "tracks.medium.release.artist_credit.name",
                 "tracks.medium.release.comment",
                 "tracks.medium.release.country_dates.country.area.gid",
@@ -370,7 +383,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
     F("release", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid"),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("asin", "asin.amazon_asin"),
@@ -412,6 +425,8 @@ SearchRelease = E(modelext.CustomRelease, [
                 "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
+                "artist_credit.artists.artist.comment",
+                "artist_credit.gid",
                 "country_dates.country.area.gid",
                 "country_dates.country.area.name",
                 "country_dates.country.area.iso_3166_1_codes.code",
@@ -424,6 +439,7 @@ SearchRelease = E(modelext.CustomRelease, [
                 "release_group.type.gid",
                 "release_group.secondary_types.secondary_type.gid",
                 "status.gid",
+                "packaging.gid",
                 "language.iso_code_3",
                 "tags.count"]
 )
@@ -433,7 +449,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
     F("releasegroup", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid"),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("creditname", "artist_credit.artists.name"),
@@ -458,10 +474,12 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
                 "artist_credit.artists.artist.aliases.primary_for_locale",
                 "artist_credit.artists.artist.aliases.sort_name",
                 "artist_credit.artists.artist.aliases.type.id",
+                "artist_credit.artists.artist.aliases.type.gid",
                 "artist_credit.artists.artist.aliases.type.name",
                 "artist_credit.artists.artist.gid",
                 "artist_credit.artists.artist.sort_name",
                 "artist_credit.artists.artist.comment",
+                "artist_credit.gid",
                 "tags.count", "type.gid",
                 "releases.status.gid",
                 "secondary_types.secondary_type.gid"
@@ -501,25 +519,25 @@ SearchUrl = E(modelext.CustomURL, [
     F("url", "url"),
     F("relationtype", ["artist_links.link.link_type.name",
                        "release_links.link.link_type.name"]),
-    F("targetid", ["artist_links.artist.gid",
-                   "release_links.release.gid"]),
+    F("targetid", ["artist_links.entity0.gid",
+                   "release_links.entity0.gid"]),
     F("targettype", ["artist_links.__tablename__",
                      "release_links.__tablename__"],
       transformfunc=tfs.url_type),
 ],
     1.5,
     convert.convert_url,
-    extrapaths=["artist_links.artist.gid",
-                "artist_links.artist.name",
-                "artist_links.artist.comment",
-                "artist_links.artist.sort_name",
+    extrapaths=["artist_links.entity0.gid",
+                "artist_links.entity0.name",
+                "artist_links.entity0.comment",
+                "artist_links.entity0.sort_name",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
                 "artist_links.link.attributes.attribute_type.gid",
-                "release_links.release.gid",
-                "release_links.release.name",
-                "release_links.release.comment",
+                "release_links.entity0.gid",
+                "release_links.entity0.name",
+                "release_links.entity0.comment",
                 "release_links.link.link_type.name",
                 "release_links.link.link_type.gid",
                 "release_links.link.attributes.attribute_type.name",
@@ -532,14 +550,14 @@ SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
     F("work", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_links.artist.gid"),
-    F("artist", "artist_links.artist.name"),
+    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("artist", "artist_links.entity0.name"),
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
     F("lang", "languages.language.iso_code_3"),
-    F("recording", "recording_links.recording.name"),
-    F("recording_count", "recording_count", transformfunc=tfs.integer_sum, trigger=False),
-    F("rid", "recording_links.recording.gid"),
+    F("recording", "recording_links.entity0.name"),
+    F("recording_count", "recording_links.entity0.gid", transformfunc=tfs.integer_count_all, trigger=False),
+    F("rid", "recording_links.entity0.gid"),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
@@ -550,6 +568,8 @@ SearchWork = E(modelext.CustomWork, [
                 "aliases.sort_name", "aliases.locale",
                 "aliases.primary_for_locale",
                 "aliases.begin_date", "aliases.end_date",
+                "artist_links.entity0.sort_name",
+                "artist_links.entity0.comment",
                 "artist_links.link.link_type.name",
                 "artist_links.link.link_type.gid",
                 "artist_links.link.attributes.attribute_type.name",
@@ -558,7 +578,7 @@ SearchWork = E(modelext.CustomWork, [
                 "recording_links.link.link_type.gid",
                 "recording_links.link.attributes.attribute_type.name",
                 "recording_links.link.attributes.attribute_type.gid",
-                "recording_links.recording.video",
+                "recording_links.entity0.video",
                 "tags.count", "type.gid"]
 )
 
@@ -611,16 +631,16 @@ def generate_update_map():
     for core_name, entity in SCHEMA.items():
         # Entity itself:
         # TODO(roman): See if the line below is necessary, if there is a better way to implement this.
-        mapped_table = class_mapper(entity.model).mapped_table.name
-        core_map[mapped_table] = core_name
-        paths[mapped_table].add((core_name, None))
-        models[mapped_table] = entity.model
+        table_name = class_mapper(entity.model).persist_selectable.name
+        core_map[table_name] = core_name
+        paths[table_name].add((core_name, None))
+        models[table_name] = entity.model
         # Related tables:
         for path in unique_split_paths([path for field in entity.fields
                                         for path in field.paths if field.trigger] + [path for path in entity.extrapaths or []]):
             model = last_model_in_path(entity.model, path)
             if model is not None:
-                name = class_mapper(model).mapped_table.name
+                name = class_mapper(model).persist_selectable.name
                 paths[name].add((core_name, path))
                 if name not in models:
                     models[name] = model

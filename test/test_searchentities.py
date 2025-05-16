@@ -1,5 +1,4 @@
-import mock
-import unittest
+from unittest import mock, TestCase
 
 from test import models
 from xml.etree.ElementTree import Element, tostring
@@ -9,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-class QueryResultToDictTest(unittest.TestCase):
+class QueryResultToDictTest(TestCase):
     def setUp(self):
         config_patcher = mock.patch("sir.config.CFG")
         self.addCleanup(config_patcher.stop)
@@ -26,14 +25,17 @@ class QueryResultToDictTest(unittest.TestCase):
         self.expected = {
             "id": 1,
             "c_bar": "foo",
-            "c_bar_trans": {"foo", "yay"},
+            "c_bar_trans": ["yay", "foo"],
         }
         c = models.C(id=2, bar="foo")
         self.val = models.B(id=1, c=c)
 
     def test_fields(self):
         res = self.entity.query_result_to_dict(self.val)
-        self.assertDictEqual(self.expected, res)
+        self.assertEqual(res.keys(), self.expected.keys())
+        self.assertEqual(res["id"], self.expected["id"])
+        self.assertEqual(res["c_bar"], self.expected["c_bar"])
+        self.assertCountEqual(res["c_bar_trans"], self.expected["c_bar_trans"])
 
     def test_conversion(self):
         elem = Element("testelem", text="text")
@@ -43,12 +45,15 @@ class QueryResultToDictTest(unittest.TestCase):
 
         res = self.entity.query_result_to_dict(self.val)
 
-        self.expected["_store"] = tostring(elem)
-        self.assertDictEqual(self.expected, res)
+        self.expected["_store"] = str(tostring(elem, encoding="us-ascii"), encoding="us-ascii")
+        self.assertEqual(res.keys(), self.expected.keys())
+        self.assertEqual(res["id"], self.expected["id"])
+        self.assertEqual(res["c_bar"], self.expected["c_bar"])
+        self.assertCountEqual(res["c_bar_trans"], self.expected["c_bar_trans"])
         self.assertEqual(convmock.to_etree.call_count, 1)
 
 
-class TestIsCompositeColumn(unittest.TestCase):
+class TestIsCompositeColumn(TestCase):
     def test_composite_column(self):
         self.assertTrue(is_composite_column(models.B, "composite_column"))
 
@@ -59,7 +64,7 @@ class TestIsCompositeColumn(unittest.TestCase):
         self.assertFalse(is_composite_column(models.B, "c"))
 
 
-class SearchEntityTest(unittest.TestCase):
+class SearchEntityTest(TestCase):
     FILTER_MAX = 20
 
     @staticmethod

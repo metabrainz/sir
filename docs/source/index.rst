@@ -10,6 +10,7 @@ Contents:
    usage
    import
    queues
+   service/index
    api
 
 Indices and tables
