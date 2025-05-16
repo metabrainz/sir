@@ -126,7 +126,7 @@ def convert_iso_3166_3_code_list(obj):
     )
 
 
-@lru_cache()
+@lru_cache(maxsize=5000)
 def convert_area_inner(obj):
     """
     :type obj: :class:`mbdata.models.Area`
@@ -152,7 +152,7 @@ def convert_area_simple(obj):
     return area
 
 
-@lru_cache()
+@lru_cache(maxsize=5000)
 def convert_area_for_release_event(obj):
     """
     :type obj: :class:`mbdata.models.Area`
@@ -284,7 +284,7 @@ def convert_attribute(obj):
     return attribute
 
 
-@lru_cache()
+@lru_cache(maxsize=5000)
 def convert_artist_simple(obj, include_aliases=True):
     """
     :type obj: :class:`sir.schema.modelext.CustomArtist`
