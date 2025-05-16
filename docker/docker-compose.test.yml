@@ -10,7 +10,7 @@ services:
       - musicbrainz_db
 
   musicbrainz_db:
-    image: metabrainz/musicbrainz-test-database:production
+    image: metabrainz/musicbrainz-test-database:master
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       PGDATA: /var/lib/postgresql-musicbrainz/data
