@@ -34,7 +34,7 @@ autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
 autoclass_content = "both"
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.13', None),
-                       'sqla': ('https://docs.sqlalchemy.org/en/14/', None),
+                       'sqla': ('https://docs.sqlalchemy.org/en/20/', None),
                        'solr': ('https://pythonhosted.org//solrpy/', None),
                        'amqp': ('https://amqp.readthedocs.org/en/latest', None)}
 
