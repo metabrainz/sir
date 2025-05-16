@@ -819,9 +819,9 @@ CREATE TRIGGER search_language_delete BEFORE DELETE ON musicbrainz.language
 CREATE TRIGGER search_release_packaging_insert AFTER INSERT ON musicbrainz.release_packaging
     FOR EACH ROW EXECUTE PROCEDURE search_release_packaging_insert();
 
-CREATE TRIGGER search_release_packaging_update AFTER UPDATE OF name ON musicbrainz.release_packaging
+CREATE TRIGGER search_release_packaging_update AFTER UPDATE OF gid, name ON musicbrainz.release_packaging
     FOR EACH ROW
-    WHEN ((OLD.name) IS DISTINCT FROM (NEW.name))
+    WHEN ((OLD.gid, OLD.name) IS DISTINCT FROM (NEW.gid, NEW.name))
     EXECUTE PROCEDURE search_release_packaging_update();
 
 CREATE TRIGGER search_release_packaging_delete BEFORE DELETE ON musicbrainz.release_packaging
