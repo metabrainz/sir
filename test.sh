@@ -45,7 +45,7 @@ case "$OSTYPE" in
   esac
 fi
 
-DOCKER_COMPOSE_CMD=${DOCKER_COMPOSE_CMD:-${DOCKER} compose}
+DOCKER_COMPOSE_CMD=${DOCKER_COMPOSE_CMD:-${DOCKER_CMD} compose}
 
 # Run tests
 
