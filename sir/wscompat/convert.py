@@ -458,7 +458,7 @@ def convert_medium(obj, disc_list=True):
     """
     :type obj: :class:`mbdata.models.Medium`
     """
-    m = models.medium()
+    m = models.medium(id=str(obj.gid))
 
     if obj.format is not None:
         m.set_format(convert_format(obj.format))
