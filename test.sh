@@ -5,13 +5,13 @@
 # Usage:
 #     ./test.sh
 # Or:
-#      DOCKER_COMPOSE_CMD='sudo docker-compose' ./test.sh
+#      DOCKER_COMPOSE_CMD='sudo docker compose' ./test.sh
 
 set -o errexit -o nounset
 
 cd "$(dirname "${BASH_SOURCE[0]}")/"
 
-DOCKER_COMPOSE_CMD=${DOCKER_COMPOSE_CMD:-docker-compose}
+DOCKER_COMPOSE_CMD=${DOCKER_COMPOSE_CMD:-docker compose}
 
 $DOCKER_COMPOSE_CMD -f docker/docker-compose.test.yml -p sir-test up -d musicbrainz_db
 $DOCKER_COMPOSE_CMD -f docker/docker-compose.test.yml -p sir-test build
