@@ -621,9 +621,9 @@ CREATE TRIGGER search_recording_alias_delete BEFORE DELETE ON musicbrainz.record
 CREATE TRIGGER search_artist_credit_insert AFTER INSERT ON musicbrainz.artist_credit
     FOR EACH ROW EXECUTE PROCEDURE search_artist_credit_insert();
 
-CREATE TRIGGER search_artist_credit_update AFTER UPDATE OF name ON musicbrainz.artist_credit
+CREATE TRIGGER search_artist_credit_update AFTER UPDATE OF gid, name ON musicbrainz.artist_credit
     FOR EACH ROW
-    WHEN ((OLD.name) IS DISTINCT FROM (NEW.name))
+    WHEN ((OLD.gid, OLD.name) IS DISTINCT FROM (NEW.gid, NEW.name))
     EXECUTE PROCEDURE search_artist_credit_update();
 
 CREATE TRIGGER search_artist_credit_delete BEFORE DELETE ON musicbrainz.artist_credit
@@ -654,9 +654,9 @@ CREATE TRIGGER search_track_delete BEFORE DELETE ON musicbrainz.track
 CREATE TRIGGER search_medium_insert AFTER INSERT ON musicbrainz.medium
     FOR EACH ROW EXECUTE PROCEDURE search_medium_insert();
 
-CREATE TRIGGER search_medium_update AFTER UPDATE OF format, position, release, track_count ON musicbrainz.medium
+CREATE TRIGGER search_medium_update AFTER UPDATE OF format, gid, position, release, track_count ON musicbrainz.medium
     FOR EACH ROW
-    WHEN ((OLD.format, OLD.position, OLD.release, OLD.track_count) IS DISTINCT FROM (NEW.format, NEW.position, NEW.release, NEW.track_count))
+    WHEN ((OLD.format, OLD.gid, OLD.position, OLD.release, OLD.track_count) IS DISTINCT FROM (NEW.format, NEW.gid, NEW.position, NEW.release, NEW.track_count))
     EXECUTE PROCEDURE search_medium_update();
 
 CREATE TRIGGER search_medium_delete BEFORE DELETE ON musicbrainz.medium
