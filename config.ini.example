@@ -8,6 +8,8 @@ user = musicbrainz
 [solr]
 uri = http://127.0.0.1:8983/solr
 batch_size = 60
+retries = 3
+backoff_factor = 1
 
 [sir]
 import_threads = 2
