@@ -221,7 +221,8 @@ class SearchEntity(object):
                                          composite_column,
                                          model)
                             required_columns.remove(composite_column)
-                            required_columns.extend(composite_parts)
+                            for column in composite_parts:
+                                required_columns.append(column.name)
 
                         logger.debug("Loading only %s on %s",
                                      required_columns,
