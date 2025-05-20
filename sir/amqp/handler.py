@@ -126,7 +126,7 @@ def callback_wrapper(f):
             self.reject_message(msg)
             self.requeue_message(msg, exc, fail=True)
         except Exception as exc:
-            logger.error(exc, extra={"data": {"message": vars(msg)}})
+            logger.error(exc, extra={"data": {"message": vars(msg)}}, exc_info=True)
             self.reject_message(msg)
             self.requeue_message(msg, exc)
         else:
@@ -284,20 +284,20 @@ class Handler(object):
         :param sir.amqp.message.Message parsed_message: Message parsed by the `callback_wrapper`.
         """
 
-        column_name = "gid"
+        table_name = parsed_message.table_name
 
-        if "gid" not in parsed_message.columns:
-            if "id" in parsed_message.columns and parsed_message.table_name in _ID_DELETE_TABLE_NAMES:
-                column_name = "id"
-            else:
-                raise ValueError("`gid` column missing from delete message")
-        logger.debug("Deleting {entity_type}: {id}".format(
-            entity_type=parsed_message.table_name,
-            id=parsed_message.columns[column_name]))
+        if "gid" in parsed_message.columns:
+            doc_id = parsed_message.columns["gid"]
+        elif "id" in parsed_message.columns and table_name in _ID_DELETE_TABLE_NAMES:
+            doc_id = str(parsed_message.columns["id"])
+        else:
+            raise ValueError("`gid` column missing from delete message")
 
-        core_name = core_map[parsed_message.table_name]
+        logger.debug(f"Deleting {table_name}: {doc_id}")
+
+        core_name = core_map[table_name]
         if core_name in self.cores:
-            self.cores[core_name].delete(parsed_message.columns[column_name])
+            self.cores[core_name].delete(doc_id)
         self._index_by_fk(parsed_message)
 
     def process_messages(self):
