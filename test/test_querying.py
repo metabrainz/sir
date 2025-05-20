@@ -1,7 +1,7 @@
 import doctest
 from unittest import mock, TestCase
 
-from test import helpers, models
+from test import models
 from collections import defaultdict
 from sqlalchemy.orm.properties import RelationshipProperty
 from sir.querying import iterate_path_values
@@ -11,52 +11,22 @@ from sir.trigger_generation.paths import second_last_model_in_path
 
 
 class DeferEverythingButTest(TestCase):
-    def setUp(self):
-        mapper = helpers.Object()
-        mapper.iterate_properties = []
-        pk1 = helpers.Object()
-        pk1.name = "pk1"
-        pk2 = helpers.Object()
-        pk2.name = "pk2"
-        mapper.primary_key = [pk1, pk2]
 
-        self.mapper = mapper
-
-        prop = helpers.Object()
-        prop.columns = ""
-        self.prop = prop
-        self.mapper.iterate_properties.append(prop)
-
-        self.load = mock.Mock()
-        self.required_columns = ["key", "key2"]
-
-    def test_plain_column_called(self):
-        self.prop.key = "foo"
-        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        load.defer.assert_called_once_with(self.prop)
-
-    def test_plain_column_not_called(self):
-        self.prop.key = "key"
-        load = defer_everything_but(self.mapper, self.load, *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_id_column(self):
-        self.prop.key = "foo_id"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_position_column(self):
-        self.prop.key = "position"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
-
-    def test_primary_key_always_loaded(self):
-        self.prop.key = "pk1"
-        load = defer_everything_but(self.mapper, self.load,
-                                    *self.required_columns)
-        self.assertFalse(load.defer.called)
+    @mock.patch("sir.schema.searchentities.defer")
+    def test_defer_everything_but(self, mock_defer):
+        mapper = models.D.__mapper__
+        original_load = mock.Mock()
+        required_columns = ["key", "key2"]
+        defer_everything_but(
+            mapper,
+            original_load,
+            *required_columns
+        )
+        original_load.options.assert_called()
+        mock_defer.assert_called_once_with(
+            mapper.get_property("foo"),
+            raiseload=True
+        )
 
 
 class IteratePathValuesTest(TestCase):
