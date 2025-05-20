@@ -353,6 +353,7 @@ SearchRecording = E(modelext.CustomRecording, [
                 "tags.count",
                 "tags.tag.name",
                 "tracks.length",
+                "tracks.medium.gid",
                 "tracks.medium.cdtocs.id",
                 "tracks.medium.release.artist_credit.artists.artist.comment",
                 "tracks.medium.release.artist_credit.artists.artist.gid",
