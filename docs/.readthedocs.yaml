@@ -5,4 +5,7 @@ build:
   tools:
     python: "3.13"
 
+sphinx:
+  configuration: docs/source/conf.py
+
 formats: all
