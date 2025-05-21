@@ -1,5 +1,5 @@
 MusicBrainz Database Schema
-----
+---------------------------
 
 Of course you'll need a MusicBrainz database somewhere to read the data from.
 The active database schema sequence must be `30` (or any future schema version
