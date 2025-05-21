@@ -1,5 +1,5 @@
 from collections import namedtuple
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import composite, relationship, declarative_base
 
 Base = declarative_base()
@@ -29,3 +29,15 @@ class C(Base):
     id = Column(Integer, primary_key=True)
     bar = Column(Integer)
     bs = relationship("B", backref="c")
+
+
+class D(Base):
+    __tablename__ = "table_d"
+
+    pk1 = Column(Integer, primary_key=True)
+    pk2 = Column(Integer, primary_key=True)
+    foo = Column(String)
+    key = Column(String)
+    key2 = Column(String)
+    foo_id = Column(Integer)
+    position = Column(Integer)

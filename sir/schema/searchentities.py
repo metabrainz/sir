@@ -11,11 +11,11 @@ try:
     from xml.etree.cElementTree import tostring
 except ImportError:
     from xml.etree.ElementTree import tostring
-from sqlalchemy.orm import class_mapper, Load
+from sqlalchemy.orm import class_mapper, Load, raiseload, defer
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 from sqlalchemy.orm.interfaces import ONETOMANY, MANYTOONE
-from sqlalchemy.orm.properties import RelationshipProperty
+from sqlalchemy.orm.properties import RelationshipProperty, ColumnProperty
 from sqlalchemy.orm.query import Query
 
 
@@ -69,17 +69,29 @@ def merge_paths(field_paths):
 
 def defer_everything_but(mapper, load, *columns):
     primary_keys = [c.name for c in mapper.primary_key]
+    columns_to_keep = set(columns)
+    defers = []
     for prop in mapper.iterate_properties:
-        if hasattr(prop, "columns") and not isinstance(prop, CompositeProperty):
-            key = prop.key
-            if (key not in columns and key[:-3] not in columns and
-                key[-3:] != "_id" and key != "position" and
-                key not in primary_keys):
-                # We need the _id columns for subqueries and joins
-                # Position is needed because sqla automatically orders by
-                # artist_credit_name.position
-                logger.debug("Deferring %s on %s", key, mapper)
-                load.defer(prop)
+        if isinstance(prop, CompositeProperty):
+            continue
+        key = prop.key
+        if (
+            key not in columns_to_keep
+            and key[:-3] not in columns_to_keep
+            and key[-3:] != "_id"
+            and key != "position" and
+            key not in primary_keys
+        ):
+            # We need the _id columns for subqueries and joins
+            # Position is needed because sqla automatically orders by
+            # artist_credit_name.position
+            logger.debug("Deferring %s on %s", key, mapper)
+            if isinstance(prop, ColumnProperty):
+                defers.append(defer(prop, raiseload=True))
+            else:
+                defers.append(raiseload(prop))
+    if defers:
+        load = load.options(*defers)
     return load
 
 
@@ -221,7 +233,8 @@ class SearchEntity(object):
                                          composite_column,
                                          model)
                             required_columns.remove(composite_column)
-                            required_columns.extend(composite_parts)
+                            for column in composite_parts:
+                                required_columns.append(column.name)
 
                         logger.debug("Loading only %s on %s",
                                      required_columns,
