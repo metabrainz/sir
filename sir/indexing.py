@@ -61,7 +61,7 @@ def reindex(args):
 
 def live_index(entities):
     """
-     Reindex all documents in``entities`` in multiple processes via the
+    Reindex all documents in``entities`` in multiple processes via the
     :mod:`multiprocessing` module.
 
     :param entities:
