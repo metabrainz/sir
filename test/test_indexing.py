@@ -3,6 +3,7 @@ from unittest import mock, TestCase
 from multiprocessing import Queue
 
 import pysolr
+import requests
 from pysolr import SolrError
 
 import sir.indexing
@@ -15,19 +16,19 @@ class QueueToSolrTest(TestCase):
         self.queue.put({"foo": "bar"})
         self.queue.put(None)
 
-    @mock.patch("urllib.request.urlopen")
+    @mock.patch.object(requests.Session, "get")
     @mock.patch.object(pysolr.Solr, "commit")
     @mock.patch.object(pysolr.Solr, "add")
-    def test_normal_send(self, mock_add, mock_commit, _):
+    def test_normal_send(self, mock_add, mock_commit, mock_get):
         queue_to_solr(self.queue, 1, "test")
         expected = [mock.call([{"foo": "bar"}]), mock.call([]),]
         mock_add.assert_has_calls(expected)
         mock_commit.assert_called()
 
-    @mock.patch("urllib.request.urlopen")
+    @mock.patch.object(requests.Session, "get")
     @mock.patch.object(pysolr.Solr, "commit")
     @mock.patch.object(pysolr.Solr, "add")
-    def test_queue_drained_send(self, mock_add, mock_commit, _):
+    def test_queue_drained_send(self, mock_add, mock_commit, mock_get):
         queue_to_solr(self.queue, 2, "test")
         mock_add.assert_called_once_with([{"foo": "bar"}])
         mock_commit.assert_called()

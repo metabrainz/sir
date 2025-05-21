@@ -7,6 +7,10 @@ import logging
 import pysolr
 import urllib.request, urllib.error, urllib.parse
 
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
+
 from . import config
 from .schema import SCHEMA
 from contextlib import contextmanager
@@ -80,6 +84,21 @@ def db_session_ctx(Session):
         session.close()
 
 
+def get_requests_session():
+    """ Configure a requests session for enforcing common retry strategy. """
+    retry_strategy = Retry(
+        total=config.CFG.getint("solr", "retries", fallback=3),
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["HEAD", "GET", "OPTIONS"],
+        backoff_factor=config.CFG.getint("solr", "backoff_factor", fallback=1),
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    return http
+
+
 def solr_connection(core):
     """
     Creates a :class:`solr:solr.Solr` connection for the core ``core``.
@@ -93,12 +112,15 @@ def solr_connection(core):
     core_uri = solr_uri + "/" + core
     ping_uri = core_uri + "/admin/ping"
 
+    session = requests.Session()
+
     logger.debug("Setting up a connection to %s", solr_uri)
     logger.debug("Pinging %s", ping_uri)
-    urllib.request.urlopen(ping_uri)
+    response = session.get(ping_uri)
+    response.raise_for_status()
 
     logger.debug("Connection to the Solr core at %s", core_uri)
-    return pysolr.Solr(core_uri)
+    return pysolr.Solr(core_uri, session=session)
 
 
 def solr_version_check(core):

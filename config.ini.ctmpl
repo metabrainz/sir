@@ -29,6 +29,8 @@ user = {{template "KEY" "db/user"}}
 [solr]
 uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
+retries = {{template "KEY" "solr/retries"}}
+backoff_factor = {{template "KEY" "solr/backoff_factor"}}
 
 {{- with $rabbitmq_service_name := or (env "RABBITMQ_SERVICE") "rabbitmq"}}
 {{- if service $rabbitmq_service_name}}
