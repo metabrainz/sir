@@ -52,7 +52,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'sir'
-copyright = '2025 MetaBrainz Foundation'
+copyright = '2014-2016, Wieland Hoffmann; 2017-2025 MetaBrainz Foundation'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -187,7 +187,7 @@ htmlhelp_basename = 'sirdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'sir.tex', 'sir Documentation',
-   'MetaBrainz Foundation', 'manual'),
+   'MetaBrainz Foundation \and Wieland Hoffman', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -220,5 +220,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'sir', 'sir Documentation',
-     ['MetaBrainz Foundation'], 1)
+     ['MetaBrainz Foundation', 'Wieland Hoffmann'], 1)
 ]

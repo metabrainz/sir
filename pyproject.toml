@@ -2,7 +2,8 @@
 name = "sir"
 description="Search Index Rabbit"
 authors = [
-    { name = "MetaBrainz Foundation", email = "support@metabrainz.org" }
+    { name = "MetaBrainz Foundation", email = "support@metabrainz.org" },
+    { name = "Wieland Hoffmann" }
 ]
 readme = "README.rst"
 license = "MIT"
