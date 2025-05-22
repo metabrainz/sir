@@ -1,8 +1,9 @@
+from importlib.metadata import version, PackageNotFoundError
+
 try:
-    # Version is required only for generating the documentation
-    from .version import __version__  # noqa
-except ImportError:
-    __version__ = None
+    __version__ = version("sir")
+except PackageNotFoundError:
+    pass
 
 import sentry_sdk
 
