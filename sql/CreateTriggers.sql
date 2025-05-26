@@ -313,9 +313,9 @@ CREATE TRIGGER search_area_tag_delete BEFORE DELETE ON musicbrainz.area_tag
 CREATE TRIGGER search_tag_insert AFTER INSERT ON musicbrainz.tag
     FOR EACH ROW EXECUTE PROCEDURE search_tag_insert();
 
-CREATE TRIGGER search_tag_update AFTER UPDATE OF id, name ON musicbrainz.tag
+CREATE TRIGGER search_tag_update AFTER UPDATE OF name ON musicbrainz.tag
     FOR EACH ROW
-    WHEN ((OLD.id, OLD.name) IS DISTINCT FROM (NEW.id, NEW.name))
+    WHEN ((OLD.name) IS DISTINCT FROM (NEW.name))
     EXECUTE PROCEDURE search_tag_update();
 
 CREATE TRIGGER search_tag_delete BEFORE DELETE ON musicbrainz.tag
@@ -401,9 +401,9 @@ CREATE TRIGGER search_artist_type_delete BEFORE DELETE ON musicbrainz.artist_typ
 CREATE TRIGGER search_release_raw_insert AFTER INSERT ON musicbrainz.release_raw
     FOR EACH ROW EXECUTE PROCEDURE search_release_raw_insert();
 
-CREATE TRIGGER search_release_raw_update AFTER UPDATE OF added, artist, barcode, comment, id, title ON musicbrainz.release_raw
+CREATE TRIGGER search_release_raw_update AFTER UPDATE OF added, artist, barcode, comment, title ON musicbrainz.release_raw
     FOR EACH ROW
-    WHEN ((OLD.added, OLD.artist, OLD.barcode, OLD.comment, OLD.id, OLD.title) IS DISTINCT FROM (NEW.added, NEW.artist, NEW.barcode, NEW.comment, NEW.id, NEW.title))
+    WHEN ((OLD.added, OLD.artist, OLD.barcode, OLD.comment, OLD.title) IS DISTINCT FROM (NEW.added, NEW.artist, NEW.barcode, NEW.comment, NEW.title))
     EXECUTE PROCEDURE search_release_raw_update();
 
 CREATE TRIGGER search_release_raw_delete BEFORE DELETE ON musicbrainz.release_raw

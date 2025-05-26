@@ -146,7 +146,6 @@ SearchArtist = E(modelext.CustomArtist, [
 
 
 SearchCDStub = E(modelext.CustomReleaseRaw, [
-    F("id", "id"),
     F("title", "title"),
     F("artist", "artist"),
     F("comment", "comment"),
@@ -508,7 +507,6 @@ SearchSeries = E(modelext.CustomSeries, [
 
 
 SearchTag = E(models.Tag, [
-    F("id", "id"),
     F("tag", "name")
 ],
     1.5,
