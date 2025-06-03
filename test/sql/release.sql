@@ -53,7 +53,7 @@ INSERT INTO track (id, gid, name, artist_credit, medium, position, number, recor
 
 INSERT INTO release_group (id, gid, name, artist_credit)
     VALUES (4, '329fb554-2a81-3d8a-8e22-ec2c66810019', 'Blonde on Blonde', 2);
-INSERT INTO release (id, gid, name, artist_credit, release_group) VALUES (5, '538aff00-a009-4515-a064-11a6d5a502ee', 'Blonde on Blonde', 2, 4);
+INSERT INTO release (id, gid, name, artist_credit, release_group, quality) VALUES (5, '538aff00-a009-4515-a064-11a6d5a502ee', 'Blonde on Blonde', 2, 4, 0);
 ;
 
 -- release_meta
