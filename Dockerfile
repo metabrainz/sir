@@ -22,16 +22,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
                     build-essential \
                     ca-certificates \
-                    cron \
                     curl \
-                    git \
-                    gnupg \
-                    libz-dev \
-                    libpq-dev \
-                    libffi-dev \
-                    libssl-dev \
-                    libxml2-dev \
-                    libxslt1-dev && \
+                    gnupg && \
     rm -rf /var/lib/apt/lists/*
 
 # PostgreSQL client
