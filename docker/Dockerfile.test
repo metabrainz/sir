@@ -11,16 +11,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
                     build-essential \
-                    ca-certificates \
-                    cron \
-                    git \
-                    libz-dev \
-                    libpq-dev \
-                    libffi-dev \
-                    libssl-dev \
-                    libxml2-dev \
-                    libsqlite3-dev \
-                    libxslt1-dev && \
+                    ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /code/
 COPY requirements_dev.txt /code/
