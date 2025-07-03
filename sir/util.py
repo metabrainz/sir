@@ -103,9 +103,10 @@ def solr_connection(core):
     """
     Creates a :class:`solr:solr.Solr` connection for the core ``core``.
 
+    It can trigger `Requests’ Exceptions:
+    <https://requests.readthedocs.io/en/latest/api/#exceptions>`_.
+
     :param str core:
-    :raises urllib2.URLError: if a ping to the cores ping handler doesn't
-                              succeed
     :rtype: :class:`solr:solr.Solr`
     """
     solr_uri = config.CFG.get("solr", "uri")
