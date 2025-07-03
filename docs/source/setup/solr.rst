@@ -19,5 +19,5 @@ Keys                  Description
                       (default is ``1``)
 ===================== ===========
 
-.. _backoff factor: https://urllib3.readthedocs.io/en/2.4.0/reference/urllib3.util.html#urllib3.util.Retry
+.. _backoff factor: https://urllib3.readthedocs.io/en/2.5.0/reference/urllib3.util.html#urllib3.util.Retry
 .. _mbsssss: https://github.com/metabrainz/mbsssss
