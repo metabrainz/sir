@@ -8,7 +8,6 @@ import configparser
 from . import config, init_sentry_sdk
 from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch
-from .amqp.setup import setup_rabbitmq
 from .indexing import reindex
 from .schema import SCHEMA
 from .trigger_generation import generate_func
@@ -62,11 +61,6 @@ def main():
                                            default="sql/CreateExtension.sql",
                                            help="The filename to save the "
                                            "extension into")
-
-    amqp_setup_parser = subparsers.add_parser("amqp_setup",
-                                              help="Set up AMQP exchanges and "
-                                              "queues")
-    amqp_setup_parser.set_defaults(func=setup_rabbitmq)
 
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
                                               help="Watch AMQP queues for "
