@@ -1,5 +1,5 @@
 import unittest
-from sir.trigger_generation.paths import generate_filtered_query
+from sir.query_generation.paths import generate_filtered_query
 from sir.schema import SCHEMA
 
 

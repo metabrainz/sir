@@ -15,7 +15,7 @@ from sir.amqp import message
 from sir import config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import live_index
-from sir.trigger_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
+from sir.query_generation.paths import second_last_model_in_path, generate_query, generate_filtered_query
 from sir.util import (create_amqp_connection,
                       db_session,
                       db_session_ctx,

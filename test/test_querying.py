@@ -7,7 +7,7 @@ from sqlalchemy.orm.properties import RelationshipProperty
 from sir.querying import iterate_path_values
 from sir.schema.searchentities import defer_everything_but, merge_paths
 from sir.schema import generate_update_map, SCHEMA
-from sir.trigger_generation.paths import second_last_model_in_path
+from sir.query_generation.paths import second_last_model_in_path
 
 
 class DeferEverythingButTest(TestCase):
