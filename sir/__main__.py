@@ -6,7 +6,6 @@ import multiprocessing
 import configparser
 
 from . import config, init_sentry_sdk
-from .amqp.extension_generation import generate_extension
 from .amqp.handler import watch
 from .indexing import reindex
 from .schema import SCHEMA
@@ -52,15 +51,6 @@ def main():
     generate_trigger_parser.add_argument('--entity-type', action='append',
                                          help="Which entity types to index.",
                                          choices=SCHEMA.keys())
-
-    generate_extension_parser = subparsers.add_parser("extension",
-                                                      help="Generate extension")
-    generate_extension_parser.set_defaults(func=generate_extension)
-    generate_extension_parser.add_argument('-e', '--extension-file',
-                                           action="store",
-                                           default="sql/CreateExtension.sql",
-                                           help="The filename to save the "
-                                           "extension into")
 
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
                                               help="Watch AMQP queues for "
