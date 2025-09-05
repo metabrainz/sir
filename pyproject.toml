@@ -28,8 +28,8 @@ build-backend = "setuptools.build_meta"
 packages = [
     "sir",
     "sir.amqp",
+    "sir.query_generation",
     "sir.schema",
-    "sir.trigger_generation",
     "sir.wscompat"
 ]
 

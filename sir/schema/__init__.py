@@ -619,8 +619,8 @@ def generate_update_map():
 
     :rtype (dict, dict, dict, dict)
     """
-    from sir.trigger_generation.paths import (unique_split_paths, last_model_in_path,
-                                             second_last_model_in_path)
+    from sir.query_generation.paths import (unique_split_paths, last_model_in_path,
+                                            second_last_model_in_path)
 
     paths = defaultdict(set)
     column_map = defaultdict(set)
