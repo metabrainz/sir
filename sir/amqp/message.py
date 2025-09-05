@@ -6,11 +6,13 @@
 This module contains functions and classes to parse and represent the content
 of an AMQP message.
 """
-from sir.trigger_generation.sql_generator import MSG_JSON_TABLE_NAME_KEY, MSG_JSON_OPERATION_TYPE
 from enum import Enum
 import ujson
 
 MESSAGE_TYPES = Enum("MESSAGE_TYPES", "delete index")
+
+MSG_JSON_TABLE_NAME_KEY = "_table"
+MSG_JSON_OPERATION_TYPE = "_operation"
 
 QUEUE_TO_TYPE = {
     "search.delete": MESSAGE_TYPES.delete,

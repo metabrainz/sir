@@ -9,7 +9,6 @@ from . import config, init_sentry_sdk
 from .amqp.handler import watch
 from .indexing import reindex
 from .schema import SCHEMA
-from .trigger_generation import generate_func
 
 
 logger = logging.getLogger("sir")
@@ -29,28 +28,6 @@ def main():
     reindex_parser.add_argument('--entity-type', action='append',
                                 help="Which entity types to index.",
                                 choices=SCHEMA.keys())
-
-    generate_trigger_parser = subparsers.add_parser("triggers",
-                                                    help="Generate triggers")
-    generate_trigger_parser.set_defaults(func=generate_func)
-    generate_trigger_parser.add_argument('-t', '--trigger-file',
-                                         action="store",
-                                         default="sql/CreateTriggers.sql",
-                                         help="The filename to save the "
-                                         "triggers into")
-    generate_trigger_parser.add_argument('-f', '--function-file',
-                                         action="store",
-                                         default="sql/CreateFunctions.sql",
-                                         help="The filename to save the "
-                                         "functions into")
-    generate_trigger_parser.add_argument('-bid', '--broker-id',
-                                         action="store",
-                                         default="1",
-                                         help="ID of the AMQP broker row "
-                                         "in the database.")
-    generate_trigger_parser.add_argument('--entity-type', action='append',
-                                         help="Which entity types to index.",
-                                         choices=SCHEMA.keys())
 
     amqp_watch_parser = subparsers.add_parser("amqp_watch",
                                               help="Watch AMQP queues for "
