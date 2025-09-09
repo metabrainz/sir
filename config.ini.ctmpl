@@ -7,9 +7,10 @@
 import_threads = {{template "KEY" "import_threads"}}
 query_batch_size = {{template "KEY" "query_batch_size"}}
 wscompat = {{template "KEY" "wscompat"}}
-process_delay = {{template "KEY" "process_delay"}}
 live_index_batch_size = {{template "KEY" "live_index_batch_size"}}
 index_limit = {{template "KEY" "index_limit"}}
+poll_interval = {{template "KEY" "poll_interval"}}
+max_retries = {{template "KEY" "max_retries"}}
 
 [database]
 {{- with $pg_primary_service_name := or (env "PG_SERVICE_PRIMARY") "pgbouncer-master"}}
@@ -31,21 +32,6 @@ uri = {{template "KEY" "solr/uri"}}
 batch_size = {{template "KEY" "solr/batch_size"}}
 retries = {{template "KEY" "solr/retries"}}
 backoff_factor = {{template "KEY" "solr/backoff_factor"}}
-
-{{- with $rabbitmq_service_name := or (env "RABBITMQ_SERVICE") "rabbitmq"}}
-{{- if service $rabbitmq_service_name}}
-
-[rabbitmq]
-{{- with index (service $rabbitmq_service_name) 0}}
-host = {{.Address}}:{{.Port}}
-user = {{template "KEY" "rabbitmq/user"}}
-password = {{template "KEY" "rabbitmq/password"}}
-vhost = {{template "KEY" "rabbitmq/vhost"}}
-prefetch_count = {{template "KEY" "rabbitmq/prefetch_count"}}
-timeout = {{template "KEY" "rabbitmq/timeout"}}
-{{- end}}
-{{- end}}
-{{- end}}
 
 [sentry]
 dsn = {{template "KEY" "sentry_dsn"}}

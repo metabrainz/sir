@@ -15,13 +15,10 @@ backoff_factor = 1
 import_threads = 2
 query_batch_size = 20000
 wscompat = on
-
-[rabbitmq]
-host = localhost
-user = guest
-password = guest
-vhost = /
-prefetch_count = 350
+poll_interval = 5
+live_index_batch_size = 500
+index_limit = 40000
+max_retries = 4
 
 [sentry]
 dsn = https://something:something@sentry.metabrainz.org/42
