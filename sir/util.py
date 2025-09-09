@@ -2,7 +2,6 @@
 # License: MIT, see LICENSE for details
 
 
-import amqp
 import logging
 import pysolr
 import urllib.request, urllib.error, urllib.parse
@@ -154,21 +153,3 @@ def check_solr_cores_version(cores):
                                                different from the supported one
     """
     list(map(solr_version_check, cores))
-
-
-def create_amqp_connection():
-    # type: () -> amqp.Connection
-    """
-    Creates a connection to an AMQP server.
-
-    :rtype: :class:`amqp:amqp.connection.Connection`
-    """
-    cget = partial(config.CFG.get, "rabbitmq")
-    conn = amqp.Connection(
-        host=cget("host"),
-        userid=cget("user"),
-        password=cget("password"),
-        virtual_host=cget("vhost"),
-    )
-    conn.connect()
-    return conn

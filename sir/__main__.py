@@ -4,14 +4,55 @@ import argparse
 import logging
 import multiprocessing
 import configparser
+from pathlib import Path
 
 from . import config, init_sentry_sdk
 from .amqp.handler import watch
 from .indexing import reindex
 from .schema import SCHEMA
 
+SQL_DIR = Path(__file__).resolve().parent.parent / "sql"
+
 
 logger = logging.getLogger("sir")
+
+
+def _run_sql_files(file_names):
+    """Execute a list of SQL files against the configured database."""
+    from .util import engine as create_engine
+    from sqlalchemy import text
+
+    eng = create_engine()
+    for name in file_names:
+        path = SQL_DIR / name
+        sql = path.read_text()
+        # Strip psql meta-commands (\set, \unset) that aren't valid SQL
+        lines = [line for line in sql.splitlines()
+                 if not line.strip().startswith("\\")]
+        clean_sql = "\n".join(lines)
+        logger.info("Executing %s", name)
+        with eng.connect() as conn:
+            conn.execute(text(clean_sql))
+            conn.commit()
+        logger.info("Done: %s", name)
+
+
+def setup_sql(args):
+    """Create sir schema, tables, functions, and triggers."""
+    _run_sql_files([
+        "CreateTables2.sql",
+        "CreateFunctions2.sql",
+        "CreateTriggers2.sql",
+    ])
+
+
+def drop_sql(args):
+    """Drop sir triggers, functions, tables, and schema."""
+    _run_sql_files([
+        "DropTriggers2.sql",
+        "DropFunctions2.sql",
+        "DropTables2.sql",
+    ])
 
 
 def main():
@@ -29,14 +70,30 @@ def main():
                                 help="Which entity types to index.",
                                 choices=SCHEMA.keys())
 
-    amqp_watch_parser = subparsers.add_parser("amqp_watch",
-                                              help="Watch AMQP queues for "
-                                              "changes")
-    amqp_watch_parser.add_argument('--entity-type', action='append',
-                                   help="Which entity types to watch.",
-                                   choices=SCHEMA.keys())
+    live_parser = subparsers.add_parser(
+        "live",
+        help="Poll for database changes and update the search index"
+    )
+    live_parser.add_argument(
+        '--entity-type',
+        action='append',
+        help="Which entity types to watch.",
+        choices=SCHEMA.keys()
+    )
 
-    amqp_watch_parser.set_defaults(func=watch)
+    live_parser.set_defaults(func=watch)
+
+    setup_parser = subparsers.add_parser(
+        "setup",
+        help="Create sir schema, tables, functions, and triggers in the database"
+    )
+    setup_parser.set_defaults(func=setup_sql)
+
+    drop_parser = subparsers.add_parser(
+        "drop",
+        help="Drop sir triggers, functions, tables, and schema from the database"
+    )
+    drop_parser.set_defaults(func=drop_sql)
 
     args = parser.parse_args()
     if args.debug:

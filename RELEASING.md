@@ -13,7 +13,6 @@
 
 - [Prerequisites](#prerequisites)
 - [Interdependencies](#interdependencies)
-- [Update SQL trigger files](#update-sql-trigger-files)
 - [Prepare Jira tickets](#prepare-jira-tickets)
 - [Prepare GitHub release notes](#prepare-github-release-notes)
 - [Add Git tag](#add-git-tag)
@@ -42,17 +41,6 @@ can be used to test everything together locally.
 The website [`test.mb.o`](https://test.musicbrainz.org/)
 can be used to get community feedback as well if needed.
 
-## Update SQL trigger files
-
-Assuming that you followed development setup for
-[local development of Search Index Rebuilder](https://github.com/metabrainz/musicbrainz-docker#local-development-of-search-index-rebuilder),
-run the following commands in the `indexer` service:
-
-```sh
-python -m sir triggers -bid 2
-./GenerateDropSql.pl
-```
-
 ## Prepare Jira tickets
 
 * Make sure that `sir-next` is an unreleased version of “Indexer” component in
@@ -76,7 +64,6 @@ python -m sir triggers -bid 2
   - its associated Python bindings (`mb-rngpy` [tags](https://github.com/metabrainz/mb-rngpy/tags)),
   - MusicBrainz Solr search schema (`mbsssss` [releases](https://github.com/metabrainz/mbsssss/releases)),
   - and its associated MusicBrainz Solr query response writer (`mb-solr` [releases](https://github.com/metabrainz/mb-solr/releases));
-* Add update instructions if needed (to reinstall triggers or rebuild any search index);
 * Add task list items to cover other (supposedly unnoticeable) changes.
 
 ## Add Git tag

@@ -1,0 +1,6 @@
+\unset ON_ERROR_STOP
+
+DROP TABLE IF EXISTS sir.pending_data;
+DROP TABLE IF EXISTS sir.control;
+
+DROP SCHEMA IF EXISTS sir;
