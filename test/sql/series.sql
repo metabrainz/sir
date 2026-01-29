@@ -1,17 +1,19 @@
 INSERT INTO series (id, gid, name, comment, type, ordering_type)
     VALUES (1, 'a8749d0c-4a5a-4403-97c5-f6cd018f8e6d', 'Test Recording Series', 'test comment 1', 3, 1),
            (2, '2e8872b9-2745-4807-a84e-094d425ec267', 'Test Work Series', 'test comment 2', 4, 2),
-           (3, 'dbb23c50-d4e4-11e3-9c1a-0800200c9a66', 'Dumb Recording Series', '', 3, 1);
+           (3, 'dbb23c50-d4e4-11e3-9c1a-0800200c9a66', 'Dumb Recording Series', '', 3, 1),
+           (4, '7a2b4caa-09b5-410e-ad5c-90df2885972f', 'Test Series Series', 'no comment', 16, 1);
 
 INSERT INTO series_alias (id, series, name, type, sort_name) VALUES
     (1, 1, 'Test Recording Series Alias', 2, 'Test Recording Series Alias');
 
 INSERT INTO link (id, link_type, attribute_count) VALUES
     (1, 740, 1), (2, 740, 1), (3, 740, 1), (4, 740, 1),
-    (5, 743, 1), (6, 743, 1), (7, 743, 1), (8, 743, 1);
+    (5, 743, 1), (6, 743, 1), (7, 743, 1), (8, 743, 1),
+    (9, 1301, 1);
 
 INSERT INTO link_attribute (link, attribute_type) VALUES
-    (1, 788), (2, 788), (3, 788), (4, 788), (5, 788), (6, 788), (7, 788), (8, 788);
+    (1, 788), (2, 788), (3, 788), (4, 788), (5, 788), (6, 788), (7, 788), (8, 788), (9, 788);
 
 INSERT INTO link_attribute_text_value (link, attribute_type, text_value)
     VALUES (1, 788, 'A1'),
@@ -21,7 +23,8 @@ INSERT INTO link_attribute_text_value (link, attribute_type, text_value)
            (5, 788, 'WTF 87'),
            (6, 788, 'WTF 21'),
            (7, 788, 'WTF 99'),
-           (8, 788, 'WTF 12');
+           (8, 788, 'WTF 12'),
+           (9, 788, '2026');
 
 INSERT INTO artist (id, gid, name, sort_name) VALUES
     (77, 'ac3a3195-ba87-4154-a937-bbc06aac4038', 'Some Artist', 'Some Artist');
@@ -49,3 +52,6 @@ INSERT INTO l_recording_series (id, link, entity0, entity1, link_order) VALUES
 
 INSERT INTO l_series_work (id, link, entity0, entity1, link_order) VALUES
     (1, 5, 2, 1, 1), (2, 6, 2, 2, 2), (3, 7, 2, 3, 3), (4, 8, 2, 4, 4);
+
+INSERT INTO l_series_series (id, link, entity0, entity1, link_order) VALUES
+    (1, 5, 3, 4, 1);
