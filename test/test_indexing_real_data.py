@@ -550,25 +550,21 @@ class IndexingTestCase(unittest.TestCase):
             {
                 'tag': u'musical',
                 '_store': '<ns0:tag xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#"><ns0:name>musical</ns0:name></ns0:tag>',
-                'id': 1
             },
             {
                 'tag': u'rock',
                 '_store': '<ns0:tag xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#"><ns0:name>rock</ns0:name></ns0:tag>',
-                'id': 2
             },
             {
                 'tag': u'jazz',
                 '_store': '<ns0:tag xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#"><ns0:name>jazz</ns0:name></ns0:tag>',
-                'id': 3
             },
             {
                 'tag': u'world music',
                 '_store': '<ns0:tag xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#"><ns0:name>world music</ns0:name></ns0:tag>',
-                'id': 4
             }
         ]
-        self._test_index_entity("tag", expected, key="id")
+        self._test_index_entity("tag", expected, key="tag")
 
     def test_index_url(self):
         expected = [
@@ -663,10 +659,9 @@ class IndexingTestCase(unittest.TestCase):
                 'barcode': u'837101029192',
                 'tracks': 2,
                 'title': u'Test Stub',
-                'id': 1
             }
         ]
-        self._test_index_entity("cdstub", expected, key="id")
+        self._test_index_entity("cdstub", expected, key="discid")
 
     def test_index_annotation(self):
         expected = [
