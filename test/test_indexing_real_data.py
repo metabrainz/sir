@@ -671,6 +671,14 @@ class IndexingTestCase(unittest.TestCase):
     def test_index_annotation(self):
         expected = [
             {
+                '_store': '<ns0:annotation xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" type="genre"><ns0:entity>1b50083b-1afa-4778-82c8-548b309af783</ns0:entity><ns0:name>dubstep</ns0:name><ns0:text>Genre annotation</ns0:text></ns0:annotation>',
+                'name': u'dubstep',
+                'text': u'Genre annotation',
+                'entity': '1b50083b-1afa-4778-82c8-548b309af783',
+                'type': 'genre',
+                'id': 1
+            },
+            {
                 '_store': '<ns0:annotation xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" type="artist"><ns0:entity>745c079d-374e-4436-9448-da92dedef3ce</ns0:entity><ns0:name>Test Artist</ns0:name><ns0:text>Test annotation 1</ns0:text></ns0:annotation>',
                 'name': u'Test Artist',
                 'text': u'Test annotation 1',
