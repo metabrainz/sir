@@ -20,6 +20,7 @@ from sqlalchemy.orm.query import Query
 
 
 logger = getLogger("sir")
+DUPLICATION_ALLOWED_FIELD_NAMES = ["tracksmedium"]
 
 
 def is_composite_column(model, colname):
@@ -261,30 +262,32 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
-            tempvals = set()
+            tempvals = list()
             for path in field.paths:
                 for value in iterate_path_values(path, obj):
                     if value is not None:
                         if isinstance(value, list):
-                            tempvals.update(set(value))
+                            tempvals.extend(value)
                         else:
-                            tempvals.add(value)
+                            tempvals.append(value)
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
-            if (isinstance(tempvals, set) or isinstance(tempvals, list)) and len(tempvals) == 1:
-                tempvals = tempvals.pop()
+
+            if (isinstance(tempvals, set) or isinstance(tempvals, list)):
+                # 'tracksmedium' can contain a list with same number of tracks on different mediums (ex: [3, 4, 3])
+                if fieldname not in DUPLICATION_ALLOWED_FIELD_NAMES:
+                    tempvals = list(set(tempvals))
+                if len(tempvals) == 1:
+                    tempvals = tempvals.pop()
+
             if tempvals is not None and tempvals:
                 if isinstance(tempvals, UUID):
-                    new_tempvals = str(tempvals)
-                elif isinstance(tempvals, set) or isinstance(tempvals, list):
-                    new_tempvals = list()
-                    for tempval in tempvals:
-                        if isinstance(tempval, UUID):
-                            tempval = str(tempval)
-                        new_tempvals.append(tempval)
-                else:
-                    new_tempvals = tempvals
-                data[fieldname] = new_tempvals
+                    tempvals = str(tempvals)
+                elif isinstance(tempvals, list):
+                    for idx in range(len(tempvals)):
+                        if isinstance(tempvals[idx], UUID):
+                            tempvals[idx] = str(tempvals[idx])
+                data[fieldname] = tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
             not None):
