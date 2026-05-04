@@ -41,7 +41,7 @@ def fill_none(values):
     # in the DB as an empty string, so doing this allows us to search for releases with
     # `[none]` type barcode via the syntax `barcode:none`
     if "" in values:
-        return values.add('none')
+        return values.append('none')
     return values
 
 
@@ -109,8 +109,8 @@ def url_type(values):
     return types
 
 
-def uuid_set_to_str_set(values):
-    return {str(x) for x in values}
+def uuid_list_to_str_list(values):
+    return [str(x) for x in values]
 
 
 def datetime_to_timestamp(values):
