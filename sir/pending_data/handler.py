@@ -225,6 +225,8 @@ class Handler(object):
                         WHERE COALESCE((SELECT indexing_enabled
                                         FROM sir.control), FALSE)
                           AND attempts < :max_retries
+                          AND (last_attempted IS NULL
+                               OR last_attempted <= (NOW() - (interval '5 minutes' * attempts)))
                         ORDER BY seqid
                         LIMIT :limit"""),
                 {"max_retries": self.max_retries, "limit": self.batch_size}
