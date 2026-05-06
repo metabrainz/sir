@@ -27,7 +27,7 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = [
     "sir",
-    "sir.amqp",
+    "sir.pending_data",
     "sir.query_generation",
     "sir.schema",
     "sir.wscompat"
