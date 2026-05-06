@@ -4,14 +4,14 @@ BEGIN;
 CREATE SCHEMA IF NOT EXISTS sir;
 
 CREATE TABLE sir.control (
-    indexing_enabled BOOLEAN NOT NULL DEFAULT FALSE
+    indexing_enabled BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE UNIQUE INDEX control_one_row_idx
     ON sir.control ((indexing_enabled IS NOT NULL));
 
 INSERT INTO sir.control (indexing_enabled)
-    VALUES (FALSE);
+    VALUES (TRUE);
 
 CREATE TABLE sir.pending_data (
     seqid       	BIGINT NOT NULL,
