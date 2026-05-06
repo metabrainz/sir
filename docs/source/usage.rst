@@ -11,17 +11,11 @@ command line interface which provides several subcommands:
    This subcommand allows reindexing data for specific or all entity types (see
    :ref:`import` for more information).
 
-.. option:: triggers
+.. option:: setup
 
-   This subcommand regenerates the trigger files in the ``sql/`` directory (see
-   :ref:`amqp` for more information).
+   This subcommand sets up the `sir` schema used to store messages.
 
-.. option:: amqp_setup
-
-   This subcommand sets up AMQP exchanges and queues (see :ref:`triggers` for
-   more information).
-
-.. option:: amqp_watch
+.. option:: live
 
    This subcommand starts a process that listens on the configured queues and
    regenerates the index data (see :ref:`queue_setup` for more information).
