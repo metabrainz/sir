@@ -3,63 +3,22 @@
 Queues
 ======
 
-The queue setup is similar to the one used by the `CAA indexer
-<https://github.com/metabrainz/CAA-indexer>`_:
+All messages are stored in the ``sir.pending_data`` table, and most of the
+columns mirror those in the ``dbmirror2.pending_data`` table, which is where
+the messages originate from; each message corresponds to a database change,
+with ``op`` indicating an insertion, update, or deletion.
 
-.. graphviz::
+Deletion operations are performed on the Solr index without any additional
+database queries by simply calling :meth:`solr.Solr.delete` with the id
+contained in the message. For insertions and updates, additional database
+queries have to be made to update the data.
 
-    digraph queues {
-    graph [rankdir=LR];
-
-    search_exchange [shape=ellipse label="\"search\" exchange"];
-    delqueue [shape=record label="search.delete | { ... | ... | ... }"];
-    insqueue [shape=record label="search.index | { ... | ... | ... }"];
-
-
-
-    search_exchange -> delqueue [label="delete"];
-    search_exchange -> insqueue [label="insert"];
-    search_exchange -> insqueue [label="update"];
-    }
-
-The ``search`` exchange is the entry point for new messages. It will route them
-to either the ``search.delete`` queue or the ``search.index`` one.
-
-Messages in ``search.delete`` are used to delete documents from the Solr index
-without any additional queries by simply calling :meth:`solr.Solr.delete_many`
-with the ids contained in the message.
-
-For messages in ``search.index``, additional queries have to be made to update
-the data.
-
-.. graphviz::
-
-    digraph retry {
-    graph [rankdir=LR];
-
-    retry_exchange [shape=ellipse label="\"search.retry\" fanout exchange"];
-    retryqueue [shape=record label="search.retry | { ... | ... | ... }"];
-
-    retry_exchange -> retryqueue;
-    }
-
-If processing any message failed, it will be sent to the ``search.retry``
-queue, which automatically dead-letters them back to ``search`` after 4 hours
-for another try.
-
-.. graphviz::
-
-    digraph failed {
-    graph [rankdir=LR];
-
-    failed_exchange [shape=ellipse label="\"search.failed\" fanout exchange"];
-    failed_queue [shape=record label="search.failed | { ... | ... | ... }"];
-
-    failed_exchange -> failed_queue;
-    }
-
-If processing a message failed too often, it will be put into ``search.failed``
-for manual inspection and intervention.
+If processing any message failed, the ``sir.pending_data`` columns ``attemps``,
+``last_attempted``, and ``failure_reason`` will be updated for manual inspection
+and intervention, if necessary. Failed messages are automatically retried up
+to four times by default, though this can be configued via ``max_retries``
+under the ``[sir]`` section of ``config.ini``. The delay between each retry
+is an increasing multiple of 5 minutes.
 
 Note that all messages are processed by default, but it is possible to
 optionally focus on processing message for a specified set of entity

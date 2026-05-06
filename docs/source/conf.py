@@ -35,8 +35,7 @@ autoclass_content = "both"
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.13', None),
                        'sqla': ('https://docs.sqlalchemy.org/en/20/', None),
-                       'solr': ('https://pythonhosted.org//solrpy/', None),
-                       'amqp': ('https://amqp.readthedocs.org/en/latest', None)}
+                       'solr': ('https://pythonhosted.org//solrpy/', None)}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -75,8 +74,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["setup/amqp.rst", "setup/install.rst",
-                    "service/rabbitmq.rst"]
+exclude_patterns = ["setup/install.rst"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
