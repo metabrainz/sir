@@ -1,9 +1,9 @@
 import unittest
 from collections import namedtuple
 
-from sir.amqp.message import (InvalidPendingRowException,
-                               Message,
-                               _normalize_table_name)
+from sir.pending_data.message import (InvalidPendingRowException,
+                                      Message,
+                                      _normalize_table_name)
 
 
 PendingRow = namedtuple('PendingRow', ['seqid', 'xid', 'tablename', 'op', 'olddata', 'newdata'])

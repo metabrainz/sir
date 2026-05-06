@@ -4,8 +4,8 @@
 from unittest import mock, TestCase
 
 from logging import basicConfig, CRITICAL
-from sir.amqp import handler
-from sir.amqp.message import Message
+from sir.pending_data import handler
+from sir.pending_data.message import Message
 from sir.schema import SCHEMA
 
 
@@ -22,7 +22,7 @@ class TriggerTestCase(TestCase):
         handler.solr_version_check = mock.Mock()
         handler.live_index = mock.MagicMock()
 
-        db_session_patcher = mock.patch("sir.amqp.handler.db_session")
+        db_session_patcher = mock.patch("sir.pending_data.handler.db_session")
         self.addCleanup(db_session_patcher.stop)
         db_session_patcher.start()
 
@@ -33,7 +33,7 @@ class HandlerTest(TriggerTestCase):
         super(HandlerTest, self).setUp()
         handler.SCHEMA = {self.entity_type: None}
 
-        solr_version_check_patcher = mock.patch("sir.amqp.handler.solr_version_check")
+        solr_version_check_patcher = mock.patch("sir.pending_data.handler.solr_version_check")
         self.addCleanup(solr_version_check_patcher.stop)
         solr_version_check_patcher.start()
 

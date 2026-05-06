@@ -5,7 +5,7 @@ import os
 import signal
 import time
 
-from sir.amqp.message import Message, _normalize_table_name
+from sir.pending_data.message import Message, _normalize_table_name
 from sir import config
 from sir.schema import SCHEMA, generate_update_map
 from sir.indexing import live_index, PROCESS_FLAG
@@ -112,7 +112,7 @@ class Handler(object):
         we know which entities store this data in the index and need to be
         refreshed.
 
-        :param sir.amqp.message.Message parsed_message: Parsed pending_data row.
+        :param sir.pending_data.message.Message parsed_message: Parsed pending_data row.
         """
         logger.debug("Processing `index` message from table: %s" % parsed_message.table_name)
         logger.debug("Message columns %s" % parsed_message.columns)
@@ -129,7 +129,7 @@ class Handler(object):
         entity tables all of which have a ``gid`` column on them except the ones
         in ``_ID_DELETE_TABLE_NAMES`` which are deleted via their ``id``.
 
-        :param sir.amqp.message.Message parsed_message: Parsed pending_data row.
+        :param sir.pending_data.message.Message parsed_message: Parsed pending_data row.
         """
         table_name = parsed_message.table_name
 

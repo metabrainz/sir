@@ -7,7 +7,7 @@ import configparser
 from pathlib import Path
 
 from . import config, init_sentry_sdk
-from .amqp.handler import watch
+from .pending_data.handler import watch
 from .indexing import reindex
 from .schema import SCHEMA
 
