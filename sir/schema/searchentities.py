@@ -126,6 +126,9 @@ class SearchField(object):
                             See class documentation for more details.
         :param method transformfunc: An optional function to transform the
                                      value before sending it to Solr.
+        :param method trigger: Whether changes to the path should trigger an
+                               update in the Solr core for the entity with
+                               this field. Defaults to `True`.
         """
         self.name = name
         if not isinstance(paths, list):
