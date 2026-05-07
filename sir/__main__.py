@@ -46,12 +46,28 @@ def setup_sql(args):
     ])
 
 
+def setup_standalone_only_sql(args):
+    """Creates a dbmirror2.pending_data ."""
+    _run_sql_files([
+        "CreateStandaloneOnlyFunctions.sql",
+        "CreateStandaloneOnlyTriggers.sql",
+    ])
+
+
 def drop_sql(args):
     """Drop sir triggers, functions, tables, and schema."""
     _run_sql_files([
         "DropTriggers2.sql",
         "DropFunctions2.sql",
         "DropTables2.sql",
+    ])
+
+
+def drop_standalone_only_sql(args):
+    """Drop sir triggers, functions, tables, and schema."""
+    _run_sql_files([
+        "DropStandaloneOnlyTriggers.sql",
+        "DropStandaloneOnlyFunctions.sql",
     ])
 
 
