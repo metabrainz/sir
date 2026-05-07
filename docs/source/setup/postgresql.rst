@@ -24,7 +24,7 @@ there. For MusicBrainz Server setups outside of Docker, run these
 commands:
 
   # From the musicbrainz-server checkout.
-  admin/psql MAINTENANCE < admin/sql/CreateAllReplicationTriggers2.sql
+  admin/psql MAINTENANCE < admin/sql/CreateAllReplicationTriggers.sql
 
   # From the sir checkout.
   python -m sir setup_standalone_only

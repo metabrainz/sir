@@ -40,9 +40,9 @@ def _run_sql_files(file_names):
 def setup_sql(args):
     """Create sir schema, tables, functions, and triggers."""
     _run_sql_files([
-        "CreateTables2.sql",
-        "CreateFunctions2.sql",
-        "CreateTriggers2.sql",
+        "CreateTables.sql",
+        "CreateFunctions.sql",
+        "CreateTriggers.sql",
     ])
 
 
@@ -57,9 +57,9 @@ def setup_standalone_only_sql(args):
 def drop_sql(args):
     """Drop sir triggers, functions, tables, and schema."""
     _run_sql_files([
-        "DropTriggers2.sql",
-        "DropFunctions2.sql",
-        "DropTables2.sql",
+        "DropTriggers.sql",
+        "DropFunctions.sql",
+        "DropTables.sql",
     ])
 
 
