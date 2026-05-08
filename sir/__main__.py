@@ -105,11 +105,23 @@ def main():
     )
     setup_parser.set_defaults(func=setup_sql)
 
+    setup_standalone_only_parser = subparsers.add_parser(
+        "setup_standalone_only",
+        help="Create sir functions and triggers for standalone databases"
+    )
+    setup_standalone_only_parser.set_defaults(func=setup_standalone_only_sql)
+
     drop_parser = subparsers.add_parser(
         "drop",
         help="Drop sir triggers, functions, tables, and schema from the database"
     )
     drop_parser.set_defaults(func=drop_sql)
+
+    drop_standalone_only_parser = subparsers.add_parser(
+        "drop_standalone_only",
+        help="Drop sir functions and triggers for standalone databases"
+    )
+    drop_standalone_only_parser.set_defaults(func=drop_standalone_only_sql)
 
     args = parser.parse_args()
     if args.debug:
