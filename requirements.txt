@@ -1,5 +1,5 @@
-mbdata==30.0.1
-mb-rngpy==2.20250423.0
+mbdata==31.0.1
+mb-rngpy==2.20260508.0
 psycopg2-binary==2.9.10
 pysolr==3.10.0
 sqlalchemy==2.0.38
