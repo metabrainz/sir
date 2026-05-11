@@ -536,6 +536,13 @@ class IndexingTestCase(unittest.TestCase):
                 'type': u'Recording series',
             },
             {
+                'comment': u'no comment',
+                'series': u'Test Series Series',
+                'mbid': '7a2b4caa-09b5-410e-ad5c-90df2885972f',
+                'type': u'Series series',
+                '_store': '<ns0:series xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="7a2b4caa-09b5-410e-ad5c-90df2885972f" type="Series series" type-id="088eb8a5-e5fd-33dc-9e9f-c62de2dd0300"><ns0:name>Test Series Series</ns0:name><ns0:disambiguation>no comment</ns0:disambiguation></ns0:series>'
+            },
+            {
                 'comment': u'test comment 2',
                 'series': u'Test Work Series',
                 'mbid': '2e8872b9-2745-4807-a84e-094d425ec267',
