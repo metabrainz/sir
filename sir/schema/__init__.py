@@ -58,7 +58,7 @@ SearchAnnotation = E(modelext.CustomAnnotation, [
                "works.__tablename__"],
       transformfunc=tfs.annotation_type)
 ],
-    1.5,
+    1.7,
     convert.convert_annotation,
     extraquery=queryext.filter_valid_annotations
 )
@@ -80,7 +80,7 @@ SearchArea = E(modelext.CustomArea, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.type.gid",
@@ -126,7 +126,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_artist,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id",
@@ -155,7 +155,7 @@ SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("tracks", "discids.track_count"),
     F("discid", "discids.discid")
 ],
-    1.5,
+    1.7,
     convert.convert_cdstub
 )
 
@@ -164,7 +164,7 @@ SearchEditor = E(models.Editor, [
     F("bio", "bio"),
     F("editor", "name")
 ],
-    1.5,
+    1.7,
     convert.convert_editor
 )
 
@@ -185,7 +185,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("ended", "ended", transformfunc=tfs.ended_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string)
 ],
-    1.5,
+    1.7,
     convert.convert_event,
     extrapaths=["aliases.type.name",
                 "aliases.type.id",
@@ -228,7 +228,7 @@ SearchInstrument = E(modelext.CustomInstrument, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_instrument,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.type.gid",
@@ -256,7 +256,7 @@ SearchLabel = E(modelext.CustomLabel, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_label,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.type.gid", "aliases.sort_name",
@@ -283,7 +283,7 @@ SearchPlace = E(modelext.CustomPlace, [
     F("place", "name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_place,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.type.gid", "aliases.sort_name",
@@ -331,7 +331,7 @@ SearchRecording = E(modelext.CustomRecording, [
         transformfunc=sum),
     F("video", "video", transformfunc=tfs.boolean)
 ],
-    1.5,
+    1.7,
     convert.convert_recording,
     extrapaths=["artist_credit.artists.artist.aliases.begin_date",
                 "artist_credit.artists.artist.aliases.end_date",
@@ -413,7 +413,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("tracksmedium", "mediums.track_count"),
     F("tag", "tags.tag.name")
 ],
-    1.5,
+    1.7,
     convert.convert_release,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -466,7 +466,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -497,7 +497,7 @@ SearchSeries = E(modelext.CustomSeries, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_series,
     extrapaths=["tags.count",
                 "aliases.type.name", "aliases.type.id",
@@ -511,7 +511,7 @@ SearchTag = E(models.Tag, [
     F("id", "id"),
     F("tag", "name")
 ],
-    1.5,
+    1.7,
     convert.convert_standalone_tag
 )
 
@@ -527,7 +527,7 @@ SearchUrl = E(modelext.CustomURL, [
                      "release_links.__tablename__"],
       transformfunc=tfs.url_type),
 ],
-    1.5,
+    1.7,
     convert.convert_url,
     extrapaths=["artist_links.entity0.gid",
                 "artist_links.entity0.name",
@@ -563,7 +563,7 @@ SearchWork = E(modelext.CustomWork, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.type.gid",
