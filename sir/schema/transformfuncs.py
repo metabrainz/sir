@@ -71,6 +71,12 @@ def index_partialdate_to_string(dates):
     return None
 
 
+def index_partialdatelist_to_string(date_list):
+    for idx in range(len(date_list)):
+        date_list[idx] = partialdate_to_string(date_list[idx])
+    return date_list
+
+
 def qdur(durations):
     if len(durations):
         return durations.pop() // 2000
