@@ -118,7 +118,7 @@ class SearchField(object):
     """
 
     def __init__(self, name, paths, transformfunc=None, trigger=True,
-                 distinct=True):
+                 distinct=True, preserve_og=False):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -134,6 +134,9 @@ class SearchField(object):
                               ``transformfunc`` is applied. Set it to False
                               for aggregations where repeated values matter,
                               e.g. summing the track counts of all mediums.
+        :param bool preserve_og: Flag to preserve original values and order
+                                 (implies ``distinct=False``).
+                                 Defaults to `False`.
         """
         self.name = name
         if not isinstance(paths, list):
@@ -141,7 +144,8 @@ class SearchField(object):
         self.paths = paths
         self.transformfunc = transformfunc
         self.trigger = trigger
-        self.distinct = distinct
+        self.preserve_og = preserve_og
+        self.distinct = distinct and not preserve_og
 
 
 class SearchEntity(object):
@@ -287,9 +291,5 @@ class SearchEntity(object):
             if not tempvals:
                 continue
             data[fieldname] = tempvals
-
-        if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
-            not None):
-            data["_store"] = str(tostring(self.compatconverter(obj).to_etree(), encoding='us-ascii'), encoding='us-ascii')
 
         return data

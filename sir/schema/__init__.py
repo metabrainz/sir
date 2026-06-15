@@ -108,43 +108,73 @@ SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
     F("artist", "name"),
     F("sortname", "sort_name"),
-    F("alias", "aliases.name"),
-    # Does not require a trigger since this will get updated on an alias update
-    F("primary_alias", "primary_aliases", trigger=False),
+    F("comment", "comment"),
+
+    F("type_name", "type.name"),
+    F("type_gid", "type.gid"),
+
+    F("gender_name", "gender.name"),
+    F("gender_gid", "gender.gid"),
+
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
     F("ended", "ended", transformfunc=tfs.ended_to_string),
-    F("area", ["area.name", "area.aliases.name"]),
-    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+
     F("country", "area.iso_3166_1_codes.code"),
+
+    F("area", ["area.name", "area.aliases.name"]),
+    F("area_name", "area.name"),
+    F("area_gid", "area.gid"),
+    F("area_aliases_name", "area.aliases.name"),
+    F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("area_ended", "area.ended"),
+    F("area_type_name", "area.type.name"),
+    F("area_type_gid", "area.type.gid"),
+
+    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+    F("beginarea_name", "begin_area.name"),
+    F("beginarea_gid", "begin_area.gid"),
+    F("beginarea_aliases_name", "begin_area.aliases.name"),
+    F("beginarea_begindate", "begin_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("beginarea_enddate", "begin_area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("beginarea_ended", "begin_area.ended"),
+    F("beginarea_type_name", "begin_area.type.name"),
+    F("beginarea_type_gid", "begin_area.type.gid"),
+
     F("endarea", ["end_area.name", "end_area.aliases.name"]),
-    F("ref_count", "artist_credit_names.artist_credit.ref_count",
-                    transformfunc=sum, trigger=False),
-    F("comment", "comment"),
-    F("gender", "gender.name"),
+    F("endarea_name", "end_area.name"),
+    F("endarea_gid", "end_area.gid"),
+    F("endarea_aliases_name", "end_area.aliases.name"),
+    F("endarea_begindate", "end_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("endarea_enddate", "end_area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("endarea_ended", "end_area.ended"),
+    F("endarea_type_name", "end_area.type.name"),
+    F("endarea_type_gid", "end_area.type.gid"),
+
+    F("alias", "aliases.name", preserve_og=True),
+    F("alias_sortname", "aliases.sort_name", preserve_og=True),
+    F("alias_locale", "aliases.locale", preserve_og=True),
+    F("alias_primary_for_locale", "aliases.primary_for_locale", preserve_og=True),
+    F("alias_begindate", "aliases.begin_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
+    F("alias_enddate", "aliases.end_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
+    F("alias_type_name", "aliases.type.name", preserve_og=True),
+    F("alias_type_id", "aliases.type.id", preserve_og=True),
+    F("alias_type_gid", "aliases.type.gid", preserve_og=True),
+    # Does not require a trigger since this will get updated on an alias update
+    F("primary_alias", "primary_aliases", trigger=False),
+
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
+
+    F("tag_name", "tags.tag.name", preserve_og=True),
+    F("tag_count", "tags.count", preserve_og=True),
+
+    F("ref_count", "artist_credit_names.artist_credit.ref_count",
+      transformfunc=sum, trigger=False),
 ],
     1.7,
-    convert.convert_artist,
-    extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "begin_area.gid", "area.gid", "end_area.gid",
-                "area.begin_date", "area.end_date", "area.ended",
-                "begin_area.begin_date", "begin_area.end_date",
-                "begin_area.ended", "end_area.begin_date",
-                "end_area.end_date", "end_area.ended",
-                "gender.gid", "area.type.gid", "area.type.name",
-                "begin_area.type.gid", "begin_area.type.name",
-                "end_area.type.gid", "end_area.type.name",
-                "type.gid"]
 )
-
 
 SearchCDStub = E(modelext.CustomReleaseRaw, [
     F("id", "id"),
@@ -411,7 +441,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("status", "status.name"),
     F("tracks", "mediums.track_count",
       transformfunc=sum, distinct=False),
-    F("tracksmedium", "mediums.track_count"),
+    F("tracksmedium", "mediums.track_count", preserve_og=True),
     F("tag", "tags.tag.name")
 ],
     1.7,
