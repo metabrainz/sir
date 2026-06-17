@@ -9,6 +9,7 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "area_annotation": "area",
     "artist_annotation": "artist",
     "event_annotation": "event",
+    "genre_annotation": "genre",
     "instrument_annotation": "instrument",
     "label_annotation": "label",
     "place_annotation": "place",
