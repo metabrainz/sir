@@ -953,6 +953,21 @@ def convert_event(obj):
     return event
 
 
+def convert_genre(obj):
+    """
+    :type obj: :class:`sir.schema.modelext.CustomGenre`
+    """
+    genre = models.genre(id=str(obj.gid), name=obj.name)
+
+    if obj.comment:
+        genre.set_disambiguation(obj.comment)
+
+    if len(obj.aliases) > 0:
+        genre.set_alias_list(convert_alias_list(obj.aliases))
+
+    return genre
+
+
 def convert_instrument(obj):
     """
     :type obj: :class:`sir.schema.modelext.CustomInstrument`

@@ -195,6 +195,18 @@ class IndexingTestCase(unittest.TestCase):
         ]
         self._test_index_entity("editor", expected, key="id")
 
+    def test_index_genre(self):
+        expected = [
+            {
+                'comment': u'wump wump',
+                '_store': '<ns0:genre xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="1b50083b-1afa-4778-82c8-548b309af783"><ns0:name>dubstep</ns0:name><ns0:disambiguation>wump wump</ns0:disambiguation><ns0:alias-list><ns0:alias sort-name="A Test Alias">A Test Alias</ns0:alias></ns0:alias-list></ns0:genre>',
+                'alias': u'A Test Alias',
+                'mbid': '1b50083b-1afa-4778-82c8-548b309af783',
+                'genre': u'dubstep',
+            }
+        ]
+        self._test_index_entity("genre", expected)
+
     def test_index_instrument(self):
         # Klavier/piano is present in the test database by default so account for that
         expected = [
