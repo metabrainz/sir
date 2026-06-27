@@ -275,6 +275,9 @@ class SearchEntity(object):
             for path in field.paths:
                 for value in iterate_path_values(path, obj):
                     if value is None:
+                        if field.preserve_og:
+                            # keep a placeholder so multivalued fields stay aligned
+                            tempvals.append("")
                         continue
                     values = value if isinstance(value, list) else [value]
                     tempvals.extend(str(v) if isinstance(v, UUID) else v

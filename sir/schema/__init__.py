@@ -159,7 +159,6 @@ SearchArtist = E(modelext.CustomArtist, [
     F("alias_begindate", "aliases.begin_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
     F("alias_enddate", "aliases.end_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
     F("alias_type_name", "aliases.type.name", preserve_og=True),
-    F("alias_type_id", "aliases.type.id", preserve_og=True),
     F("alias_type_gid", "aliases.type.gid", preserve_og=True),
     # Does not require a trigger since this will get updated on an alias update
     F("primary_alias", "primary_aliases", trigger=False),
