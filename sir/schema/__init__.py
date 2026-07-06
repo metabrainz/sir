@@ -128,7 +128,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("area_aliases_name", "area.aliases.name"),
     F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("area_ended", "area.ended"),
+    F("area_ended", "area.ended", transformfunc=tfs.ended_to_string),
     F("area_type_name", "area.type.name"),
     F("area_type_gid", "area.type.gid"),
 
@@ -138,7 +138,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("beginarea_aliases_name", "begin_area.aliases.name"),
     F("beginarea_begindate", "begin_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("beginarea_enddate", "begin_area.end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("beginarea_ended", "begin_area.ended"),
+    F("beginarea_ended", "begin_area.ended", transformfunc=tfs.ended_to_string),
     F("beginarea_type_name", "begin_area.type.name"),
     F("beginarea_type_gid", "begin_area.type.gid"),
 
@@ -148,7 +148,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("endarea_aliases_name", "end_area.aliases.name"),
     F("endarea_begindate", "end_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("endarea_enddate", "end_area.end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("endarea_ended", "end_area.ended"),
+    F("endarea_ended", "end_area.ended", transformfunc=tfs.ended_to_string),
     F("endarea_type_name", "end_area.type.name"),
     F("endarea_type_gid", "end_area.type.gid"),
 
