@@ -124,23 +124,34 @@ def main():
     drop_standalone_only_parser.set_defaults(func=drop_standalone_only_sql)
 
     args = parser.parse_args()
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-
     loghandler = logging.StreamHandler()
     if args.debug:
+        logger.setLevel(logging.DEBUG)
         formatter = logging.Formatter(fmt="%(processName)s %(asctime)s  "
-                                      "%(levelname)s: %(message)s")
+                        "%(levelname)s, %(filename)s:%(lineno)d: %(message)s")
+        loghandler_severe = None
     else:
+        logger.setLevel(logging.INFO)
+        # info and less severe messages get a simple format
         formatter = logging.Formatter(fmt="%(asctime)s: %(message)s")
+        loghandler.addFilter(lambda record: record.levelno < logging.WARNING)
+
+        # warning and more severe messages get a detailed format
+        loghandler_severe = logging.StreamHandler()
+        formatter_severe = logging.Formatter(fmt="%(asctime)s %(levelname)s, %(filename)s:%(lineno)d: %(message)s")
+        loghandler_severe.setFormatter(formatter_severe)
+        loghandler_severe.setLevel(logging.WARNING)
+        
     loghandler.setFormatter(formatter)
     logger.addHandler(loghandler)
 
     mplogger = multiprocessing.get_logger()
     mplogger.setLevel(logging.ERROR)
     mplogger.addHandler(loghandler)
+
+    if loghandler_severe:
+        logger.addHandler(loghandler_severe)
+        mplogger.addHandler(loghandler_severe)
 
     if args.sqltimings:
         from sqlalchemy import event

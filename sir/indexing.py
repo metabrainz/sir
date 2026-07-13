@@ -1,4 +1,5 @@
 # Copyright (c) 2014, 2015, 2017 Lukas Lalinsky, Wieland Hoffmann, MetaBrainz Foundation
+# Copyright (c) 2026 Jim DeLaHunt
 # License: MIT, see LICENSE for details
 import multiprocessing
 import signal
@@ -12,7 +13,9 @@ from functools import partial
 from logging import getLogger, DEBUG, INFO
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import DBAPIError
 from .util import SIR_EXIT
+
 from ctypes import c_bool
 
 __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
@@ -21,6 +24,7 @@ __all__ = ["reindex", "index_entity", "queue_to_solr", "send_data_to_solr",
 
 
 logger = getLogger("sir")
+
 
 PROCESS_FLAG = multiprocessing.Value(c_bool, True)
 FAILED = multiprocessing.Value(c_bool, False)
@@ -161,8 +165,8 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
             pool.join()
             raise
         except Exception as exc:
-            logger.error("Failed to import %s.", e)
-            logger.exception(exc)
+            logger.error(f"Failed to import {e},due to exception {repr(exc)}.")
+            logger.debug("Exception info:", exc_info=exc)
             pool.terminate()
         else:
             logger.log(DEBUG if live else INFO, "Successfully imported %s!", e)
@@ -194,10 +198,9 @@ def _index_entity_process_wrapper(args, live=False):
             return live_index_entity(session, *args)
         return index_entity(session, *args)
     except Exception as exc:
-        logger.error("Failed to import %s with id in bounds %s",
-                     args[0],
-                     args[1])
-        logger.exception(exc)
+        logger.error(f"Failed to import {args[0]} with id in bounds "
+                     f"{args[1]}, due to exception {repr(exc)}.")
+        logger.debug("Exception info: ", exc_info=exc)
         raise
 
 
@@ -259,31 +262,34 @@ def _query_database(session, entity_name, condition, data_queue):
     model = search_entity.model
     row_converter = search_entity.query_result_to_dict
 
-    with session:
-        query = search_entity.query.filter(condition).with_session(session)
-        total_records = 0
-        for row in query:
-            if not PROCESS_FLAG.value:
-                return
-            try:
-                data_queue.put(row_converter(row))
-            except ValueError:
-                logger.info("Skipping %s with id %s. "
-                            "The most likely cause of this is an "
-                            "unsupported control character in the "
-                            "data.",
-                            entity_name,
-                            row.id)
-            except Exception as exc:
-                logger.error("Failed to import %s with id %s",
-                             entity_name,
-                             row.id)
-                logger.exception(exc)
-                raise
-            else:
-                total_records += 1
-        logger.debug("Retrieved %s records in %s", total_records, model)
-
+    try:
+        with session:
+            query = search_entity.query.filter(condition).with_session(session)
+            total_records = 0
+            for row in query:
+                if not PROCESS_FLAG.value:
+                    return
+                try:
+                    data_queue.put(row_converter(row))
+                except ValueError:
+                    logger.info("Skipping %s with id %s. "
+                                "The most likely cause of this is an "
+                                "unsupported control character in the "
+                                "data.",
+                                entity_name,
+                                row.id)
+                except Exception as exc:
+                    logger.error(f"Failed to import {entity_name} with id "
+                                 f"{row.id}, due to exception {repr(exc)}")
+                    logger.debug("Exception info: ", exc_info=exc)
+                    raise
+                else:
+                    total_records += 1
+            logger.debug("Retrieved %s records in %s", total_records, model)
+    except DBAPIError as exc:
+        logger.error(f"Database session raised {repr(exc)}. Ending this query.")
+        logger.debug("Exception info: ", exc_info=exc)
+        raise
 
 def queue_to_solr(queue, batch_size, entity_name):
     """
@@ -305,7 +311,13 @@ def queue_to_solr(queue, batch_size, entity_name):
     data = []
     count = 0
     while True:
-        item = queue.get()
+        try:
+            item = queue.get()
+        except KeyboardInterrupt as exc:
+            logger.error(f"While getting data from queue, exception "
+                         f"{repr(exc)}. Stopping.")
+            logger.debug("Exception info: ", exc_info=exc)
+            item = STOP
         if not PROCESS_FLAG.value or item is STOP:
             break
         data.append(item)
@@ -318,11 +330,15 @@ def queue_to_solr(queue, batch_size, entity_name):
     queue.put(STOP)
     if not PROCESS_FLAG.value:
         return
-    logger.debug("%s: Sending remaining data & stopping", solr_connection)
-    send_data_to_solr(solr_connection, data)
-    logger.debug("Committing changes to Solr")
-    solr_connection.commit()
-
+    try:
+        logger.debug("%s: Sending remaining data & stopping", solr_connection)
+        send_data_to_solr(solr_connection, data)
+        logger.debug("Committing changes to Solr")
+        solr_connection.commit()
+    except Exception as exc:
+        logger.error(f"While sending remaining data, exception {repr(exc)}.")
+        logger.debug("Exception info: ", exc_info=exc)
+        raise
 
 def send_data_to_solr(solr_connection, data):
     """
@@ -338,7 +354,8 @@ def send_data_to_solr(solr_connection, data):
             solr_connection.add(data)
             logger.debug("Done sending data to Solr")
         except Exception as e:
-            logger.error("Error while submitting data to Solr:", exc_info=True)
+            logger.error(f"Error while submitting data to Solr: {repr(e)}")
+            logger.debug("Exception info: ", exc_info=True)
             sentry_sdk.capture_exception(e)
             FAILED.value = True
         else:
