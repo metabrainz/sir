@@ -1,5 +1,6 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import orjson
 from datetime import datetime
 
 from sir.wscompat.convert import partialdate_to_string
@@ -75,6 +76,30 @@ def index_partialdatelist_to_string(date_list):
     for idx in range(len(date_list)):
         date_list[idx] = partialdate_to_string(date_list[idx])
     return date_list
+
+
+def aliases_to_json(artist):
+    aliases = []
+    for alias in artist.aliases:
+        data = {"name": alias.name}
+        if alias.sort_name:
+            data["sort_name"] = alias.sort_name
+        if alias.locale:
+            data["locale"] = alias.locale
+        if alias.primary_for_locale:
+            data["primary"] = "primary"
+        begin_date = partialdate_to_string(alias.begin_date)
+        if begin_date:
+            data["begin_date"] = begin_date
+        end_date = partialdate_to_string(alias.end_date)
+        if end_date:
+            data["end_date"] = end_date
+        if alias.type is not None:
+            data["type"] = alias.type.name
+            data["type_id"] = str(alias.type.gid)
+
+        aliases.append(orjson.dumps(data).decode("utf-8"))
+    return aliases
 
 
 def qdur(durations):

@@ -118,7 +118,7 @@ class SearchField(object):
     """
 
     def __init__(self, name, paths, transformfunc=None, trigger=True,
-                 distinct=True, preserve_og=False):
+                 distinct=True, preserve_og=False, objconverter=None):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -137,6 +137,9 @@ class SearchField(object):
         :param bool preserve_og: Flag to preserve original values and order
                                  (implies ``distinct=False``).
                                  Defaults to `False`.
+        :param method objconverter: An optional function that builds this
+                                    field's value directly from the entity
+                                    object.
         """
         self.name = name
         if not isinstance(paths, list):
@@ -146,6 +149,7 @@ class SearchField(object):
         self.trigger = trigger
         self.preserve_og = preserve_og
         self.distinct = distinct and not preserve_og
+        self.objconverter = objconverter
 
 
 class SearchEntity(object):
@@ -271,6 +275,13 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
+
+            if field.objconverter is not None:
+                value = field.objconverter(obj)
+                if value:
+                    data[fieldname] = value
+                continue
+
             tempvals = []
             for path in field.paths:
                 for value in iterate_path_values(path, obj):

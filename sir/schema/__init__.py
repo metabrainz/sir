@@ -153,13 +153,11 @@ SearchArtist = E(modelext.CustomArtist, [
     F("endarea_type_gid", "end_area.type.gid"),
 
     F("alias", "aliases.name", preserve_og=True),
-    F("alias_sortname", "aliases.sort_name", preserve_og=True),
-    F("alias_locale", "aliases.locale", preserve_og=True),
-    F("alias_primary_for_locale", "aliases.primary_for_locale", preserve_og=True),
-    F("alias_begindate", "aliases.begin_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
-    F("alias_enddate", "aliases.end_date", transformfunc=tfs.index_partialdate_to_string, preserve_og=True),
-    F("alias_type_name", "aliases.type.name", preserve_og=True),
-    F("alias_type_gid", "aliases.type.gid", preserve_og=True),
+    F("alias_json",
+      ["aliases.name", "aliases.sort_name", "aliases.locale",
+       "aliases.primary_for_locale", "aliases.begin_date", "aliases.end_date",
+       "aliases.type.name", "aliases.type.gid"],
+      objconverter=tfs.aliases_to_json),
     # Does not require a trigger since this will get updated on an alias update
     F("primary_alias", "primary_aliases", trigger=False),
 
