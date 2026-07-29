@@ -17,7 +17,7 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "release_annotation": "release",
     "release_group_annotation": "release-group",
     "series_annotation": "series",
-    "work_annotation": "work"
+    "work_annotation": "work",
 }
 
 URL_LINK_TABLE_TO_ENTITYTYPE = {
@@ -32,7 +32,7 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
     "l_release_group_url": "release-group",
     "l_series_url": "series",
     "l_url_work": "work",
-    "l_url_url": "url"
+    "l_url_url": "url",
 }
 
 
@@ -42,7 +42,7 @@ def fill_none(values):
     # in the DB as an empty string, so doing this allows us to search for releases with
     # `[none]` type barcode via the syntax `barcode:none`
     if "" in values:
-        return values.append('none')
+        return values.append("none")
     return values
 
 
@@ -143,3 +143,7 @@ def url_type(values):
 def datetime_to_timestamp(values):
     if values:
         return int(values.pop().timestamp())
+
+
+def str_list_to_lowercase(values: list[str]) -> list:
+    return [string.lower() for string in values]
