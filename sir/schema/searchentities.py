@@ -302,7 +302,8 @@ class SearchEntity(object):
                 tempvals = list(tempvals)
             if isinstance(tempvals, list) and len(tempvals) == 1:
                 tempvals = tempvals[0]
-            if not tempvals:
+            # keep 0 for integer fields (e.g. tag_count)
+            if not tempvals and not isinstance(tempvals, int):
                 continue
             data[fieldname] = tempvals
 

@@ -113,7 +113,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("type_name", "type.name"),
     F("type_gid", "type.gid"),
 
-    F("gender_name", "gender.name"),
+    F("gender_name", "gender.name", transformfunc=tfs.str_list_to_lowercase),
     F("gender_gid", "gender.gid"),
 
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
