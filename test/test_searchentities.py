@@ -17,10 +17,9 @@ class QueryResultToDictTest(TestCase):
         self.entity = E(models.B, [
             F("id", "id"),
             F("c_bar", "c.bar"),
-            F("c_bar_trans", "c.bar", transformfunc=lambda v:
-                v.union(set(["yay"])))
+            F("c_bar_trans", "c.bar", transformfunc=lambda v:  v + ["yay"])
         ],
-            1.1
+        1.1
         )
         self.expected = {
             "id": 1,
