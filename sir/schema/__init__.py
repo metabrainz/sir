@@ -110,7 +110,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("sortname", "sort_name"),
     F("comment", "comment"),
 
-    F("type_name", "type.name"),
+    F("type", "type.name"),
     F("type_gid", "type.gid"),
 
     F("gender_name", "gender.name", transformfunc=tfs.str_list_to_lowercase),
@@ -125,31 +125,28 @@ SearchArtist = E(modelext.CustomArtist, [
     F("area", ["area.name", "area.aliases.name"]),
     F("area_name", "area.name"),
     F("area_gid", "area.gid"),
-    F("area_aliases_name", "area.aliases.name"),
     F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
     F("area_ended", "area.ended", transformfunc=tfs.ended_to_string),
-    F("area_type_name", "area.type.name"),
+    F("area_type", "area.type.name"),
     F("area_type_gid", "area.type.gid"),
 
     F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
     F("beginarea_name", "begin_area.name"),
     F("beginarea_gid", "begin_area.gid"),
-    F("beginarea_aliases_name", "begin_area.aliases.name"),
     F("beginarea_begindate", "begin_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("beginarea_enddate", "begin_area.end_date", transformfunc=tfs.index_partialdate_to_string),
     F("beginarea_ended", "begin_area.ended", transformfunc=tfs.ended_to_string),
-    F("beginarea_type_name", "begin_area.type.name"),
+    F("beginarea_type", "begin_area.type.name"),
     F("beginarea_type_gid", "begin_area.type.gid"),
 
     F("endarea", ["end_area.name", "end_area.aliases.name"]),
     F("endarea_name", "end_area.name"),
     F("endarea_gid", "end_area.gid"),
-    F("endarea_aliases_name", "end_area.aliases.name"),
     F("endarea_begindate", "end_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("endarea_enddate", "end_area.end_date", transformfunc=tfs.index_partialdate_to_string),
     F("endarea_ended", "end_area.ended", transformfunc=tfs.ended_to_string),
-    F("endarea_type_name", "end_area.type.name"),
+    F("endarea_type", "end_area.type.name"),
     F("endarea_type_gid", "end_area.type.gid"),
 
     F("alias", "aliases.name", preserve_og=True),
@@ -164,7 +161,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
 
-    F("tag_name", "tags.tag.name", preserve_og=True),
+    F("tag", "tags.tag.name", preserve_og=True),
     F("tag_count", "tags.count", preserve_og=True),
 
     F("ref_count", "artist_credit_names.artist_credit.ref_count",
