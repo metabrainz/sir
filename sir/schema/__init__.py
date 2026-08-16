@@ -37,30 +37,63 @@ from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy.orm.descriptor_props import CompositeProperty
 
 
-SearchAnnotation = E(modelext.CustomAnnotation, [
-    F("id", "id"),
-    F("entity", ["areas.area.gid", "artists.artist.gid", "events.event.gid",
-                 "instruments.instrument.gid", "labels.label.gid",
-                 "places.place.gid", "recordings.recording.gid",
-                 "releases.release.gid", "release_groups.release_group.gid",
-                 "series.series.gid", "works.work.gid"]),
-    F("name", ["areas.area.name", "artists.artist.name", "events.event.name",
-               "instruments.instrument.name", "labels.label.name",
-               "places.place.name", "recordings.recording.name",
-               "releases.release.name", "release_groups.release_group.name",
-               "series.series.name", "works.work.name"]),
-    F("text", "text"),
-    F("type", ["areas.__tablename__", "artists.__tablename__",
-               "events.__tablename__", "instruments.__tablename__",
-               "labels.__tablename__", "places.__tablename__",
-               "recordings.__tablename__", "releases.__tablename__",
-               "release_groups.__tablename__", "series.__tablename__",
-               "works.__tablename__"],
-      transformfunc=tfs.annotation_type)
-],
-    1.5,
-    convert.convert_annotation,
-    extraquery=queryext.filter_valid_annotations
+SearchAnnotation = E(
+    modelext.CustomAnnotation,
+    [
+        F("id", "id"),
+        F(
+            "entity",
+            [
+                "areas.area.gid",
+                "artists.artist.gid",
+                "events.event.gid",
+                "instruments.instrument.gid",
+                "labels.label.gid",
+                "places.place.gid",
+                "recordings.recording.gid",
+                "releases.release.gid",
+                "release_groups.release_group.gid",
+                "series.series.gid",
+                "works.work.gid",
+            ],
+        ),
+        F(
+            "name",
+            [
+                "areas.area.name",
+                "artists.artist.name",
+                "events.event.name",
+                "instruments.instrument.name",
+                "labels.label.name",
+                "places.place.name",
+                "recordings.recording.name",
+                "releases.release.name",
+                "release_groups.release_group.name",
+                "series.series.name",
+                "works.work.name",
+            ],
+        ),
+        F("text", "text"),
+        F(
+            "type",
+            [
+                "areas.__tablename__",
+                "artists.__tablename__",
+                "events.__tablename__",
+                "instruments.__tablename__",
+                "labels.__tablename__",
+                "places.__tablename__",
+                "recordings.__tablename__",
+                "releases.__tablename__",
+                "release_groups.__tablename__",
+                "series.__tablename__",
+                "works.__tablename__",
+            ],
+            transformfunc=tfs.annotation_type,
+        ),
+    ],
+    1.7,
+    extraquery=queryext.filter_valid_annotations,
 )
 
 
@@ -80,7 +113,7 @@ SearchArea = E(modelext.CustomArea, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_area,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.sort_name", "aliases.type.gid",
@@ -107,65 +140,87 @@ SearchArtist = E(modelext.CustomArtist, [
     F("mbid", "gid"),
     F("artist", "name"),
     F("sortname", "sort_name"),
-    F("alias", "aliases.name"),
-    # Does not require a trigger since this will get updated on an alias update
-    F("primary_alias", "primary_aliases", trigger=False),
+    F("comment", "comment"),
+
+    F("type", "type.name"),
+    F("type_gid", "type.gid"),
+
+    F("gender_name", "gender.name", transformfunc=tfs.str_list_to_lowercase),
+    F("gender_gid", "gender.gid"),
+
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
     F("ended", "ended", transformfunc=tfs.ended_to_string),
-    F("area", ["area.name", "area.aliases.name"]),
-    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+
     F("country", "area.iso_3166_1_codes.code"),
+
+    F("area", ["area.name", "area.aliases.name"]),
+    F("area_name", "area.name"),
+    F("area_gid", "area.gid"),
+    F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("area_ended", "area.ended", transformfunc=tfs.ended_to_string),
+    F("area_type", "area.type.name"),
+    F("area_type_gid", "area.type.gid"),
+
+    F("beginarea", ["begin_area.name", "begin_area.aliases.name"]),
+    F("beginarea_name", "begin_area.name"),
+    F("beginarea_gid", "begin_area.gid"),
+    F("beginarea_begindate", "begin_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("beginarea_enddate", "begin_area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("beginarea_ended", "begin_area.ended", transformfunc=tfs.ended_to_string),
+    F("beginarea_type", "begin_area.type.name"),
+    F("beginarea_type_gid", "begin_area.type.gid"),
+
     F("endarea", ["end_area.name", "end_area.aliases.name"]),
-    F("ref_count", "artist_credit_names.artist_credit.ref_count",
-                    transformfunc=sum, trigger=False),
-    F("comment", "comment"),
-    F("gender", "gender.name"),
+    F("endarea_name", "end_area.name"),
+    F("endarea_gid", "end_area.gid"),
+    F("endarea_begindate", "end_area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+    F("endarea_enddate", "end_area.end_date", transformfunc=tfs.index_partialdate_to_string),
+    F("endarea_ended", "end_area.ended", transformfunc=tfs.ended_to_string),
+    F("endarea_type", "end_area.type.name"),
+    F("endarea_type_gid", "end_area.type.gid"),
+
+    F("alias", "aliases.name", preserve_og=True),
+    F("alias_json",
+      ["aliases.name", "aliases.sort_name", "aliases.locale",
+       "aliases.primary_for_locale", "aliases.begin_date", "aliases.end_date",
+       "aliases.type.name", "aliases.type.gid"],
+      objconverter=tfs.aliases_to_json),
+    # Does not require a trigger since this will get updated on an alias update
+    F("primary_alias", "primary_aliases", trigger=False),
+
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
+
+    F("tag", "tags.tag.name", preserve_og=True),
+    F("tag_count", "tags.count", preserve_og=True),
+
+    F("ref_count", "artist_credit_names.artist_credit.ref_count",
+      transformfunc=sum, trigger=False),
 ],
-    1.5,
-    convert.convert_artist,
-    extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "begin_area.gid", "area.gid", "end_area.gid",
-                "area.begin_date", "area.end_date", "area.ended",
-                "begin_area.begin_date", "begin_area.end_date",
-                "begin_area.ended", "end_area.begin_date",
-                "end_area.end_date", "end_area.ended",
-                "gender.gid", "area.type.gid", "area.type.name",
-                "begin_area.type.gid", "begin_area.type.name",
-                "end_area.type.gid", "end_area.type.name",
-                "type.gid"]
+    1.7,
 )
 
-
-SearchCDStub = E(modelext.CustomReleaseRaw, [
-    F("id", "id"),
-    F("title", "title"),
-    F("artist", "artist"),
-    F("comment", "comment"),
-    F("barcode", "barcode"),
-    F("added", "added", transformfunc=tfs.datetime_to_timestamp),
-    F("tracks", "discids.track_count"),
-    F("discid", "discids.discid")
-],
-    1.5,
-    convert.convert_cdstub
+SearchCDStub = E(
+    modelext.CustomReleaseRaw,
+    [
+        F("id", "id"),
+        F("title", "title"),
+        F("artist", "artist"),
+        F("comment", "comment"),
+        F("barcode", "barcode"),
+        F("added", "added", transformfunc=tfs.datetime_to_timestamp),
+        F("tracks", "discids.track_count"),
+        F("discid", "discids.discid"),
+    ],
+    1.7,
 )
 
-SearchEditor = E(models.Editor, [
-    F("id", "id"),
-    F("bio", "bio"),
-    F("editor", "name")
-],
-    1.5,
-    convert.convert_editor
+SearchEditor = E(
+    models.Editor,
+    [F("id", "id"), F("bio", "bio"), F("editor", "name")],
+    1.7,
 )
 
 SearchEvent = E(modelext.CustomEvent, [
@@ -173,7 +228,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("alias", "aliases.name"),
     F("aid", "area_links.entity0.gid"),
     F("area", "area_links.entity0.name"),
-    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_list_to_str_list),
     F("artist", "artist_links.entity0.name"),
     F("pid", "place_links.entity1.gid"),
     F("place", "place_links.entity1.name"),
@@ -185,7 +240,7 @@ SearchEvent = E(modelext.CustomEvent, [
     F("ended", "ended", transformfunc=tfs.ended_to_string),
     F("end", "end_date", transformfunc=tfs.index_partialdate_to_string)
 ],
-    1.5,
+    1.7,
     convert.convert_event,
     extrapaths=["aliases.type.name",
                 "aliases.type.id",
@@ -219,85 +274,129 @@ SearchEvent = E(modelext.CustomEvent, [
                 "time"]
 )
 
-SearchInstrument = E(modelext.CustomInstrument, [
-    F("alias", "aliases.name"),
-    F("comment", "comment"),
-    F("description", "description"),
-    F("mbid", "gid"),
-    F("instrument", "name"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_instrument,
-    extrapaths=["aliases.type.name", "aliases.type.id",
-                "aliases.sort_name", "aliases.type.gid",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date", "tags.count", "type.gid"]
+SearchInstrument = E(
+    modelext.CustomInstrument,
+    [
+        F("alias", "aliases.name"),
+        F("comment", "comment"),
+        F("description", "description"),
+        F("mbid", "gid"),
+        F("instrument", "name"),
+        F("tag", "tags.tag.name", preserve_og=True),
+        F("tag_count", "tags.count", preserve_og=True),
+        F("type", "type.name"),
+        F("type_gid", "type.gid"),
+        F(
+            "alias_json",
+            [
+                "aliases.type.name",
+                "aliases.type.id",
+                "aliases.sort_name",
+                "aliases.type.gid",
+                "aliases.locale",
+                "aliases.primary_for_locale",
+                "aliases.begin_date",
+                "aliases.end_date",
+            ],
+            objconverter=tfs.aliases_to_json,
+        ),
+    ],
+    1.7,
 )
 
 
-SearchLabel = E(modelext.CustomLabel, [
-    F("mbid", "gid"),
-    F("label", "name"),
-    F("alias", "aliases.name"),
-    F("area", ["area.name", "area.aliases.name"]),
-    F("country", "area.iso_3166_1_codes.code"),
-    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
-    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("ended", "ended", transformfunc=tfs.ended_to_string),
-
-    F("code", "label_code"),
-    F("comment", "comment"),
-    F("release_count", "release_count", transformfunc=tfs.integer_sum, trigger=False),
-    F("sortname", "aliases.sort_name"),
-    F("ipi", "ipis.ipi"),
-    F("isni", "isnis.isni"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_label,
-    extrapaths=["aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "area.gid", "area.type.name", "area.type.gid",
-                "area.begin_date", "area.end_date", "area.ended",
-                "tags.count", "type.gid"
-                ]
+SearchLabel = E(
+    modelext.CustomLabel,
+    [
+        F("mbid", "gid"),
+        F("label", "name"),
+        F("sortname", "aliases.sort_name"),
+        F("type", "type.name"),
+        F("type_gid", "type.gid"),
+        F("area", ["area.name", "area.aliases.name"]),
+        F("area_name", "area.name"),
+        F("area_gid", "area.gid"),
+        F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+        F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
+        F("area_ended", "area.ended", transformfunc=tfs.ended_to_string),
+        F("area_type_gid", "area.type.gid"),
+        F("area_type", "area.type.name"),
+        F("country", "area.iso_3166_1_codes.code"),
+        F("code", "label_code"),
+        F("alias", "aliases.name"),
+        F(
+            "alias_json",
+            [
+                "aliases.type.name",
+                "aliases.type.id",
+                "aliases.type.gid",
+                "aliases.sort_name",
+                "aliases.locale",
+                "aliases.primary_for_locale",
+                "aliases.begin_date",
+                "aliases.end_date",
+            ],
+            objconverter=tfs.aliases_to_json,
+        ),
+        F("ipi", "ipis.ipi"),
+        F("isni", "isnis.isni"),
+        F("comment", "comment"),
+        F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+        F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+        F("ended", "ended", transformfunc=tfs.ended_to_string),
+        F("tag", "tags.tag.name", preserve_og=True),
+        F("tag_count", "tags.count", preserve_og=True),
+        F("release_count", "release_count", transformfunc=tfs.integer_sum, trigger=False),
+    ],
+    1.7,
 )
 
 
-SearchPlace = E(modelext.CustomPlace, [
-    F("mbid", "gid"),
-    F("address", "address"),
-    F("alias", "aliases.name"),
-    F("area", ["area.name", "area.aliases.name"]),
-    F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
-    F("comment", "comment"),
-    F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
-    F("ended", "ended", transformfunc=tfs.ended_to_string),
-    F("lat", "coordinates", transformfunc=tfs.lat),
-    F("long", "coordinates", transformfunc=tfs.long),
-    F("place", "name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_place,
-    extrapaths=["aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date",
-                "area.gid", "area.type.gid", "area.type.name",
-                "area.begin_date", "area.end_date", "area.ended",
-                "type.gid"]
+SearchPlace = E(
+    modelext.CustomPlace,
+    [
+        F("mbid", "gid"),
+        F("place", "name"),
+        F("address", "address"),
+        F("comment", "comment"),
+        F("type", "type.name"),
+        F("type_gid", "type.gid"),
+        F("area", ["area.name", "area.aliases.name"]),
+        F("area_name", "area.name"),
+        F("area_gid", "area.gid"),
+        F("area_begindate", "area.begin_date", transformfunc=tfs.index_partialdate_to_string),
+        F("area_enddate", "area.end_date", transformfunc=tfs.index_partialdate_to_string),
+        F("area_ended", "area.ended", transformfunc=tfs.ended_to_string),
+        F("area_type_gid", "area.type.gid"),
+        F("area_type", "area.type.name"),
+        F("alias", "aliases.name"),
+        F(
+            "alias_json",
+            [
+                "aliases.type.name",
+                "aliases.type.id",
+                "aliases.type.gid",
+                "aliases.sort_name",
+                "aliases.locale",
+                "aliases.primary_for_locale",
+                "aliases.begin_date",
+                "aliases.end_date",
+            ],
+            objconverter=tfs.aliases_to_json,
+        ),
+        F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
+        F("end", "end_date", transformfunc=tfs.index_partialdate_to_string),
+        F("ended", "ended", transformfunc=tfs.ended_to_string),
+        F("lat", "coordinates", transformfunc=tfs.lat),
+        F("long", "coordinates", transformfunc=tfs.long),
+    ],
+    1.7,
 )
 
 
 SearchRecording = E(modelext.CustomRecording, [
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_list_to_str_list),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("comment", "comment"),
@@ -331,7 +430,7 @@ SearchRecording = E(modelext.CustomRecording, [
         transformfunc=sum),
     F("video", "video", transformfunc=tfs.boolean)
 ],
-    1.5,
+    1.7,
     convert.convert_recording,
     extrapaths=["artist_credit.artists.artist.aliases.begin_date",
                 "artist_credit.artists.artist.aliases.end_date",
@@ -384,7 +483,7 @@ SearchRelease = E(modelext.CustomRelease, [
     F("mbid", "gid"),
     F("release", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_list_to_str_list),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("asin", "asin.amazon_asin"),
@@ -410,10 +509,10 @@ SearchRelease = E(modelext.CustomRelease, [
     F("status", "status.name"),
     F("tracks", "mediums.track_count",
       transformfunc=sum),
-    F("tracksmedium", "mediums.track_count"),
+    F("tracksmedium", "mediums.track_count", preserve_og=True),
     F("tag", "tags.tag.name")
 ],
-    1.5,
+    1.7,
     convert.convert_release,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -451,7 +550,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("mbid", "gid"),
     F("releasegroup", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("arid", "artist_credit.artists.artist.gid", transformfunc=tfs.uuid_list_to_str_list),
     F("artist", "artist_credit.name"),
     F("artistname", "artist_credit.artists.artist.name"),
     F("creditname", "artist_credit.artists.name"),
@@ -466,7 +565,7 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
     F("primarytype", "type.name"),
     F("secondarytype", "secondary_types.secondary_type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_release_group,
     extrapaths=["artist_credit.artists.join_phrase",
                 "artist_credit.artists.artist.aliases.begin_date",
@@ -489,30 +588,40 @@ SearchReleaseGroup = E(modelext.CustomReleaseGroup, [
 )
 
 
-SearchSeries = E(modelext.CustomSeries, [
-    F("mbid", "gid"),
-    F("alias", "aliases.name"),
-    F("comment", "comment"),
-    F("series", "name"),
-    F("tag", "tags.tag.name"),
-    F("type", "type.name")
-],
-    1.5,
-    convert.convert_series,
-    extrapaths=["tags.count",
-                "aliases.type.name", "aliases.type.id",
-                "aliases.type.gid", "aliases.sort_name",
-                "aliases.locale", "aliases.primary_for_locale",
-                "aliases.begin_date", "aliases.end_date", "type.gid"]
+SearchSeries = E(
+    modelext.CustomSeries,
+    [
+        F("mbid", "gid"),
+        F("series", "name"),
+        F("type", "type.name"),
+        F("type_gid", "type.gid"),
+        F("alias", "aliases.name"),
+        F(
+            "alias_json",
+            [
+                "aliases.type.name",
+                "aliases.type.id",
+                "aliases.type.gid",
+                "aliases.sort_name",
+                "aliases.locale",
+                "aliases.primary_for_locale",
+                "aliases.begin_date",
+                "aliases.end_date",
+            ],
+            objconverter=tfs.aliases_to_json,
+        ),
+        F("comment", "comment"),
+        F("tag", "tags.tag.name", preserve_og=True),
+        F("tag_count", "tags.count", preserve_og=True),
+    ],
+    1.7,
 )
 
 
-SearchTag = E(models.Tag, [
-    F("id", "id"),
-    F("tag", "name")
-],
-    1.5,
-    convert.convert_standalone_tag
+SearchTag = E(
+    models.Tag,
+    [F("id", "id"), F("tag", "name")],
+    1.7,
 )
 
 
@@ -527,7 +636,7 @@ SearchUrl = E(modelext.CustomURL, [
                      "release_links.__tablename__"],
       transformfunc=tfs.url_type),
 ],
-    1.5,
+    1.7,
     convert.convert_url,
     extrapaths=["artist_links.entity0.gid",
                 "artist_links.entity0.name",
@@ -552,7 +661,7 @@ SearchWork = E(modelext.CustomWork, [
     F("mbid", "gid"),
     F("work", "name"),
     F("alias", "aliases.name"),
-    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_set_to_str_set),
+    F("arid", "artist_links.entity0.gid", transformfunc=tfs.uuid_list_to_str_list),
     F("artist", "artist_links.entity0.name"),
     F("comment", "comment"),
     F("iswc", "iswcs.iswc"),
@@ -563,7 +672,7 @@ SearchWork = E(modelext.CustomWork, [
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
-    1.5,
+    1.7,
     convert.convert_work,
     extrapaths=["aliases.type.name", "aliases.type.id",
                 "aliases.type.gid",

@@ -1,5 +1,6 @@
 # Copyright (c) 2014, 2015 Wieland Hoffmann
 # License: MIT, see LICENSE for details
+import orjson
 from datetime import datetime
 
 from sir.wscompat.convert import partialdate_to_string
@@ -16,7 +17,7 @@ ANNOTATION_TABLE_TO_ENTITYTYPE = {
     "release_annotation": "release",
     "release_group_annotation": "release-group",
     "series_annotation": "series",
-    "work_annotation": "work"
+    "work_annotation": "work",
 }
 
 URL_LINK_TABLE_TO_ENTITYTYPE = {
@@ -31,7 +32,7 @@ URL_LINK_TABLE_TO_ENTITYTYPE = {
     "l_release_group_url": "release-group",
     "l_series_url": "series",
     "l_url_work": "work",
-    "l_url_url": "url"
+    "l_url_url": "url",
 }
 
 
@@ -41,7 +42,7 @@ def fill_none(values):
     # in the DB as an empty string, so doing this allows us to search for releases with
     # `[none]` type barcode via the syntax `barcode:none`
     if "" in values:
-        return values.add('none')
+        return values.append("none")
     return values
 
 
@@ -69,6 +70,36 @@ def index_partialdate_to_string(dates):
         d = dates.pop()
         return partialdate_to_string(d)
     return None
+
+
+def index_partialdatelist_to_string(date_list):
+    for idx in range(len(date_list)):
+        date_list[idx] = partialdate_to_string(date_list[idx])
+    return date_list
+
+
+def aliases_to_json(artist):
+    aliases = []
+    for alias in artist.aliases:
+        data = {"name": alias.name}
+        if alias.sort_name:
+            data["sort_name"] = alias.sort_name
+        if alias.locale:
+            data["locale"] = alias.locale
+        if alias.primary_for_locale:
+            data["primary"] = "primary"
+        begin_date = partialdate_to_string(alias.begin_date)
+        if begin_date:
+            data["begin_date"] = begin_date
+        end_date = partialdate_to_string(alias.end_date)
+        if end_date:
+            data["end_date"] = end_date
+        if alias.type is not None:
+            data["type"] = alias.type.name
+            data["type_id"] = str(alias.type.gid)
+
+        aliases.append(orjson.dumps(data).decode("utf-8"))
+    return aliases
 
 
 def qdur(durations):
@@ -109,10 +140,14 @@ def url_type(values):
     return types
 
 
-def uuid_set_to_str_set(values):
-    return {str(x) for x in values}
+def uuid_list_to_str_list(values):
+    return [str(x) for x in values]
 
 
 def datetime_to_timestamp(values):
     if values:
         return int(values.pop().timestamp())
+
+
+def str_list_to_lowercase(values: list[str]) -> list:
+    return [string.lower() for string in values]
