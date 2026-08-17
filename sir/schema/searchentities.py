@@ -117,7 +117,8 @@ class SearchField(object):
         3. `gid` column from the `Area` class (model)
     """
 
-    def __init__(self, name, paths, transformfunc=None, trigger=True):
+    def __init__(self, name, paths, transformfunc=None, trigger=True, preserve_og=False,
+                 objconverter=None):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -129,6 +130,11 @@ class SearchField(object):
         :param method trigger: Whether changes to the path should trigger an
                                update in the Solr core for the entity with
                                this field. Defaults to `True`.
+        :param method preserve_og: Flag to preserve original values and order.
+                                   Defaults to `False`.
+        :param method objconverter: An optional function that builds this
+                                    field's value directly from the entity
+                                    object.
         """
         self.name = name
         if not isinstance(paths, list):
@@ -136,6 +142,8 @@ class SearchField(object):
         self.paths = paths
         self.transformfunc = transformfunc
         self.trigger = trigger
+        self.preserve_og = preserve_og
+        self.objconverter = objconverter
 
 
 class SearchEntity(object):
@@ -261,33 +269,40 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
-            tempvals = set()
+
+            if field.objconverter is not None:
+                value = field.objconverter(obj)
+                if value:
+                    data[fieldname] = value
+                continue
+
+            tempvals = list()
             for path in field.paths:
                 for value in iterate_path_values(path, obj):
                     if value is not None:
                         if isinstance(value, list):
-                            tempvals.update(set(value))
+                            tempvals.extend(value)
                         else:
-                            tempvals.add(value)
+                            tempvals.append(value)
+                    else:
+                        if field.preserve_og is True:
+                            tempvals.append("")
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
-            if (isinstance(tempvals, set) or isinstance(tempvals, list)) and len(tempvals) == 1:
-                tempvals = tempvals.pop()
-            if tempvals is not None and tempvals:
-                if isinstance(tempvals, UUID):
-                    new_tempvals = str(tempvals)
-                elif isinstance(tempvals, set) or isinstance(tempvals, list):
-                    new_tempvals = list()
-                    for tempval in tempvals:
-                        if isinstance(tempval, UUID):
-                            tempval = str(tempval)
-                        new_tempvals.append(tempval)
-                else:
-                    new_tempvals = tempvals
-                data[fieldname] = new_tempvals
 
-        if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
-            not None):
-            data["_store"] = str(tostring(self.compatconverter(obj).to_etree(), encoding='us-ascii'), encoding='us-ascii')
+            if (isinstance(tempvals, (set, list))):
+                if field.preserve_og is False:
+                    tempvals = list(set(tempvals))
+                if len(tempvals) == 1:
+                    tempvals = tempvals.pop()
+
+            if tempvals is not None and (tempvals or isinstance(tempvals, int)):
+                if isinstance(tempvals, UUID):
+                    tempvals = str(tempvals)
+                elif isinstance(tempvals, list):
+                    for idx in range(len(tempvals)):
+                        if isinstance(tempvals[idx], UUID):
+                            tempvals[idx] = str(tempvals[idx])
+                data[fieldname] = tempvals
 
         return data

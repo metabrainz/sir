@@ -1,11 +1,12 @@
-from unittest import mock, TestCase
+from unittest import TestCase, mock
 
-from test import models
-from xml.etree.ElementTree import Element, tostring
-from sir.schema.searchentities import (SearchEntity as E, SearchField as F,
-                                       is_composite_column)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from sir.schema.searchentities import SearchEntity as E
+from sir.schema.searchentities import SearchField as F
+from sir.schema.searchentities import is_composite_column
+from test import models
 
 
 class QueryResultToDictTest(TestCase):
@@ -14,43 +15,51 @@ class QueryResultToDictTest(TestCase):
         self.addCleanup(config_patcher.stop)
         instance = config_patcher.start()
         instance.getboolean.return_value = True
-        self.entity = E(models.B, [
-            F("id", "id"),
-            F("c_bar", "c.bar"),
-            F("c_bar_trans", "c.bar", transformfunc=lambda v:
-                v.union(set(["yay"])))
-        ],
-            1.1
+        self.entity = E(
+            models.B,
+            [
+                F("id", "id"),
+                F("foo", "foo"),
+                F("tag_count_unique", "tag_count"),
+                F("c_bar", "c.bar"),
+                F("c_bar_trans", "c.bar", transformfunc=lambda v: v + ["yay"]),
+            ],
+            1.1,
         )
         self.expected = {
             "id": 1,
-            "c_bar": "foo",
-            "c_bar_trans": ["yay", "foo"],
+            "foo": "foo",
+            "tag_count_unique": [1, 2, 0],
+            "c_bar": "bar",
+            "c_bar_trans": ["yay", "bar"],
         }
-        c = models.C(id=2, bar="foo")
-        self.val = models.B(id=1, c=c)
+        c = models.C(id=2, bar="bar")
+        self.val = models.B(id=1, c=c, tag_count=[1, 2, 0, 1], foo="foo")
 
     def test_fields(self):
         res = self.entity.query_result_to_dict(self.val)
         self.assertEqual(res.keys(), self.expected.keys())
         self.assertEqual(res["id"], self.expected["id"])
+        self.assertCountEqual(res["tag_count_unique"], self.expected["tag_count_unique"])
         self.assertEqual(res["c_bar"], self.expected["c_bar"])
+        self.assertEqual(res["foo"], self.expected["foo"])
         self.assertCountEqual(res["c_bar_trans"], self.expected["c_bar_trans"])
 
-    def test_conversion(self):
-        elem = Element("testelem", text="text")
-        convmock = mock.Mock()
-        convmock.to_etree.return_value = elem
-        self.entity.compatconverter = lambda x: convmock
+    def test_objconverter(self):
+        converter = mock.Mock(return_value=['{"c_bar": "bar", "foo": "foo"}'])
+        self.entity.fields.append(F("json", ["c.bar", "c.foo"], objconverter=converter))
 
         res = self.entity.query_result_to_dict(self.val)
 
-        self.expected["_store"] = str(tostring(elem, encoding="us-ascii"), encoding="us-ascii")
-        self.assertEqual(res.keys(), self.expected.keys())
-        self.assertEqual(res["id"], self.expected["id"])
-        self.assertEqual(res["c_bar"], self.expected["c_bar"])
-        self.assertCountEqual(res["c_bar_trans"], self.expected["c_bar_trans"])
-        self.assertEqual(convmock.to_etree.call_count, 1)
+        self.assertEqual(res["json"], ['{"c_bar": "bar", "foo": "foo"}'])
+        converter.assert_called_once_with(self.val)
+
+    def test_preserve_og(self):
+        self.entity.fields.append(F("tag_count", "tag_count", preserve_og=True))
+
+        result = self.entity.query_result_to_dict(self.val)
+
+        self.assertEqual(result["tag_count"], [1, 2, 0, 1])
 
 
 class TestIsCompositeColumn(TestCase):

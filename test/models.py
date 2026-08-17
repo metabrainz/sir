@@ -1,5 +1,5 @@
 from collections import namedtuple
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, PickleType, String
 from sqlalchemy.orm import composite, relationship, declarative_base
 
 Base = declarative_base()
@@ -16,6 +16,7 @@ class B(Base):
     __tablename__ = "table_b"
     id = Column(Integer, primary_key=True)
     foo = Column(Integer)
+    tag_count = Column(PickleType)
     c_id = Column('c', Integer, ForeignKey("table_c.id"))
     composite_column = composite(Comp, foo, c_id)
 
