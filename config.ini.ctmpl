@@ -11,6 +11,7 @@ live_index_batch_size = {{template "KEY" "live_index_batch_size"}}
 index_limit = {{template "KEY" "index_limit"}}
 poll_interval = {{template "KEY" "poll_interval"}}
 max_retries = {{template "KEY" "max_retries"}}
+pending_data_slot = {{template "KEY" "pending_data_slot"}}
 
 [database]
 {{- with $pg_primary_service_name := or (env "PG_SERVICE_PRIMARY") "pgbouncer-master"}}

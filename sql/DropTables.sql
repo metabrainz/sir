@@ -1,5 +1,7 @@
 \unset ON_ERROR_STOP
 
+DROP TABLE IF EXISTS sir.pending_data_failure;
+DROP TABLE IF EXISTS sir.pending_data_slot;
 DROP TABLE IF EXISTS sir.pending_data;
 DROP TABLE IF EXISTS sir.control;
 

@@ -7,7 +7,7 @@ import configparser
 from pathlib import Path
 
 from . import config, init_sentry_sdk
-from .pending_data.handler import watch
+from .pending_data.handler import watch, delete_consumed_pending_data
 from .indexing import reindex
 from .schema import SCHEMA
 
@@ -71,6 +71,37 @@ def drop_standalone_only_sql(args):
     ])
 
 
+def create_slot(args):
+    from .util import engine as create_engine
+    from sqlalchemy import text
+
+    with create_engine().begin() as conn:
+        conn.execute(
+            text("""INSERT INTO sir.pending_data_slot (id, seqid, description)
+                    SELECT :id,
+                           COALESCE(CAST(:seqid AS BIGINT), (SELECT max(seqid) FROM sir.pending_data), 0),
+                           :description"""),
+            {"id": args["id"], "seqid": args["seqid"], "description": args["description"]}
+        )
+    logger.info("Created pending data slot %s", args["id"])
+
+
+def drop_slot(args):
+    from .util import engine as create_engine
+    from sqlalchemy import text
+
+    with create_engine().begin() as conn:
+        result = conn.execute(
+            text("DELETE FROM sir.pending_data_slot WHERE id = :id"),
+            {"id": args["id"]}
+        )
+        delete_consumed_pending_data(conn)
+    if result.rowcount:
+        logger.info("Dropped pending data slot %s", args["id"])
+    else:
+        logger.warning("Pending data slot %s does not exist", args["id"])
+
+
 def main():
 
     parser = argparse.ArgumentParser(prog="sir")
@@ -122,6 +153,26 @@ def main():
         help="Drop sir functions and triggers for standalone databases"
     )
     drop_standalone_only_parser.set_defaults(func=drop_standalone_only_sql)
+
+    create_slot_parser = subparsers.add_parser(
+        "create_slot",
+        help="Create a pending data slot for a SIR instance to consume from"
+    )
+    create_slot_parser.add_argument("id", type=int, help="Slot ID")
+    create_slot_parser.add_argument("description", help="Slot description")
+    create_slot_parser.add_argument(
+        "--seqid",
+        type=int,
+        help="Initial position of the slot (default: latest pending row)"
+    )
+    create_slot_parser.set_defaults(func=create_slot)
+
+    drop_slot_parser = subparsers.add_parser(
+        "drop_slot",
+        help="Drop a pending data slot and its recorded failures"
+    )
+    drop_slot_parser.add_argument("id", type=int, help="Slot ID")
+    drop_slot_parser.set_defaults(func=drop_slot)
 
     args = parser.parse_args()
     if args.debug:

@@ -20,11 +20,11 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy import text
 from sys import exit
 from urllib.error import URLError
-from configparser import NoOptionError
+from configparser import NoOptionError, NoSectionError
 from collections import defaultdict
 from traceback import format_exc
 
-__all__ = ["watch", "Handler"]
+__all__ = ["watch", "Handler", "delete_consumed_pending_data"]
 
 logger = getLogger("sir")
 
@@ -44,6 +44,21 @@ _ID_DELETE_TABLE_NAMES = ['annotation', 'tag', 'release_raw', 'editor']
 _KNOWN_TABLES = set(update_map.keys())
 
 
+def delete_consumed_pending_data(session):
+    """
+    Delete sir.pending_data rows which all slots have moved past and
+    which have no outstanding failures in any slot.
+    """
+    session.execute(
+        text("""DELETE FROM sir.pending_data pd
+                WHERE pd.seqid <= (SELECT min(seqid)
+                                     FROM sir.pending_data_slot)
+                  AND NOT EXISTS (SELECT 1
+                                    FROM sir.pending_data_failure pdf
+                                   WHERE pdf.seqid = pd.seqid)""")
+    )
+
+
 class INDEX_LIMIT_EXCEEDED(Exception):
 
     def __init__(self, core_name, total_ids, extra_data=None):
@@ -60,7 +75,7 @@ class Handler(object):
     Solr cores accordingly.
     """
 
-    def __init__(self, entities):
+    def __init__(self, entities, slot):
         self.cores = {}
         for core_name in entities:
             self.cores[core_name] = solr_connection(core_name)
@@ -89,6 +104,9 @@ class Handler(object):
         except (NoOptionError, AttributeError):
             self.max_retries = _DEFAULT_MAX_RETRIES
 
+        self.slot = slot
+
+        logger.info("Pending data slot is set to %s", self.slot)
         logger.info("Batch size is set to %s", self.batch_size)
         logger.info("Index limit is set to %s rows", self.index_limit)
         logger.info("Poll interval is set to %s seconds", self.poll_interval)
@@ -97,6 +115,16 @@ class Handler(object):
         self.db_session = db_session()
         self.pending_entities = defaultdict(set)
         self.pending_seqids = []
+        # The highest seqid fetched by the last poll; the slot is advanced
+        # to this once the batch has been processed (or marked failed).
+        self.max_seqid = None
+        # All rows with a seqid <= safe_seqid have committed
+        # (see _update_safe_seqid).
+        self.safe_seqid = 0
+        # The next value for safe_seqid, and the snapshot whose in-progress
+        # transactions must finish before it can be used.
+        self.candidate_safe_seqid = None
+        self.candidate_snapshot = None
         self.last_message = time.time()
 
     def index_callback(self, parsed_message):
@@ -149,92 +177,199 @@ class Handler(object):
 
     def process_messages(self):
         """
-        Send all pending entities to Solr via live_index, then delete
-        the successfully processed rows from sir.pending_data.
+        Send all pending entities to Solr via live_index, then advance
+        this handler's slot past the fetched rows.
         """
-        if not self.pending_seqids:
-            return
-
         try:
-            live_index(self.pending_entities)
-            if not PROCESS_FLAG.value:
-                # It might happen that the DB pool workers have
-                # all processed the queries and exited, while Solr process
-                # is still sending data to Solr. In this case no SIR_EXIT is
-                # raised by live_index. Thus we need to raise it to handle the
-                # pending rows properly.
-                raise SIR_EXIT
+            if self.pending_seqids:
+                live_index(self.pending_entities)
+                if not PROCESS_FLAG.value:
+                    # It might happen that the DB pool workers have
+                    # all processed the queries and exited, while Solr process
+                    # is still sending data to Solr. In this case no SIR_EXIT is
+                    # raised by live_index. Thus we need to raise it to handle the
+                    # pending rows properly.
+                    raise SIR_EXIT
         except SIR_EXIT:
-            logger.info('Processing terminated midway. Rows will be retried on next poll.')
-            self._mark_failed(Exception('SIR terminated while processing.'))
+            logger.info('Processing terminated midway. Rows will be retried later.')
+            self._mark_failed(self.pending_seqids, Exception('SIR terminated while processing.'))
         except Exception as exc:
             logger.error("Error encountered while processing messages: %s", exc)
-            self._mark_failed(exc)
+            self._mark_failed(self.pending_seqids, exc)
         else:
             logger.info('Successfully processed %s pending rows', len(self.pending_seqids))
-            self._delete_processed()
+            self._mark_processed(self.pending_seqids)
         finally:
             self.pending_seqids = []
+            self.max_seqid = None
             self.pending_entities.clear()
             self.last_message = time.time()
 
-    def _delete_processed(self):
-        """Delete successfully processed rows from sir.pending_data."""
+    def _mark_processed(self, seqids):
+        """
+        Clear any failures recorded by this slot for the successfully
+        processed rows, then advance the slot.
+        """
         with db_session_ctx(self.db_session) as session:
             session.execute(
-                text("DELETE FROM sir.pending_data WHERE seqid = ANY(:seqids)"),
-                {"seqids": self.pending_seqids}
+                text("""DELETE FROM sir.pending_data_failure
+                        WHERE slot = :slot
+                          AND seqid = ANY(CAST(:seqids AS BIGINT[]))"""),
+                {"slot": self.slot, "seqids": seqids}
             )
+            self._advance_slot(session)
 
-    def _mark_failed(self, exc):
-        """Increment attempts and record failure_reason for pending rows."""
-        reason = str(exc)[:500]
+    def _mark_failed(self, seqids, exc):
+        """
+        Increment attempts and record failure_reason for the given rows
+        in this slot, then advance the slot. Failed rows are retried via
+        sir.pending_data_failure rather than the slot position.
+        """
         with db_session_ctx(self.db_session) as session:
-            session.execute(
-                text("""UPDATE sir.pending_data
-                        SET attempts = attempts + 1,
-                            last_attempted = NOW(),
-                            failure_reason = :reason
-                        WHERE seqid = ANY(:seqids)"""),
-                {"seqids": self.pending_seqids, "reason": reason}
-            )
+            self._record_failure(session, seqids, exc)
+            self._advance_slot(session)
 
     def _mark_row_failed(self, seqid, exc):
-        """Mark a single pending_data row as failed by incrementing its attempt count."""
-        reason = str(exc)[:500]
+        """Mark a single pending_data row as failed for this slot."""
         with db_session_ctx(self.db_session) as session:
-            session.execute(
-                text("""UPDATE sir.pending_data
-                        SET attempts = attempts + 1,
-                            last_attempted = NOW(),
-                            failure_reason = :reason
-                        WHERE seqid = :seqid"""),
-                {"reason": reason, "seqid": seqid}
-            )
+            self._record_failure(session, [seqid], exc)
+
+    def _record_failure(self, session, seqids, exc):
+        if not seqids:
+            return
+        reason = str(exc)[:500]
+        session.execute(
+            text("""INSERT INTO sir.pending_data_failure
+                        (slot, seqid, attempts, last_attempted, failure_reason)
+                    SELECT :slot, s.seqid, 1, NOW(), :reason
+                      FROM unnest(CAST(:seqids AS BIGINT[])) AS s (seqid)
+                    ON CONFLICT (slot, seqid) DO UPDATE
+                    SET attempts = sir.pending_data_failure.attempts + 1,
+                        last_attempted = excluded.last_attempted,
+                        failure_reason = excluded.failure_reason"""),
+            {"slot": self.slot, "seqids": seqids, "reason": reason}
+        )
+
+    def _advance_slot(self, session):
+        """
+        Move this slot's position up to the highest fetched seqid, and
+        delete sir.pending_data rows which are no longer needed.
+        """
+        if self.max_seqid is None:
+            return
+        session.execute(
+            text("""UPDATE sir.pending_data_slot
+                    SET seqid = GREATEST(seqid, :seqid)
+                    WHERE id = :slot"""),
+            {"slot": self.slot, "seqid": self.max_seqid}
+        )
+        delete_consumed_pending_data(session)
+
+    def check_slot(self):
+        """
+        Ensure this handler's slot exists in sir.pending_data_slot.
+        """
+        with db_session_ctx(self.db_session) as session:
+            row = session.execute(
+                text("""SELECT seqid, description
+                        FROM sir.pending_data_slot
+                        WHERE id = :slot"""),
+                {"slot": self.slot}
+            ).fetchone()
+        if row is None:
+            raise ValueError(
+                "Pending data slot %s does not exist; create it with "
+                "`python -m sir create_slot`" % self.slot)
+        logger.info("Using pending data slot %s (%s) at seqid %s",
+                    self.slot, row.description, row.seqid)
+
+    def _update_safe_seqid(self):
+        """
+        Advance ``safe_seqid``, the highest seqid this slot may consume.
+
+        seqids are assigned on insert, not commit, so rows can appear out of
+        order: if a poll sees seqid 11 while seqid 10 is uncommitted, moving
+        the slot to 11 would skip 10.
+
+        So we read the max seqid with the current snapshot, and only accept
+        it once every transaction running in that snapshot has finished.
+        Any uncommitted lower seqid belongs to one of them (assuming the
+        seqid sequence has ``CACHE 1``, which is the default:
+        https://www.postgresql.org/docs/current/sql-createsequence.html).
+        """
+        with db_session_ctx(self.db_session) as session:
+            if self.candidate_safe_seqid is None:
+                row = session.execute(
+                    text("""SELECT max(seqid) AS seqid,
+                                   CAST(pg_current_snapshot() AS TEXT) AS snapshot
+                            FROM sir.pending_data""")
+                ).fetchone()
+                if row.seqid is None or row.seqid <= self.safe_seqid:
+                    return
+                self.candidate_safe_seqid = row.seqid
+                self.candidate_snapshot = row.snapshot
+
+            finished = session.execute(
+                text("""SELECT NOT EXISTS (
+                            SELECT 1
+                            FROM pg_snapshot_xip(CAST(:snapshot AS pg_snapshot)) AS x
+                            WHERE pg_xact_status(x) = 'in progress'
+                        )"""),
+                {"snapshot": self.candidate_snapshot}
+            ).scalar()
+
+        if finished:
+            self.safe_seqid = self.candidate_safe_seqid
+            self.candidate_safe_seqid = None
+            self.candidate_snapshot = None
+        else:
+            logger.debug("Waiting on in-progress transactions before "
+                         "consuming rows up to seqid %s", self.candidate_safe_seqid)
 
     def poll(self):
         """
         Fetch pending rows from sir.pending_data and process them.
 
+        Fetches rows past this slot's position which haven't already
+        failed in this slot, along with previously-failed rows which are
+        due for a retry.
+
         :rtype: int  Number of rows fetched.
         """
+        # This must run in a separate transaction from (and before) the
+        # query below, so that rows committed by the transactions it waited
+        # on are visible to it.
+        self._update_safe_seqid()
+
         with db_session_ctx(self.db_session) as session:
             result = session.execute(
-                text("""SELECT seqid, xid, tablename, op, olddata, newdata
-                        FROM sir.pending_data
+                text("""SELECT pd.seqid, pd.xid, pd.tablename, pd.op, pd.olddata, pd.newdata
+                        FROM sir.pending_data pd
+                        LEFT JOIN sir.pending_data_failure pdf
+                          ON pdf.slot = :slot AND pdf.seqid = pd.seqid
                         WHERE COALESCE((SELECT indexing_enabled
                                         FROM sir.control), FALSE)
-                          AND attempts < :max_retries
-                          AND (last_attempted IS NULL
-                               OR last_attempted <= (NOW() - (interval '5 minutes' * attempts)))
-                        ORDER BY seqid
+                          AND CASE WHEN pdf.seqid IS NULL
+                                   THEN pd.seqid > (SELECT seqid
+                                                    FROM sir.pending_data_slot
+                                                    WHERE id = :slot)
+                                        AND pd.seqid <= :safe_seqid
+                                   ELSE pdf.attempts < :max_retries
+                                        AND pdf.last_attempted <= (NOW() - (interval '5 minutes' * pdf.attempts))
+                              END
+                        ORDER BY pd.seqid
                         LIMIT :limit"""),
-                {"max_retries": self.max_retries, "limit": self.batch_size}
+                {"slot": self.slot,
+                 "safe_seqid": self.safe_seqid,
+                 "max_retries": self.max_retries,
+                 "limit": self.batch_size}
             )
             rows = result.fetchall()
 
         if not rows:
             return 0
+
+        self.max_seqid = max(row.seqid for row in rows)
 
         for row in rows:
             table_name = _normalize_table_name(row.tablename)
@@ -378,9 +513,10 @@ class Handler(object):
                     self._index_data(core_name, ids, extra_data)
 
 
-def _watch_impl(entities):
+def _watch_impl(entities, slot):
 
-    handler = Handler(entities)
+    handler = Handler(entities, slot)
+    handler.check_slot()
 
     def signal_handler(signum, frame, pid=os.getpid()):
 
@@ -419,8 +555,13 @@ def watch(args):
     :param [str] entity_type: Entity types to watch.
     """
     try:
+        slot = config.CFG.getint("sir", "pending_data_slot")
+    except (NoOptionError, NoSectionError):
+        logger.error("`pending_data_slot` must be set in the [sir] section of config.ini")
+        exit(1)
+    try:
         entities = args["entity_type"] or SCHEMA.keys()
-        _watch_impl(entities)
+        _watch_impl(entities, slot)
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)
         exit(1)

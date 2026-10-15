@@ -7,4 +7,10 @@ CREATE TRIGGER copy_pending_data_sir
     FOR EACH STATEMENT
     EXECUTE FUNCTION sir.a_ins_dbmirror2_pending_data();
 
+CREATE TRIGGER update_pending_data_seqid_sir
+    AFTER UPDATE OF seqid ON dbmirror2.pending_data
+    FOR EACH ROW
+    WHEN (OLD.seqid IS DISTINCT FROM NEW.seqid)
+    EXECUTE FUNCTION sir.a_upd_dbmirror2_pending_data();
+
 COMMIT;
