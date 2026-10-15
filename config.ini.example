@@ -19,6 +19,7 @@ poll_interval = 5
 live_index_batch_size = 500
 index_limit = 40000
 max_retries = 4
+pending_data_slot = 1
 
 [sentry]
 dsn = https://something:something@sentry.metabrainz.org/42

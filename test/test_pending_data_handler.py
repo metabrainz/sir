@@ -37,7 +37,7 @@ class HandlerTest(TriggerTestCase):
         self.addCleanup(solr_version_check_patcher.stop)
         solr_version_check_patcher.start()
 
-        self.handler = handler.Handler(handler.SCHEMA.keys())
+        self.handler = handler.Handler(handler.SCHEMA.keys(), 1)
         self.handler.cores[self.entity_type] = mock.Mock()
 
         for entity_type, entity in SCHEMA.items():
@@ -48,7 +48,7 @@ class HandlerTest(TriggerTestCase):
     def test_delete_callback(self):
         entity_gid = "90d7709d-feba-47e6-a2d1-8770da3c3d9c"
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler(SCHEMA.keys())
+        self.handler = handler.Handler(SCHEMA.keys(), 1)
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
 
@@ -71,7 +71,7 @@ class HandlerTest(TriggerTestCase):
                    'type': '3'}
         parsed_message = Message('area_alias', columns, 'delete', seqid=1, xid=100)
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler(SCHEMA.keys())
+        self.handler = handler.Handler(SCHEMA.keys(), 1)
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
 
@@ -105,7 +105,7 @@ class HandlerTest(TriggerTestCase):
         columns = {'id': '1'}
         parsed_message = Message('release_meta', columns, 'delete', seqid=1, xid=100)
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler(SCHEMA.keys())
+        self.handler = handler.Handler(SCHEMA.keys(), 1)
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
 
@@ -124,7 +124,7 @@ class HandlerTest(TriggerTestCase):
         columns = {'release_group': 1}
         parsed_message = Message('release', columns, 'delete', seqid=1, xid=100)
         handler.SCHEMA = SCHEMA
-        self.handler = handler.Handler(SCHEMA.keys())
+        self.handler = handler.Handler(SCHEMA.keys(), 1)
         for entity_type, entity in SCHEMA.items():
             self.handler.cores[entity_type] = mock.Mock()
 

@@ -71,6 +71,69 @@ def drop_standalone_only_sql(args):
     ])
 
 
+def create_slot(args):
+    """
+    Create a pending data slot. Changes will start being queued for it
+    immediately.
+    """
+    from .util import engine as create_engine
+    from sqlalchemy import text
+
+    with create_engine().begin() as conn:
+        # Wait for transactions already writing to `dbmirror2.pending_data`
+        # to commit, since their changes are only queued for existing slots.
+        # New writes are blocked until the slot is created.
+        conn.execute(text("SET LOCAL lock_timeout = '10s'"))
+        conn.execute(text("LOCK TABLE dbmirror2.pending_data "
+                          "IN SHARE ROW EXCLUSIVE MODE"))
+        conn.execute(
+            text("""INSERT INTO sir.pending_data_slot (id, description)
+                    VALUES (:id, :description)"""),
+            {"id": args["id"], "description": args["description"]}
+        )
+    logger.info("Created pending data slot %s", args["id"])
+
+
+def drop_slot(args):
+    """
+    Drop a pending data slot along with its queue. The SIR instance using
+    the slot should be stopped first.
+    """
+    from .util import engine as create_engine
+    from sqlalchemy import text
+
+    eng = create_engine()
+    # Empty the queue in batches first. Deleting the slot blocks writes to
+    # `dbmirror2.pending_data` until it commits (via the `FOR KEY SHARE` in
+    # `sir.a_ins_dbmirror2_pending_data()`), and cascades to any rows still
+    # queued for it. Emptying the queue first keeps that transaction short.
+    while True:
+        with eng.begin() as conn:
+            deleted = conn.execute(
+                text("""DELETE FROM sir.pending_data_queue
+                        WHERE slot = :id
+                          AND seqid IN (SELECT seqid
+                                          FROM sir.pending_data_queue
+                                         WHERE slot = :id
+                                         ORDER BY seqid
+                                         LIMIT 10000)"""),
+                {"id": args["id"]}
+            ).rowcount
+        if not deleted:
+            break
+        logger.info("Removed %s rows from the queue of slot %s", deleted, args["id"])
+
+    with eng.begin() as conn:
+        result = conn.execute(
+            text("DELETE FROM sir.pending_data_slot WHERE id = :id"),
+            {"id": args["id"]}
+        )
+    if result.rowcount:
+        logger.info("Dropped pending data slot %s", args["id"])
+    else:
+        logger.warning("Pending data slot %s does not exist", args["id"])
+
+
 def main():
 
     parser = argparse.ArgumentParser(prog="sir")
@@ -122,6 +185,21 @@ def main():
         help="Drop sir functions and triggers for standalone databases"
     )
     drop_standalone_only_parser.set_defaults(func=drop_standalone_only_sql)
+
+    create_slot_parser = subparsers.add_parser(
+        "create_slot",
+        help="Create a pending data slot for a SIR instance to consume from"
+    )
+    create_slot_parser.add_argument("id", type=int, help="Slot ID")
+    create_slot_parser.add_argument("description", help="Slot description")
+    create_slot_parser.set_defaults(func=create_slot)
+
+    drop_slot_parser = subparsers.add_parser(
+        "drop_slot",
+        help="Drop a pending data slot and its queue"
+    )
+    drop_slot_parser.add_argument("id", type=int, help="Slot ID")
+    drop_slot_parser.set_defaults(func=drop_slot)
 
     args = parser.parse_args()
     if args.debug:
