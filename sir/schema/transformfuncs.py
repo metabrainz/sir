@@ -56,7 +56,7 @@ def integer_sum(values):
 def ended_to_string(ended):
     """
     :param ended:
-    :type ended: set(bool)
+    :type ended: [bool]
     :rtype str:
     """
     if len(ended) and ended.pop():
@@ -95,7 +95,7 @@ def annotation_type(entities):
 
 def boolean(values):
     """
-    :type values: set
+    :type values: list
     """
     value = values.pop()
     if value:
@@ -107,10 +107,6 @@ def boolean(values):
 def url_type(values):
     types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
     return types
-
-
-def uuid_list_to_str_list(values):
-    return [str(x) for x in values]
 
 
 def datetime_to_timestamp(values):

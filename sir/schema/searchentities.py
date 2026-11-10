@@ -20,7 +20,6 @@ from sqlalchemy.orm.query import Query
 
 
 logger = getLogger("sir")
-DUPLICATION_ALLOWED_FIELD_NAMES = ["tracksmedium"]
 
 
 def is_composite_column(model, colname):
@@ -118,7 +117,8 @@ class SearchField(object):
         3. `gid` column from the `Area` class (model)
     """
 
-    def __init__(self, name, paths, transformfunc=None, trigger=True):
+    def __init__(self, name, paths, transformfunc=None, trigger=True,
+                 distinct=True):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -130,6 +130,10 @@ class SearchField(object):
         :param method trigger: Whether changes to the path should trigger an
                                update in the Solr core for the entity with
                                this field. Defaults to `True`.
+        :param bool distinct: Whether duplicate values are removed before
+                              ``transformfunc`` is applied. Set it to False
+                              for aggregations where repeated values matter,
+                              e.g. summing the track counts of all mediums.
         """
         self.name = name
         if not isinstance(paths, list):
@@ -137,6 +141,7 @@ class SearchField(object):
         self.paths = paths
         self.transformfunc = transformfunc
         self.trigger = trigger
+        self.distinct = distinct
 
 
 class SearchEntity(object):
@@ -262,32 +267,26 @@ class SearchEntity(object):
         data = {}
         for field in self.fields:
             fieldname = field.name
-            tempvals = list()
+            tempvals = []
             for path in field.paths:
                 for value in iterate_path_values(path, obj):
-                    if value is not None:
-                        if isinstance(value, list):
-                            tempvals.extend(value)
-                        else:
-                            tempvals.append(value)
+                    if value is None:
+                        continue
+                    values = value if isinstance(value, list) else [value]
+                    tempvals.extend(str(v) if isinstance(v, UUID) else v
+                                    for v in values)
+            if field.distinct:
+                # dict.fromkeys keeps the database order, unlike set()
+                tempvals = list(dict.fromkeys(tempvals))
             if field.transformfunc is not None:
                 tempvals = field.transformfunc(tempvals)
-
-            if (isinstance(tempvals, set) or isinstance(tempvals, list)):
-                # 'tracksmedium' can contain a list with same number of tracks on different mediums (ex: [3, 4, 3])
-                if fieldname not in DUPLICATION_ALLOWED_FIELD_NAMES:
-                    tempvals = list(set(tempvals))
-                if len(tempvals) == 1:
-                    tempvals = tempvals.pop()
-
-            if tempvals is not None and tempvals:
-                if isinstance(tempvals, UUID):
-                    tempvals = str(tempvals)
-                elif isinstance(tempvals, list):
-                    for idx in range(len(tempvals)):
-                        if isinstance(tempvals[idx], UUID):
-                            tempvals[idx] = str(tempvals[idx])
-                data[fieldname] = tempvals
+            if isinstance(tempvals, set):
+                tempvals = list(tempvals)
+            if isinstance(tempvals, list) and len(tempvals) == 1:
+                tempvals = tempvals[0]
+            if not tempvals:
+                continue
+            data[fieldname] = tempvals
 
         if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
             not None):

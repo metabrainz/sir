@@ -17,9 +17,9 @@ class QueryResultToDictTest(TestCase):
         self.entity = E(models.B, [
             F("id", "id"),
             F("c_bar", "c.bar"),
-            F("c_bar_trans", "c.bar", transformfunc=lambda v:  v + ["yay"])
+            F("c_bar_trans", "c.bar", transformfunc=lambda v: v + ["yay"])
         ],
-        1.1
+            1.1
         )
         self.expected = {
             "id": 1,
@@ -50,6 +50,32 @@ class QueryResultToDictTest(TestCase):
         self.assertEqual(res["c_bar"], self.expected["c_bar"])
         self.assertCountEqual(res["c_bar_trans"], self.expected["c_bar_trans"])
         self.assertEqual(convmock.to_etree.call_count, 1)
+
+
+class QueryResultToDictValuesTest(TestCase):
+    def setUp(self):
+        config_patcher = mock.patch("sir.config.CFG")
+        self.addCleanup(config_patcher.stop)
+        config_patcher.start().getboolean.return_value = False
+
+    def to_dict(self, fields, obj):
+        return E(models.C, fields, 1.1).query_result_to_dict(obj)
+
+    def test_duplicates_removed_before_transform_by_default(self):
+        obj = models.C(id=1, bs=[models.B(foo=3), models.B(foo=3), models.B(foo=4)])
+        res = self.to_dict([
+            F("foo", "bs.foo"),
+            F("foo_sum", "bs.foo", transformfunc=sum),
+        ], obj)
+        self.assertEqual(res["foo"], [3, 4])
+        self.assertEqual(res["foo_sum"], 7)
+
+    def test_duplicates_kept_when_not_distinct(self):
+        obj = models.C(id=1, bs=[models.B(foo=3), models.B(foo=3)])
+        res = self.to_dict([
+            F("foo_sum", "bs.foo", transformfunc=sum, distinct=False),
+        ], obj)
+        self.assertEqual(res["foo_sum"], 6)
 
 
 class TestIsCompositeColumn(TestCase):
