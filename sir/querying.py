@@ -64,7 +64,6 @@ def iterate_path_values(path, obj):
 
     """
     if obj is None:
-        yield None
         return
 
     if '.' in path:

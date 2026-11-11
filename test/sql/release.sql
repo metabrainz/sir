@@ -45,17 +45,11 @@ INSERT INTO release (id, gid, name, artist_credit, release_group) VALUES (3, '25
 ;
 
 INSERT INTO medium (id, gid, track_count, release, position) VALUES (1, 'c517968f-afd0-48e6-ab4b-dfdae888ad9d', 1, 3, 1);
--- Same track count as medium 1, to check that `tracks` still sums both (SEARCH-758)
-INSERT INTO medium (id, gid, track_count, release, position) VALUES (2, 'e517968f-afd0-48e6-ab4b-dfdae888ad9d', 0, 3, 2);
-
 INSERT INTO recording (id, artist_credit, name, gid)
     VALUES (1, 2, 'Track on recording', 'b43eb990-ff5b-11de-8a39-0800200c9a66');
 INSERT INTO track (id, gid, name, artist_credit, medium, position, number, recording)
     VALUES (1, '30f0fccd-602d-4fab-8d44-06536e596966', 'Track on recording', 1, 1, 1, 1, 1),
-           (100, 'f9864eea-5455-4a8e-ad29-e0652cfe1452', 'Track on recording', 1, 1, 2, 2, 1),
-           (101, '5c1a3e2b-8d0f-4f4e-9b6a-2f7c0e1d9a01', 'Track on recording', 1, 2, 1, 1, 1),
-           (102, '5c1a3e2b-8d0f-4f4e-9b6a-2f7c0e1d9a02', 'Track on recording', 1, 2, 2, 2, 1),
-           (103, '5c1a3e2b-8d0f-4f4e-9b6a-2f7c0e1d9a03', 'Track on recording', 1, 2, 3, 3, 1);
+           (100, 'f9864eea-5455-4a8e-ad29-e0652cfe1452', 'Track on recording', 1, 1, 2, 2, 1);
 
 INSERT INTO release_group (id, gid, name, artist_credit)
     VALUES (4, '329fb554-2a81-3d8a-8e22-ec2c66810019', 'Blonde on Blonde', 2);

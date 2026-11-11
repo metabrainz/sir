@@ -77,6 +77,24 @@ class QueryResultToDictValuesTest(TestCase):
         ], obj)
         self.assertEqual(res["foo_sum"], 6)
 
+    def test_not_distinct_keeps_zero(self):
+        obj = models.C(id=1, bs=[models.B(foo=0)])
+        res = self.to_dict([
+            F("foo", "bs.foo"),
+            F("foo_aligned", "bs.foo", distinct=False),
+        ], obj)
+        self.assertNotIn("foo", res)
+        self.assertEqual(res["foo_aligned"], 0)
+
+    def test_no_values_skips_field(self):
+        obj = models.C(id=1, bs=[])
+        res = self.to_dict([
+            F("foo_sum", "bs.foo", transformfunc=sum, distinct=False),
+            F("foo_ended", "bs.foo", transformfunc=lambda v: "false"),
+        ], obj)
+        self.assertNotIn("foo_sum", res)
+        self.assertNotIn("foo_ended", res)
+
 
 class TestIsCompositeColumn(TestCase):
     def test_composite_column(self):

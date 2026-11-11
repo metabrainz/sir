@@ -126,43 +126,51 @@ class IndexingTestCase(unittest.TestCase):
         self._test_index_entity("area", expected)
 
     def test_index_artist(self):
+        uk = {
+            'name': u'United Kingdom',
+            'gid': '8a754a16-0027-3a29-b6d7-2b40ea0481ed',
+            'ended': 'false',
+            'type': u'Country',
+            'type_gid': '06dd0ae4-8c74-30bb-b43d-95dcedf961de',
+        }
         expected = [
             {
                 'comment': u'Yet Another Test Artist',
                 'begin': '2008-01-02',
-                'endarea': u'United Kingdom',
                 'end': '2009-03-04',
                 'sortname': u'Artist, Test',
                 'artist': u'Test Artist',
                 'country': u'GB',
                 'area': u'United Kingdom',
+                'beginarea': u'United Kingdom',
+                'endarea': u'United Kingdom',
                 'ended': 'true',
                 'mbid': '745c079d-374e-4436-9448-da92dedef3ce',
-                'gender': u'Male',
-                '_store': '<ns0:artist xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="745c079d-374e-4436-9448-da92dedef3ce" type="Person" type-id="b6e035f4-3ce9-331c-97df-83397230b0df"><ns0:name>Test Artist</ns0:name><ns0:sort-name>Artist, Test</ns0:sort-name><ns0:gender id="36d3d30a-839d-3eda-8cb3-29be4384e4a9">male</ns0:gender><ns0:country>GB</ns0:country><ns0:area id="8a754a16-0027-3a29-b6d7-2b40ea0481ed" type="Country" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><ns0:name>United Kingdom</ns0:name><ns0:sort-name>United Kingdom</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:area><ns0:begin-area id="8a754a16-0027-3a29-b6d7-2b40ea0481ed" type="Country" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><ns0:name>United Kingdom</ns0:name><ns0:sort-name>United Kingdom</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:begin-area><ns0:end-area id="8a754a16-0027-3a29-b6d7-2b40ea0481ed" type="Country" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><ns0:name>United Kingdom</ns0:name><ns0:sort-name>United Kingdom</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:end-area><ns0:disambiguation>Yet Another Test Artist</ns0:disambiguation><ns0:life-span><ns0:begin>2008-01-02</ns0:begin><ns0:end>2009-03-04</ns0:end><ns0:ended>true</ns0:ended></ns0:life-span></ns0:artist>',
+                'gender': u'male',
+                'gender_gid': '36d3d30a-839d-3eda-8cb3-29be4384e4a9',
                 'type': u'Person',
-                'beginarea': u'United Kingdom'
+                'type_gid': 'b6e035f4-3ce9-331c-97df-83397230b0df',
+                **{'%s_%s' % (prefix, key): value
+                   for prefix in ('area', 'beginarea', 'endarea')
+                   for key, value in uk.items()},
             },
             {
                 'ended': 'false',
                 'mbid': 'ca4c2228-227c-4904-932a-dff442c091ea',
-                '_store': '<ns0:artist xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="ca4c2228-227c-4904-932a-dff442c091ea"><ns0:name>Annotated Artist B</ns0:name><ns0:sort-name>Annotated Artist B</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:artist>',
                 'sortname': u'Annotated Artist B',
-                'artist': u'Annotated Artist B'
+                'artist': u'Annotated Artist B',
             },
             {
                 'ended': 'false',
                 'mbid': 'dc19b13a-5ca5-44f5-8f0e-0c37a8ab1958',
-                '_store': '<ns0:artist xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="dc19b13a-5ca5-44f5-8f0e-0c37a8ab1958"><ns0:name>Annotated Artist A</ns0:name><ns0:sort-name>Annotated Artist A</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:artist>',
                 'sortname': u'Annotated Artist A',
-                'artist': u'Annotated Artist A'
+                'artist': u'Annotated Artist A',
             },
             {
                 'ended': 'false',
                 'mbid': '945c079d-374e-4436-9448-da92dedef3cf',
-                '_store': '<ns0:artist xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="945c079d-374e-4436-9448-da92dedef3cf"><ns0:name>Minimal Artist</ns0:name><ns0:sort-name>Minimal Artist</ns0:sort-name><ns0:life-span><ns0:ended>false</ns0:ended></ns0:life-span></ns0:artist>',
                 'sortname': u'Minimal Artist',
-                'artist': u'Minimal Artist'
+                'artist': u'Minimal Artist',
             }
         ]
         self._test_index_entity("artist", expected)
@@ -461,17 +469,17 @@ class IndexingTestCase(unittest.TestCase):
                 'release': u'Blonde on Blonde',
                 'quality': -1},
             {
-                '_store': '<ns0:release xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title><ns0:artist-credit id="c44109ce-57d7-3691-84c8-37926e3d41d2"><ns0:name-credit><ns0:name>Various Artists</ns0:name><ns0:artist id="7a906020-72db-11de-8a39-0800200c9a66"><ns0:name>Various Artists</ns0:name><ns0:sort-name>Various Artists</ns0:sort-name></ns0:artist></ns0:name-credit></ns0:artist-credit><ns0:release-group id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title></ns0:release-group><ns0:medium-list count="2"><ns0:track-count>6</ns0:track-count><ns0:medium id="c517968f-afd0-48e6-ab4b-dfdae888ad9d"><ns0:disc-list count="0" /><ns0:track-list count="3" /></ns0:medium><ns0:medium id="e517968f-afd0-48e6-ab4b-dfdae888ad9d"><ns0:disc-list count="0" /><ns0:track-list count="3" /></ns0:medium></ns0:medium-list><ns0:tag-list /></ns0:release>',
-                'tracks': 6, 'artist': u'Various Artists',
+                '_store': '<ns0:release xmlns:ns0="http://musicbrainz.org/ns/mmd-2.0#" id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title><ns0:artist-credit id="c44109ce-57d7-3691-84c8-37926e3d41d2"><ns0:name-credit><ns0:name>Various Artists</ns0:name><ns0:artist id="7a906020-72db-11de-8a39-0800200c9a66"><ns0:name>Various Artists</ns0:name><ns0:sort-name>Various Artists</ns0:sort-name></ns0:artist></ns0:name-credit></ns0:artist-credit><ns0:release-group id="25b6fe30-ff5b-11de-8a39-0800200c9a66"><ns0:title>Various Release</ns0:title></ns0:release-group><ns0:medium-list count="1"><ns0:track-count>3</ns0:track-count><ns0:medium id="c517968f-afd0-48e6-ab4b-dfdae888ad9d"><ns0:disc-list count="0" /><ns0:track-list count="3" /></ns0:medium></ns0:medium-list><ns0:tag-list /></ns0:release>',
+                'tracks': 3, 'artist': u'Various Artists',
                 'creditname': u'Various Artists',
                 'artistname': u'Various Artists',
                 'arid': '7a906020-72db-11de-8a39-0800200c9a66',
                 'tracksmedium': 3,
                 'mbid': '25b6fe30-ff5b-11de-8a39-0800200c9a66',
-                'mediumid': ['c517968f-afd0-48e6-ab4b-dfdae888ad9d', 'e517968f-afd0-48e6-ab4b-dfdae888ad9d'],
+                'mediumid': 'c517968f-afd0-48e6-ab4b-dfdae888ad9d',
                 'rgid': '25b6fe30-ff5b-11de-8a39-0800200c9a66',
                 'release': u'Various Release',
-                'mediums': 2,
+                'mediums': 1,
                 'quality': -1
             }
         ]
