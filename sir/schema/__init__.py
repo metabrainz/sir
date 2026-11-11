@@ -76,8 +76,7 @@ SearchArea = E(modelext.CustomArea, [
     F("iso2", "iso_3166_2_codes.code"),
     F("iso3", "iso_3166_3_codes.code"),
     F("sortname", "aliases.sort_name"),
-    F("ref_count", ["place_count", "label_count", "artist_count"], transformfunc=tfs.integer_sum, trigger=False,
-      distinct=False),
+    F("ref_count", ["place_count", "label_count", "artist_count"], transformfunc=tfs.integer_sum, trigger=False),
     F("tag", "tags.tag.name"),
     F("type", "type.name")
 ],
@@ -113,7 +112,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("type", "type.name"),
     F("type_gid", "type.gid"),
 
-    F("gender_name", "gender.name", transformfunc=tfs.str_list_to_lowercase),
+    F("gender", "gender.name", transformfunc=tfs.str_list_to_lowercase),
     F("gender_gid", "gender.gid"),
 
     F("begin", "begin_date", transformfunc=tfs.index_partialdate_to_string),
@@ -149,7 +148,7 @@ SearchArtist = E(modelext.CustomArtist, [
     F("endarea_type", "end_area.type.name"),
     F("endarea_type_gid", "end_area.type.gid"),
 
-    F("alias", "aliases.name", preserve_og=True),
+    F("alias", "aliases.name"),
     F("alias_json",
       ["aliases.name", "aliases.sort_name", "aliases.locale",
        "aliases.primary_for_locale", "aliases.begin_date", "aliases.end_date",
@@ -161,11 +160,11 @@ SearchArtist = E(modelext.CustomArtist, [
     F("ipi", "ipis.ipi"),
     F("isni", "isnis.isni"),
 
-    F("tag", "tags.tag.name", preserve_og=True),
-    F("tag_count", "tags.count", preserve_og=True),
+    F("tag", "tags.tag.name", distinct=False),
+    F("tag_count", "tags.count", distinct=False),
 
     F("ref_count", "artist_credit_names.artist_credit.ref_count",
-      transformfunc=sum, trigger=False),
+      transformfunc=sum, trigger=False, distinct=False),
 ],
     1.7,
 )
@@ -434,8 +433,8 @@ SearchRelease = E(modelext.CustomRelease, [
     F("secondarytype", "release_group.secondary_types.secondary_type.name"),
     F("status", "status.name"),
     F("tracks", "mediums.track_count",
-      transformfunc=sum, distinct=False),
-    F("tracksmedium", "mediums.track_count", preserve_og=True),
+      transformfunc=sum),
+    F("tracksmedium", "mediums.track_count"),
     F("tag", "tags.tag.name")
 ],
     1.7,

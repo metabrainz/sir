@@ -118,7 +118,7 @@ class SearchField(object):
     """
 
     def __init__(self, name, paths, transformfunc=None, trigger=True,
-                 distinct=True, preserve_og=False, objconverter=None):
+                 distinct=True, objconverter=None):
         """
         :param str name: The name of the field.
         :param [str] paths: A dot-delimited path (or a list of them) along which
@@ -133,10 +133,11 @@ class SearchField(object):
         :param bool distinct: Whether duplicate values are removed before
                               ``transformfunc`` is applied. Set it to False
                               for aggregations where repeated values matter,
-                              e.g. summing the track counts of all mediums.
-        :param bool preserve_og: Flag to preserve original values and order
-                                 (implies ``distinct=False``).
-                                 Defaults to `False`.
+                              e.g. summing the track counts of all mediums,
+                              or for fields that have to stay aligned with
+                              another multivalued field (``tag`` and
+                              ``tag_count``). Non-distinct fields also keep a
+                              ``0`` result.
         :param method objconverter: An optional function that builds this
                                     field's value directly from the entity
                                     object.
@@ -147,8 +148,7 @@ class SearchField(object):
         self.paths = paths
         self.transformfunc = transformfunc
         self.trigger = trigger
-        self.preserve_og = preserve_og
-        self.distinct = distinct and not preserve_og
+        self.distinct = distinct
         self.objconverter = objconverter
 
 
@@ -286,13 +286,12 @@ class SearchEntity(object):
             for path in field.paths:
                 for value in iterate_path_values(path, obj):
                     if value is None:
-                        if field.preserve_og:
-                            # keep a placeholder so multivalued fields stay aligned
-                            tempvals.append("")
                         continue
                     values = value if isinstance(value, list) else [value]
                     tempvals.extend(str(v) if isinstance(v, UUID) else v
                                     for v in values)
+            if not tempvals:
+                continue
             if field.distinct:
                 # dict.fromkeys keeps the database order, unlike set()
                 tempvals = list(dict.fromkeys(tempvals))
@@ -302,9 +301,14 @@ class SearchEntity(object):
                 tempvals = list(tempvals)
             if isinstance(tempvals, list) and len(tempvals) == 1:
                 tempvals = tempvals[0]
-            # keep 0 for integer fields (e.g. tag_count)
-            if not tempvals and not isinstance(tempvals, int):
+            # non-distinct fields keep 0 (e.g. tag_count, so it stays
+            # aligned with tag)
+            if not tempvals and (field.distinct or tempvals != 0):
                 continue
             data[fieldname] = tempvals
+
+        if (config.CFG.getboolean("sir", "wscompat") and self.compatconverter is
+            not None):
+            data["_store"] = str(tostring(self.compatconverter(obj).to_etree(), encoding='us-ascii'), encoding='us-ascii')
 
         return data
