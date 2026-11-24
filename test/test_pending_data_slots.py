@@ -1,7 +1,6 @@
 import contextlib
 import logging
 import os
-import re
 import unittest
 from configparser import ConfigParser
 from unittest import mock
@@ -52,24 +51,6 @@ OLD_SCHEMA = """
         FOR EACH STATEMENT
         EXECUTE FUNCTION sir.a_ins_dbmirror2_pending_data();
 """
-
-
-def _read_update_script(path, standalone):
-    """
-    Read an update script, resolving the psql-only constructs it uses
-    (``\\gset`` and ``\\if``) so it can be run through psycopg2.
-    """
-    with open(path, encoding='utf-8') as f:
-        sql = f.read()
-    sql = re.sub(r'SELECT EXISTS.*?\\gset\n', '', sql, flags=re.DOTALL)
-    sql = re.sub(r'\\if :has_standalone_cleanup_trigger\n(.*?)\\endif\n',
-                 lambda m: m.group(1) if standalone else '',
-                 sql, flags=re.DOTALL)
-    return '\n'.join(
-        line for line in sql.splitlines()
-        if not line.startswith('\\')
-        and not re.fullmatch(r'(BEGIN|COMMIT);', line.strip())
-    )
 
 
 class SlotDBTestCase(base.PendingDataDBTestCase):
@@ -366,18 +347,11 @@ class MigrationTestCase(SlotDBTestCase):
                          WHERE seqid = :s""", {"s": failed})
         return ok, failed
 
-    def _migrate(self, standalone):
-        self._execute_file_text(_read_update_script(MIGRATION, standalone))
+    def _migrate(self):
+        self._execute_file(MIGRATION)
 
-    def _rollback(self, standalone):
-        # The scripts run in separate transactions in production, where the
-        # `ON COMMIT DROP` temporary table is gone by now.
-        self._execute("DROP TABLE IF EXISTS pending_data_old")
-        self._execute_file_text(_read_update_script(ROLLBACK, standalone))
-
-    def _execute_file_text(self, sql):
-        with self.connection.connection.cursor() as cursor:
-            cursor.execute(sql)
+    def _rollback(self):
+        self._execute_file(ROLLBACK)
 
     def _columns(self, table):
         return [r.column_name for r in self._execute(
@@ -389,7 +363,7 @@ class MigrationTestCase(SlotDBTestCase):
         self._use_old_schema(standalone=False)
         ok, failed = self._seed_old_rows()
 
-        self._migrate(standalone=False)
+        self._migrate()
 
         self.assertEqual(['seqid', 'xid', 'tablename', 'op', 'olddata', 'newdata'],
                          self._columns('pending_data'))
@@ -401,7 +375,7 @@ class MigrationTestCase(SlotDBTestCase):
 
     def test_migrated_schema_queues_new_changes(self):
         self._use_old_schema(standalone=False)
-        self._migrate(standalone=False)
+        self._migrate()
         self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
 
         s1, = self._insert_rows(1)
@@ -411,7 +385,7 @@ class MigrationTestCase(SlotDBTestCase):
     def test_migrated_schema_deletes_rows_without_a_queue(self):
         self._use_old_schema(standalone=False)
         ok, failed = self._seed_old_rows()
-        self._migrate(standalone=False)
+        self._migrate()
 
         self._execute("DELETE FROM sir.pending_data_queue WHERE seqid = :s", {"s": ok})
 
@@ -420,7 +394,7 @@ class MigrationTestCase(SlotDBTestCase):
     def test_migration_keeps_the_standalone_cleanup_trigger(self):
         self._use_old_schema(standalone=True)
         ok, failed = self._seed_old_rows()
-        self._migrate(standalone=True)
+        self._migrate()
 
         self._execute("DELETE FROM sir.pending_data_queue WHERE seqid = :s", {"s": ok})
 
@@ -430,7 +404,7 @@ class MigrationTestCase(SlotDBTestCase):
     def test_migration_without_the_standalone_trigger_leaves_dbmirror2_alone(self):
         self._use_old_schema(standalone=False)
         ok, failed = self._seed_old_rows()
-        self._migrate(standalone=False)
+        self._migrate()
 
         self._execute("DELETE FROM sir.pending_data_queue WHERE seqid = :s", {"s": ok})
 
@@ -440,14 +414,14 @@ class MigrationTestCase(SlotDBTestCase):
     def test_rollback_restores_the_old_schema(self):
         self._use_old_schema(standalone=False)
         ok, failed = self._seed_old_rows()
-        self._migrate(standalone=False)
+        self._migrate()
         self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
         # Slot 1 gave up on `failed` more times than slot 2 did.
         self._execute("""INSERT INTO sir.pending_data_queue
                              (slot, seqid, attempts, failure_reason)
                          VALUES (2, :s, 1, 'less')""", {"s": failed})
 
-        self._rollback(standalone=False)
+        self._rollback()
 
         self.assertEqual(
             ['seqid', 'xid', 'tablename', 'op', 'olddata', 'newdata',
@@ -460,8 +434,8 @@ class MigrationTestCase(SlotDBTestCase):
 
     def test_rollback_restores_the_copy_trigger(self):
         self._use_old_schema(standalone=False)
-        self._migrate(standalone=False)
-        self._rollback(standalone=False)
+        self._migrate()
+        self._rollback()
 
         s1, = self._insert_rows(1)
 
@@ -470,8 +444,8 @@ class MigrationTestCase(SlotDBTestCase):
     def test_rollback_keeps_the_standalone_cleanup_trigger(self):
         self._use_old_schema(standalone=True)
         ok, failed = self._seed_old_rows()
-        self._migrate(standalone=True)
-        self._rollback(standalone=True)
+        self._migrate()
+        self._rollback()
 
         self._execute("DELETE FROM sir.pending_data WHERE seqid = :s", {"s": ok})
 

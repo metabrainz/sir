@@ -26,13 +26,16 @@ DROP TRIGGER delete_pending_data_sir ON sir.pending_data_queue;
 DROP FUNCTION sir.a_upd_dbmirror2_pending_data();
 DROP FUNCTION sir.a_del_pending_data_queue();
 
-SELECT EXISTS (SELECT 1
-                 FROM pg_trigger
-                WHERE tgrelid = 'sir.pending_data'::regclass
-                  AND tgname = 'cleanup_dbmirror2_pending_data_sir')
-       AS has_standalone_cleanup_trigger \gset
+-- Dropping `sir.pending_data` drops the standalone-only cleanup trigger, so
+-- remember whether it exists to recreate it.
+CREATE TEMPORARY TABLE has_standalone_cleanup_trigger AS
+    SELECT EXISTS (SELECT 1
+                     FROM pg_trigger
+                    WHERE tgrelid = 'sir.pending_data'::regclass
+                      AND tgname = 'cleanup_dbmirror2_pending_data_sir')
+           AS value;
 
-CREATE TEMPORARY TABLE pending_data_old ON COMMIT DROP AS
+CREATE TEMPORARY TABLE pending_data_old AS
     SELECT pd.seqid, pd.xid, pd.tablename, pd.op, pd.olddata, pd.newdata,
            COALESCE(q.attempts, 0) AS attempts, q.last_attempted,
            COALESCE(q.failure_reason, '') AS failure_reason
@@ -70,13 +73,17 @@ ALTER TABLE sir.pending_data
     ADD CONSTRAINT pending_data_pkey
     PRIMARY KEY (seqid);
 
-\if :has_standalone_cleanup_trigger
-CREATE TRIGGER cleanup_dbmirror2_pending_data_sir
-    AFTER DELETE ON sir.pending_data
-    REFERENCING OLD TABLE AS deleted_rows
-    FOR EACH STATEMENT
-    EXECUTE FUNCTION sir.a_del_sir_pending_data();
-\endif
+DO $$
+BEGIN
+    IF (SELECT value FROM has_standalone_cleanup_trigger) THEN
+        CREATE TRIGGER cleanup_dbmirror2_pending_data_sir
+            AFTER DELETE ON sir.pending_data
+            REFERENCING OLD TABLE AS deleted_rows
+            FOR EACH STATEMENT
+            EXECUTE FUNCTION sir.a_del_sir_pending_data();
+    END IF;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION sir.a_ins_dbmirror2_pending_data() RETURNS trigger AS $$
 DECLARE
@@ -94,5 +101,8 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TABLE has_standalone_cleanup_trigger;
+DROP TABLE pending_data_old;
 
 COMMIT;
