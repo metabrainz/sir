@@ -214,7 +214,7 @@ class HandlerQueueTestCase(SlotDBTestCase):
         self.assertEqual(0, failed[(2, bad)])
 
     def test_check_slot(self):
-        self._handler(1).check_slot()
+        self.assertEqual("Default", self._handler(1).check_slot())
 
         with self.assertRaisesRegex(handler.SLOT_NOT_FOUND, "slot 3 does not exist"):
             self._handler(3).check_slot()
@@ -247,6 +247,55 @@ class WatchConfigTestCase(unittest.TestCase):
                 mock.patch.object(handler, '_watch_impl') as watch_impl:
             handler.watch({"entity_type": ["artist"]})
         watch_impl.assert_called_once_with(["artist"], 7)
+
+
+class WatchLoopTestCase(unittest.TestCase):
+
+    def setUp(self):
+        process_flag = mock.Mock(value=True)
+        sleeps = []
+
+        def sleep(seconds):
+            # Stop the loop if the dropped slot goes unnoticed.
+            sleeps.append(seconds)
+            if len(sleeps) >= 3:
+                process_flag.value = False
+
+        patchers = [
+            mock.patch.object(handler, 'Handler'),
+            mock.patch.object(handler, 'PROCESS_FLAG', process_flag),
+            mock.patch.object(handler.signal, 'signal'),
+            mock.patch.object(handler.time, 'sleep', side_effect=sleep),
+        ]
+        for patcher in patchers:
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.handler = handler.Handler.return_value
+        self.handler.poll_interval = 5
+
+    def test_dropped_slot_is_noticed_on_an_idle_poll(self):
+        self.handler.poll.side_effect = [1, 0]
+        self.handler.check_slot.side_effect = ["Default", handler.SLOT_NOT_FOUND(1)]
+
+        with self.assertRaises(handler.SLOT_NOT_FOUND):
+            handler._watch_impl(["artist"], 1)
+
+        self.handler.process_messages.assert_called_once()
+        self.assertEqual(2, self.handler.check_slot.call_count)
+
+    def test_dropped_slot_exits(self):
+        cfg = ConfigParser()
+        cfg.read_dict({"sir": {"pending_data_slot": "7"}})
+        self.handler.poll.return_value = 0
+        self.handler.check_slot.side_effect = ["Default", handler.SLOT_NOT_FOUND(7)]
+
+        with mock.patch.object(config, 'CFG', cfg), \
+                self.assertLogs('sir', level=logging.ERROR) as logs, \
+                self.assertRaises(SystemExit) as cm:
+            handler.watch({"entity_type": None})
+
+        self.assertEqual(1, cm.exception.code)
+        self.assertIn("slot 7 does not exist", logs.output[-1])
 
 
 class SlotCommandsTestCase(SlotDBTestCase):
