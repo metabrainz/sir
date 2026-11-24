@@ -24,10 +24,10 @@ def _read_sql(path):
     )
 
 
-class PendingDataTriggersTestCase(unittest.TestCase):
+class PendingDataDBTestCase(unittest.TestCase):
     """
-    Tests for the triggers copying ``dbmirror2.pending_data`` into
-    ``sir.pending_data``.
+    Base class running each test in a transaction which is rolled back,
+    with the dbmirror2 and sir schemas freshly created.
     """
 
     @classmethod
@@ -59,6 +59,30 @@ class PendingDataTriggersTestCase(unittest.TestCase):
 
     def _scalar(self, sql, params=None):
         return self._execute(sql, params).scalar()
+
+    def _insert_dbmirror2_rows(self, count):
+        return [
+            self._scalar("""INSERT INTO dbmirror2.pending_data (tablename, op, xid, newdata)
+                            VALUES ('sir.control', 'i', txid_current(), '{}')
+                            RETURNING seqid""")
+            for _ in range(count)
+        ]
+
+    def _queue(self):
+        return self._execute("""SELECT slot, seqid
+                                FROM sir.pending_data_queue
+                                ORDER BY slot, seqid""").fetchall()
+
+    def _pending_seqids(self):
+        return [row.seqid for row in self._execute(
+            "SELECT seqid FROM sir.pending_data ORDER BY seqid")]
+
+
+class PendingDataTriggersTestCase(PendingDataDBTestCase):
+    """
+    Tests for the triggers copying ``dbmirror2.pending_data`` into
+    ``sir.pending_data``.
+    """
 
     def test_seqid_shifts_are_mirrored(self):
         # `inc_v()` runs before `recordchange()` and updates the row being
@@ -96,23 +120,6 @@ class PendingDataTriggersTestCase(unittest.TestCase):
 
         self.assertEqual(['i', 'u'], [row.op for row in dbmirror2_rows])
         self.assertEqual(dbmirror2_rows, sir_rows)
-
-    def _insert_dbmirror2_rows(self, count):
-        return [
-            self._scalar("""INSERT INTO dbmirror2.pending_data (tablename, op, xid, newdata)
-                            VALUES ('sir.control', 'i', txid_current(), '{}')
-                            RETURNING seqid""")
-            for _ in range(count)
-        ]
-
-    def _queue(self):
-        return self._execute("""SELECT slot, seqid
-                                FROM sir.pending_data_queue
-                                ORDER BY slot, seqid""").fetchall()
-
-    def _pending_seqids(self):
-        return [row.seqid for row in self._execute(
-            "SELECT seqid FROM sir.pending_data ORDER BY seqid")]
 
     def test_rows_are_queued_for_every_slot(self):
         self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
