@@ -82,6 +82,16 @@ def calculate_type(primary_type, secondary_types):
     return _calculate_type_helper(primary_type, tuple(secondary_types))
 
 
+def sort_relations(links):
+    """
+    Sort relationships of a single target type by link type, link order,
+    and ID.
+
+    :type links: [:class:`mbdata.models.LinkAreaArea`, ...]
+    """
+    return sorted(links, key=lambda l: (l.link.link_type_id, l.link_order, l.id))
+
+
 def convert_relation(obj, direction="backward", **kwargs):
     relation = models.relation(
         direction=models.def_direction(direction),
@@ -189,7 +199,7 @@ def convert_area_relation_list(obj):
     :type obj: :class:`[mbdata.models.LinkAreaArea]`
     """
     relations = models.relation_list(target_type="area")
-    [relations.add_relation(convert_area_relation(a)) for a in obj]
+    [relations.add_relation(convert_area_relation(a)) for a in sort_relations(obj)]
     return relations
 
 
@@ -198,7 +208,7 @@ def convert_event_area_relation_list(obj):
     :type obj: :class:`[mbdata.models.LinkAreaEvent]`
     """
     relations = models.relation_list(target_type="area")
-    [relations.add_relation(convert_event_area_relation(a)) for a in obj]
+    [relations.add_relation(convert_event_area_relation(a)) for a in sort_relations(obj)]
     return relations
 
 
@@ -317,7 +327,7 @@ def convert_artist_relation_list(obj):
                :class:`[mbdata.models.LinkArtistEvent]`
     """
     relation_list = models.relation_list(target_type="artist")
-    [relation_list.add_relation(convert_artist_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_artist_relation(r)) for r in sort_relations(obj)]
     return relation_list
 
 
@@ -346,7 +356,8 @@ def convert_recording_work_relation_list(obj):
     :type obj: :class:`[mbdata.models.LinkRecordingWork]`
     """
     relation_list = models.relation_list(target_type="recording")
-    [relation_list.add_relation(convert_recording_work_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_recording_work_relation(r))
+     for r in sort_relations(obj)]
     return relation_list
 
 
@@ -578,7 +589,7 @@ def convert_place_relation_list(obj):
     :type obj: :class:`[mbdata.models.LinkEventPlace]`
     """
     relation_list = models.relation_list(target_type="place")
-    [relation_list.add_relation(convert_place_relation(p)) for p in obj]
+    [relation_list.add_relation(convert_place_relation(p)) for p in sort_relations(obj)]
     return relation_list
 
 
@@ -1168,7 +1179,7 @@ def convert_release_relation(obj):
 
 def convert_release_relation_list(obj):
     relation_list = models.relation_list(target_type="release")
-    [relation_list.add_relation(convert_release_relation(r)) for r in obj]
+    [relation_list.add_relation(convert_release_relation(r)) for r in sort_relations(obj)]
     return relation_list
 
 
