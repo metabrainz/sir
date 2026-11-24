@@ -45,6 +45,9 @@ class PendingDataDBTestCase(unittest.TestCase):
         if not self._scalar("SELECT to_regclass('dbmirror2.pending_data') IS NOT NULL"):
             self._execute("CREATE SCHEMA dbmirror2")
             self._execute_file(os.path.join(DBMIRROR2_SQL_DIR, 'dbmirror2.sql'))
+        elif not self._scalar("SELECT to_regprocedure('dbmirror2.recordchange()') IS NOT NULL"):
+            # The test database has the dbmirror2 tables but not its functions.
+            self._create_recordchange()
 
         self._execute("DROP SCHEMA IF EXISTS sir CASCADE")
         for name in ['CreateTables.sql', 'CreateFunctions.sql', 'CreateTriggers.sql']:
@@ -56,6 +59,14 @@ class PendingDataDBTestCase(unittest.TestCase):
     def _execute_file(self, path):
         with self.connection.connection.cursor() as cursor:
             cursor.execute(_read_sql(path))
+
+    def _create_recordchange(self):
+        with open(os.path.join(DBMIRROR2_SQL_DIR, 'dbmirror2.sql'), encoding='utf-8') as f:
+            sql = f.read()
+        match = re.search(r'CREATE FUNCTION dbmirror2\.recordchange\(\).*?\$\$ LANGUAGE plpgsql;',
+                          sql, flags=re.DOTALL)
+        with self.connection.connection.cursor() as cursor:
+            cursor.execute(match.group(0))
 
     def _scalar(self, sql, params=None):
         return self._execute(sql, params).scalar()
