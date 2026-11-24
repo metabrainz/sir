@@ -7,11 +7,16 @@ from mbdata.models import (
     ArtistISNI,
     Gender,
     LabelISNI,
+    Link,
+    LinkArtistEvent,
+    LinkAttributeType,
+    LinkType,
     ReleaseGroupSecondaryType,
     ReleaseGroupSecondaryTypeJoin,
     ReleasePackaging,
 )
 from mbdata.types import PartialDate
+from sir.schema.modelext import CustomLinkAttribute
 from sir.wscompat.convert import (
     convert_gender,
     convert_isni_list,
@@ -19,6 +24,7 @@ from sir.wscompat.convert import (
     convert_release_packaging,
     partialdate_to_string,
     calculate_type,
+    convert_relation,
 )
 
 
@@ -277,3 +283,33 @@ class ReleasePackagingConverterTest(unittest.TestCase):
             actual=release_packaging,
             expected=expected_release_packaging,
         )
+
+
+class RelationConverterTest(unittest.TestCase):
+
+    def test_relation_attributes(self):
+        def attribute(gid, name):
+            return CustomLinkAttribute(
+                attribute_type=LinkAttributeType(gid=gid, name=name))
+
+        link = Link(
+            link_type=LinkType(gid='0a5a0a5a-0a5a-0a5a-0a5a-0a5a0a5a0a5a',
+                               name='performer'),
+            attributes=[
+                attribute('1b6b1b6b-1b6b-1b6b-1b6b-1b6b1b6b1b6b', 'guest'),
+                attribute('2c7c2c7c-2c7c-2c7c-2c7c-2c7c2c7c2c7c', 'solo'),
+            ])
+        output = convert_relation(LinkArtistEvent(link=link)).to_etree()
+        expected = ElementTree.fromstring('''
+        <relation xmlns="http://musicbrainz.org/ns/mmd-2.0#"
+                  type="performer"
+                  type-id="0a5a0a5a-0a5a-0a5a-0a5a-0a5a0a5a0a5a">
+            <direction>backward</direction>
+            <attribute-list>
+                <attribute type-id="1b6b1b6b-1b6b-1b6b-1b6b-1b6b1b6b1b6b">guest</attribute>
+                <attribute type-id="2c7c2c7c-2c7c-2c7c-2c7c-2c7c2c7c2c7c">solo</attribute>
+            </attribute-list>
+        </relation>
+        ''')
+        self.assertTrue(xml_elements_equal(output, expected),
+                        ElementTree.tostring(output))

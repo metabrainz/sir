@@ -92,8 +92,8 @@ def convert_relation(obj, direction="backward", **kwargs):
 
     if len(obj.link.attributes) > 0:
         attribute_list = models.attribute_listType()
-        (attribute_list.add_attribute(convert_attribute(a)) for a in
-         obj.link.attributes)
+        for a in obj.link.attributes:
+            attribute_list.add_attribute(convert_attribute(a))
         relation.set_attribute_list(attribute_list)
 
     return relation
