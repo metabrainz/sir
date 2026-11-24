@@ -340,12 +340,38 @@ class MigrationTestCase(SlotDBTestCase):
                                 FROM sir.pending_data ORDER BY seqid""").fetchall()
 
     def _seed_old_rows(self):
-        ok, failed = self._insert_rows(2)
+        ok = self._scalar("""INSERT INTO dbmirror2.pending_data
+                                 (tablename, op, xid, olddata, newdata)
+                             VALUES ('musicbrainz.artist', 'i', 1001, NULL,
+                                     '{"id": 1, "name": "Artist"}')
+                             RETURNING seqid""")
+        failed = self._scalar("""INSERT INTO dbmirror2.pending_data
+                                     (tablename, op, xid, olddata, newdata)
+                                 VALUES ('musicbrainz.release', 'u', 1002,
+                                         '{"id": 2, "name": "Old name"}',
+                                         '{"id": 2, "name": "New name"}')
+                                 RETURNING seqid""")
         self._execute("""UPDATE sir.pending_data
                          SET attempts = 3, failure_reason = 'boom',
-                             last_attempted = NOW()
+                             last_attempted = '2026-11-01 12:34:56+00'
                          WHERE seqid = :s""", {"s": failed})
         return ok, failed
+
+    def _full_old_rows(self):
+        return self._execute("""SELECT seqid, xid, tablename, op,
+                                       CAST(olddata AS TEXT), CAST(newdata AS TEXT),
+                                       attempts, last_attempted, failure_reason
+                                FROM sir.pending_data
+                                ORDER BY seqid""").fetchall()
+
+    def _full_migrated_rows(self, slot):
+        return self._execute("""SELECT pd.seqid, pd.xid, pd.tablename, pd.op,
+                                       CAST(pd.olddata AS TEXT), CAST(pd.newdata AS TEXT),
+                                       q.attempts, q.last_attempted, q.failure_reason
+                                FROM sir.pending_data pd
+                                JOIN sir.pending_data_queue q ON q.seqid = pd.seqid
+                                WHERE q.slot = :slot
+                                ORDER BY pd.seqid""", {"slot": slot}).fetchall()
 
     def _migrate(self):
         self._execute_file(MIGRATION)
@@ -372,6 +398,15 @@ class MigrationTestCase(SlotDBTestCase):
                          [tuple(r) for r in self._all_queue()])
         self.assertEqual([(1, 'Default')], [tuple(r) for r in self._execute(
             "SELECT id, description FROM sir.pending_data_slot")])
+
+    def test_migration_keeps_every_column(self):
+        self._use_old_schema(standalone=False)
+        self._seed_old_rows()
+        before = self._full_old_rows()
+
+        self._migrate()
+
+        self.assertEqual(before, self._full_migrated_rows(1))
 
     def test_migrated_schema_mirrors_seqid_shifts(self):
         self._use_old_schema(standalone=False)
@@ -442,6 +477,16 @@ class MigrationTestCase(SlotDBTestCase):
         self.assertEqual([], self._columns('pending_data_slot'))
         self.assertEqual([(ok, 0, ''), (failed, 1, 'less')],
                          [tuple(r) for r in self._old_rows()])
+
+    def test_rollback_keeps_every_column(self):
+        self._use_old_schema(standalone=False)
+        self._seed_old_rows()
+        before = self._full_old_rows()
+
+        self._migrate()
+        self._rollback()
+
+        self.assertEqual(before, self._full_old_rows())
 
     def test_rollback_restores_the_copy_trigger(self):
         self._use_old_schema(standalone=False)
