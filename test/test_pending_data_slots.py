@@ -352,20 +352,21 @@ class SlotCommandsTestCase(SlotDBTestCase):
 
     def test_drop_slot_empties_the_queue_in_batches(self):
         self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
-        self._insert_rows(5)
-        original = self.connection.execute
-        statements = []
+        self._execute("""INSERT INTO dbmirror2.pending_data (tablename, op, xid, newdata)
+                         SELECT 'musicbrainz.artist', 'i', txid_current(),
+                                json_build_object('id', id)
+                         FROM generate_series(1, 1001) AS id""")
 
-        def record(clause, *args, **kwargs):
-            statements.append(str(clause))
-            return original(clause, *args, **kwargs)
-
-        with mock.patch.object(self.connection, 'execute', side_effect=record):
+        with self.assertLogs('sir', level=logging.INFO) as logs:
             sir_main.drop_slot({"id": 2})
 
-        deletes = [s for s in statements if 'DELETE FROM sir.pending_data_queue' in s]
-        # One batch which deletes rows, and one which finds nothing left.
-        self.assertEqual(2, len(deletes))
+        self.assertEqual(
+            ["Removed 1000 rows from the queue of slot 2",
+             "Removed 1 rows from the queue of slot 2",
+             "Dropped pending data slot 2"],
+            [r.getMessage() for r in logs.records])
+        self.assertEqual(0, self._scalar(
+            "SELECT count(*) FROM sir.pending_data_queue WHERE slot = 2"))
 
     def test_drop_slot_which_does_not_exist_warns(self):
         with self.assertLogs('sir', level=logging.WARNING) as logs:
