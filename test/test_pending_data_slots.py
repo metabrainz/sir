@@ -187,6 +187,19 @@ class HandlerQueueTestCase(SlotDBTestCase):
             [tuple(r) for r in self._all_queue()])
         self.assertEqual([s1], self._pending_seqids())
 
+    def test_mark_failed_records_the_time_and_truncates_the_reason(self):
+        s1, = self._insert_rows(1)
+
+        self._handler(1)._mark_failed([s1], RuntimeError("x" * 600))
+
+        attempts, last_attempted, reason = self._execute(
+            """SELECT attempts, last_attempted, failure_reason
+               FROM sir.pending_data_queue WHERE slot = 1 AND seqid = :s""",
+            {"s": s1}).one()
+        self.assertEqual(1, attempts)
+        self.assertEqual(self._scalar("SELECT NOW()"), last_attempted)
+        self.assertEqual("x" * 500, reason)
+
     def test_interrupted_processing_marks_rows_failed(self):
         s1, = self._insert_rows(1)
         h = self._handler(1)
