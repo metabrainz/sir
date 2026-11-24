@@ -60,6 +60,19 @@ class PendingDataDBTestCase(unittest.TestCase):
             for _ in range(count)
         ]
 
+    def _shift_seqids(self, s1, s2):
+        """
+        Shift ``s1`` and ``s2`` up by one the same way `recordchange()`
+        does, and return the new highest seqid. Start from the highest seqid,
+        and shift each one into the seqid freed by the last shift.
+        """
+        s3 = self._scalar("SELECT nextval('dbmirror2.pending_data_seqid_seq')")
+        self._execute("UPDATE dbmirror2.pending_data SET seqid = :new WHERE seqid = :old",
+                      {"new": s3, "old": s2})
+        self._execute("UPDATE dbmirror2.pending_data SET seqid = :new WHERE seqid = :old",
+                      {"new": s2, "old": s1})
+        return s3
+
     def _queue(self):
         return self._execute("""SELECT slot, seqid
                                 FROM sir.pending_data_queue
@@ -130,14 +143,7 @@ class PendingDataTriggersTestCase(PendingDataDBTestCase):
     def test_seqid_shifts_update_the_queue(self):
         self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
         s1, s2 = self._insert_dbmirror2_rows(2)
-        s3 = self._scalar("SELECT nextval('dbmirror2.pending_data_seqid_seq')")
-
-        # Shift the same way `recordchange()` does. Start from the highest
-        # seqid, and shift each one into the seqid freed by the last shift.
-        self._execute("UPDATE dbmirror2.pending_data SET seqid = :new WHERE seqid = :old",
-                      {"new": s3, "old": s2})
-        self._execute("UPDATE dbmirror2.pending_data SET seqid = :new WHERE seqid = :old",
-                      {"new": s2, "old": s1})
+        s3 = self._shift_seqids(s1, s2)
 
         self.assertEqual([s2, s3], self._pending_seqids())
         self.assertEqual([(1, s2), (1, s3), (2, s2), (2, s3)], self._queue())

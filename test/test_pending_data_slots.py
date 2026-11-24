@@ -373,6 +373,17 @@ class MigrationTestCase(SlotDBTestCase):
         self.assertEqual([(1, 'Default')], [tuple(r) for r in self._execute(
             "SELECT id, description FROM sir.pending_data_slot")])
 
+    def test_migrated_schema_mirrors_seqid_shifts(self):
+        self._use_old_schema(standalone=False)
+        self._migrate()
+        self._execute("INSERT INTO sir.pending_data_slot VALUES (2, 'Second')")
+        s1, s2 = self._insert_rows(2)
+
+        s3 = self._shift_seqids(s1, s2)
+
+        self.assertEqual([s2, s3], self._pending_seqids())
+        self.assertEqual([(1, s2), (1, s3), (2, s2), (2, s3)], self._queue())
+
     def test_migrated_schema_queues_new_changes(self):
         self._use_old_schema(standalone=False)
         self._migrate()
