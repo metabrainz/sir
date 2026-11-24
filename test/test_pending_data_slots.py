@@ -373,6 +373,37 @@ class MigrationTestCase(SlotDBTestCase):
                                 WHERE q.slot = :slot
                                 ORDER BY pd.seqid""", {"slot": slot}).fetchall()
 
+    def _describe_schema(self):
+        """The parts of the sir schema the migration changes."""
+        return {
+            'columns': self._execute(
+                """SELECT table_name, column_name, data_type, is_nullable, column_default
+                   FROM information_schema.columns
+                   WHERE table_schema = 'sir' AND table_name LIKE 'pending_data%'
+                   ORDER BY table_name, ordinal_position""").fetchall(),
+            'constraints': self._execute(
+                """SELECT CAST(CAST(conrelid AS regclass) AS TEXT), conname,
+                          pg_get_constraintdef(oid)
+                   FROM pg_constraint
+                   WHERE connamespace = CAST('sir' AS regnamespace)
+                   ORDER BY 1, 2""").fetchall(),
+            'indexes': self._execute(
+                """SELECT indexdef FROM pg_indexes
+                   WHERE schemaname = 'sir' AND tablename LIKE 'pending_data%'
+                   ORDER BY indexname""").fetchall(),
+            'triggers': self._execute(
+                """SELECT pg_get_triggerdef(t.oid)
+                   FROM pg_trigger t
+                   JOIN pg_proc p ON p.oid = t.tgfoid
+                   WHERE p.pronamespace = CAST('sir' AS regnamespace)
+                     AND NOT t.tgisinternal
+                   ORDER BY t.tgname""").fetchall(),
+            'functions': self._execute(
+                """SELECT proname, prosrc FROM pg_proc
+                   WHERE pronamespace = CAST('sir' AS regnamespace)
+                   ORDER BY proname""").fetchall(),
+        }
+
     def _migrate(self):
         self._execute_file(MIGRATION)
 
@@ -407,6 +438,23 @@ class MigrationTestCase(SlotDBTestCase):
         self._migrate()
 
         self.assertEqual(before, self._full_migrated_rows(1))
+
+    def test_migrated_schema_matches_a_fresh_install(self):
+        for standalone in [False, True]:
+            with self.subTest(standalone=standalone):
+                self._use_old_schema(standalone)
+                self._migrate()
+                migrated = self._describe_schema()
+
+                self._execute("DROP SCHEMA sir CASCADE")
+                names = ['CreateTables.sql', 'CreateFunctions.sql', 'CreateTriggers.sql']
+                if standalone:
+                    names += ['CreateStandaloneOnlyFunctions.sql',
+                              'CreateStandaloneOnlyTriggers.sql']
+                for name in names:
+                    self._execute_file(os.path.join(base.SIR_SQL_DIR, name))
+
+                self.assertEqual(self._describe_schema(), migrated)
 
     def test_migrated_schema_mirrors_seqid_shifts(self):
         self._use_old_schema(standalone=False)
