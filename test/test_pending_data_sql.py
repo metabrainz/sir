@@ -2,16 +2,12 @@ import os
 import re
 import unittest
 
-import mbdata
 from sqlalchemy import text
 
 from sir import config, util
 
 SIR_SQL_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), '..', 'sql')
-
-DBMIRROR2_SQL_DIR = os.path.join(
-    os.path.dirname(os.path.realpath(mbdata.__file__)), 'sql', 'dbmirror2')
 
 
 def _read_sql(path):
@@ -27,7 +23,7 @@ def _read_sql(path):
 class PendingDataDBTestCase(unittest.TestCase):
     """
     Base class running each test in a transaction which is rolled back,
-    with the dbmirror2 and sir schemas freshly created.
+    with the sir schema freshly created.
     """
 
     @classmethod
@@ -42,13 +38,6 @@ class PendingDataDBTestCase(unittest.TestCase):
         self.transaction = self.connection.begin()
         self.addCleanup(self.transaction.rollback)
 
-        if not self._scalar("SELECT to_regclass('dbmirror2.pending_data') IS NOT NULL"):
-            self._execute("CREATE SCHEMA dbmirror2")
-            self._execute_file(os.path.join(DBMIRROR2_SQL_DIR, 'dbmirror2.sql'))
-        elif not self._scalar("SELECT to_regprocedure('dbmirror2.recordchange()') IS NOT NULL"):
-            # The test database has the dbmirror2 tables but not its functions.
-            self._create_recordchange()
-
         self._execute("DROP SCHEMA IF EXISTS sir CASCADE")
         for name in ['CreateTables.sql', 'CreateFunctions.sql', 'CreateTriggers.sql']:
             self._execute_file(os.path.join(SIR_SQL_DIR, name))
@@ -59,14 +48,6 @@ class PendingDataDBTestCase(unittest.TestCase):
     def _execute_file(self, path):
         with self.connection.connection.cursor() as cursor:
             cursor.execute(_read_sql(path))
-
-    def _create_recordchange(self):
-        with open(os.path.join(DBMIRROR2_SQL_DIR, 'dbmirror2.sql'), encoding='utf-8') as f:
-            sql = f.read()
-        match = re.search(r'CREATE FUNCTION dbmirror2\.recordchange\(\).*?\$\$ LANGUAGE plpgsql;',
-                          sql, flags=re.DOTALL)
-        with self.connection.connection.cursor() as cursor:
-            cursor.execute(match.group(0))
 
     def _scalar(self, sql, params=None):
         return self._execute(sql, params).scalar()
