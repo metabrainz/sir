@@ -41,7 +41,7 @@ def fill_none(values):
     # in the DB as an empty string, so doing this allows us to search for releases with
     # `[none]` type barcode via the syntax `barcode:none`
     if "" in values:
-        return values.add('none')
+        return values.append('none')
     return values
 
 
@@ -56,7 +56,7 @@ def integer_sum(values):
 def ended_to_string(ended):
     """
     :param ended:
-    :type ended: set(bool)
+    :type ended: [bool]
     :rtype str:
     """
     if len(ended) and ended.pop():
@@ -95,7 +95,7 @@ def annotation_type(entities):
 
 def boolean(values):
     """
-    :type values: set
+    :type values: list
     """
     value = values.pop()
     if value:
@@ -107,10 +107,6 @@ def boolean(values):
 def url_type(values):
     types = set(URL_LINK_TABLE_TO_ENTITYTYPE[value] for value in values)
     return types
-
-
-def uuid_set_to_str_set(values):
-    return {str(x) for x in values}
 
 
 def datetime_to_timestamp(values):
