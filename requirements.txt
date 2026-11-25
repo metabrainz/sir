@@ -7,3 +7,4 @@ requests==2.33.1
 sentry-sdk==2.59.0
 sqlalchemy-utils==0.42.1
 urllib3==2.7.0
+orjson==3.11.9
