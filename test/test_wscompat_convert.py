@@ -7,6 +7,8 @@ from mbdata.models import (
     ArtistISNI,
     Gender,
     LabelISNI,
+    Link,
+    LinkArtistEvent,
     ReleaseGroupSecondaryType,
     ReleaseGroupSecondaryTypeJoin,
     ReleasePackaging,
@@ -19,6 +21,7 @@ from sir.wscompat.convert import (
     convert_release_packaging,
     partialdate_to_string,
     calculate_type,
+    sort_relations,
 )
 
 
@@ -277,3 +280,21 @@ class ReleasePackagingConverterTest(unittest.TestCase):
             actual=release_packaging,
             expected=expected_release_packaging,
         )
+
+
+class SortRelationsTest(unittest.TestCase):
+
+    def _link(self, id, link_type_id, link_order):
+        return LinkArtistEvent(id=id, link_order=link_order,
+                               link=Link(link_type_id=link_type_id))
+
+    def test_sorts_by_link_type_then_link_order_then_id(self):
+        links = [
+            self._link(1, 807, 0),
+            self._link(2, 806, 1),
+            self._link(3, 806, 0),
+            self._link(4, 806, 1),
+            self._link(5, 806, 0),
+        ]
+        self.assertEqual([3, 5, 2, 4, 1],
+                         [l.id for l in sort_relations(links)])

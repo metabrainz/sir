@@ -20,7 +20,7 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy import text
 from sys import exit
 from urllib.error import URLError
-from configparser import NoOptionError
+from configparser import NoOptionError, NoSectionError
 from collections import defaultdict
 from traceback import format_exc
 
@@ -54,13 +54,21 @@ class INDEX_LIMIT_EXCEEDED(Exception):
         Exception.__init__(self, exception_message)
 
 
+class SLOT_NOT_FOUND(Exception):
+
+    def __init__(self, slot):
+        Exception.__init__(
+            self, 'Pending data slot {} does not exist; create it with '
+                  '`python -m sir create_slot`'.format(slot))
+
+
 class Handler(object):
     """
     Polls ``sir.pending_data`` for database changes and updates
     Solr cores accordingly.
     """
 
-    def __init__(self, entities):
+    def __init__(self, entities, slot):
         self.cores = {}
         for core_name in entities:
             self.cores[core_name] = solr_connection(core_name)
@@ -89,6 +97,9 @@ class Handler(object):
         except (NoOptionError, AttributeError):
             self.max_retries = _DEFAULT_MAX_RETRIES
 
+        self.slot = slot
+
+        logger.info("Pending data slot is set to %s", self.slot)
         logger.info("Batch size is set to %s", self.batch_size)
         logger.info("Index limit is set to %s rows", self.index_limit)
         logger.info("Poll interval is set to %s seconds", self.poll_interval)
@@ -149,8 +160,8 @@ class Handler(object):
 
     def process_messages(self):
         """
-        Send all pending entities to Solr via live_index, then delete
-        the successfully processed rows from sir.pending_data.
+        Send all pending entities to Solr via ``live_index``, then remove the
+        successfully processed rows from this slot's queue.
         """
         if not self.pending_seqids:
             return
@@ -166,70 +177,95 @@ class Handler(object):
                 raise SIR_EXIT
         except SIR_EXIT:
             logger.info('Processing terminated midway. Rows will be retried on next poll.')
-            self._mark_failed(Exception('SIR terminated while processing.'))
+            self._mark_failed(self.pending_seqids, Exception('SIR terminated while processing.'))
         except Exception as exc:
             logger.error("Error encountered while processing messages: %s", exc)
-            self._mark_failed(exc)
+            self._mark_failed(self.pending_seqids, exc)
         else:
             logger.info('Successfully processed %s pending rows', len(self.pending_seqids))
-            self._delete_processed()
+            self._delete_processed(self.pending_seqids)
         finally:
             self.pending_seqids = []
             self.pending_entities.clear()
             self.last_message = time.time()
 
-    def _delete_processed(self):
-        """Delete successfully processed rows from sir.pending_data."""
+    def _delete_processed(self, seqids):
+        """
+        Delete successfully processed rows from this slot's queue. Rows in
+        ``sir.pending_data`` are deleted by a trigger once no slot needs them.
+        """
         with db_session_ctx(self.db_session) as session:
             session.execute(
-                text("DELETE FROM sir.pending_data WHERE seqid = ANY(:seqids)"),
-                {"seqids": self.pending_seqids}
+                text("""DELETE FROM sir.pending_data_queue
+                        WHERE slot = :slot
+                          AND seqid = ANY(CAST(:seqids AS BIGINT[]))"""),
+                {"slot": self.slot, "seqids": seqids}
             )
 
-    def _mark_failed(self, exc):
-        """Increment attempts and record failure_reason for pending rows."""
+    def _mark_failed(self, seqids, exc):
+        """
+        Increment ``attempts`` and record ``failure_reason`` for the given
+        rows in this slot's queue.
+        """
         reason = str(exc)[:500]
         with db_session_ctx(self.db_session) as session:
             session.execute(
-                text("""UPDATE sir.pending_data
+                text("""UPDATE sir.pending_data_queue
                         SET attempts = attempts + 1,
                             last_attempted = NOW(),
                             failure_reason = :reason
-                        WHERE seqid = ANY(:seqids)"""),
-                {"seqids": self.pending_seqids, "reason": reason}
+                        WHERE slot = :slot
+                          AND seqid = ANY(CAST(:seqids AS BIGINT[]))"""),
+                {"slot": self.slot, "seqids": seqids, "reason": reason}
             )
 
     def _mark_row_failed(self, seqid, exc):
-        """Mark a single pending_data row as failed by incrementing its attempt count."""
-        reason = str(exc)[:500]
+        """Mark a single row as failed in this slot's queue."""
+        self._mark_failed([seqid], exc)
+
+    def check_slot(self):
+        """
+        Ensure this handler's slot exists in ``sir.pending_data_slot``, and
+        return its description.
+        """
         with db_session_ctx(self.db_session) as session:
-            session.execute(
-                text("""UPDATE sir.pending_data
-                        SET attempts = attempts + 1,
-                            last_attempted = NOW(),
-                            failure_reason = :reason
-                        WHERE seqid = :seqid"""),
-                {"reason": reason, "seqid": seqid}
-            )
+            description = session.execute(
+                text("""SELECT description
+                        FROM sir.pending_data_slot
+                        WHERE id = :slot"""),
+                {"slot": self.slot}
+            ).scalar()
+        if description is None:
+            raise SLOT_NOT_FOUND(self.slot)
+        return description
 
     def poll(self):
         """
-        Fetch pending rows from sir.pending_data and process them.
+        Fetch pending rows from this slot's queue and process them.
 
         :rtype: int  Number of rows fetched.
         """
+        # Start a fresh batch, in case a previous poll raised before
+        # `process_messages()` could clear it.
+        self.pending_seqids = []
+        self.pending_entities.clear()
+
         with db_session_ctx(self.db_session) as session:
             result = session.execute(
-                text("""SELECT seqid, xid, tablename, op, olddata, newdata
-                        FROM sir.pending_data
-                        WHERE COALESCE((SELECT indexing_enabled
+                text("""SELECT pd.seqid, pd.xid, pd.tablename, pd.op, pd.olddata, pd.newdata
+                        FROM sir.pending_data_queue q
+                        JOIN sir.pending_data pd ON pd.seqid = q.seqid
+                        WHERE q.slot = :slot
+                          AND COALESCE((SELECT indexing_enabled
                                         FROM sir.control), FALSE)
-                          AND attempts < :max_retries
-                          AND (last_attempted IS NULL
-                               OR last_attempted <= (NOW() - (interval '5 minutes' * attempts)))
-                        ORDER BY seqid
+                          AND q.attempts < :max_retries
+                          AND (q.last_attempted IS NULL
+                               OR q.last_attempted <= (NOW() - (interval '5 minutes' * q.attempts)))
+                        ORDER BY q.seqid
                         LIMIT :limit"""),
-                {"max_retries": self.max_retries, "limit": self.batch_size}
+                {"slot": self.slot,
+                 "max_retries": self.max_retries,
+                 "limit": self.batch_size}
             )
             rows = result.fetchall()
 
@@ -378,9 +414,11 @@ class Handler(object):
                     self._index_data(core_name, ids, extra_data)
 
 
-def _watch_impl(entities):
+def _watch_impl(entities, slot):
 
-    handler = Handler(entities)
+    handler = Handler(entities, slot)
+    description = handler.check_slot()
+    logger.info("Using pending data slot %s (%s)", slot, description)
 
     def signal_handler(signum, frame, pid=os.getpid()):
 
@@ -402,9 +440,13 @@ def _watch_impl(entities):
             if num_rows > 0:
                 handler.process_messages()
             else:
+                # Stop if the slot was dropped while SIR was running.
+                handler.check_slot()
                 time.sleep(handler.poll_interval)
         except SIR_EXIT:
             break
+        except SLOT_NOT_FOUND:
+            raise
         except Exception:
             logger.error("Error in poll loop: %s", format_exc())
             time.sleep(handler.poll_interval)
@@ -419,8 +461,16 @@ def watch(args):
     :param [str] entity_type: Entity types to watch.
     """
     try:
+        slot = config.CFG.getint("sir", "pending_data_slot")
+    except (NoOptionError, NoSectionError):
+        logger.error("`pending_data_slot` must be set in the [sir] section of config.ini")
+        exit(1)
+    try:
         entities = args["entity_type"] or SCHEMA.keys()
-        _watch_impl(entities)
+        _watch_impl(entities, slot)
     except URLError as e:
         logger.error("Connecting to Solr failed: %s", e)
+        exit(1)
+    except SLOT_NOT_FOUND as e:
+        logger.error(e)
         exit(1)

@@ -19,14 +19,55 @@ CREATE TABLE sir.pending_data (
     tablename   	TEXT NOT NULL,
     op          	"char" NOT NULL,
     olddata     	JSON,
-    newdata     	JSON,
-    attempts    	SMALLINT NOT NULL DEFAULT 0,
-    last_attempted	TIMESTAMP WITH TIME ZONE,
-    failure_reason  TEXT NOT NULL DEFAULT ''
+    newdata     	JSON
 );
 
 ALTER TABLE sir.pending_data
     ADD CONSTRAINT pending_data_pkey
     PRIMARY KEY (seqid);
+
+CREATE TABLE sir.pending_data_slot (
+    id          SMALLINT NOT NULL,
+    description TEXT NOT NULL
+);
+
+ALTER TABLE sir.pending_data_slot
+    ADD CONSTRAINT pending_data_slot_pkey
+    PRIMARY KEY (id);
+
+INSERT INTO sir.pending_data_slot (id, description)
+    VALUES (1, 'Default');
+
+-- One row per slot for each `sir.pending_data` row the slot hasn't
+-- processed.
+CREATE TABLE sir.pending_data_queue (
+    slot            SMALLINT NOT NULL,
+    seqid           BIGINT NOT NULL,
+    attempts        SMALLINT NOT NULL DEFAULT 0,
+    last_attempted  TIMESTAMP WITH TIME ZONE,
+    failure_reason  TEXT NOT NULL DEFAULT ''
+);
+
+ALTER TABLE sir.pending_data_queue
+    ADD CONSTRAINT pending_data_queue_pkey
+    PRIMARY KEY (slot, seqid);
+
+CREATE INDEX pending_data_queue_idx_seqid
+    ON sir.pending_data_queue (seqid);
+
+ALTER TABLE sir.pending_data_queue
+    ADD CONSTRAINT pending_data_queue_fk_slot
+    FOREIGN KEY (slot)
+    REFERENCES sir.pending_data_slot(id)
+    ON DELETE CASCADE;
+
+-- `ON UPDATE CASCADE` lets `sir.a_upd_dbmirror2_pending_data()` change the
+-- seqids of rows which are already queued.
+ALTER TABLE sir.pending_data_queue
+    ADD CONSTRAINT pending_data_queue_fk_seqid
+    FOREIGN KEY (seqid)
+    REFERENCES sir.pending_data(seqid)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
 
 COMMIT;
