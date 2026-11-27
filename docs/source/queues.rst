@@ -38,6 +38,14 @@ On standalone databases, rows in ``dbmirror2.pending_data`` and
 ``sir.pending_data`` are deleted. If there are no slots, nothing is copied
 to ``sir.pending_data``, so the dbmirror2 rows grow indefinitely.
 
+When a database driver error occurs while reading documents, indexing
+workers retry after 2, 4, 8, 16, 32, and 64 seconds, with up to one
+extra second of jitter on the first five waits. Authentication and query
+errors follow the same schedule as dropped connections. A retry
+reads the batch on a fresh connection and may resend documents under the
+same Solr IDs. Shutdown can wait for a retry delay to finish. Exhausting
+the retries stops a reindex or leaves the live batch queued for a later poll.
+
 If processing any message fails, the ``sir.pending_data_queue`` columns
 ``attempts``, ``last_attempted``, and ``failure_reason`` will be updated for
 manual inspection and intervention, if necessary. Failed messages are

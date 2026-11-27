@@ -2,6 +2,8 @@
 # License: MIT, see LICENSE for details
 import multiprocessing
 import signal
+import time
+from random import uniform
 
 import sentry_sdk
 
@@ -11,6 +13,7 @@ from configparser import NoOptionError
 from functools import partial
 from logging import getLogger, DEBUG, INFO
 from sqlalchemy import and_
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 from .util import SIR_EXIT
 from ctypes import c_bool
@@ -25,6 +28,7 @@ logger = getLogger("sir")
 PROCESS_FLAG = multiprocessing.Value(c_bool, True)
 FAILED = multiprocessing.Value(c_bool, False)
 STOP = None
+_DB_RETRY_DELAYS = (2, 4, 8, 16, 32, 64)
 
 
 def reindex(args):
@@ -173,6 +177,26 @@ def _multiprocessed_import(entity_names, live=False, entities=None):
     pool.join()
 
 
+def _read_with_retry(read, entity, *args):
+    """Retry a failed database read in a fresh session."""
+    engine = util.engine()
+    for delay in (*_DB_RETRY_DELAYS, None):
+        if not PROCESS_FLAG.value:
+            raise SIR_EXIT
+        try:
+            with Session(engine) as session:
+                return read(session, entity, *args)
+        except DBAPIError as exc:
+            if delay is None:
+                raise
+            delay = min(delay + uniform(0, 1), _DB_RETRY_DELAYS[-1])
+            logger.warning("Database read for %s failed: %s. Retrying in %.1fs.",
+                           entity, exc.orig, delay)
+        finally:
+            engine.dispose()
+        time.sleep(delay)
+
+
 def _index_entity_process_wrapper(args, live=False):
     """
     Calls :func:`sir.indexing.index_entity` with ``args`` unpacked.
@@ -189,16 +213,15 @@ def _index_entity_process_wrapper(args, live=False):
     config.read_config()
 
     try:
-        session = Session(util.engine())
-        if live:
-            return live_index_entity(session, *args)
-        return index_entity(session, *args)
-    except Exception as exc:
-        logger.error("Failed to import %s with id in bounds %s",
-                     args[0],
-                     args[1])
-        logger.exception(exc)
+        read = live_index_entity if live else index_entity
+        return _read_with_retry(read, *args)
+    except SIR_EXIT:
         raise
+    except Exception as exc:
+        logger.exception("Failed to import %s with id in bounds %s",
+                         args[0], args[1])
+        # The parent propagates SIR_EXIT after joining the workers.
+        raise SIR_EXIT(str(exc)) from exc
 
 
 def index_entity(session, entity_name, bounds, data_queue):

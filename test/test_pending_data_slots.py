@@ -5,10 +5,13 @@ import unittest
 from configparser import ConfigParser
 from unittest import mock
 
+from psycopg2 import OperationalError as PGOperationalError
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
 from sir import __main__ as sir_main
-from sir import config
+from sir import config, indexing
+from sir.indexing import _index_entity_process_wrapper
 from sir.pending_data import handler
 
 from . import test_pending_data_sql as base
@@ -16,6 +19,15 @@ from . import test_pending_data_sql as base
 UPDATES_DIR = os.path.join(base.SIR_SQL_DIR, 'updates')
 MIGRATION = os.path.join(UPDATES_DIR, '20261103-pending-data-slots.sql')
 ROLLBACK = os.path.join(UPDATES_DIR, '20261103-pending-data-slots-rollback.sql')
+
+
+def _disconnected_reader(job, live):
+    error = OperationalError(None, None, PGOperationalError("connection lost"),
+                             connection_invalidated=True)
+    with mock.patch.object(indexing, 'live_index_entity', side_effect=error), \
+            mock.patch.object(indexing, 'time'):
+        return _index_entity_process_wrapper(job, live)
+
 
 # The schema before slots were introduced.
 OLD_SCHEMA = """
@@ -186,6 +198,24 @@ class HandlerQueueTestCase(SlotDBTestCase):
             [(1, s1, 1, "solr is down"), (2, s1, 0, "")],
             [tuple(r) for r in self._all_queue()])
         self.assertEqual([s1], self._pending_seqids())
+
+    def test_worker_disconnect_leaves_batch_queued(self):
+        seqid = self._scalar("""INSERT INTO dbmirror2.pending_data
+                                    (tablename, op, xid, newdata)
+                                VALUES ('musicbrainz.recording', 'i', txid_current(),
+                                        '{"id": 48781871}')
+                                RETURNING seqid""")
+        h = handler.Handler(['recording'], 1)
+        h.poll()
+        self.live_index.side_effect = indexing.live_index
+        with mock.patch.dict(config.CFG['sir'], solr_threads='0'), \
+                mock.patch.object(indexing, '_index_entity_process_wrapper',
+                                  _disconnected_reader):
+            h.process_messages()
+
+        row = self._all_queue()[0]
+        self.assertEqual((row.slot, row.seqid, row.attempts), (1, seqid, 1))
+        self.assertIn('connection lost', row.failure_reason)
 
     def test_mark_failed_records_the_time_and_truncates_the_reason(self):
         s1, = self._insert_rows(1)

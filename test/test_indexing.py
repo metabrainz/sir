@@ -5,8 +5,10 @@ from multiprocessing import Queue
 import pysolr
 import requests
 from pysolr import SolrError
+from sqlalchemy import text
+from sqlalchemy.exc import DataError
 
-import sir.indexing
+from sir import config, indexing
 from sir.indexing import queue_to_solr, send_data_to_solr, FAILED
 
 
@@ -51,15 +53,51 @@ class SendDataToSolrTest(TestCase):
         self.assertTrue(FAILED.value)
 
 class LiveIndexFailTest(TestCase):
-    def setUp(self):
-        self.imp = sir.indexing._multiprocessed_import = mock.MagicMock()
-        FAILED.value = False
-        def set_flag_to_false(*args, **kwargs):
-            FAILED.value = True
-        self.imp.side_effect = set_flag_to_false
+    @mock.patch.object(indexing, '_multiprocessed_import')
+    def test_solr_add_failure_reaches_caller(self, run_import):
+        self.addCleanup(setattr, FAILED, 'value', False)
+        run_import.side_effect = lambda *args, **kwargs: setattr(FAILED, 'value', True)
+        with self.assertRaisesRegex(Exception, 'Post to Solr failed'):
+            indexing.live_index({'recording': [1]})
 
-    def test_error_raised(self):
-        self.assertFalse(FAILED.value)
-        with self.assertRaises(Exception):
-            sir.indexing.live_index(mock.MagicMock())
-        self.assertTrue(FAILED.value)
+
+class DatabaseReadRetryTest(TestCase):
+    def setUp(self):
+        config.read_config()
+        self.wait = self.enterContext(mock.patch.object(indexing, 'time')).sleep
+
+    def test_live_worker_recovers_from_a_dropped_connection(self):
+        sessions = []
+
+        def read(session, *args):
+            sessions.append(session)
+            if len(sessions) == 1:
+                session.connection().connection.driver_connection.close()
+            return session.scalar(text('SELECT 1'))
+
+        with mock.patch.object(indexing, 'live_index_entity', read):
+            result = indexing._index_entity_process_wrapper(
+                ('recording', [42], None), live=True)
+        self.assertEqual(result, 1)
+        self.assertIsNot(sessions[0], sessions[1])
+        self.wait.assert_called_once()
+
+    def test_reindex_aborts_after_capped_backoff_for_a_query_error(self):
+        def fail_query(session, *args):
+            session.scalar(text('SELECT 1 / 0'))
+
+        with mock.patch.object(indexing, 'uniform', return_value=1), \
+                mock.patch.object(indexing, 'index_entity',
+                                  side_effect=fail_query) as read:
+            with self.assertRaises(indexing.SIR_EXIT) as caught:
+                indexing._index_entity_process_wrapper(('recording', (1, 10), None))
+        self.assertIsInstance(caught.exception.__cause__, DataError)
+        self.assertEqual(read.call_count, 7)
+        self.assertEqual(self.wait.call_args_list,
+                         [mock.call(s) for s in (3, 5, 9, 17, 33, 64)])
+
+    def test_application_error_propagates_immediately(self):
+        read = mock.Mock(side_effect=ValueError('invalid document'))
+        with self.assertRaisesRegex(ValueError, 'invalid document'):
+            indexing._read_with_retry(read, 'recording')
+        read.assert_called_once()

@@ -175,9 +175,10 @@ class Handler(object):
                 # raised by live_index. Thus we need to raise it to handle the
                 # pending rows properly.
                 raise SIR_EXIT
-        except SIR_EXIT:
+        except SIR_EXIT as exc:
             logger.info('Processing terminated midway. Rows will be retried on next poll.')
-            self._mark_failed(self.pending_seqids, Exception('SIR terminated while processing.'))
+            self._mark_failed(self.pending_seqids,
+                              str(exc) or 'SIR terminated while processing.')
         except Exception as exc:
             logger.error("Error encountered while processing messages: %s", exc)
             self._mark_failed(self.pending_seqids, exc)
